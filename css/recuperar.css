@@ -1,0 +1,165 @@
+/* BODY */
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #f5f5f5;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+/* CONTENEDOR */
+.container {
+    background: white;
+    width: 400px;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    box-sizing: border-box;
+}
+
+/* VOLVER */
+.back {
+    color: #2b6cb0;
+    font-size: 14px;
+    margin-bottom: 20px;
+    display: inline-block;
+    text-decoration: none;
+}
+
+/* PASOS */
+.steps {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.circle {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    border: 2px solid #ccc;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    color: #555;
+}
+
+.circle.active {
+    border-color: #4CAF50;
+    background: #e6f4ea;
+    color: #4CAF50;
+}
+
+.circle.gray {
+    border: 2px solid #4CAF50;
+    background: #d4edda;
+}
+
+.line {
+    flex: 1;
+    height: 2px;
+    background: #ddd;
+    margin: 0 10px;
+}
+
+/* TEXTOS */
+h2 {
+    margin: 10px 0;
+}
+
+p {
+    color: #666;
+    font-size: 14px;
+    margin-bottom: 20px;
+}
+
+label {
+    font-size: 14px;
+    display: block;
+    margin-bottom: 5px;
+}
+
+/* INPUT GENERAL */
+.input-group {
+    position: relative;
+    width: 100%;
+}
+
+.input-group input {
+    width: 100%;
+    padding: 10px 10px 10px 35px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    font-size: 14px;
+    box-sizing: border-box;
+}
+
+.input-group span {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #888;
+}
+
+/* BOTONES */
+button {
+    margin-top: 20px;
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 25px;
+    background: #e0e0e0;
+    color: #999;
+    font-size: 14px;
+    cursor: not-allowed;
+    transition: 0.3s;
+}
+
+button.active {
+    background: #4CAF50;
+    color: white;
+    cursor: pointer;
+}
+
+/* CÓDIGO */
+.code-container {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 25px;
+}
+
+.code-container input {
+    width: 45px;
+    height: 50px;
+    text-align: center;
+    font-size: 20px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+}
+
+/* PASSWORD */
+.input-group.password input {
+    padding-right: 35px;
+    border: 2px solid red;
+}
+
+.input-group.password span {
+    right: 10px;
+    left: auto;
+    cursor: pointer;
+}
+
+/* REGLAS */
+.rules {
+    margin-top: 10px;
+    font-size: 13px;
+}
+
+.rules p {
+    margin: 5px 0;
+    color: red;
+}

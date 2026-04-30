@@ -1,0 +1,121 @@
+/* BOTONES ACCIÓN PRODUCTOS */
+.btn-editar{
+    background:#4CAF50;
+    color:white;
+    border:none;
+    padding:6px 12px;
+    border-radius:6px;
+    cursor:pointer;
+    margin:2px;
+    transition:0.2s;
+}
+
+.btn-editar:hover{
+    background:#388e3c;
+}
+
+.btn-eliminar{
+    background:#f44336;
+    color:white;
+    border:none;
+    padding:6px 12px;
+    border-radius:6px;
+    cursor:pointer;
+    margin:2px;
+    transition:0.2s;
+}
+
+.btn-eliminar:hover{
+    background:#c62828;
+}
+
+/* BOTONES DE ACCIONES */
+.actions{
+    margin-top:20px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:15px;
+    flex-wrap:wrap;
+}
+
+.left-actions{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    flex-wrap:wrap;
+}
+
+.right-actions{
+    display:flex;
+    align-items:center;
+}
+
+.guardar{
+    background:linear-gradient(135deg,#2196f3,#1976d2);
+    color:white;
+    padding:12px 20px;
+    border:none;
+    border-radius:10px;
+    cursor:pointer;
+    transition:0.3s ease;
+    font-weight:700;
+    box-shadow:0 10px 20px rgba(0,0,0,0.22);
+}
+
+.guardar:hover{
+    transform:translateY(-2px);
+    box-shadow:0 14px 24px rgba(0,0,0,0.28);
+}
+
+/* BOTONES PRODUCTOS MODERNOS */
+.acciones-producto{
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    gap:12px;
+}
+
+.btn-action{
+    width:46px;
+    height:46px;
+    border:none;
+    outline:none;
+    border-radius:14px;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:rgba(255,255,255,0.08);
+    backdrop-filter:blur(10px);
+    box-shadow:0 6px 14px rgba(0,0,0,0.25);
+    transition:all 0.25s ease;
+    padding:0;
+}
+
+.btn-action .material-icons{
+    font-size:24px;
+    line-height:1;
+}
+
+.btn-action.editar{
+    color:#4fc3f7;
+    border:1px solid rgba(79,195,247,0.35);
+}
+
+.btn-action.editar:hover{
+    transform:translateY(-2px) scale(1.05);
+    background:rgba(79,195,247,0.14);
+    box-shadow:0 10px 18px rgba(0,0,0,0.35);
+}
+
+.btn-action.eliminar{
+    color:#ff6b6b;
+    border:1px solid rgba(255,107,107,0.35);
+}
+
+.btn-action.eliminar:hover{
+    transform:translateY(-2px) scale(1.05);
+    background:rgba(255,107,107,0.14);
+    box-shadow:0 10px 18px rgba(0,0,0,0.35);
+}

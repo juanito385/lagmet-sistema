@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Monitoreo Producción</title>
+
+<style>
+:root {
+    --azul: #0f2a44;
+    --azul-sec: #16324f;
+    --gris: #e6eaef;
+    --naranja: #f57c00;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: var(--gris);
+}
+
+.header {
+    position: relative;
+    background: var(--azul);
+    color: white;
+    padding: 15px;
+    font-size: 26px;
+    text-align: center;
+    border-bottom: 4px solid var(--naranja);
+}
+
+.logo {
+    position: absolute;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    height: 50px;
+}
+
+.info, .info2 {
+    display: flex;
+    justify-content: space-around;
+    background: var(--azul-sec);
+    padding: 10px;
+    color: white;
+}
+
+.info input, .info2 input {
+    padding: 6px;
+    border-radius: 6px;
+    border: none;
+}
+
+.container {
+    display: flex;
+    gap: 20px;
+    padding: 20px;
+}
+
+.box {
+    flex: 1;
+    background: white;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.box h2 {
+    background: var(--azul-sec);
+    color: white;
+    margin: 0;
+    padding: 10px;
+    text-align: center;
+    border-left: 6px solid var(--naranja);
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th, td {
+    padding: 10px;
+    border-bottom: 1px solid #ccc;
+    text-align: center;
+}
+
+select {
+    padding: 5px;
+    border-radius: 5px;
+}
+
+.si { background-color: #c8f7c5 !important; }
+.no { background-color: #f5c6cb !important; }
+
+.actions {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    padding: 20px;
+}
+
+button {
+    padding: 14px 22px;
+    border: none;
+    border-radius: 8px;
+    font-size: 15px;
+    cursor: pointer;
+    color: white;
+}
+
+.gantt { background: var(--naranja); }
+.informe { background: #1f7a4c; }
+.descargar { background: #495057; }
+
+</style>
+</head>
+
+<body>
+
+<div class="header">
+    Monitoreo en Tiempo Real
+    <img class="logo" src="https://www.lagmet.cl/wp-content/uploads/2019/07/LOGO-LAGMET.png">
+</div>
+
+<div class="info">
+    <div>N° Pedido: <input type="text"></div>
+    <div>Código: <input type="text"></div>
+    <div>Tipo Producto: <input type="text"></div>
+    <div>Tiempo Salida: <span id="salida" style="color:#f57c00;font-weight:bold;">--:--</span></div>
+</div>
+
+<div class="info2">
+    <div>Cantidad Producto: <input type="number" id="cantidadProductos" min="1" value="1"></div>
+    <div>Fecha Inicio: <input type="date"></div>
+    <div>Tiempo Muerto: <input type="number" step="0.5"></div>
+    <div>Cantidad Días: <input type="number" id="dias" readonly></div>
+</div>
+
+<div class="container">
+
+<div class="box">
+<h2>Zona Oriente</h2>
+<table id="tablaOriente">
+<tr>
+<th>Tipo Maquinaria</th>
+<th>Uso</th>
+<th>Tiempo</th>
+</tr>
+</table>
+</div>
+
+<div class="box">
+<h2>Zona Poniente</h2>
+<table id="tablaPoniente">
+<tr>
+<th>Tipo Maquinaria</th>
+<th>Uso</th>
+<th>Tiempo</th>
+</tr>
+</table>
+</div>
+
+</div>
+
+<div class="actions">
+    <button class="gantt">➕ Agregar a Carta Gantt</button>
+    <button class="gantt">📊 Pedir Carta Gantt</button>
+    <button class="informe">📄 Generar Informe</button>
+    <button class="descargar">📥 Descargar Informe</button>
+</div>
+
+<script>
+
+/* JORNADA */
+const inicioJornadaHora = 7;
+const inicioJornadaMin = 30;
+const finJornadaHora = 16;
+const finJornadaMin = 45;
+
+/* MAQUINAS */
+const oriente = [
+"Torno Vertical CNC","Mandrinadora","Torno Vertical",
+"Mandrinadora","Torno 1000","Torno 800",
+"Torno Bulgaro","Torno Varileta","Cepillo",
+"Escoplo","Taladro Radial"
+];
+
+const poniente = [
+"Torno CNC 2","Torno CNC 3","Torno CNC 1",
+"Centro Mecanizado 1","Centro Mecanizado 2",
+"Router","Mecánica Banco","Balanceadora"
+];
+
+/* OPCIONES */
+function generarOpcionesHoras(){
+    let opciones = "";
+    opciones += `<option value="0">0 h</option>`;
+    opciones += `<option value="0.5">0.5 h</option>`;
+    for(let i = 1; i <= 10; i++){
+        opciones += `<option value="${i}">${i} h</option>`;
+    }
+    return opciones;
+}
+
+function generarOpcionesMinutos(){
+    let opciones = "";
+    for(let i = 0; i <= 59; i++){
+        opciones += `<option value="${i}">${i} m</option>`;
+    }
+    return opciones;
+}
+
+/* CREAR TABLAS */
+function crearFilas(lista, tablaID){
+    let tabla = document.getElementById(tablaID);
+
+    lista.forEach(m => {
+        let fila = document.createElement("tr");
+
+        fila.innerHTML = `
+            <td>${m}</td>
+            <td>
+                <select class="uso">
+                    <option value="no">No</option>
+                    <option value="si">Sí</option>
+                </select>
+            </td>
+            <td>
+                <select class="horas">${generarOpcionesHoras()}</select>
+                <select class="minutos">${generarOpcionesMinutos()}</select>
+            </td>
+        `;
+
+        tabla.appendChild(fila);
+    });
+}
+
+crearFilas(oriente, "tablaOriente");
+crearFilas(poniente, "tablaPoniente");
+
+/* EVENTOS */
+document.addEventListener("change", (e) => {
+
+    if(e.target.classList.contains("uso")){
+        let fila = e.target.closest("tr");
+        fila.classList.toggle("si", e.target.value==="si");
+        fila.classList.toggle("no", e.target.value==="no");
+    }
+
+    /* VALIDACION DUPLICADO */
+    if(e.target.classList.contains("horas") || e.target.classList.contains("minutos")){
+        let fila = e.target.closest("tr");
+        let horas = fila.querySelector(".horas");
+        let minutos = fila.querySelector(".minutos");
+
+        if(horas.value == "0.5" && minutos.value != "0"){
+            minutos.value = "0";
+        }
+
+        if(parseInt(minutos.value) >= 30 && horas.value == "0.5"){
+            horas.value = "0";
+        }
+    }
+
+    calcularTiempo();
+});
+
+/* CALCULO */
+function calcularTiempo(){
+
+    let totalHoras = 0;
+
+    document.querySelectorAll("tr").forEach(fila => {
+        let uso = fila.querySelector(".uso");
+        let horas = fila.querySelector(".horas");
+        let minutos = fila.querySelector(".minutos");
+
+        if(uso && uso.value === "si"){
+            totalHoras += parseFloat(horas.value) + (parseInt(minutos.value)/60);
+        }
+    });
+
+    let cantidad = parseInt(document.getElementById("cantidadProductos").value) || 1;
+
+    totalHoras = totalHoras * cantidad;
+
+    if(totalHoras === 0){
+        salida.textContent = "--:--";
+        dias.value = "";
+        return;
+    }
+
+    let ahora = new Date();
+    ahora.setHours(inicioJornadaHora, inicioJornadaMin, 0, 0);
+
+    let restante = totalHoras;
+
+    while(restante > 0){
+        let actual = ahora.getHours() + ahora.getMinutes()/60;
+        let fin = finJornadaHora + finJornadaMin/60;
+
+        let disponible = fin - actual;
+
+        if(restante <= disponible){
+            ahora.setTime(ahora.getTime() + restante * 3600000);
+            restante = 0;
+        } else {
+            restante -= disponible;
+            ahora.setDate(ahora.getDate() + 1);
+            ahora.setHours(inicioJornadaHora, inicioJornadaMin, 0, 0);
+        }
+    }
+
+    let h = String(ahora.getHours()).padStart(2,'0');
+    let m = String(ahora.getMinutes()).padStart(2,'0');
+
+    let horasEnteras = Math.floor(totalHoras);
+    let mins = Math.round((totalHoras % 1) * 60);
+
+    salida.textContent = `${horasEnteras}h ${mins}m → ${h}:${m}`;
+
+    let horasDia = (finJornadaHora + finJornadaMin/60) - (inicioJornadaHora + inicioJornadaMin/60);
+    dias.value = Math.ceil(totalHoras / horasDia);
+}
+
+</script>
+
+</body>
+</html>

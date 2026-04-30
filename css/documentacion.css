@@ -1,0 +1,294 @@
+/* =========================
+   DOCUMENTACION PRO LIMPIA
+========================= */
+
+#documentacion{
+    padding:10px 6px;
+    overflow:visible;
+}
+
+/* =========================
+   CONTENEDOR SUPERIOR
+========================= */
+
+.doc-top-container{
+    background:linear-gradient(145deg, rgba(10,20,45,0.9), rgba(15,30,60,0.6));
+    border:1px solid rgba(255,255,255,0.08);
+    border-radius:26px;
+    padding:28px;
+    margin-bottom:30px;
+    box-shadow:0 20px 50px rgba(0,0,0,0.35);
+    position:relative;
+    z-index:1;
+}
+
+/* Badge superior */
+.doc-top-container::after{
+    content:"LAGMET";
+    position:absolute;
+    top:20px;
+    right:24px;
+    font-size:12px;
+    font-weight:700;
+    color:#ffb15a;
+    border:1px solid rgba(245,124,0,0.4);
+    padding:6px 12px;
+    border-radius:999px;
+    background:rgba(0,0,0,0.2);
+}
+
+/* HEADER */
+.doc-header-pro{
+    margin-bottom:22px;
+}
+
+.doc-header-pro h2{
+    margin:0 0 8px 0;
+    font-size:36px;
+    font-weight:800;
+    color:#ffffff;
+}
+
+.doc-header-pro p{
+    margin:0;
+    font-size:15px;
+    color:#bfc7d5;
+}
+
+/* CARD ACCIONES */
+.doc-card-pro{
+    margin-top:10px;
+}
+
+.doc-card-top{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:20px;
+}
+
+.doc-card-top h3{
+    margin:0;
+    font-size:20px;
+    font-weight:700;
+    color:#ffffff;
+}
+
+.doc-badge{
+    display:none;
+}
+
+/* =========================
+   CARDS ACCIONES
+========================= */
+
+.doc-actions-pro{
+    display:grid;
+    grid-template-columns:repeat(4, 1fr);
+    gap:18px;
+}
+
+.action-card{
+    position:relative;
+    height:88px;
+    border-radius:16px;
+    padding:16px;
+    display:flex;
+    align-items:center;
+    gap:14px;
+    cursor:pointer;
+    transition:0.25s ease;
+    box-shadow:0 10px 20px rgba(0,0,0,0.25);
+}
+
+.action-card:hover{
+    transform:translateY(-4px);
+}
+
+.action-card .icon{
+    width:42px;
+    height:42px;
+    min-width:42px;
+    border-radius:12px;
+    background:rgba(255,255,255,0.18);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:20px;
+}
+
+.card-text h4{
+    margin:0;
+    font-size:15px;
+    font-weight:700;
+    color:white;
+}
+
+.card-text p{
+    margin:2px 0 0;
+    font-size:13px;
+    color:rgba(255,255,255,0.75);
+}
+
+.card-arrow{
+    position:absolute;
+    right:14px;
+    top:50%;
+    transform:translateY(-50%);
+    width:28px;
+    height:28px;
+    border-radius:50%;
+    background:rgba(255,255,255,0.2);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:14px;
+    color:white;
+}
+
+.action-card.blue{
+    background:linear-gradient(135deg,#2b6cb0,#4299e1);
+}
+
+.action-card.purple{
+    background:linear-gradient(135deg,#6b46c1,#9f7aea);
+}
+
+.action-card.green{
+    background:linear-gradient(135deg,#2f855a,#68d391);
+}
+
+.action-card.orange{
+    background:linear-gradient(135deg,#f59e0b,#fbbf24);
+}
+
+.action-card.orange .card-text h4,
+.action-card.orange .card-text p,
+.action-card.orange .card-arrow{
+    color:#1a1a1a;
+}
+
+/* =========================
+   PANEL GANTT
+========================= */
+
+.doc-viewer-card{
+    display:block;
+    visibility:visible;
+    opacity:1;
+    background:rgba(255,255,255,0.04);
+    border:1px solid rgba(255,255,255,0.08);
+    border-radius:20px;
+    padding:24px;
+    min-height:700px;
+    backdrop-filter:blur(10px);
+    box-shadow:0 10px 24px rgba(0,0,0,0.25);
+    margin-top:30px;
+    position:relative;
+    z-index:2;
+}
+
+.gantt-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:18px;
+}
+
+.gantt-header h3{
+    margin:0;
+    color:#ffffff;
+    font-size:20px;
+    font-weight:800;
+}
+
+.gantt-controls button{
+    background:rgba(255,255,255,0.15);
+    border:none;
+    padding:8px 14px;
+    border-radius:10px;
+    color:white;
+    font-weight:600;
+    cursor:pointer;
+    transition:0.2s ease;
+}
+
+.gantt-controls button:hover{
+    background:rgba(255,255,255,0.25);
+}
+
+/* GANTT */
+#gantt{
+    display:block;
+    width:100%;
+    height:640px;
+    min-height:640px;
+    overflow:auto;
+    background:#ffffff;
+    border-radius:14px;
+    padding:10px;
+}
+
+#gantt .gantt-container{
+    height:610px !important;
+    min-height:610px !important;
+    overflow:auto !important;
+}
+
+#gantt svg{
+    min-height:610px !important;
+}
+
+/* =========================
+   COLORES GANTT
+========================= */
+
+#gantt .gantt-pendiente .bar{ fill:#b0b0b0 !important; }
+#gantt .gantt-pendiente .bar-progress{ fill:#8a8a8a !important; }
+
+#gantt .gantt-proceso .bar{ fill:#4facfe !important; }
+#gantt .gantt-proceso .bar-progress{ fill:#1976d2 !important; }
+
+#gantt .gantt-terminado .bar{ fill:#43e97b !important; }
+#gantt .gantt-terminado .bar-progress{ fill:#1b9b50 !important; }
+
+#gantt .gantt-tiempo-muerto .bar{ fill:#ff9800 !important; }
+#gantt .gantt-tiempo-muerto .bar-progress{ fill:#e65100 !important; }
+
+#gantt .gantt-atrasado .bar{ fill:#e53935 !important; }
+#gantt .gantt-atrasado .bar-progress{ fill:#b71c1c !important; }
+
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media(max-width:1200px){
+    .doc-actions-pro{
+        grid-template-columns:repeat(2, 1fr);
+    }
+}
+
+@media(max-width:700px){
+    .doc-actions-pro{
+        grid-template-columns:1fr;
+    }
+
+    .doc-header-pro h2{
+        font-size:30px;
+    }
+
+    #gantt{
+        height:520px;
+        min-height:520px;
+    }
+}
+
+/* CONTENEDOR INTERNO DE ACCIONES */
+.doc-actions-container{
+    background:rgba(255,255,255,0.04);
+    border:1px solid rgba(255,255,255,0.08);
+    border-radius:20px;
+    padding:22px;
+    margin-top:20px;
+    box-shadow:0 8px 20px rgba(0,0,0,0.25);
+}

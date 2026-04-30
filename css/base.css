@@ -1,0 +1,20 @@
+body{ 
+    margin:0;
+    font-family:Arial, sans-serif;
+    background:linear-gradient(135deg,#1e1f2f,#2a2c3f);
+    color:white;
+}
+
+/* RESET SUAVE */
+*{
+    box-sizing:border-box;
+}
+
+/* INPUTS / SELECTS GENERALES */
+select,
+input{
+    padding:8px 10px;
+    border-radius:8px;
+    border:none;
+    outline:none;
+}

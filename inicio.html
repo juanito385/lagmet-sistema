@@ -1,0 +1,888 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>LAGMET Sistema</title>
+
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/layout.css">
+<link rel="stylesheet" href="css/login.css">
+<link rel="stylesheet" href="css/sidebar.css">
+<link rel="stylesheet" href="css/tablas.css">
+<link rel="stylesheet" href="css/botones.css">
+<link rel="stylesheet" href="css/dashboard.css">
+<link rel="stylesheet" href="css/documentacion.css">
+<link rel="stylesheet" href="css/configuracion.css">
+<link rel="stylesheet" href="css/responsive.css">
+
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<link rel="icon" href="img/logo-lagmet.png">
+</head>
+
+<body>
+
+<!-- LOGIN -->
+<div id="login" class="login">
+<div class="login-box">
+<h2>Login</h2>
+
+<input type="email" id="email" placeholder="admin@gmail.com">
+<input type="password" id="password" placeholder="••••••••">
+
+<button onclick="login()">Ingresar</button>
+
+<p class="forgot" onclick="mostrarRecuperar()">
+¿Olvidaste tu contraseña?
+</p>
+
+<p id="error" style="color:red;"></p>
+</div>
+</div>
+
+<!-- RECUPERAR -->
+<div id="recuperar" class="login" style="display:none;">
+<div class="login-box">
+
+<h2>Recuperar contraseña</h2>
+
+<!-- PASO 1 -->
+<div id="paso1">
+<input type="email" id="emailRec" placeholder="Correo">
+<button id="btnEnviar" onclick="enviarCodigo()" disabled>Enviar código</button>
+</div>
+
+<!-- PASO 2 -->
+<div id="paso2" style="display:none;">
+<input type="text" id="codigo" placeholder="Código">
+<button onclick="verificarCodigo()">Verificar</button>
+</div>
+
+<!-- PASO 3 -->
+<div id="paso3" style="display:none;">
+<input type="password" id="nuevaPass" placeholder="Nueva contraseña">
+<button onclick="cambiarPasswordRecuperacion()">Guardar</button>
+</div>
+
+<p class="forgot" onclick="volverLogin()">Volver</p>
+
+</div>
+</div>
+
+<!-- APP -->
+<div id="app" style="display:none;">
+<div class="container">
+
+<div class="sidebar">
+
+    <div class="sidebar-top">
+        <div class="logo-sidebar">
+            <img src="img/logo-lagmet.png" alt="Logo LAGMET">
+        </div>
+
+        <div class="menu">
+            <button onclick="showSection('dashboard')">📊 Dashboard</button>
+            <button onclick="showSection('monitoreo')">🏭 Monitoreo</button>
+            <button onclick="showSection('productos')">📦 Productos</button>
+            <button onclick="showSection('documentacion')">📄 Documentación</button>
+            <button onclick="showSection('configuracion')">⚙️ Configuración</button>
+        </div>
+    </div>
+
+    <div class="sidebar-bottom">
+        <button class="logout" onclick="logout()">Cerrar sesión</button>
+    </div>
+
+
+
+</div>
+
+<div class="content">
+
+<!-- DASHBOARD -->
+<div id="dashboard" class="section active dashboard-section">
+
+    <div class="dashboard-header">
+        <div>
+            <h1>Dashboard</h1>
+            <p>Resumen general de la producción</p>
+            <p id="user" class="dashboard-user">Hola Admin 👋</p>
+        </div>
+
+        <div class="dashboard-actions">
+            <button class="period-btn active">Hoy</button>
+            <button class="period-btn">Ayer</button>
+            <button class="period-btn">Semana</button>
+            <button class="period-btn">Mes</button>
+
+            <div class="dashboard-date">
+                📅 <span id="fechaDashboard">--</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="dashboard-cards dashboard-cards-pro">
+
+        <div class="dash-card card-purple">
+            <div class="dash-icon purple">📦</div>
+            <div>
+                <h3>Total de productos</h3>
+                <strong id="dashTotalProductos">0</strong>
+                <p class="green-text">Registrados en el sistema</p>
+                <small>+12 este mes</small>
+            </div>
+        </div>
+
+        <div class="dash-card card-yellow">
+            <div class="dash-icon yellow">⏱️</div>
+            <div>
+                <h3>Productos en proceso</h3>
+                <strong id="dashProductosProceso">0</strong>
+                <p class="yellow-text">Producción actual</p>
+                <small>+8 vs ayer ↗</small>
+            </div>
+        </div>
+
+        <div class="dash-card card-green">
+            <div class="dash-icon green">✅</div>
+            <div>
+                <h3>Máquinas operativas</h3>
+                <strong id="dashMaquinasOperativas">0</strong>
+                <p class="green-text">Funcionando correctamente</p>
+                <small>75% del total</small>
+            </div>
+        </div>
+
+        <div class="dash-card card-red">
+            <div class="dash-icon red">❌</div>
+            <div>
+                <h3>Máquinas detenidas</h3>
+                <strong id="dashMaquinasDetenidas">0</strong>
+                <p class="red-text">Requieren revisión</p>
+                <small>+2 vs ayer</small>
+            </div>
+        </div>
+
+        <div class="dash-card card-blue">
+            <div class="dash-icon blue">🕒</div>
+            <div>
+                <h3>Horas trabajadas</h3>
+                <strong id="dashHorasTrabajadas">0 h</strong>
+                <p class="blue-text">Tiempo total trabajado</p>
+                <small>Hoy</small>
+            </div>
+        </div>
+
+        <div class="dash-card card-cyan">
+            <div class="dash-icon cyan">⚡</div>
+            <div>
+                <h3>Eficiencia general</h3>
+                <strong id="dashEficiencia">0%</strong>
+                <p class="cyan-text">Producción vs meta</p>
+                <small>Meta diaria</small>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="dashboard-main-grid">
+
+        <div class="dashboard-panel panel-large">
+            <div class="panel-title">
+                <h3>📊 Producción por turno</h3>
+
+                <div class="custom-select" id="dropdownTurno">
+                    <button class="custom-select-btn" type="button" onclick="toggleDropdownTurno()">
+                        <span id="textoFiltroTurno">Hoy</span>
+                        <span class="material-icons">expand_more</span>
+                    </button>
+
+                    <div class="custom-select-menu" id="menuFiltroTurno">
+                        <div onclick="seleccionarFiltroTurno('Hoy')">Hoy</div>
+                        <div onclick="seleccionarFiltroTurno('Semana')">Semana</div>
+                        <div onclick="seleccionarFiltroTurno('Mes')">Mes</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bar-chart pro-chart">
+                <div class="bar-item">
+                    <span class="bar-number" id="turnoMananaNumero">0</span>
+                    <div class="bar blue-bar" id="turnoMananaBarra" style="height:0%;"></div>
+                    <p>🌤️ Mañana</p>
+                </div>
+
+                <div class="bar-item">
+                    <span class="bar-number" id="turnoTardeNumero">0</span>
+                    <div class="bar green-bar" id="turnoTardeBarra" style="height:0%;"></div>
+                    <p>☀️ Tarde</p>
+                </div>
+
+                <div class="bar-item">
+                    <span class="bar-number" id="turnoNocheNumero">0</span>
+                    <div class="bar purple-bar" id="turnoNocheBarra" style="height:0%;"></div>
+                    <p>🌙 Noche</p>
+                </div>
+            </div>
+
+            <div class="chart-footer">
+                <span>Total producido hoy: <strong id="totalProducidoHoy">0 piezas</strong></span>
+                <span>Meta diaria: <strong id="metaDiaria">0%</strong></span>
+            </div>
+        </div>
+
+        <div class="dashboard-panel">
+            <div class="panel-title">
+                <h3>📈 Producción: hoy vs ayer</h3>
+            </div>
+
+            <div class="line-chart-fake">
+                <div class="line-grid"></div>
+                <div class="line line-today"></div>
+                <div class="line line-yesterday"></div>
+            </div>
+
+            <div class="compare-boxes">
+                <div>
+                    <span>Hoy</span>
+                    <strong id="produccionHoy">0 piezas</strong>
+                </div>
+                <div>
+                    <span>Ayer</span>
+                    <strong id="produccionAyer">0 piezas</strong>
+                </div>
+            </div>
+        </div>
+
+        <div class="dashboard-panel">
+            <div class="panel-title">
+                <h3>⚙️ Resumen rápido</h3>
+            </div>
+
+            <div class="donut-layout">
+                <div class="donut-chart">
+                    <div class="donut-center">
+                        <strong id="donutTotal">0</strong>
+                        <span>Total</span>
+                    </div>
+                </div>
+
+                <div class="status-list">
+                    <p><span class="dot green-dot"></span> Operativas <strong id="resumenOperativas">0</strong></p>
+                    <p><span class="dot yellow-dot"></span> En proceso <strong id="resumenProceso">0</strong></p>
+                    <p><span class="dot red-dot"></span> Detenidas <strong id="resumenDetenidas">0</strong></p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="dashboard-mini-grid">
+
+        <div class="mini-panel danger">
+            <h3>🚨 Máquinas con más fallas</h3>
+            <p>Máquina 12 <span>3 fallas</span></p>
+            <p>Máquina 07 <span>2 fallas</span></p>
+            <p>Máquina 03 <span>1 falla</span></p>
+        </div>
+
+        <div class="mini-panel warning">
+            <h3>⏱️ Tiempo detenidas</h3>
+            <strong id="tiempoDetenido">0h 00m</strong>
+            <p>Promedio por máquina <span>40m</span></p>
+        </div>
+
+        <div class="mini-panel">
+            <h3>🏆 Top máquinas</h3>
+            <p>Máquina 03 <span>45 piezas</span></p>
+            <p>Máquina 08 <span>38 piezas</span></p>
+            <p>Máquina 01 <span>32 piezas</span></p>
+        </div>
+
+        <div class="mini-panel">
+            <h3>👤 Top usuarios</h3>
+            <p>Admin <span>62 piezas</span></p>
+            <p>Usuario 2 <span>48 piezas</span></p>
+            <p>Usuario 3 <span>36 piezas</span></p>
+        </div>
+
+        <div class="mini-panel status-production">
+            <h3>📋 Estado producción</h3>
+            <div class="status-boxes">
+                <div class="ok">Completados <strong>0</strong></div>
+                <div class="process">En proceso <strong>0</strong></div>
+                <div class="late">Atrasados <strong>0</strong></div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="dashboard-panel registros-panel">
+        <div class="panel-title">
+            <h3>Últimos registros ingresados</h3>
+            <button class="mini-btn" onclick="showSection('productos')">Ver todos</button>
+        </div>
+
+        <table class="dashboard-table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Producto</th>
+                    <th>Máquina</th>
+                    <th>Turno</th>
+                    <th>Cantidad</th>
+                    <th>Fecha y hora</th>
+                    <th>Usuario</th>
+                </tr>
+            </thead>
+            <tbody id="tablaUltimosRegistros">
+                <tr>
+                    <td colspan="7">Cargando últimos registros...</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
+<!-- MONITOREO -->
+<div id="monitoreo" class="section">
+<h2>Monitoreo Producción</h2>
+
+<div class="panel-cards">
+
+<div class="card-input">
+<label>Nombre Producto</label>
+<input type="text" id="Producto" placeholder="Ej: Eje metálico">
+</div>
+
+<div class="card-input">
+<label>Nota de Venta</label>
+<input type="text" id="pedido" placeholder="Ej: NV-10234">
+</div>
+
+<div class="card-input">
+<label>Cód Interno</label>
+<input type="text" id="Codigo" placeholder="Ej: COD-5567">
+</div>
+
+<div class="card-input">
+<label>Tiempo Salida + Hora </label>
+<span id="salida">--</span>
+</div>
+
+<div class="card-input">
+<label>Cantidad de piezas</label>
+<input type="number" id="cantidadProductos" value="1" placeholder="Ej: 100">
+</div>
+
+<div class="card-input">
+<label>Fecha de inicio</label>
+<input type="date" id="fecha">
+</div>
+
+<div class="card-input">
+    <label>Fecha Fin</label>
+    <input type="text" id="fechaFinVisual" readonly placeholder="Se calcula automáticamente">
+</div>
+
+
+
+<div class="card-input">
+<label>Cantidad Días</label>
+<input type="number" id="dias" readonly placeholder="Se calcula automáticamente">
+<input type="hidden" id="fechaFin"> 
+</div>
+
+<!-- Fecha Fin REAL (OCULTA para BD) -->
+<input type="hidden" id="fechaFin">
+
+<div class="card-input">
+    <label>Grupo Almuerzo</label>
+    <select id="grupo">
+        <option value="1">Grupo 1 (12:00 - 13:00)</option>
+        <option value="2">Grupo 2 (13:00 - 14:00)</option>
+    </select>
+</div>
+
+<div class="card-input">
+    <label>Trabaja sábado</label>
+    <select id="trabajaSabado">
+        <option value="no">No</option>
+        <option value="si">Sí</option>
+    </select>
+</div>
+
+<div class="card-input">
+<label>Extra</label>
+<input type="number" id="tiempoMuerto" placeholder="Ej: 30 (minutos)">
+</div>
+
+</div>
+
+<div class="zonas">
+
+<div class="card">
+<h3>Zona Oriente</h3>
+<table id="tablaOriente">
+<thead>
+<tr>
+<th>Máquina</th>
+<th>Uso</th>
+<th>Tiempo</th>
+</tr>
+</thead>
+<tbody></tbody>
+</table>
+</div>
+
+<div class="card">
+<h3>Zona Poniente</h3>
+<table id="tablaPoniente">
+<thead>
+<tr>
+<th>Máquina</th>
+<th>Uso</th>
+<th>Tiempo</th>
+</tr>
+</thead>
+<tbody></tbody>
+</table>
+</div>
+
+</div>
+
+<div class="actions">
+<div class="left-actions">
+<label>Almuerzo</label>
+<select id="almuerzo">
+<option value="no">No</option>
+<option value="si">Sí (45 min)</option>
+</select>
+</div>
+
+<div class="right-actions">
+<button class="guardar" onclick="guardarDatos()">💾 Guardar</button>
+</div>
+</div>
+
+</div>
+
+<!-- PRODUCTOS -->
+<div id="productos" class="section">
+
+    <h2>Productos</h2>
+
+    <!-- 🔍 CONTENEDOR BUSCADOR / FILTROS PRODUCTOS -->
+    <div class="productos-filtros-container">
+
+        <div class="filtro-grupo buscador-productos">
+            <div class="input-filtro">
+                <span class="material-icons">search</span>
+                <input 
+                    type="text"
+                    id="buscadorProductos"
+                    placeholder="Buscar por nombre, inicial, pedido o código..."
+                    onkeyup="filtrarProductos()"
+                >
+            </div>
+
+            <small>Ej: ajuste, aj, 343434, 0202</small>
+        </div>
+
+        <div class="filtro-grupo filtro-arriba">
+            <label>Filtrar por fecha</label>
+
+            <div class="input-filtro">
+                <span class="material-icons">calendar_month</span>
+                <input 
+                    type="date"
+                    id="filtroFechaProductos"
+                    onchange="filtrarProductos()"
+                >
+            </div>
+        </div>
+
+        <div class="filtro-grupo filtro-arriba">
+            <label>Ordenar por</label>
+
+            <div class="input-filtro">
+                <span class="material-icons">sort</span>
+                <select id="ordenProductos" onchange="ordenarProductos()">
+                    <option value="recientes">Más recientes</option>
+                    <option value="antiguos">Más antiguos</option>
+                    <option value="az">Producto A-Z</option>
+                    <option value="za">Producto Z-A</option>
+                </select>
+            </div>
+        </div>
+
+        <button class="btn-limpiar-filtros" onclick="limpiarFiltrosProductos()">
+            <span class="material-icons">refresh</span>
+            Limpiar filtros
+        </button>
+
+    </div>
+
+    <!-- 📦 CONTENEDOR TABLA -->
+    <div class="card">
+        <table id="tablaProductos">
+            <thead>
+                <tr>
+                    <th>Nombre Producto</th>
+                    <th>Nota de Venta</th>
+                    <th>Cod Interno</th>
+                    <th>Cantidad de piezas</th>
+                    <th>Fecha Inicio</th>
+                    <th>Fecha Fin</th>
+                    <th>Cantidad Días</th>
+                    <th>Estado</th>
+                    <th>Acción</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+
+        <!-- 📄 PAGINACIÓN PRODUCTOS -->
+        <div class="paginacion-productos">
+            <p id="infoPaginacionProductos">
+                Mostrando 0 de 0 productos
+            </p>
+
+            <div class="botones-paginacion">
+                <button onclick="cambiarPaginaProductos(-1)">
+                    <span class="material-icons">chevron_left</span>
+                </button>
+
+                <div id="numerosPaginacionProductos"></div>
+
+                <button onclick="cambiarPaginaProductos(1)">
+                    <span class="material-icons">chevron_right</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- DOCUMENTACIÓN -->
+<div id="documentacion" class="section">
+
+    <!-- CONTENEDOR PRINCIPAL -->
+    <div class="doc-top-container">
+
+        <!-- HEADER -->
+        <div class="doc-header-pro">
+            <h2>📁 Reportes</h2>
+            <p>Gestiona visualizaciones y reportes del sistema de producción.</p>
+        </div>
+
+        <!-- CONTENEDOR INTERNO (ACCIONES) -->
+        <div class="doc-actions-container">
+
+            <div class="doc-card-top">
+                <h3>⚡ Acciones rápidas</h3>
+                <span class="doc-badge">LAGMET</span>
+            </div>
+
+            <div class="doc-actions-pro">
+
+                <div class="action-card blue" onclick="mostrarGantt()">
+                    <div class="icon">📊</div>
+                    <div class="card-text">
+                        <h4>Ver Carta Gantt</h4>
+                        <p>Visualiza el plan de producción</p>
+                    </div>
+                    <div class="card-arrow">→</div>
+                </div>
+
+                <div class="action-card purple" onclick="descargarGanttImagen()">
+                    <div class="icon">📷</div>
+                    <div class="card-text">
+                        <h4>Descargar Imagen</h4>
+                        <p>Exporta como PNG</p>
+                    </div>
+                    <div class="card-arrow">→</div>
+                </div>
+
+                <div class="action-card green" onclick="descargarGanttExcel()">
+                    <div class="icon">📊</div>
+                    <div class="card-text">
+                        <h4>Descargar Excel</h4>
+                        <p>Archivo .xlsx</p>
+                    </div>
+                    <div class="card-arrow">→</div>
+                </div>
+
+                <div class="action-card orange" onclick="generarInforme()">
+                    <div class="icon">📄</div>
+                    <div class="card-text">
+                        <h4>Generar Informe</h4>
+                        <p>PDF profesional</p>
+                    </div>
+                    <div class="card-arrow">→</div>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+    <!-- GANTT (SEPARADO) -->
+    <div class="doc-viewer-card">
+
+        <div class="gantt-header">
+            <h3>📅 Carta Gantt de Producción</h3>
+            <div class="gantt-controls">
+                <button onclick="irHoy()">Hoy</button>
+            </div>
+        </div>
+
+        <div id="gantt"></div>
+
+    </div>
+
+</div>
+
+
+
+<!-- CONFIG -->
+<div id="configuracion" class="section config-section">
+    <h2>Configuración</h2>
+    <p>⚙️ Perfil y ajustes del sistema</p>
+
+    <div class="config-grid">
+
+       <!-- DATOS USUARIO -->
+<div class="config-card">
+    <h3>👤 Datos del usuario</h3>
+
+    <div class="config-row">
+        <div class="config-field">
+            <label>Nombre</label>
+            <input type="text" id="configNombre">
+        </div>
+
+        <div class="config-field">
+            <label>Correo</label>
+            <input type="email" id="configCorreo">
+        </div>
+
+        <div class="config-field">
+            <label>Rol</label>
+            <input type="text" id="configRol" disabled>
+        </div>
+    </div>
+
+    <!-- 🔥 ESTE ES EL BOTÓN CORRECTO -->
+    <button type="button" id="btnGuardarConfig">
+        Guardar cambios
+    </button>
+</div>
+
+<!-- SEGURIDAD -->
+<div class="config-card">
+    <h3>🔐 Seguridad</h3>
+
+    <div class="config-row">
+
+    <div class="config-field password-field">
+        <label>Contraseña actual</label>
+        <div class="password-box">
+            <input type="password" id="passwordActual">
+            <span class="toggle-password" data-target="passwordActual">visibility</span>
+        </div>
+    </div>
+
+    <div class="config-field password-field">
+        <label>Nueva contraseña</label>
+        <div class="password-box">
+            <input type="password" id="passwordNueva">
+            <span class="toggle-password" data-target="passwordNueva">visibility</span>
+        </div>
+    </div>
+
+    <div class="config-field password-field">
+        <label>Confirmar contraseña</label>
+        <div class="password-box">
+            <input type="password" id="passwordConfirmar">
+            <span class="toggle-password" data-target="passwordConfirmar">visibility</span>
+        </div>
+    </div>
+
+</div>
+
+    <!-- 🔥 ESTE ES EL BOTÓN CORRECTO -->
+    <button type="button" id="btnCambiarPassword">
+        Cambiar contraseña
+    </button>
+</div>
+
+        <!-- PREFERENCIAS -->
+        <div class="config-card">
+            <h3>🎨 Preferencias</h3>
+
+            <div class="config-row">
+                <div class="config-field">
+                    <label>Tema</label>
+                    <select>
+                        <option>Oscuro</option>
+                        <option>Claro</option>
+                    </select>
+                </div>
+
+                <div class="config-field">
+                    <label>Color principal</label>
+                    <select>
+                        <option>Naranjo</option>
+                        <option>Azul</option>
+                        <option>Verde</option>
+                    </select>
+                </div>
+            </div>
+
+            <button>Aplicar</button>
+        </div>
+
+        <!-- SISTEMA -->
+        <div class="config-card">
+            <h3>ℹ️ Sistema</h3>
+
+            <div class="config-info">
+                <p><strong>Empresa:</strong> LAGMET</p>
+                <p><strong>Versión:</strong> 1.0</p>
+                <p><strong>Base de datos:</strong> Conectada</p>
+                <p><strong>Estado:</strong> Activo</p>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+</div>
+</div>
+</div>
+
+<!-- LIBRERÍAS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+<link rel="stylesheet" href="https://unpkg.com/frappe-gantt/dist/frappe-gantt.css">
+<script src="https://unpkg.com/frappe-gantt/dist/frappe-gantt.umd.js"></script>
+
+<!-- JS DEL SISTEMA -->
+<script src="js/auth.js"></script>
+<script src="js/navigation.js"></script>
+<script src="js/produccion.js"></script>
+<script src="js/productos.js"></script>
+<script src="js/dashboard.js"></script>
+<script src="js/gantt.js"></script>
+<script src="js/pdf.js"></script>
+<script src="js/main.js"></script>
+<script src="js/configuracion.js"></script>
+
+<script>
+let emailRecuperacion = "";
+
+/* MOSTRAR RECUPERAR */
+function mostrarRecuperar(){
+    document.getElementById("login").style.display = "none";
+    document.getElementById("recuperar").style.display = "flex";
+}
+
+/* VOLVER */
+function volverLogin(){
+    document.getElementById("recuperar").style.display = "none";
+    document.getElementById("login").style.display = "flex";
+
+    // reset visual
+    document.getElementById("paso1").style.display="block";
+    document.getElementById("paso2").style.display="none";
+    document.getElementById("paso3").style.display="none";
+
+    document.getElementById("emailRec").value="";
+    document.getElementById("codigo").value="";
+    document.getElementById("nuevaPass").value="";
+}
+
+/* ACTIVAR BOTÓN */
+document.addEventListener("input", e=>{
+    if(e.target.id === "emailRec"){
+        const val = e.target.value;
+        const btn = document.getElementById("btnEnviar");
+
+        if(val.includes("@")){
+            btn.disabled = false;
+            btn.classList.add("active");
+        }else{
+            btn.disabled = true;
+            btn.classList.remove("active");
+        }
+    }
+});
+
+/* PASO 1 */
+async function enviarCodigo(){
+    const email = document.getElementById("emailRec").value;
+
+    const res = await fetch("php/enviar_codigo.php",{
+        method:"POST",
+        headers:{"Content-Type":"application/x-www-form-urlencoded"},
+        body:`email=${email}`
+    });
+
+    const data = await res.json();
+
+    if(data.success){
+        emailRecuperacion = email;
+        document.getElementById("paso1").style.display="none";
+        document.getElementById("paso2").style.display="block";
+    }else{
+        alert("Correo no encontrado");
+    }
+}
+
+/* PASO 2 */
+async function verificarCodigo(){
+    const codigo = document.getElementById("codigo").value;
+
+    const res = await fetch("php/verificar_codigo.php",{
+        method:"POST",
+        headers:{"Content-Type":"application/x-www-form-urlencoded"},
+        body:`email=${emailRecuperacion}&codigo=${codigo}`
+    });
+
+    const data = await res.json();
+
+    if(data.success){
+        document.getElementById("paso2").style.display="none";
+        document.getElementById("paso3").style.display="block";
+    }else{
+        alert("Código incorrecto");
+    }
+}
+
+/* PASO 3 */
+async function cambiarPasswordRecuperacion(){
+    const pass = document.getElementById("nuevaPass").value;
+
+    const res = await fetch("php/recuperar_password_confirmar.php",{
+        method:"POST",
+        headers:{"Content-Type":"application/x-www-form-urlencoded"},
+        body:`email=${emailRecuperacion}&password=${pass}`
+    });
+
+    const data = await res.json();
+
+    if(data.success){
+        alert("Contraseña actualizada");
+        volverLogin();
+    } else {
+        alert(data.message || "Error al actualizar");
+    }
+}
+</script>
+
+</body>
+</html>

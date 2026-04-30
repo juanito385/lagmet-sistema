@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Login LAGMET</title>
+<style>
+    body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+        background: url('https://png.pngtree.com/thumb_back/fh260/background/20220702/pngtree-businessman-hand-pressing-a-touchscreen-button-pressing-background-company-photo-image_32266092.jpg') no-repeat center center/cover;
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    body::before {
+        content: "";
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 157, 202, 0.5);
+        z-index: 0;
+    }
+
+    .container {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        width: 850px;
+        height: 460px;
+        border-radius: 12px;
+        overflow: hidden;
+        backdrop-filter: blur(10px);
+        background: rgba(255,255,255,0.1);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+    }
+
+    .left {
+        width: 50%;
+        padding: 40px;
+        background: white;
+    }
+
+    .logo-container {
+        text-align: center;
+        margin-bottom: 15px;
+    }
+
+    .logo {
+        width: 160px;
+    }
+
+    h1 {
+        color: #009DCA;
+        margin-bottom: 20px;
+        text-align: left;
+    }
+
+    .input-group {
+        margin-bottom: 15px;
+        position: relative;
+    }
+
+    .input-group input {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+    }
+
+    /* 👁️ icono ojo */
+    .toggle-password {
+        position: absolute;
+        right: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        cursor: pointer;
+        font-size: 18px;
+    }
+
+    .btn-container {
+        text-align: center;
+    }
+
+    .btn {
+        width: 70%;
+        padding: 10px;
+        background: #FAA519;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: bold;
+        transition: 0.3s;
+    }
+
+    .btn:hover {
+        background: #d98e00;
+    }
+
+    .link {
+        font-size: 12px;
+        color: #009DCA;
+        text-decoration: none;
+    }
+
+    .right {
+        width: 50%;
+        background: linear-gradient(135deg, #009DCA, #00708e);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        color: white;
+        text-align: center;
+        padding: 20px;
+    }
+
+    .right h2 {
+        color: #FAA519;
+    }
+
+</style>
+</head>
+<body>
+
+<div class="container">
+    
+    <div class="left">
+        
+        <div class="logo-container">
+            <img src="https://www.lagmet.cl/wp-content/uploads/2019/07/LOGO-LAGMET.png" class="logo">
+        </div>
+
+        <h1>Bienvenidos</h1>
+
+        <div class="input-group">
+            <input type="text" placeholder="Usuario">
+        </div>
+
+        <div class="input-group">
+            <input type="password" id="password" placeholder="Contraseña">
+            <span class="toggle-password" onclick="togglePassword()">👁️</span>
+        </div>
+
+        <div class="btn-container">
+            <button class="btn">Ingresar</button>
+        </div>
+
+        <br>
+        <div class="btn-container">
+            <a href="recu1.html" class="link">¿Olvidaste tu contraseña?</a>
+        </div>
+    </div>
+
+    <div class="right">
+        <div>
+            <h2>Plataforma LAGMET</h2>
+            <p>Acceso seguro al sistema</p>
+        </div>
+    </div>
+
+</div>
+
+<script>
+function togglePassword() {
+    const passwordInput = document.getElementById("password");
+    
+    if (passwordInput.type === "password") {
+        passwordInput.type = "text";
+    } else {
+        passwordInput.type = "password";
+    }
+}
+</script>
+
+</body>
+</html>
