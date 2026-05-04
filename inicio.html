@@ -232,13 +232,11 @@
 
         <div class="dashboard-panel">
             <div class="panel-title">
-                <h3>📈 Producción: hoy vs ayer</h3>
+                <h3>📈 Producción últimos 7 días</h3>
             </div>
 
             <div class="line-chart-fake">
-                <div class="line-grid"></div>
-                <div class="line line-today"></div>
-                <div class="line line-yesterday"></div>
+                <canvas id="graficoProduccionSemanal"></canvas>
             </div>
 
             <div class="compare-boxes">
@@ -412,14 +410,60 @@
     </select>
 </div>
 
+<!-- FALLO MAQUINA -->
 <div class="card-input">
-<label>Extra</label>
-<input type="number" id="tiempoMuerto" placeholder="Ej: 30 (minutos)">
+    <label>Fallo Máquina</label>
+
+    <select id="falloMaquina" onchange="mostrarSelectorMaquinaFallo()">
+        <option value="no">No</option>
+        <option value="si">Sí</option>
+    </select>
+
+    <select id="maquinaFallo" style="display:none; margin-top:10px;">
+        <option value="">Seleccionar máquina</option>
+
+        <optgroup label="Zona Oriente">
+            <option value="Torno Vertical CNC">Torno Vertical CNC</option>
+            <option value="Mandrinadora">Mandrinadora</option>
+            <option value="Torno Vertical">Torno Vertical</option>
+            <option value="Torno 1000">Torno 1000</option>
+            <option value="Torno 800">Torno 800</option>
+            <option value="Torno Bulgaro">Torno Bulgaro</option>
+            <option value="Torno Varileta">Torno Varileta</option>
+            <option value="Cepillo">Cepillo</option>
+            <option value="Escoplo">Escoplo</option>
+            <option value="Taladro Radial">Taladro Radial</option>
+        </optgroup>
+
+        <optgroup label="Zona Poniente">
+            <option value="Torno CNC 2">Torno CNC 2</option>
+            <option value="Torno CNC 3">Torno CNC 3</option>
+            <option value="Torno CNC 1">Torno CNC 1</option>
+            <option value="Centro Mecanizado 1">Centro Mecanizado 1</option>
+            <option value="Centro Mecanizado 2">Centro Mecanizado 2</option>
+            <option value="Router">Router</option>
+            <option value="Mecánica Banco">Mecánica Banco</option>
+            <option value="Balanceadora">Balanceadora</option>
+        </optgroup>
+    </select>
+</div>
+
+<!-- EXTRA / SITUACION -->
+<div class="card-input card-extra">
+    <label>Extra</label>
+
+    <button type="button" class="btn-extra" onclick="abrirModalSituacion()">
+        +
+    </button>
+
+    <input type="hidden" id="situacionHoras" value="0">
+    <input type="hidden" id="situacionMinutos" value="0">
+    <input type="hidden" id="situacionDescripcion" value="">
 </div>
 
 </div>
 
-<div class="zonas">
+<div class="zonas">     
 
 <div class="card">
 <h3>Zona Oriente</h3>
@@ -451,15 +495,40 @@
 
 </div>
 
-<div class="actions">
-<div class="left-actions">
-<label>Almuerzo</label>
-<select id="almuerzo">
-<option value="no">No</option>
-<option value="si">Sí (45 min)</option>
-</select>
+<!-- MODAL SITUACION -->
+<div id="modalSituacion" class="modal-situacion">
+    <div class="modal-situacion-content">
+
+        <button type="button" class="cerrar-modal" onclick="cerrarModalSituacion()">×</button>
+
+        <h3>Situacion</h3>
+
+        <label>Tiempo extra</label>
+
+        <div class="tiempo-situacion-grid">
+            <div>
+                <input type="number" id="modalSituacionHoras" min="0" value="0">
+                <small>Horas</small>
+            </div>
+
+            <div>
+                <input type="number" id="modalSituacionMinutos" min="0" max="59" value="0">
+                <small>Minutos</small>
+            </div>
+        </div>
+
+        <label>Motivo / descripción</label>
+        <textarea id="modalSituacionDescripcion" placeholder="Ej: Almuerzo imprevisto, ida al baño, pieza que se demora en salir, etc."></textarea>
+
+        <div class="modal-situacion-actions">
+            <button type="button" class="btn-cancelar" onclick="cerrarModalSituacion()">Cancelar</button>
+            <button type="button" class="btn-guardar-situacion" onclick="guardarSituacion()">Guardar</button>
+        </div>
+
+    </div>
 </div>
 
+<div class="actions" style="justify-content:flex-end;">
 <div class="right-actions">
 <button class="guardar" onclick="guardarDatos()">💾 Guardar</button>
 </div>
@@ -770,6 +839,9 @@
 
 <link rel="stylesheet" href="https://unpkg.com/frappe-gantt/dist/frappe-gantt.css">
 <script src="https://unpkg.com/frappe-gantt/dist/frappe-gantt.umd.js"></script>
+
+<!-- 🔥 NUEVA LIBRERÍA -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <!-- JS DEL SISTEMA -->
 <script src="js/auth.js"></script>

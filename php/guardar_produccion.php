@@ -2,6 +2,25 @@
 header('Content-Type: application/json');
 require_once __DIR__ . "/conexion.php";
 
+date_default_timezone_set("America/Santiago");
+
+/* =========================
+   TURNO AUTOMÁTICO
+========================= */
+function calcularTurnoAutomatico() {
+    $horaActual = date("H:i");
+
+    if ($horaActual >= "07:30" && $horaActual <= "12:59") {
+        return "Mañana";
+    }
+
+    if ($horaActual >= "13:00" && $horaActual <= "16:45") {
+        return "Tarde";
+    }
+
+    return "Noche";
+}
+
 if ($_SERVER["REQUEST_METHOD"] !== "POST") {
     echo json_encode([
         "success" => false,
@@ -26,6 +45,18 @@ $almuerzo = trim($input["almuerzo"] ?? "no");
 $salida = trim($input["salida"] ?? "--");
 $usuario_id = isset($input["usuario_id"]) && $input["usuario_id"] !== null ? intval($input["usuario_id"]) : null;
 $maquinas = $input["maquinas"] ?? [];
+
+$situacion_descripcion = trim($input["situacion_descripcion"] ?? "");
+
+$fallo_maquina = trim($input["fallo_maquina"] ?? "no");
+$maquina_fallo = trim($input["maquina_fallo"] ?? "");
+
+if ($fallo_maquina === "no") {
+    $maquina_fallo = "";
+}
+
+/* TURNO */
+$turno = calcularTurnoAutomatico();
 
 if ($numero_pedido === "" || $codigo === "" || $producto === "" || $cantidad <= 0) {
     echo json_encode([
@@ -52,10 +83,13 @@ try {
             grupo, 
             almuerzo, 
             trabaja_sabado,
-            salida, 
-            usuario_id
+            salida,
+            fallo_maquina,
+            maquina_fallo,
+            usuario_id,
+            turno
         )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     ");
 
     if (!$stmt) {
@@ -63,7 +97,7 @@ try {
     }
 
     $stmt->bind_param(
-        "sssissiissssi",
+        "sssissiisssssssi",
         $numero_pedido,
         $codigo,
         $producto,
@@ -76,13 +110,17 @@ try {
         $almuerzo,
         $trabaja_sabado,
         $salida,
-        $usuario_id
+        $fallo_maquina,
+        $maquina_fallo,
+        $usuario_id,
+        $turno
     );
 
     $stmt->execute();
     $produccion_id = $conn->insert_id;
     $stmt->close();
 
+    /* GUARDAR MAQUINAS */
     $stmtMaquina = $conn->prepare("
         INSERT INTO produccion_maquinas
         (produccion_id, zona, maquina, uso, horas, minutos)
@@ -114,11 +152,40 @@ try {
     }
 
     $stmtMaquina->close();
+
+    /* GUARDAR SITUACION */
+    if ($tiempo_muerto > 0 && $situacion_descripcion !== "") {
+        $stmtSituacion = $conn->prepare("
+            INSERT INTO situaciones_produccion
+            (
+                produccion_id,
+                tiempo_extra_minutos,
+                descripcion
+            )
+            VALUES (?, ?, ?)
+        ");
+
+        if (!$stmtSituacion) {
+            throw new Exception("Error al preparar inserción en situaciones_produccion: " . $conn->error);
+        }
+
+        $stmtSituacion->bind_param(
+            "iis",
+            $produccion_id,
+            $tiempo_muerto,
+            $situacion_descripcion
+        );
+
+        $stmtSituacion->execute();
+        $stmtSituacion->close();
+    }
+
     $conn->commit();
 
     echo json_encode([
         "success" => true,
-        "message" => "Producción guardada correctamente"
+        "message" => "Producción guardada correctamente",
+        "turno" => $turno
     ]);
 
 } catch (Exception $e) {

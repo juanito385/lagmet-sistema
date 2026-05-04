@@ -113,6 +113,9 @@ function formatearHoraAMPM(fecha) {
 /* =========================
    CALCULO
 ========================= */
+/* =========================
+   CALCULO
+========================= */
 function calcular() {
     let total = 0;
 
@@ -134,6 +137,14 @@ function calcular() {
     if (document.getElementById("almuerzo")?.value === "si") {
         total += 0.75;
     }
+
+    /* =========================
+       SUMAR SITUACION / EXTRA
+    ========================= */
+    const situacionHoras = parseInt(document.getElementById("situacionHoras")?.value) || 0;
+    const situacionMinutos = parseInt(document.getElementById("situacionMinutos")?.value) || 0;
+
+    total += situacionHoras + (situacionMinutos / 60);
 
     const salidaEl = document.getElementById("salida");
     const diasEl = document.getElementById("dias");
@@ -166,7 +177,7 @@ function calcular() {
     const almFin = grupo === "1" ? 13 : 14;
 
     while (restante > 0) {
-        const diaSemana = ahora.getDay(); // 0 domingo, 6 sábado
+        const diaSemana = ahora.getDay();
 
         if (diaSemana === 0 || (diaSemana === 6 && trabajaSabado === "no")) {
             ahora.setDate(ahora.getDate() + 1);
@@ -231,6 +242,76 @@ function calcular() {
 
     diasEl.value = dias;
 }
+
+/* =========================
+   SITUACION / EXTRA
+========================= */
+function abrirModalSituacion() {
+    const modal = document.getElementById("modalSituacion");
+
+    if (!modal) {
+        console.error("No existe el modal con id modalSituacion");
+        return;
+    }
+
+    modal.classList.add("active");
+}
+
+function cerrarModalSituacion() {
+    const modal = document.getElementById("modalSituacion");
+
+    if (!modal) return;
+
+    modal.classList.remove("active");
+}
+
+function guardarSituacion() {
+    const horas = parseInt(document.getElementById("modalSituacionHoras")?.value) || 0;
+    const minutos = parseInt(document.getElementById("modalSituacionMinutos")?.value) || 0;
+    const descripcion = document.getElementById("modalSituacionDescripcion")?.value.trim() || "";
+
+    if (horas === 0 && minutos === 0) {
+        alert("Debes ingresar un tiempo extra.");
+        return;
+    }
+
+    if (descripcion === "") {
+        alert("Debes ingresar el motivo o descripción.");
+        return;
+    }
+
+    document.getElementById("situacionHoras").value = horas;
+    document.getElementById("situacionMinutos").value = minutos;
+    document.getElementById("situacionDescripcion").value = descripcion;
+
+    cerrarModalSituacion();
+    calcular();
+}
+
+/* =========================
+   FALLO MAQUINA
+========================= */
+function mostrarSelectorMaquinaFallo() {
+    const fallo = document.getElementById("falloMaquina")?.value;
+    const maquina = document.getElementById("maquinaFallo");
+
+    if (!maquina) return;
+
+    if (fallo === "si") {
+        maquina.style.display = "block";
+    } else {
+        maquina.style.display = "none";
+        maquina.value = "";
+    }
+}
+
+/* Hacer funciones visibles para los onclick del HTML */
+window.abrirModalSituacion = abrirModalSituacion;
+window.cerrarModalSituacion = cerrarModalSituacion;
+window.guardarSituacion = guardarSituacion;
+window.mostrarSelectorMaquinaFallo = mostrarSelectorMaquinaFallo;
+
+
 /* =========================
    GUARDAR / ACTUALIZAR
 ========================= */
@@ -243,61 +324,74 @@ async function guardarDatos() {
     const fecha = document.getElementById("fecha").value;
     const fecha_fin = document.getElementById("fechaFin").value;
     const trabaja_sabado = document.getElementById("trabajaSabado").value;
-    const tiempo_muerto = parseInt(document.getElementById("tiempoMuerto").value) || 0;
+
+    /* NUEVO: SITUACION / EXTRA */
+    const situacion_horas = parseInt(document.getElementById("situacionHoras")?.value) || 0;
+    const situacion_minutos = parseInt(document.getElementById("situacionMinutos")?.value) || 0;
+    const situacion_descripcion = document.getElementById("situacionDescripcion")?.value.trim() || "";
+    const tiempo_muerto = (situacion_horas * 60) + situacion_minutos;
+
+    /* NUEVO: FALLO MAQUINA */
+    const fallo_maquina = document.getElementById("falloMaquina")?.value || "no";
+    const maquina_fallo = document.getElementById("maquinaFallo")?.value || "";
+
     const dias = parseInt(document.getElementById("dias").value) || 0;
     const grupo = document.getElementById("grupo").value;
-    const almuerzo = document.getElementById("almuerzo").value;
+    const almuerzo = "no"; // ← fijo, ya no existe el selector
     const salida = document.getElementById("salida").textContent;
 
     const user = JSON.parse(localStorage.getItem("user"));
 
-        if (!pedido || !codigo || !producto || cantidad <= 0) {
-            alert("Completa los datos obligatorios");
-            return;
-        }
+    if (!pedido || !codigo || !producto || cantidad <= 0) {
+        alert("Completa los datos obligatorios");
+        return;
+    }
 
-        if (!fecha) {
-            alert("Debes ingresar la Fecha Inicio");
-            return;
-        }
+    if (!fecha) {
+        alert("Debes ingresar la Fecha Inicio");
+        return;
+    }
 
-        if (!salida || salida === "--") {
-            alert("Primero debes calcular el tiempo de producción");
-            return;
-        }
+    if (!salida || salida === "--") {
+        alert("Primero debes calcular el tiempo de producción");
+        return;
+    }
 
-        if (dias <= 0) {
-            alert("Debe existir al menos 1 día de producción");
-            return;
-        }
+    if (dias <= 0) {
+        alert("Debe existir al menos 1 día de producción");
+        return;
+    }
 
-        /* =========================
-        VALIDACIÓN MAQUINAS
-        ========================= */
+    if (fallo_maquina === "si" && maquina_fallo === "") {
+        alert("Debes seleccionar la máquina con fallo");
+        return;
+    }
 
-        const filasValidacion = document.querySelectorAll("#tablaOriente tbody tr, #tablaPoniente tbody tr");
+    /* =========================
+       VALIDACIÓN MAQUINAS
+    ========================= */
 
-        let algunaActiva = false;
-        let totalHoras = 0;
+    const filasValidacion = document.querySelectorAll("#tablaOriente tbody tr, #tablaPoniente tbody tr");
 
-        filasValidacion.forEach(f => {
+    let algunaActiva = false;
+    let totalHoras = 0;
+
+    filasValidacion.forEach(f => {
         const uso = f.querySelector(".uso").value;
         const horas = parseInt(f.querySelector(".horas").value) || 0;
         const minutos = parseInt(f.querySelector(".minutos").value) || 0;
 
-    if (uso === "si") {
-        algunaActiva = true;
-        totalHoras += horas + (minutos / 60);
-    }
+        if (uso === "si") {
+            algunaActiva = true;
+            totalHoras += horas + (minutos / 60);
+        }
     });
 
-    /* ❌ Ninguna máquina seleccionada */
     if (!algunaActiva) {
         alert("Debes seleccionar al menos una máquina en 'Sí'");
         return;
     }
 
-    /* ❌ Menos de 1 hora total */
     if (totalHoras < 1) {
         alert("Debes ingresar al menos 1 hora total de trabajo");
         return;
@@ -330,7 +424,19 @@ async function guardarDatos() {
         cantidad,
         fecha,
         fecha_fin,
+
+        /* antes se llamaba tiempo_muerto; ahora será el total de Situacion en minutos */
         tiempo_muerto,
+
+        /* datos completos de la Situacion */
+        situacion_horas,
+        situacion_minutos,
+        situacion_descripcion,
+
+        /* datos de Fallo Máquina */
+        fallo_maquina,
+        maquina_fallo,
+
         dias,
         grupo,
         almuerzo,
@@ -377,27 +483,66 @@ async function guardarDatos() {
 /* =========================
    LIMPIAR
 ========================= */
+/* =========================
+   LIMPIAR
+========================= */
 function limpiarFormulario() {
     document.getElementById("pedido").value = "";
     document.getElementById("Codigo").value = "";
     document.getElementById("Producto").value = "";
     document.getElementById("cantidadProductos").value = 1;
     document.getElementById("fecha").value = "";
-    document.getElementById("tiempoMuerto").value = "";
+
     document.getElementById("dias").value = "";
     document.getElementById("fechaFin").value = "";
+
+    const fechaFinVisual = document.getElementById("fechaFinVisual");
+    if (fechaFinVisual) fechaFinVisual.value = "";
+
     document.getElementById("salida").textContent = "--";
     document.getElementById("grupo").value = "1";
-    document.getElementById("almuerzo").value = "no";
     document.getElementById("trabajaSabado").value = "no";
 
+    /* LIMPIAR SITUACION / EXTRA */
+    const situacionHoras = document.getElementById("situacionHoras");
+    const situacionMinutos = document.getElementById("situacionMinutos");
+    const situacionDescripcion = document.getElementById("situacionDescripcion");
+
+    if (situacionHoras) situacionHoras.value = "0";
+    if (situacionMinutos) situacionMinutos.value = "0";
+    if (situacionDescripcion) situacionDescripcion.value = "";
+
+    const modalHoras = document.getElementById("modalSituacionHoras");
+    const modalMinutos = document.getElementById("modalSituacionMinutos");
+    const modalDescripcion = document.getElementById("modalSituacionDescripcion");
+
+    if (modalHoras) modalHoras.value = "0";
+    if (modalMinutos) modalMinutos.value = "0";
+    if (modalDescripcion) modalDescripcion.value = "";
+
+    cerrarModalSituacion();
+
+    /* LIMPIAR FALLO MAQUINA */
+    const falloMaquina = document.getElementById("falloMaquina");
+    const maquinaFallo = document.getElementById("maquinaFallo");
+
+    if (falloMaquina) falloMaquina.value = "no";
+
+    if (maquinaFallo) {
+        maquinaFallo.value = "";
+        maquinaFallo.style.display = "none";
+    }
+
     document.querySelectorAll("#tablaOriente tbody tr, #tablaPoniente tbody tr").forEach(f => {
-        if (f.querySelector(".uso")) {
-            f.querySelector(".uso").value = "no";
-            f.querySelector(".horas").value = 0;
-            f.querySelector(".minutos").value = 0;
-            actualizarColorFila(f);
-        }
+        const uso = f.querySelector(".uso");
+        const horas = f.querySelector(".horas");
+        const minutos = f.querySelector(".minutos");
+
+        if (uso) uso.value = "no";
+        if (horas) horas.value = 0;
+        if (minutos) minutos.value = 0;
+
+        actualizarColorFila(f);
     });
 
     calcular();

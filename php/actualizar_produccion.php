@@ -2,7 +2,6 @@
 header('Content-Type: application/json');
 require_once __DIR__ . "/conexion.php";
 
-// Leer JSON
 $input = json_decode(file_get_contents("php://input"), true);
 
 $id = intval($input["id"] ?? 0);
@@ -15,7 +14,6 @@ if ($id <= 0) {
     exit;
 }
 
-// Datos principales
 $numero_pedido = trim($input["numero_pedido"] ?? "");
 $codigo = trim($input["codigo"] ?? "");
 $producto = trim($input["producto"] ?? "");
@@ -29,10 +27,19 @@ $grupo = trim($input["grupo"] ?? "");
 $almuerzo = trim($input["almuerzo"] ?? "no");
 $salida = trim($input["salida"] ?? "--");
 $usuario_id = isset($input["usuario_id"]) ? intval($input["usuario_id"]) : null;
-
 $maquinas = $input["maquinas"] ?? [];
 
-// Validación básica
+/* NUEVO: SITUACION */
+$situacion_descripcion = trim($input["situacion_descripcion"] ?? "");
+
+/* NUEVO: FALLO MAQUINA */
+$fallo_maquina = trim($input["fallo_maquina"] ?? "no");
+$maquina_fallo = trim($input["maquina_fallo"] ?? "");
+
+if ($fallo_maquina === "no") {
+    $maquina_fallo = "";
+}
+
 if ($numero_pedido === "" || $codigo === "" || $producto === "" || $cantidad <= 0) {
     echo json_encode([
         "success" => false,
@@ -41,16 +48,12 @@ if ($numero_pedido === "" || $codigo === "" || $producto === "" || $cantidad <= 
     exit;
 }
 
-// Transacción
 $conn->begin_transaction();
 
 try {
 
-    /* =========================
-       ACTUALIZAR PRODUCCION
-    ========================= */
     $stmt = $conn->prepare("
-    UPDATE produccion SET
+        UPDATE produccion SET
             numero_pedido = ?,
             codigo = ?,
             producto = ?,
@@ -63,6 +66,8 @@ try {
             almuerzo = ?,
             trabaja_sabado = ?,
             salida = ?,
+            fallo_maquina = ?,
+            maquina_fallo = ?,
             usuario_id = ?
         WHERE id = ?
     ");
@@ -71,8 +76,8 @@ try {
         throw new Exception("Error en UPDATE: " . $conn->error);
     }
 
-        $stmt->bind_param(
-        "sssissiissssii",
+    $stmt->bind_param(
+        "sssissiissssssii",
         $numero_pedido,
         $codigo,
         $producto,
@@ -85,6 +90,8 @@ try {
         $almuerzo,
         $trabaja_sabado,
         $salida,
+        $fallo_maquina,
+        $maquina_fallo,
         $usuario_id,
         $id
     );
@@ -95,17 +102,13 @@ try {
 
     $stmt->close();
 
-    /* =========================
-       ELIMINAR MAQUINAS ANTIGUAS
-    ========================= */
+    /* ELIMINAR MAQUINAS ANTIGUAS */
     $delete = $conn->prepare("DELETE FROM produccion_maquinas WHERE produccion_id = ?");
     $delete->bind_param("i", $id);
     $delete->execute();
     $delete->close();
 
-    /* =========================
-       INSERTAR MAQUINAS NUEVAS
-    ========================= */
+    /* INSERTAR MAQUINAS NUEVAS */
     $stmtMaquina = $conn->prepare("
         INSERT INTO produccion_maquinas
         (produccion_id, zona, maquina, uso, horas, minutos)
@@ -141,6 +144,37 @@ try {
     }
 
     $stmtMaquina->close();
+
+    /* ACTUALIZAR SITUACION */
+    $deleteSituacion = $conn->prepare("DELETE FROM situaciones_produccion WHERE produccion_id = ?");
+    $deleteSituacion->bind_param("i", $id);
+    $deleteSituacion->execute();
+    $deleteSituacion->close();
+
+    if ($tiempo_muerto > 0 && $situacion_descripcion !== "") {
+        $stmtSituacion = $conn->prepare("
+            INSERT INTO situaciones_produccion
+            (produccion_id, tiempo_extra_minutos, descripcion)
+            VALUES (?, ?, ?)
+        ");
+
+        if (!$stmtSituacion) {
+            throw new Exception("Error en INSERT situacion: " . $conn->error);
+        }
+
+        $stmtSituacion->bind_param(
+            "iis",
+            $id,
+            $tiempo_muerto,
+            $situacion_descripcion
+        );
+
+        if (!$stmtSituacion->execute()) {
+            throw new Exception("Error al insertar situación: " . $stmtSituacion->error);
+        }
+
+        $stmtSituacion->close();
+    }
 
     $conn->commit();
 
