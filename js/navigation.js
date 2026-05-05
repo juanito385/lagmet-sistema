@@ -11,5 +11,5 @@ function showSection(id){
     if(boton) boton.classList.add('active');
 
     if(id === "productos") renderProductos();
-    if(id === "documentacion") mostrarGantt();
+    if(id === "documentacion") mostrarGanttPorMaquina();
 }

@@ -527,3 +527,160 @@
 .gantt .tick{
     stroke:#eeeeee !important;
 }
+
+.gantt-machine-container{
+    display:flex;
+    flex-direction:column;
+    gap:20px;
+    padding:20px;
+}
+
+.gantt-machine-row{
+    display:flex;
+    align-items:center;
+    gap:20px;
+}
+
+.gantt-machine-label{
+    width:200px;
+    font-weight:700;
+}
+
+.gantt-machine-bars{
+    display:flex;
+    gap:10px;
+    align-items:center;
+}
+
+.gantt-bar-custom{
+    height:28px;
+    background:#4facfe;
+    color:white;
+    border-radius:8px;
+    padding:4px 10px;
+    font-size:12px;
+    display:flex;
+    align-items:center;
+}
+
+/* =========================
+   GANTT POR MÁQUINA
+========================= */
+
+.gantt-side-head.machine-mode{
+    grid-template-columns:1.4fr 0.7fr;
+}
+
+.gantt-side-row.machine-mode{
+    grid-template-columns:1.4fr 0.7fr;
+    height:74px;
+}
+
+.gantt-side-row.machine-mode .gantt-side-producto small{
+    display:block;
+    margin-top:4px;
+}
+
+.gantt-machine-pro{
+    position:relative;
+    background:#fff;
+    min-height:560px;
+}
+
+.gantt-machine-calendar{
+    height:105px;
+    border-bottom:1px solid #ddd;
+    position:relative;
+    background:#fff;
+}
+
+.gantt-months{
+    height:48px;
+    position:relative;
+}
+
+.gantt-month{
+    position:absolute;
+    top:18px;
+    font-size:16px;
+    font-weight:600;
+    color:#222;
+}
+
+.gantt-days{
+    display:flex;
+    height:57px;
+    align-items:center;
+}
+
+.gantt-day{
+    width:48px;
+    min-width:48px;
+    text-align:center;
+    color:#777;
+    font-size:14px;
+}
+
+.gantt-machine-body{
+    position:relative;
+}
+
+.gantt-machine-timeline-row{
+    position:relative;
+    height:74px;
+    border-bottom:1px solid #eee;
+    background:repeating-linear-gradient(
+        to right,
+        #ffffff 0,
+        #ffffff 47px,
+        #eeeeee 48px
+    );
+}
+
+.gantt-machine-timeline-row:nth-child(even){
+    background:
+        linear-gradient(#fafafa,#fafafa),
+        repeating-linear-gradient(
+            to right,
+            transparent 0,
+            transparent 47px,
+            #eeeeee 48px
+        );
+}
+
+.gantt-machine-bar{
+    position:absolute;
+    top:22px;
+    height:32px;
+    border-radius:8px;
+    color:white;
+    font-size:13px;
+    font-weight:600;
+    padding:0 12px;
+    display:flex;
+    align-items:center;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    box-shadow:0 4px 10px rgba(0,0,0,0.18);
+}
+
+.gantt-machine-bar.gantt-proceso{
+    background:#28a745;
+}
+
+.gantt-machine-bar.gantt-pendiente{
+    background:#5dade2;
+}
+
+.gantt-machine-bar.gantt-atrasado{
+    background:#e74c3c;
+}
+
+.gantt-machine-bar.gantt-tiempo-muerto{
+    background:#f39c12;
+}
+
+.gantt-machine-bar.gantt-terminado{
+    background:#9aa0a6;
+}
