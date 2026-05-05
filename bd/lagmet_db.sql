@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 29-04-2026 a las 04:01:20
+-- Tiempo de generación: 04-05-2026 a las 21:36:13
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -83,18 +83,21 @@ CREATE TABLE `produccion` (
   `usuario_id` int(11) DEFAULT NULL,
   `fecha_registro` timestamp NOT NULL DEFAULT current_timestamp(),
   `fecha_fin` date DEFAULT NULL,
-  `trabaja_sabado` varchar(2) DEFAULT 'no'
+  `trabaja_sabado` varchar(2) DEFAULT 'no',
+  `fallo_maquina` varchar(5) DEFAULT 'no',
+  `maquina_fallo` varchar(100) DEFAULT NULL,
+  `turno` varchar(20) DEFAULT 'Mañana'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Volcado de datos para la tabla `produccion`
 --
 
-INSERT INTO `produccion` (`id`, `numero_pedido`, `codigo`, `producto`, `cantidad`, `fecha`, `tiempo_muerto`, `dias`, `grupo`, `almuerzo`, `salida`, `usuario_id`, `fecha_registro`, `fecha_fin`, `trabaja_sabado`) VALUES
-(1, '111222', '020202', 'descanso_1', 4, '2026-04-24', 0, 5, '1', 'no', '40h 0m → 3:30 P. M.', 1, '2026-04-27 15:31:50', '2026-05-04', 'no'),
-(3, '343434', '231223', 'ajuste_manual', 5, '2026-04-25', 0, 5, '1', 'no', '35h 0m → 9:30 A. M.', 1, '2026-04-27 15:46:40', '2026-05-04', 'no'),
-(4, '454545', '224434', 'metal_pesado', 4, '2026-04-21', 0, 1, '1', 'no', '8h 0m → 4:30 P. M.', 1, '2026-04-27 19:23:07', '2026-04-28', 'no'),
-(5, '4343434', '12121212', 'prueba', 1, '2026-04-24', 0, 2, '1', 'no', '10h 0m → 9:15 A. M.', 1, '2026-04-29 00:45:49', '2026-04-25', 'si');
+INSERT INTO `produccion` (`id`, `numero_pedido`, `codigo`, `producto`, `cantidad`, `fecha`, `tiempo_muerto`, `dias`, `grupo`, `almuerzo`, `salida`, `usuario_id`, `fecha_registro`, `fecha_fin`, `trabaja_sabado`, `fallo_maquina`, `maquina_fallo`, `turno`) VALUES
+(1, '111222', '020202', 'descanso_1', 4, '2026-04-24', 0, 5, '1', 'no', '40h 0m → 3:30 P. M.', 1, '2026-04-27 15:31:50', '2026-05-04', 'no', 'no', NULL, 'Mañana'),
+(4, '454545', '224434', 'metal_pesado', 2, '2026-05-04', 0, 1, '1', 'no', '8h 0m → 4:30 P. M.', 1, '2026-04-27 19:23:07', '2026-04-28', 'no', 'no', NULL, 'Noche'),
+(5, '12345', '232323', 'prueba2', 2, '2026-05-03', 90, 2, '1', 'no', '11h 30m → 10:45 A. M', 1, '2026-04-29 00:45:49', '2026-04-23', 'si', 'no', NULL, 'Tarde'),
+(6, '654321', '12543', 'prueba4', 5, '2026-05-04', 105, 4, '1', 'no', '26h 45m → 9:30 A. M.', 1, '2026-05-04 15:34:04', '2026-05-07', 'si', 'no', '', 'Mañana');
 
 -- --------------------------------------------------------
 
@@ -118,44 +121,6 @@ CREATE TABLE `produccion_maquinas` (
 --
 
 INSERT INTO `produccion_maquinas` (`id`, `produccion_id`, `zona`, `maquina`, `uso`, `horas`, `minutos`, `fecha_registro`) VALUES
-(324, 4, 'oriente', 'Torno Vertical CNC', 'si', 2, 0, '2026-04-29 01:26:35'),
-(325, 4, 'oriente', 'Mandrinadora', 'no', 0, 0, '2026-04-29 01:26:35'),
-(326, 4, 'oriente', 'Torno Vertical', 'no', 0, 0, '2026-04-29 01:26:35'),
-(327, 4, 'oriente', 'Mandrinadora', 'no', 0, 0, '2026-04-29 01:26:35'),
-(328, 4, 'oriente', 'Torno 1000', 'no', 0, 0, '2026-04-29 01:26:35'),
-(329, 4, 'oriente', 'Torno 800', 'no', 0, 0, '2026-04-29 01:26:35'),
-(330, 4, 'oriente', 'Torno Bulgaro', 'no', 0, 0, '2026-04-29 01:26:35'),
-(331, 4, 'oriente', 'Torno Varileta', 'no', 0, 0, '2026-04-29 01:26:35'),
-(332, 4, 'oriente', 'Cepillo', 'no', 0, 0, '2026-04-29 01:26:35'),
-(333, 4, 'oriente', 'Escoplo', 'no', 0, 0, '2026-04-29 01:26:35'),
-(334, 4, 'oriente', 'Taladro Radial', 'no', 0, 0, '2026-04-29 01:26:35'),
-(335, 4, 'poniente', 'Torno CNC 2', 'no', 0, 0, '2026-04-29 01:26:35'),
-(336, 4, 'poniente', 'Torno CNC 3', 'no', 0, 0, '2026-04-29 01:26:35'),
-(337, 4, 'poniente', 'Torno CNC 1', 'no', 0, 0, '2026-04-29 01:26:35'),
-(338, 4, 'poniente', 'Centro Mecanizado 1', 'no', 0, 0, '2026-04-29 01:26:35'),
-(339, 4, 'poniente', 'Centro Mecanizado 2', 'no', 0, 0, '2026-04-29 01:26:35'),
-(340, 4, 'poniente', 'Router', 'no', 0, 0, '2026-04-29 01:26:35'),
-(341, 4, 'poniente', 'Mecánica Banco', 'no', 0, 0, '2026-04-29 01:26:35'),
-(342, 4, 'poniente', 'Balanceadora', 'no', 0, 0, '2026-04-29 01:26:35'),
-(343, 3, 'oriente', 'Torno Vertical CNC', 'si', 7, 0, '2026-04-29 01:26:45'),
-(344, 3, 'oriente', 'Mandrinadora', 'no', 0, 0, '2026-04-29 01:26:45'),
-(345, 3, 'oriente', 'Torno Vertical', 'no', 0, 0, '2026-04-29 01:26:45'),
-(346, 3, 'oriente', 'Mandrinadora', 'no', 0, 0, '2026-04-29 01:26:45'),
-(347, 3, 'oriente', 'Torno 1000', 'no', 0, 0, '2026-04-29 01:26:45'),
-(348, 3, 'oriente', 'Torno 800', 'no', 0, 0, '2026-04-29 01:26:45'),
-(349, 3, 'oriente', 'Torno Bulgaro', 'no', 0, 0, '2026-04-29 01:26:45'),
-(350, 3, 'oriente', 'Torno Varileta', 'no', 0, 0, '2026-04-29 01:26:45'),
-(351, 3, 'oriente', 'Cepillo', 'no', 0, 0, '2026-04-29 01:26:45'),
-(352, 3, 'oriente', 'Escoplo', 'no', 0, 0, '2026-04-29 01:26:45'),
-(353, 3, 'oriente', 'Taladro Radial', 'no', 0, 0, '2026-04-29 01:26:45'),
-(354, 3, 'poniente', 'Torno CNC 2', 'no', 0, 0, '2026-04-29 01:26:45'),
-(355, 3, 'poniente', 'Torno CNC 3', 'no', 0, 0, '2026-04-29 01:26:45'),
-(356, 3, 'poniente', 'Torno CNC 1', 'no', 0, 0, '2026-04-29 01:26:45'),
-(357, 3, 'poniente', 'Centro Mecanizado 1', 'no', 0, 0, '2026-04-29 01:26:45'),
-(358, 3, 'poniente', 'Centro Mecanizado 2', 'no', 0, 0, '2026-04-29 01:26:45'),
-(359, 3, 'poniente', 'Router', 'no', 0, 0, '2026-04-29 01:26:45'),
-(360, 3, 'poniente', 'Mecánica Banco', 'no', 0, 0, '2026-04-29 01:26:45'),
-(361, 3, 'poniente', 'Balanceadora', 'no', 0, 0, '2026-04-29 01:26:45'),
 (362, 1, 'oriente', 'Torno Vertical CNC', 'si', 10, 0, '2026-04-29 01:27:02'),
 (363, 1, 'oriente', 'Mandrinadora', 'no', 0, 0, '2026-04-29 01:27:02'),
 (364, 1, 'oriente', 'Torno Vertical', 'no', 0, 0, '2026-04-29 01:27:02'),
@@ -175,25 +140,63 @@ INSERT INTO `produccion_maquinas` (`id`, `produccion_id`, `zona`, `maquina`, `us
 (378, 1, 'poniente', 'Router', 'no', 0, 0, '2026-04-29 01:27:02'),
 (379, 1, 'poniente', 'Mecánica Banco', 'no', 0, 0, '2026-04-29 01:27:02'),
 (380, 1, 'poniente', 'Balanceadora', 'no', 0, 0, '2026-04-29 01:27:02'),
-(476, 5, 'oriente', 'Torno Vertical CNC', 'si', 10, 0, '2026-04-29 01:46:36'),
-(477, 5, 'oriente', 'Mandrinadora', 'no', 0, 0, '2026-04-29 01:46:36'),
-(478, 5, 'oriente', 'Torno Vertical', 'no', 0, 0, '2026-04-29 01:46:36'),
-(479, 5, 'oriente', 'Mandrinadora', 'no', 0, 0, '2026-04-29 01:46:36'),
-(480, 5, 'oriente', 'Torno 1000', 'no', 0, 0, '2026-04-29 01:46:36'),
-(481, 5, 'oriente', 'Torno 800', 'no', 0, 0, '2026-04-29 01:46:36'),
-(482, 5, 'oriente', 'Torno Bulgaro', 'no', 0, 0, '2026-04-29 01:46:36'),
-(483, 5, 'oriente', 'Torno Varileta', 'no', 0, 0, '2026-04-29 01:46:36'),
-(484, 5, 'oriente', 'Cepillo', 'no', 0, 0, '2026-04-29 01:46:36'),
-(485, 5, 'oriente', 'Escoplo', 'no', 0, 0, '2026-04-29 01:46:36'),
-(486, 5, 'oriente', 'Taladro Radial', 'no', 0, 0, '2026-04-29 01:46:36'),
-(487, 5, 'poniente', 'Torno CNC 2', 'no', 0, 0, '2026-04-29 01:46:36'),
-(488, 5, 'poniente', 'Torno CNC 3', 'no', 0, 0, '2026-04-29 01:46:36'),
-(489, 5, 'poniente', 'Torno CNC 1', 'no', 0, 0, '2026-04-29 01:46:36'),
-(490, 5, 'poniente', 'Centro Mecanizado 1', 'no', 0, 0, '2026-04-29 01:46:36'),
-(491, 5, 'poniente', 'Centro Mecanizado 2', 'no', 0, 0, '2026-04-29 01:46:36'),
-(492, 5, 'poniente', 'Router', 'no', 0, 0, '2026-04-29 01:46:36'),
-(493, 5, 'poniente', 'Mecánica Banco', 'no', 0, 0, '2026-04-29 01:46:36'),
-(494, 5, 'poniente', 'Balanceadora', 'no', 0, 0, '2026-04-29 01:46:36');
+(552, 4, 'oriente', 'Torno Vertical CNC', 'si', 4, 0, '2026-04-30 14:07:22'),
+(553, 4, 'oriente', 'Mandrinadora', 'no', 0, 0, '2026-04-30 14:07:22'),
+(554, 4, 'oriente', 'Torno Vertical', 'no', 0, 0, '2026-04-30 14:07:22'),
+(555, 4, 'oriente', 'Mandrinadora', 'no', 0, 0, '2026-04-30 14:07:22'),
+(556, 4, 'oriente', 'Torno 1000', 'no', 0, 0, '2026-04-30 14:07:22'),
+(557, 4, 'oriente', 'Torno 800', 'no', 0, 0, '2026-04-30 14:07:22'),
+(558, 4, 'oriente', 'Torno Bulgaro', 'no', 0, 0, '2026-04-30 14:07:22'),
+(559, 4, 'oriente', 'Torno Varileta', 'no', 0, 0, '2026-04-30 14:07:22'),
+(560, 4, 'oriente', 'Cepillo', 'no', 0, 0, '2026-04-30 14:07:22'),
+(561, 4, 'oriente', 'Escoplo', 'no', 0, 0, '2026-04-30 14:07:22'),
+(562, 4, 'oriente', 'Taladro Radial', 'no', 0, 0, '2026-04-30 14:07:22'),
+(563, 4, 'poniente', 'Torno CNC 2', 'no', 0, 0, '2026-04-30 14:07:22'),
+(564, 4, 'poniente', 'Torno CNC 3', 'no', 0, 0, '2026-04-30 14:07:22'),
+(565, 4, 'poniente', 'Torno CNC 1', 'no', 0, 0, '2026-04-30 14:07:22'),
+(566, 4, 'poniente', 'Centro Mecanizado 1', 'no', 0, 0, '2026-04-30 14:07:22'),
+(567, 4, 'poniente', 'Centro Mecanizado 2', 'no', 0, 0, '2026-04-30 14:07:22'),
+(568, 4, 'poniente', 'Router', 'no', 0, 0, '2026-04-30 14:07:22'),
+(569, 4, 'poniente', 'Mecánica Banco', 'no', 0, 0, '2026-04-30 14:07:22'),
+(570, 4, 'poniente', 'Balanceadora', 'no', 0, 0, '2026-04-30 14:07:22'),
+(590, 5, 'oriente', 'Torno Vertical CNC', 'si', 5, 0, '2026-05-04 15:18:56'),
+(591, 5, 'oriente', 'Mandrinadora', 'no', 0, 0, '2026-05-04 15:18:56'),
+(592, 5, 'oriente', 'Torno Vertical', 'no', 0, 0, '2026-05-04 15:18:56'),
+(593, 5, 'oriente', 'Mandrinadora', 'no', 0, 0, '2026-05-04 15:18:56'),
+(594, 5, 'oriente', 'Torno 1000', 'no', 0, 0, '2026-05-04 15:18:56'),
+(595, 5, 'oriente', 'Torno 800', 'no', 0, 0, '2026-05-04 15:18:56'),
+(596, 5, 'oriente', 'Torno Bulgaro', 'no', 0, 0, '2026-05-04 15:18:56'),
+(597, 5, 'oriente', 'Torno Varileta', 'no', 0, 0, '2026-05-04 15:18:56'),
+(598, 5, 'oriente', 'Cepillo', 'no', 0, 0, '2026-05-04 15:18:56'),
+(599, 5, 'oriente', 'Escoplo', 'no', 0, 0, '2026-05-04 15:18:56'),
+(600, 5, 'oriente', 'Taladro Radial', 'no', 0, 0, '2026-05-04 15:18:56'),
+(601, 5, 'poniente', 'Torno CNC 2', 'no', 0, 0, '2026-05-04 15:18:56'),
+(602, 5, 'poniente', 'Torno CNC 3', 'no', 0, 0, '2026-05-04 15:18:56'),
+(603, 5, 'poniente', 'Torno CNC 1', 'no', 0, 0, '2026-05-04 15:18:56'),
+(604, 5, 'poniente', 'Centro Mecanizado 1', 'no', 0, 0, '2026-05-04 15:18:56'),
+(605, 5, 'poniente', 'Centro Mecanizado 2', 'no', 0, 0, '2026-05-04 15:18:56'),
+(606, 5, 'poniente', 'Router', 'no', 0, 0, '2026-05-04 15:18:56'),
+(607, 5, 'poniente', 'Mecánica Banco', 'no', 0, 0, '2026-05-04 15:18:56'),
+(608, 5, 'poniente', 'Balanceadora', 'no', 0, 0, '2026-05-04 15:18:56'),
+(723, 6, 'oriente', 'Torno Vertical CNC', 'si', 2, 0, '2026-05-04 18:19:36'),
+(724, 6, 'oriente', 'Mandrinadora', 'no', 0, 0, '2026-05-04 18:19:36'),
+(725, 6, 'oriente', 'Torno Vertical', 'si', 3, 0, '2026-05-04 18:19:36'),
+(726, 6, 'oriente', 'Mandrinadora', 'no', 0, 0, '2026-05-04 18:19:36'),
+(727, 6, 'oriente', 'Torno 1000', 'no', 0, 0, '2026-05-04 18:19:36'),
+(728, 6, 'oriente', 'Torno 800', 'no', 0, 0, '2026-05-04 18:19:36'),
+(729, 6, 'oriente', 'Torno Bulgaro', 'no', 0, 0, '2026-05-04 18:19:36'),
+(730, 6, 'oriente', 'Torno Varileta', 'no', 0, 0, '2026-05-04 18:19:36'),
+(731, 6, 'oriente', 'Cepillo', 'no', 0, 0, '2026-05-04 18:19:36'),
+(732, 6, 'oriente', 'Escoplo', 'no', 0, 0, '2026-05-04 18:19:36'),
+(733, 6, 'oriente', 'Taladro Radial', 'no', 0, 0, '2026-05-04 18:19:36'),
+(734, 6, 'poniente', 'Torno CNC 2', 'no', 0, 0, '2026-05-04 18:19:36'),
+(735, 6, 'poniente', 'Torno CNC 3', 'no', 0, 0, '2026-05-04 18:19:36'),
+(736, 6, 'poniente', 'Torno CNC 1', 'no', 0, 0, '2026-05-04 18:19:36'),
+(737, 6, 'poniente', 'Centro Mecanizado 1', 'no', 0, 0, '2026-05-04 18:19:36'),
+(738, 6, 'poniente', 'Centro Mecanizado 2', 'no', 0, 0, '2026-05-04 18:19:36'),
+(739, 6, 'poniente', 'Router', 'no', 0, 0, '2026-05-04 18:19:36'),
+(740, 6, 'poniente', 'Mecánica Banco', 'no', 0, 0, '2026-05-04 18:19:36'),
+(741, 6, 'poniente', 'Balanceadora', 'no', 0, 0, '2026-05-04 18:19:36');
 
 -- --------------------------------------------------------
 
@@ -212,6 +215,27 @@ CREATE TABLE `rutas_maquinas` (
   `estado` varchar(50) DEFAULT 'En proceso',
   `fecha_registro` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `situaciones_produccion`
+--
+
+CREATE TABLE `situaciones_produccion` (
+  `id` int(11) NOT NULL,
+  `produccion_id` int(11) NOT NULL,
+  `tiempo_extra_minutos` int(11) NOT NULL,
+  `descripcion` text DEFAULT NULL,
+  `fecha_registro` datetime DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `situaciones_produccion`
+--
+
+INSERT INTO `situaciones_produccion` (`id`, `produccion_id`, `tiempo_extra_minutos`, `descripcion`, `fecha_registro`) VALUES
+(6, 6, 105, 'retraso de pieza en maquinaria 1', '2026-05-04 14:19:36');
 
 -- --------------------------------------------------------
 
@@ -268,6 +292,13 @@ ALTER TABLE `rutas_maquinas`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Indices de la tabla `situaciones_produccion`
+--
+ALTER TABLE `situaciones_produccion`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `produccion_id` (`produccion_id`);
+
+--
 -- Indices de la tabla `usuarios`
 --
 ALTER TABLE `usuarios`
@@ -287,19 +318,25 @@ ALTER TABLE `maquinas`
 -- AUTO_INCREMENT de la tabla `produccion`
 --
 ALTER TABLE `produccion`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT de la tabla `produccion_maquinas`
 --
 ALTER TABLE `produccion_maquinas`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=495;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=742;
 
 --
 -- AUTO_INCREMENT de la tabla `rutas_maquinas`
 --
 ALTER TABLE `rutas_maquinas`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de la tabla `situaciones_produccion`
+--
+ALTER TABLE `situaciones_produccion`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT de la tabla `usuarios`
@@ -316,6 +353,12 @@ ALTER TABLE `usuarios`
 --
 ALTER TABLE `produccion_maquinas`
   ADD CONSTRAINT `produccion_maquinas_ibfk_1` FOREIGN KEY (`produccion_id`) REFERENCES `produccion` (`id`) ON DELETE CASCADE;
+
+--
+-- Filtros para la tabla `situaciones_produccion`
+--
+ALTER TABLE `situaciones_produccion`
+  ADD CONSTRAINT `situaciones_produccion_ibfk_1` FOREIGN KEY (`produccion_id`) REFERENCES `produccion` (`id`) ON DELETE CASCADE;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

@@ -59,8 +59,31 @@ function obtenerClaseEstado(progress, item, fin){
 /* =========================
    FORMATEAR FECHA
 ========================= */
-function formatearFecha(fecha){
-    return fecha.toISOString().split("T")[0];
+function formatearFecha(fecha) {
+    if (!fecha) return "";
+
+    if (typeof fecha === "string") {
+        const partes = fecha.split("-");
+        if (partes.length === 3) {
+            const f = new Date(partes[0], partes[1] - 1, partes[2]);
+
+            return f.toLocaleDateString("es-CL", {
+                day: "2-digit",
+                month: "long",
+                year: "numeric"
+            });
+        }
+    }
+
+    if (fecha instanceof Date) {
+        return fecha.toLocaleDateString("es-CL", {
+            day: "2-digit",
+            month: "long",
+            year: "numeric"
+        });
+    }
+
+    return fecha;
 }
 
 /* =========================

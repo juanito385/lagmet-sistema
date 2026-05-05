@@ -22,6 +22,13 @@ $response = [
     "success" => true
 ];
 
+function formatearMinutos($minutos) {
+    $horas = floor($minutos / 60);
+    $mins = $minutos % 60;
+
+    return $horas . "h " . str_pad($mins, 2, "0", STR_PAD_LEFT) . "m";
+}
+
 /* TOTAL PRODUCTOS */
 $sql = "SELECT COUNT(*) AS total FROM produccion";
 $res = $conn->query($sql);
@@ -184,6 +191,24 @@ if ($res && $row = $res->fetch_assoc()) {
     $maquinasDetenidas = intval($row["detenidas"] ?? 0);
 }
 
+/* TIEMPO DETENIDAS */
+$sql = "SELECT 
+            SUM(TIMESTAMPDIFF(MINUTE, fecha_actualizacion, NOW())) AS total_minutos
+        FROM maquinas
+        WHERE estado = 'No'";
+
+$res = $conn->query($sql);
+
+$totalMinutosDetenidas = 0;
+
+if ($res && $row = $res->fetch_assoc()) {
+    $totalMinutosDetenidas = intval($row["total_minutos"] ?? 0);
+}
+
+$promedioMinutosDetenidas = $maquinasDetenidas > 0 
+    ? round($totalMinutosDetenidas / $maquinasDetenidas) 
+    : 0;
+
 /* ESTADO PRODUCCIÓN */
 $sql = "SELECT 
             SUM(CASE WHEN fecha_fin IS NOT NULL THEN 1 ELSE 0 END) AS completados,
@@ -204,14 +229,38 @@ if ($res && $row = $res->fetch_assoc()) {
 
 /* ÚLTIMOS REGISTROS */
 $sql = "SELECT 
-            id,
-            producto,
-            numero_pedido,
-            codigo,
-            cantidad,
-            fecha
-        FROM produccion
-        ORDER BY id DESC
+            p.id,
+            p.producto,
+            p.numero_pedido,
+            p.codigo,
+            p.cantidad,
+            p.fecha,
+            p.turno,
+            COALESCE(u.nombre, 'Admin') AS usuario,
+            COALESCE(
+                GROUP_CONCAT(
+                    CASE 
+                        WHEN pm.uso = 'si' THEN pm.maquina 
+                    END 
+                    SEPARATOR ', '
+                ),
+                'Sin máquina'
+            ) AS maquinas_usadas
+        FROM produccion p
+        LEFT JOIN produccion_maquinas pm 
+            ON p.id = pm.produccion_id
+        LEFT JOIN usuarios u 
+            ON p.usuario_id = u.id
+        GROUP BY 
+            p.id,
+            p.producto,
+            p.numero_pedido,
+            p.codigo,
+            p.cantidad,
+            p.fecha,
+            p.turno,
+            u.nombre
+        ORDER BY p.id DESC
         LIMIT 5";
 $res = $conn->query($sql);
 
@@ -252,6 +301,11 @@ $response["comparacion"] = [
 
 $response["semana"] = $semana;
 
+$response["tiempo_detenido"] = [
+    "total" => formatearMinutos($totalMinutosDetenidas),
+    "promedio" => formatearMinutos($promedioMinutosDetenidas)
+];
+
 $response["resumen"] = [
     "operativas" => $maquinasOperativas,
     "en_proceso" => $productosProceso,
@@ -262,17 +316,40 @@ $response["resumen"] = [
 $response["fallas"] = $fallas;
 $response["top_maquinas"] = $topMaquinas;
 
-$response["top_usuarios"] = [
-    [
-        "usuario" => "Admin",
-        "total" => $produccionHoy
-    ]
-];
+/* TOP USUARIOS */
+$sql = "SELECT 
+            COALESCE(u.nombre, 'Admin') AS usuario,
+            SUM(p.cantidad) AS total
+        FROM produccion p
+        LEFT JOIN usuarios u ON p.usuario_id = u.id
+        GROUP BY usuario
+        ORDER BY total DESC
+        LIMIT 3";
+
+$res = $conn->query($sql);
+
+$topUsuarios = [];
+
+if ($res) {
+    while ($row = $res->fetch_assoc()) {
+        $topUsuarios[] = [
+            "usuario" => $row["usuario"],
+            "total" => intval($row["total"] ?? 0)
+        ];
+    }
+}
+
+$response["top_usuarios"] = $topUsuarios;
 
 $response["estado_produccion"] = [
     "completados" => $completados,
     "en_proceso" => $enProceso,
     "atrasados" => $atrasados
+];
+
+$response["tiempo_detenido"] = [
+    "total" => formatearMinutos($totalMinutosDetenidas),
+    "promedio" => formatearMinutos($promedioMinutosDetenidas)
 ];
 
 $response["ultimos_registros"] = $ultimos;

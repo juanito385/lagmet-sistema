@@ -43,6 +43,7 @@ async function cargarDatosDashboard(periodo = "hoy") {
         cargarComparacion(data.comparacion);
         cargarProduccionSemanal(data.semana);
         cargarResumenRapido(data.resumen);
+        cargarTiempoDetenido(data.tiempo_detenido); // 👈 AQUÍ
         cargarFallas(data.fallas);
         cargarTopMaquinas(data.top_maquinas);
         cargarTopUsuarios(data.top_usuarios);
@@ -311,6 +312,14 @@ function cargarTopUsuarios(usuarios) {
 }
 
 /* =========================
+   TIEMPO DETENIDO
+========================= */
+function cargarTiempoDetenido(tiempo) {
+    actualizarTexto("tiempoDetenido", tiempo?.total ?? "0h 00m");
+    actualizarTexto("promedioDetenido", tiempo?.promedio ?? "0h 00m");
+}
+
+/* =========================
    ESTADO PRODUCCIÓN
 ========================= */
 function cargarEstadoProduccion(estado) {
@@ -344,16 +353,15 @@ function cargarUltimosRegistros(registros) {
     registros.forEach(item => {
         const fila = document.createElement("tr");
 
-        fila.innerHTML = `
-            <td>#${item.id ?? ""}</td>
-            <td>${item.producto ?? ""}</td>
-            <td>${item.codigo ?? "Sin máquina"}</td>
-            <td>${item.numero_pedido ?? "Sin turno"}</td>
-            <td><span class="badge-blue">${item.cantidad ?? 0} piezas</span></td>
-            <td>${item.fecha ?? ""}</td>
-            <td>Admin</td>
-        `;
-
+            fila.innerHTML = `
+        <td>#${item.id ?? ""}</td>
+        <td>${item.producto ?? ""}</td>
+        <td>${formatearMaquinas(item.maquinas_usadas)}</td>
+        <td>${item.turno ?? "Sin turno"}</td>
+        <td><span class="badge-blue">${item.cantidad ?? 0} piezas</span></td>
+        <td>${formatearFecha(item.fecha)}</td>
+        <td>${item.usuario ?? "Admin"}</td>
+    `;
         tbody.appendChild(fila);
     });
 }
@@ -364,7 +372,51 @@ function cargarUltimosRegistros(registros) {
 function actualizarTexto(id, valor) {
     const elemento = document.getElementById(id);
     if (elemento) elemento.textContent = valor;
+    
 }
+
+function formatearFecha(fecha) {
+    if (!fecha) return "";
+
+    const partes = fecha.split("-");
+    if (partes.length !== 3) return fecha;
+
+    const f = new Date(partes[0], partes[1] - 1, partes[2]);
+
+    return f.toLocaleDateString("es-CL", {
+        day: "2-digit",
+        month: "long",
+        year: "numeric"
+    });
+}
+
+function formatearMaquinas(maquinas) {
+    if (!maquinas || maquinas === "Sin máquina") {
+        return "Sin máquina";
+    }
+
+    const lista = maquinas.split(",").map(m => m.trim()).filter(Boolean);
+
+    if (lista.length <= 1) {
+        return lista[0];
+    }
+
+    const primera = lista[0];
+    const completo = lista.map(m => `<li>${m}</li>`).join("");
+
+    return `
+        <div class="maquina-tooltip-wrap">
+            <span class="maquina-corta">${primera}...</span>
+            <button class="btn-maquinas-info" type="button">...</button>
+
+            <div class="maquina-tooltip">
+                <strong>Máquinas utilizadas:</strong>
+                <ul>${completo}</ul>
+            </div>
+        </div>
+    `;
+}
+
 
 function actualizarAltura(id, porcentaje) {
     const elemento = document.getElementById(id);

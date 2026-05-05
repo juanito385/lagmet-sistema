@@ -873,3 +873,77 @@
     width: 100% !important;
     height: 100% !important;
 }
+
+/* =========================
+   TOOLTIP MÁQUINAS TABLA DASHBOARD
+========================= */
+
+.maquina-tooltip-wrap{
+    position:relative;
+    display:flex;
+    align-items:center;
+    gap:8px;
+    max-width:260px;
+}
+
+.maquina-corta{
+    max-width:190px;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    display:inline-block;
+}
+
+.btn-maquinas-info{
+    width:28px;
+    height:28px;
+    min-width:28px;
+    height:28px;
+    border-radius:50%;
+    border:1px solid rgba(255,255,255,.35);
+    background:rgba(255,255,255,.08);
+    color:#fff;
+    cursor:pointer;
+    font-size:13px;
+    line-height:1;
+}
+
+.btn-maquinas-info:hover{
+    background:rgba(139,92,246,.35);
+    border-color:rgba(139,92,246,.8);
+}
+
+.maquina-tooltip{
+    display:none;
+    position:absolute;
+    top:34px;
+    left:120px;
+    z-index:999;
+    width:230px;
+    padding:14px 16px;
+    border-radius:10px;
+    background:#171b2d;
+    border:1px solid rgba(255,255,255,.25);
+    box-shadow:0 18px 40px rgba(0,0,0,.45);
+}
+
+.maquina-tooltip strong{
+    display:block;
+    margin-bottom:10px;
+    color:#fff;
+}
+
+.maquina-tooltip ul{
+    margin:0;
+    padding-left:18px;
+}
+
+.maquina-tooltip li{
+    margin:6px 0;
+    color:#dbeafe;
+    font-size:13px;
+}
+
+.maquina-tooltip-wrap:hover .maquina-tooltip{
+    display:block;
+}
