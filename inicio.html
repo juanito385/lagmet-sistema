@@ -697,18 +697,31 @@
     </div>
 
     <!-- GANTT (SEPARADO) -->
-    <div class="doc-viewer-card">
+<div class="doc-viewer-card gantt-panel">
 
-        <div class="gantt-header">
-            <h3>📅 Carta Gantt de Producción</h3>
-            <div class="gantt-controls">
-                <button onclick="irHoy()">Hoy</button>
-            </div>
+    <div class="gantt-header">
+        <h3>📅 Carta Gantt de Producción</h3>
+
+        <div class="gantt-controls">
+            <button onclick="mostrarGantt()">Actualizar</button>
+            <button onclick="irHoy()">Hoy</button>
         </div>
-
-        <div id="gantt"></div>
-
     </div>
+
+    <div class="gantt-leyenda">
+        <span><b class="estado-verde"></b> En Proceso</span>
+        <span><b class="estado-azul"></b> Pendiente</span>
+        <span><b class="estado-rojo"></b> Retraso</span>
+        <span><b class="estado-naranja"></b> Tiempo Muerto</span>
+        <span><b class="estado-gris"></b> Terminado</span>
+    </div>
+
+    <div class="gantt-wrapper">
+        <div id="gantt-sidebar"></div>
+        <div id="gantt"></div>
+    </div>
+
+</div>
 
 </div>
 

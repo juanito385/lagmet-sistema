@@ -18,10 +18,30 @@ $sql = "SELECT
             p.salida,
             p.fallo_maquina,
             p.maquina_fallo,
-            s.descripcion AS situacion_descripcion
+            p.turno,
+            u.nombre AS usuario,
+            s.descripcion AS situacion_descripcion,
+
+            COALESCE(
+                (
+                    SELECT pm.maquina
+                    FROM produccion_maquinas pm
+                    WHERE pm.produccion_id = p.id
+                      AND pm.uso = 'si'
+                    ORDER BY pm.horas DESC, pm.minutos DESC
+                    LIMIT 1
+                ),
+                'Sin máquina'
+            ) AS maquina
+
         FROM produccion p
+
+        LEFT JOIN usuarios u
+            ON p.usuario_id = u.id
+
         LEFT JOIN situaciones_produccion s
             ON p.id = s.produccion_id
+
         ORDER BY p.id DESC";
 
 $result = $conn->query($sql);
