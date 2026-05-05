@@ -5,16 +5,12 @@ console.log("Gantt existe:", typeof window.Gantt);
    ESPERAR LIBRERÍA GANTT
 ========================= */
 function esperarGantt(callback){
-    if (window.Gantt) {
-        callback();
-    } else {
-        console.warn("⏳ Esperando carga de Frappe Gantt...");
-        setTimeout(() => esperarGantt(callback), 200);
-    }
+    if (window.Gantt) callback();
+    else setTimeout(() => esperarGantt(callback), 200);
 }
 
 /* =========================
-   NORMALIZAR FECHA PARA GANTT
+   NORMALIZAR FECHA YYYY-MM-DD
 ========================= */
 function fechaParaGantt(fecha) {
     if (!fecha) return null;
@@ -57,9 +53,7 @@ function fechaParaGantt(fecha) {
             const mes = meses[partes[2]];
             const anio = partes[4];
 
-            if (dia && mes && anio) {
-                return `${anio}-${mes}-${dia}`;
-            }
+            if (dia && mes && anio) return `${anio}-${mes}-${dia}`;
         }
     }
 
@@ -68,22 +62,24 @@ function fechaParaGantt(fecha) {
 }
 
 /* =========================
+   FECHA LOCAL SIN DESFASE UTC
+========================= */
+function fechaLocal(fechaTexto) {
+    const limpia = fechaParaGantt(fechaTexto);
+    if (!limpia) return null;
+
+    const [anio, mes, dia] = limpia.split("-").map(Number);
+    return new Date(anio, mes - 1, dia);
+}
+
+/* =========================
    SUMAR DÍAS
 ========================= */
 function sumarDias(fechaBase, dias) {
-    const fechaLimpia = fechaParaGantt(fechaBase);
-
-    if (!fechaLimpia) return null;
-
-    const partes = fechaLimpia.split("-");
-    const fecha = new Date(
-        parseInt(partes[0]),
-        parseInt(partes[1]) - 1,
-        parseInt(partes[2])
-    );
+    const fecha = fechaLocal(fechaBase);
+    if (!fecha) return null;
 
     fecha.setDate(fecha.getDate() + dias);
-
     return fechaParaGantt(fecha);
 }
 
@@ -92,8 +88,12 @@ function sumarDias(fechaBase, dias) {
 ========================= */
 function calcularProgreso(inicio, fin){
     const hoy = new Date();
-    const fechaInicio = new Date(inicio + "T00:00:00");
-    const fechaFin = new Date(fin + "T23:59:59");
+    const fechaInicio = fechaLocal(inicio);
+    const fechaFin = fechaLocal(fin);
+
+    if (!fechaInicio || !fechaFin) return 0;
+
+    fechaFin.setHours(23, 59, 59);
 
     if (hoy <= fechaInicio) return 0;
     if (hoy >= fechaFin) return 100;
@@ -110,29 +110,22 @@ function calcularProgreso(inicio, fin){
 function obtenerClaseEstado(progress, item, fin){
     const tiempoMuerto = parseFloat(item.tiempo_muerto || 0);
     const hoy = new Date();
-    const fechaFin = new Date(fin + "T23:59:59");
+    const fechaFin = fechaLocal(fin);
 
-    if (progress < 100 && hoy > fechaFin) {
-        return "gantt-atrasado";
-    }
+    if (!fechaFin) return "gantt-pendiente";
 
-    if (tiempoMuerto > 0) {
-        return "gantt-tiempo-muerto";
-    }
+    fechaFin.setHours(23, 59, 59);
 
-    if (progress === 0) {
-        return "gantt-pendiente";
-    }
-
-    if (progress >= 100) {
-        return "gantt-terminado";
-    }
+    if (progress < 100 && hoy > fechaFin) return "gantt-atrasado";
+    if (tiempoMuerto > 0) return "gantt-tiempo-muerto";
+    if (progress === 0) return "gantt-pendiente";
+    if (progress >= 100) return "gantt-terminado";
 
     return "gantt-proceso";
 }
 
 /* =========================
-   COLOR PARA SIDEBAR
+   COLOR
 ========================= */
 function colorEstado(clase) {
     if (clase === "gantt-proceso") return "#28a745";
@@ -144,15 +137,11 @@ function colorEstado(clase) {
 }
 
 /* =========================
-   RENDER SIDEBAR GANTT
+   SIDEBAR GANTT NORMAL
 ========================= */
 function renderGanttSidebar(tareasSidebar) {
     const sidebar = document.getElementById("gantt-sidebar");
-
-    if (!sidebar) {
-        console.warn("⚠️ No existe #gantt-sidebar");
-        return;
-    }
+    if (!sidebar) return;
 
     sidebar.innerHTML = `
         <div class="gantt-side-head">
@@ -172,7 +161,6 @@ function renderGanttSidebar(tareasSidebar) {
                 <strong>${item.producto}</strong>
                 <small>(${item.pedido})</small>
             </div>
-
             <div>${item.maquina}</div>
             <div>${item.operador}</div>
         `;
@@ -189,33 +177,23 @@ window.irHoy = function(){
 };
 
 /* =========================
-   MOSTRAR GANTT
+   GANTT NORMAL FRAPPE
 ========================= */
 window.mostrarGantt = async function(){
-
-    console.log("🔥 MOSTRANDO GANTT NUEVO");
 
     esperarGantt(async () => {
 
         const cont = document.getElementById("gantt");
         const sidebar = document.getElementById("gantt-sidebar");
 
-        if (!cont) {
-            console.error("❌ No existe el div #gantt");
-            return;
-        }
+        if (!cont) return;
 
         cont.innerHTML = "Cargando Gantt...";
-
-        if (sidebar) {
-            sidebar.innerHTML = "";
-        }
+        if (sidebar) sidebar.innerHTML = "";
 
         try {
             const response = await fetch("php/obtener_produccion.php");
             const data = await response.json();
-
-            console.log("📦 Datos recibidos:", data);
 
             if (!data.success || !data.data || !data.data.length) {
                 cont.innerHTML = "No hay datos para generar la carta Gantt";
@@ -223,41 +201,28 @@ window.mostrarGantt = async function(){
             }
 
             data.data.sort((a, b) => {
-                const fechaA = fechaParaGantt(a.fecha) || "9999-12-31";
-                const fechaB = fechaParaGantt(b.fecha) || "9999-12-31";
-
-                return new Date(fechaA) - new Date(fechaB);
+                const fechaA = fechaLocal(a.fecha) || new Date(9999, 11, 31);
+                const fechaB = fechaLocal(b.fecha) || new Date(9999, 11, 31);
+                return fechaA - fechaB;
             });
 
             const tareasSidebar = [];
 
             const tareas = data.data.map((item, index) => {
-
                 let inicio = fechaParaGantt(item.fecha);
-
-                if (!inicio) {
-                    console.warn("⚠️ Producto sin fecha válida:", item);
-                    inicio = fechaParaGantt(new Date());
-                }
-
                 let fin = fechaParaGantt(item.fecha_fin);
+
+                if (!inicio) inicio = fechaParaGantt(new Date());
 
                 if (!fin) {
                     let dias = parseInt(item.dias);
-
-                    if (isNaN(dias) || dias <= 0) {
-                        dias = 1;
-                    }
-
+                    if (isNaN(dias) || dias <= 0) dias = 1;
                     fin = sumarDias(inicio, dias);
                 }
 
-                if (!fin) {
-                    fin = sumarDias(inicio, 1);
-                }
+                if (!fin) fin = sumarDias(inicio, 1);
 
-                if (new Date(inicio) > new Date(fin)) {
-                    console.warn("⚠️ Fecha inicio mayor que fin, corrigiendo:", item);
+                if (fechaLocal(inicio) > fechaLocal(fin)) {
                     fin = sumarDias(inicio, 1);
                 }
 
@@ -266,33 +231,17 @@ window.mostrarGantt = async function(){
 
                 const producto = item.producto || "Sin nombre";
                 const pedido = item.numero_pedido || "-";
+                const maquina = item.maquina || item.maquinas || item.nombre_maquina || "Sin máquina";
+                const operador = item.operador || item.usuario || item.usuario_nombre || "Admin";
 
-                const maquina =
-                    item.maquina ||
-                    item.maquinas ||
-                    item.nombre_maquina ||
-                    "Sin máquina";
-
-                const operador =
-                    item.operador ||
-                    item.usuario ||
-                    item.usuario_nombre ||
-                    "Admin";
-
-                tareasSidebar.push({
-                    producto,
-                    pedido,
-                    maquina,
-                    operador,
-                    claseEstado
-                });
+                tareasSidebar.push({ producto, pedido, maquina, operador, claseEstado });
 
                 return {
                     id: String(item.id || index + 1),
                     name: `${producto} (${pedido})`,
                     start: inicio,
                     end: fin,
-                    progress: progress,
+                    progress,
                     dependencies: "",
                     custom_class: claseEstado
                 };
@@ -301,14 +250,11 @@ window.mostrarGantt = async function(){
             const tareasValidas = tareas.filter(tarea => {
                 return tarea.start &&
                        tarea.end &&
-                       !isNaN(new Date(tarea.start).getTime()) &&
-                       !isNaN(new Date(tarea.end).getTime());
+                       !isNaN(fechaLocal(tarea.start)?.getTime()) &&
+                       !isNaN(fechaLocal(tarea.end)?.getTime());
             });
 
             const sidebarValidas = tareasSidebar.filter((_, index) => tareasValidas[index]);
-
-            console.log("📊 Tareas Gantt:", tareas);
-            console.log("✅ Tareas válidas:", tareasValidas);
 
             if (!tareasValidas.length) {
                 cont.innerHTML = "No hay tareas válidas para mostrar en la Carta Gantt";
@@ -316,7 +262,6 @@ window.mostrarGantt = async function(){
             }
 
             cont.innerHTML = "";
-
             renderGanttSidebar(sidebarValidas);
 
             new window.Gantt("#gantt", tareasValidas, {
@@ -329,23 +274,6 @@ window.mostrarGantt = async function(){
                 padding: 22
             });
 
-            setTimeout(() => {
-                const ganttContainer = document.querySelector("#gantt .gantt-container");
-                const svg = document.querySelector("#gantt svg");
-
-                if (ganttContainer) {
-                    ganttContainer.style.height = "560px";
-                    ganttContainer.style.minHeight = "560px";
-                    ganttContainer.style.overflow = "auto";
-                }
-
-                if (svg) {
-                    svg.setAttribute("height", "560");
-                    svg.style.height = "560px";
-                    svg.style.minHeight = "560px";
-                }
-            }, 150);
-
         } catch (error) {
             console.error("❌ Error al generar la Carta Gantt:", error);
             cont.innerHTML = "Error al generar la carta Gantt";
@@ -354,6 +282,9 @@ window.mostrarGantt = async function(){
     });
 };
 
+/* =========================
+   GANTT POR MÁQUINA AVANZADO
+========================= */
 window.mostrarGanttPorMaquina = async function(){
 
     console.log("🔥 GANTT POR MÁQUINA AVANZADO");
@@ -387,7 +318,9 @@ window.mostrarGanttPorMaquina = async function(){
                 fin = sumarDias(inicio, dias);
             }
 
-            if (new Date(inicio) > new Date(fin)) {
+            if (!fin) fin = sumarDias(inicio, 1);
+
+            if (fechaLocal(inicio) > fechaLocal(fin)) {
                 fin = sumarDias(inicio, 1);
             }
 
@@ -406,7 +339,10 @@ window.mostrarGanttPorMaquina = async function(){
             };
         });
 
-        const fechas = registros.flatMap(r => [new Date(r.inicio), new Date(r.fin)]);
+        const fechas = registros
+            .flatMap(r => [fechaLocal(r.inicio), fechaLocal(r.fin)])
+            .filter(Boolean);
+
         const minFecha = new Date(Math.min(...fechas));
         const maxFecha = new Date(Math.max(...fechas));
 
@@ -414,7 +350,7 @@ window.mostrarGanttPorMaquina = async function(){
         maxFecha.setDate(maxFecha.getDate() + 4);
 
         const MS_DIA = 1000 * 60 * 60 * 24;
-        const totalDias = Math.ceil((maxFecha - minFecha) / MS_DIA);
+        const totalDias = Math.floor((maxFecha - minFecha) / MS_DIA);
         const anchoDia = 48;
 
         const agrupado = {};
@@ -432,10 +368,12 @@ window.mostrarGanttPorMaquina = async function(){
         });
 
         Object.values(agrupado).forEach(grupo => {
-            grupo.tareas.sort((a, b) => new Date(a.inicio) - new Date(b.inicio));
+            grupo.tareas.sort((a, b) => fechaLocal(a.inicio) - fechaLocal(b.inicio));
         });
 
-        const maquinas = Object.values(agrupado);
+        const maquinas = Object.values(agrupado).sort((a, b) => {
+            return a.maquina.localeCompare(b.maquina);
+        });
 
         if (sidebar) {
             sidebar.innerHTML = `
@@ -457,7 +395,6 @@ window.mostrarGanttPorMaquina = async function(){
                             <small>(${grupo.tareas.length} productos)</small>
                         </div>
                     </div>
-
                     <div>${grupo.operador}</div>
                 `;
 
@@ -494,11 +431,19 @@ window.mostrarGanttPorMaquina = async function(){
             let barrasHtml = "";
 
             grupo.tareas.forEach(tarea => {
-                const inicio = new Date(tarea.inicio);
-                const fin = new Date(tarea.fin);
+                const inicio = fechaLocal(tarea.inicio);
+                const fin = fechaLocal(tarea.fin);
 
-                const offsetDias = Math.round((inicio - minFecha) / MS_DIA);
-                const duracionDias = Math.max(1, Math.round((fin - inicio) / MS_DIA));
+                const offsetDias = Math.floor((inicio - minFecha) / MS_DIA);
+
+                /*
+                   +1 para que visualmente incluya el día de término.
+                   Ej: 03/05 a 05/05 ocupa 03, 04 y 05.
+                */
+                const duracionDias = Math.max(
+                    1,
+                    Math.floor((fin - inicio) / MS_DIA) + 1
+                );
 
                 barrasHtml += `
                     <div 

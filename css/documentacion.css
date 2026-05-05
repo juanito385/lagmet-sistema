@@ -297,10 +297,6 @@
    GANTT PRO LAGMET
 ========================= */
 
-/* =========================
-   GANTT PRO LAGMET
-========================= */
-
 .gantt-panel{
     background:rgba(255,255,255,0.05);
     border:1px solid rgba(255,255,255,0.08);
@@ -663,6 +659,8 @@
     overflow:hidden;
     text-overflow:ellipsis;
     box-shadow:0 4px 10px rgba(0,0,0,0.18);
+    margin-right:4px;
+    min-width:95px;
 }
 
 .gantt-machine-bar.gantt-proceso{
