@@ -374,7 +374,16 @@ async function cargarProductoParaEditar(id) {
             return;
         }
 
-        document.getElementById("pedido").value = item.numero_pedido || "";
+        const partesPedido = (item.numero_pedido || "").split("-");
+
+        document.getElementById("pedido").value = partesPedido[0] || "";
+
+        const otInput = document.getElementById("ot");
+        if (otInput) {
+            otInput.value = partesPedido[1] || "";
+        }
+
+        
         document.getElementById("Codigo").value = item.codigo || "";
         document.getElementById("Producto").value = item.producto || "";
         document.getElementById("cantidadProductos").value = item.cantidad || 1;

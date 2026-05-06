@@ -947,3 +947,35 @@
 .maquina-tooltip-wrap:hover .maquina-tooltip{
     display:block;
 }
+
+/* =========================
+   NOTA DE VENTA + OT
+========================= */
+
+.nota-ot-box{
+    display:flex;
+    align-items:center;
+    gap:10px;
+}
+
+.nota-ot-box input{
+    width:100%;
+    min-width:0;
+    text-align:center;
+}
+
+.nota-ot-box input:first-child{
+    flex:2;
+}
+
+.nota-ot-box input:last-child{
+    flex:0.8;
+}
+
+.guion-ot{
+    color:#ffffff;
+    font-size:24px;
+    font-weight:800;
+    line-height:1;
+    opacity:0.9;
+}

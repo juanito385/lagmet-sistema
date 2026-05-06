@@ -244,6 +244,32 @@ function calcular() {
 }
 
 /* =========================
+   VALIDAR SOLO NUMEROS
+========================= */
+function permitirSoloNumeros(id){
+    const input = document.getElementById(id);
+
+    if(!input) return;
+
+    input.addEventListener("input", () => {
+        input.value = input.value.replace(/\D/g, "");
+    });
+
+    input.addEventListener("paste", (e) => {
+        e.preventDefault();
+
+        const texto = (e.clipboardData || window.clipboardData).getData("text");
+        input.value = texto.replace(/\D/g, "");
+    });
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+    permitirSoloNumeros("pedido");
+    permitirSoloNumeros("ot");
+    permitirSoloNumeros("Codigo");
+});
+
+/* =========================
    SITUACION / EXTRA
 ========================= */
 function abrirModalSituacion() {
@@ -317,7 +343,9 @@ window.mostrarSelectorMaquinaFallo = mostrarSelectorMaquinaFallo;
 ========================= */
 async function guardarDatos() {
 
-    const pedido = document.getElementById("pedido").value.trim();
+    const pedidoBase = document.getElementById("pedido").value.trim();
+    const ot = document.getElementById("ot")?.value.trim() || "";
+    const pedido = ot ? `${pedidoBase}-${ot}` : pedidoBase;
     const codigo = document.getElementById("Codigo").value.trim();
     const producto = document.getElementById("Producto").value.trim();
     const cantidad = parseInt(document.getElementById("cantidadProductos").value) || 0;
@@ -488,6 +516,10 @@ async function guardarDatos() {
 ========================= */
 function limpiarFormulario() {
     document.getElementById("pedido").value = "";
+
+    const otInput = document.getElementById("ot");
+    if (otInput) otInput.value = "";
+
     document.getElementById("Codigo").value = "";
     document.getElementById("Producto").value = "";
     document.getElementById("cantidadProductos").value = 1;

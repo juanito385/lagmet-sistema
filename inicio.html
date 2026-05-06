@@ -354,13 +354,39 @@
 </div>
 
 <div class="card-input">
-<label>Nota de Venta</label>
-<input type="text" id="pedido" placeholder="Ej: NV-10234">
+    <label>Nota de Venta + OT</label>
+
+    <div class="nota-ot-box">
+        <input 
+            type="text" 
+            id="pedido" 
+            placeholder="12383"
+            inputmode="numeric"
+            maxlength="10"
+        >
+
+        <span class="guion-ot">-</span>
+
+        <input 
+            type="text" 
+            id="ot" 
+            placeholder="4"
+            inputmode="numeric"
+            maxlength="4"
+        >
+    </div>
 </div>
 
 <div class="card-input">
-<label>Cód Interno</label>
-<input type="text" id="Codigo" placeholder="Ej: COD-5567">
+    <label>Cód Interno</label>
+
+    <input 
+        type="text" 
+        id="Codigo" 
+        placeholder="5567"
+        inputmode="numeric"
+        maxlength="10"
+    >
 </div>
 
 <div class="card-input">
