@@ -369,7 +369,7 @@
 
 .gantt-wrapper{
     display:grid;
-    grid-template-columns:460px 1fr;
+    grid-template-columns:400px 1fr;
     background:#fff;
     border-radius:16px;
     overflow:hidden;
@@ -385,7 +385,7 @@
 
 /* Cabecera izquierda */
 .gantt-side-head{
-    height:85px;
+    height:105px;
     display:grid;
     grid-template-columns: 1.35fr 1fr 0.7fr;
     align-items:end;
@@ -655,12 +655,14 @@
     padding:0 12px;
     display:flex;
     align-items:center;
+    justify-content:center;
     white-space:nowrap;
     overflow:hidden;
     text-overflow:ellipsis;
     box-shadow:0 4px 10px rgba(0,0,0,0.18);
     margin-right:4px;
     min-width:95px;
+    text-align:center;
 }
 
 .gantt-machine-bar.gantt-proceso{

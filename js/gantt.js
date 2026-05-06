@@ -109,18 +109,36 @@ function calcularProgreso(inicio, fin){
 ========================= */
 function obtenerClaseEstado(progress, item, fin){
     const tiempoMuerto = parseFloat(item.tiempo_muerto || 0);
+
     const hoy = new Date();
+    hoy.setHours(0, 0, 0, 0);
+
+    const fechaInicio = fechaLocal(item.fecha);
     const fechaFin = fechaLocal(fin);
 
-    if (!fechaFin) return "gantt-pendiente";
+    if (!fechaInicio || !fechaFin) {
+        return "gantt-pendiente";
+    }
 
-    fechaFin.setHours(23, 59, 59);
+    fechaInicio.setHours(0, 0, 0, 0);
+    fechaFin.setHours(0, 0, 0, 0);
 
-    if (progress < 100 && hoy > fechaFin) return "gantt-atrasado";
-    if (tiempoMuerto > 0) return "gantt-tiempo-muerto";
-    if (progress === 0) return "gantt-pendiente";
-    if (progress >= 100) return "gantt-terminado";
+    // Tiempo muerto tiene prioridad visual
+    if (tiempoMuerto > 0) {
+        return "gantt-tiempo-muerto";
+    }
 
+    // Si aún no inicia
+    if (hoy < fechaInicio) {
+        return "gantt-pendiente";
+    }
+
+    // Si ya pasó la fecha fin
+    if (hoy > fechaFin) {
+        return "gantt-atrasado";
+    }
+
+    // Si está entre inicio y fin
     return "gantt-proceso";
 }
 
@@ -446,15 +464,22 @@ window.mostrarGanttPorMaquina = async function(){
                 );
 
                 barrasHtml += `
-                    <div 
+                        <div 
                         class="gantt-machine-bar ${tarea.claseEstado}"
-                        style="
-                            left:${offsetDias * anchoDia}px;
-                            width:${duracionDias * anchoDia}px;
-                        ">
-                        ${tarea.producto} (${tarea.pedido})
-                    </div>
-                `;
+                        title="Producto: ${tarea.producto}
+                        Pedido: ${tarea.pedido}
+                        Inicio: ${tarea.inicio}
+                        Fin: ${tarea.fin}
+                        Máquina: ${tarea.maquina}
+                        Estado: ${tarea.claseEstado.replace('gantt-','')}"
+                                style="
+                                left:${offsetDias * anchoDia}px;
+                                width:${duracionDias * anchoDia}px;
+                            ">
+                            ${tarea.producto}
+                        </div>
+                    `;
+                
             });
 
             filasHtml += `
