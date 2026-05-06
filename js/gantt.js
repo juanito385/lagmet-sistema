@@ -300,15 +300,34 @@ window.mostrarGantt = async function(){
     });
 };
 
-function abrirDetalleGantt(producto, pedido, inicio, fin, maquina, estado){
-    alert(
-        `Producto: ${producto}
-         Pedido: ${pedido}
-         Inicio: ${inicio}
-         Fin: ${fin}
-         Máquina: ${maquina}
-         Estado: ${estado.replace("gantt-", "")}`
-    );
+function abrirDetalleGantt(producto, pedido, inicio, fin, maquina, estado, operador = "Admin"){
+
+    const modal = document.getElementById("modalDetalleGantt");
+
+    if (!modal) {
+        console.warn("No existe #modalDetalleGantt");
+        return;
+    }
+
+    const estadoTexto = estado.replace("gantt-", "").replace("-", " ");
+
+    document.getElementById("detalleGanttProducto").textContent = producto;
+    document.getElementById("detalleGanttPedido").textContent = `Nota de venta: ${pedido}`;
+    document.getElementById("detalleGanttInicio").textContent = inicio;
+    document.getElementById("detalleGanttFin").textContent = fin;
+    document.getElementById("detalleGanttMaquina").textContent = maquina;
+    document.getElementById("detalleGanttOperador").textContent = operador;
+
+    const badge = document.getElementById("detalleGanttEstado");
+    badge.textContent = estadoTexto;
+    badge.className = `modal-gantt-badge ${estado}`;
+
+    modal.classList.add("active");
+}
+
+function cerrarDetalleGantt(){
+    const modal = document.getElementById("modalDetalleGantt");
+    if (modal) modal.classList.remove("active");
 }
 
 /* =========================
@@ -477,7 +496,7 @@ window.mostrarGanttPorMaquina = async function(){
                 barrasHtml += `
                         <div
                             class="gantt-machine-bar ${tarea.claseEstado}"
-                            onclick="abrirDetalleGantt('${tarea.producto}', '${tarea.pedido}', '${tarea.inicio}', '${tarea.fin}', '${tarea.maquina}', '${tarea.claseEstado}')"
+                            onclick="abrirDetalleGantt('${tarea.producto}', '${tarea.pedido}', '${tarea.inicio}', '${tarea.fin}', '${tarea.maquina}', '${tarea.claseEstado}', '${grupo.operador}')"
                             style="
                                 left:${offsetDias * anchoDia}px;
                                 width:${duracionDias * anchoDia}px;

@@ -721,6 +721,43 @@
         <div id="gantt"></div>
     </div>
 
+    <!-- MODAL DETALLE GANTT -->
+<div id="modalDetalleGantt" class="modal-gantt-detalle">
+    <div class="modal-gantt-card">
+
+        <button class="modal-gantt-cerrar" onclick="cerrarDetalleGantt()">×</button>
+
+        <div class="modal-gantt-header">
+            <span id="detalleGanttEstado" class="modal-gantt-badge">Estado</span>
+            <h3 id="detalleGanttProducto">Producto</h3>
+            <p id="detalleGanttPedido">Pedido</p>
+        </div>
+
+        <div class="modal-gantt-info">
+            <div>
+                <small>Fecha inicio</small>
+                <strong id="detalleGanttInicio">--</strong>
+            </div>
+
+            <div>
+                <small>Fecha fin</small>
+                <strong id="detalleGanttFin">--</strong>
+            </div>
+
+            <div>
+                <small>Máquina</small>
+                <strong id="detalleGanttMaquina">--</strong>
+            </div>
+
+            <div>
+                <small>Operador</small>
+                <strong id="detalleGanttOperador">Admin</strong>
+            </div>
+        </div>
+
+    </div>
+</div>
+
 </div>
 
 </div>
