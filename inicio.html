@@ -342,223 +342,265 @@
 
 </div>
 
+
+
 <!-- MONITOREO -->
-<div id="monitoreo" class="section">
-<h2>Monitoreo Producción</h2>
+<div id="monitoreo" class="section monitoreo-redesign">
 
-<div class="panel-cards">
+    <div class="monitoreo-header">
+        <div>
+            <h2>Monitoreo Producción</h2>
+            <p>Registro de producción y seguimiento de procesos</p>
+        </div>
 
-<div class="card-input">
-<label>Nombre Producto</label>
-<input type="text" id="Producto" placeholder="Ej: Eje metálico">
-</div>
-
-<div class="card-input">
-    <label>Nota de Venta + OT</label>
-
-    <div class="nota-ot-box">
-        <input 
-            type="text" 
-            id="pedido" 
-            placeholder="12383"
-            inputmode="numeric"
-            maxlength="10"
-        >
-
-        <span class="guion-ot">-</span>
-
-        <input 
-            type="text" 
-            id="ot" 
-            placeholder="4"
-            inputmode="numeric"
-            maxlength="4"
-        >
+        <div class="monitoreo-actions-top">
+            <button type="button" class="btn-cancelar-monitor" onclick="limpiarFormulario()">Cancelar</button>
+            <button type="button" class="btn-guardar-monitor" onclick="guardarDatos()">💾 Guardar Producción</button>
+        </div>
     </div>
-</div>
 
-<div class="card-input">
-    <label>Cód Interno</label>
+    <div class="monitor-tabs">
+        <button type="button" class="monitor-tab active" onclick="cambiarTabMonitoreo('info')">
+            📄 Información
+        </button>
 
-    <input 
-        type="text" 
-        id="Codigo" 
-        placeholder="5567"
-        inputmode="numeric"
-        maxlength="10"
-    >
-</div>
+        <button type="button" class="monitor-tab" onclick="cambiarTabMonitoreo('maquinas')">
+            ⚙️ Máquinas
+        </button>
+    </div>
 
-<div class="card-input">
-<label>Tiempo Salida + Hora </label>
-<span id="salida">--</span>
-</div>
+    <!-- TAB INFORMACIÓN -->
+    <div id="tabInfoMonitoreo" class="monitor-tab-content active">
 
-<div class="card-input">
-<label>Cantidad de piezas</label>
-<input type="number" id="cantidadProductos" value="1" placeholder="Ej: 100">
-</div>
-
-<div class="card-input">
-<label>Fecha de inicio</label>
-<input type="date" id="fecha">
-</div>
-
-<div class="card-input">
-    <label>Fecha Fin</label>
-    <input type="text" id="fechaFinVisual" readonly placeholder="Se calcula automáticamente">
-</div>
-
-
-
-<div class="card-input">
-<label>Cantidad Días</label>
-<input type="number" id="dias" readonly placeholder="Se calcula automáticamente">
-<input type="hidden" id="fechaFin"> 
-</div>
-
-<!-- Fecha Fin REAL (OCULTA para BD) -->
-<input type="hidden" id="fechaFin">
-
-<div class="card-input">
-    <label>Grupo Almuerzo</label>
-    <select id="grupo">
-        <option value="1">Grupo 1 (12:00 - 13:00)</option>
-        <option value="2">Grupo 2 (13:00 - 14:00)</option>
-    </select>
-</div>
-
-<div class="card-input">
-    <label>Trabaja sábado</label>
-    <select id="trabajaSabado">
-        <option value="no">No</option>
-        <option value="si">Sí</option>
-    </select>
-</div>
-
-<!-- FALLO MAQUINA -->
-<div class="card-input">
-    <label>Fallo Máquina</label>
-
-    <select id="falloMaquina" onchange="mostrarSelectorMaquinaFallo()">
-        <option value="no">No</option>
-        <option value="si">Sí</option>
-    </select>
-
-    <select id="maquinaFallo" style="display:none; margin-top:10px;">
-        <option value="">Seleccionar máquina</option>
-
-        <optgroup label="Zona Oriente">
-            <option value="Torno Vertical CNC">Torno Vertical CNC</option>
-            <option value="Mandrinadora">Mandrinadora</option>
-            <option value="Torno Vertical">Torno Vertical</option>
-            <option value="Torno 1000">Torno 1000</option>
-            <option value="Torno 800">Torno 800</option>
-            <option value="Torno Bulgaro">Torno Bulgaro</option>
-            <option value="Torno Varileta">Torno Varileta</option>
-            <option value="Cepillo">Cepillo</option>
-            <option value="Escoplo">Escoplo</option>
-            <option value="Taladro Radial">Taladro Radial</option>
-        </optgroup>
-
-        <optgroup label="Zona Poniente">
-            <option value="Torno CNC 2">Torno CNC 2</option>
-            <option value="Torno CNC 3">Torno CNC 3</option>
-            <option value="Torno CNC 1">Torno CNC 1</option>
-            <option value="Centro Mecanizado 1">Centro Mecanizado 1</option>
-            <option value="Centro Mecanizado 2">Centro Mecanizado 2</option>
-            <option value="Router">Router</option>
-            <option value="Mecánica Banco">Mecánica Banco</option>
-            <option value="Balanceadora">Balanceadora</option>
-        </optgroup>
-    </select>
-</div>
-
-<!-- EXTRA / SITUACION -->
-<div class="card-input card-extra">
-    <label>Extra</label>
-
-    <button type="button" class="btn-extra" onclick="abrirModalSituacion()">
-        +
-    </button>
-
-    <input type="hidden" id="situacionHoras" value="0">
-    <input type="hidden" id="situacionMinutos" value="0">
-    <input type="hidden" id="situacionDescripcion" value="">
-</div>
-
-</div>
-
-<div class="zonas">     
-
-<div class="card">
-<h3>Zona Oriente</h3>
-<table id="tablaOriente">
-<thead>
-<tr>
-<th>Máquina</th>
-<th>Uso</th>
-<th>Tiempo</th>
-</tr>
-</thead>
-<tbody></tbody>
-</table>
-</div>
-
-<div class="card">
-<h3>Zona Poniente</h3>
-<table id="tablaPoniente">
-<thead>
-<tr>
-<th>Máquina</th>
-<th>Uso</th>
-<th>Tiempo</th>
-</tr>
-</thead>
-<tbody></tbody>
-</table>
-</div>
-
-</div>
-
-<!-- MODAL SITUACION -->
-<div id="modalSituacion" class="modal-situacion">
-    <div class="modal-situacion-content">
-
-        <button type="button" class="cerrar-modal" onclick="cerrarModalSituacion()">×</button>
-
-        <h3>Situacion</h3>
-
-        <label>Tiempo extra</label>
-
-        <div class="tiempo-situacion-grid">
-            <div>
-                <input type="number" id="modalSituacionHoras" min="0" value="0">
-                <small>Horas</small>
+        <div class="salida-panel">
+            <div class="salida-left">
+                <div class="salida-icon">🕒</div>
+                <div>
+                    <span>Tiempo estimado de salida</span>
+                    <strong id="salida">--</strong>
+                </div>
             </div>
 
-            <div>
-                <input type="number" id="modalSituacionMinutos" min="0" max="59" value="0">
-                <small>Minutos</small>
+            <div class="salida-info">
+                <span>Grupo actual</span>
+                <strong>Según selección</strong>
             </div>
         </div>
 
-        <label>Motivo / descripción</label>
-        <textarea id="modalSituacionDescripcion" placeholder="Ej: Almuerzo imprevisto, ida al baño, pieza que se demora en salir, etc."></textarea>
+        <div class="monitor-block">
+            <h3>📦 Información Principal</h3>
 
-        <div class="modal-situacion-actions">
-            <button type="button" class="btn-cancelar" onclick="cerrarModalSituacion()">Cancelar</button>
-            <button type="button" class="btn-guardar-situacion" onclick="guardarSituacion()">Guardar</button>
+            <div class="monitor-grid grid-3">
+                <div class="monitor-field">
+                    <label>Nombre Producto</label>
+                    <input type="text" id="Producto" placeholder="Ej: Eje metálico">
+                </div>
+
+                <div class="monitor-field">
+                    <label>Nota de Venta + OT</label>
+
+                    <div class="nota-ot-box">
+                        <input type="text" id="pedido" placeholder="12383" inputmode="numeric" maxlength="10">
+                        <span class="guion-ot">-</span>
+                        <input type="text" id="ot" placeholder="4" inputmode="numeric" maxlength="4">
+                    </div>
+                </div>
+
+                <div class="monitor-field">
+                    <label>Cód Interno</label>
+                    <input type="text" id="Codigo" placeholder="5567" inputmode="numeric" maxlength="10">
+                </div>
+            </div>
+        </div>
+
+        <div class="monitor-block">
+            <h3>📅 Fechas y Cantidades</h3>
+
+            <div class="monitor-grid grid-4">
+                <div class="monitor-field">
+                    <label>Cantidad de piezas</label>
+                    <input type="number" id="cantidadProductos" value="1" placeholder="Ej: 100">
+                </div>
+
+                <div class="monitor-field">
+                    <label>Fecha de inicio</label>
+                    <input type="date" id="fecha">
+                </div>
+
+                <div class="monitor-field">
+                    <label>Fecha Fin</label>
+                    <input type="text" id="fechaFinVisual" readonly placeholder="Se calcula automáticamente">
+                    <input type="hidden" id="fechaFin">
+                </div>
+
+                <div class="monitor-field">
+                    <label>Cantidad Días</label>
+                    <input type="number" id="dias" readonly placeholder="Se calcula automáticamente">
+                </div>
+            </div>
+        </div>
+
+        <div class="monitor-block">
+            <h3>⚙️ Configuración de Producción</h3>
+
+            <div class="monitor-grid grid-3">
+                <div class="monitor-field">
+                    <label>Grupo Almuerzo</label>
+                    <select id="grupo">
+                        <option value="1">Grupo 1 (12:00 - 13:00)</option>
+                        <option value="2">Grupo 2 (13:00 - 14:00)</option>
+                    </select>
+                </div>
+
+                <div class="monitor-field">
+                    <label>Trabaja sábado</label>
+                    <select id="trabajaSabado">
+                        <option value="no">No</option>
+                        <option value="si">Sí</option>
+                    </select>
+                </div>
+
+                <div class="monitor-field">
+                    <label>Fallo Máquina</label>
+
+                    <select id="falloMaquina" onchange="mostrarSelectorMaquinaFallo()">
+                        <option value="no">No</option>
+                        <option value="si">Sí</option>
+                    </select>
+
+                    <select id="maquinaFallo" style="display:none; margin-top:10px;">
+                        <option value="">Seleccionar máquina</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="monitor-block">
+            <h3>📝 Observaciones y Extra</h3>
+
+            <div class="extra-layout">
+                <div class="monitor-field">
+                    <label>Observaciones / Situación / Extra</label>
+                    <textarea id="observacionesProduccion" placeholder="Escribe observaciones adicionales, situaciones especiales o información relevante..."></textarea>
+                </div>
+
+                <div class="extra-box">
+                    <div>
+                        <h4>Agregar registro extra</h4>
+                        <p>Agrega un tiempo adicional de producción si es necesario.</p>
+                    </div>
+
+                    <button type="button" class="btn-extra" onclick="abrirModalSituacion()">+</button>
+
+                    <input type="hidden" id="situacionHoras" value="0">
+                    <input type="hidden" id="situacionMinutos" value="0">
+                    <input type="hidden" id="situacionDescripcion" value="">
+                </div>
+            </div>
+        </div>
+
+        <div class="monitor-info-box">
+            ℹ️ Todos los campos son obligatorios, excepto observaciones y extra.
         </div>
 
     </div>
-</div>
 
-<div class="actions" style="justify-content:flex-end;">
-<div class="right-actions">
-<button class="guardar" onclick="guardarDatos()">💾 Guardar</button>
-</div>
-</div>
+    <!-- TAB MÁQUINAS -->
+    <div id="tabMaquinasMonitoreo" class="monitor-tab-content">
+
+        <div class="maquinas-panel-nuevo">
+
+            <div class="maquinas-panel-header">
+                <div>
+                    <h3>⚙️ Máquinas</h3>
+                    <p>Selecciona las máquinas utilizadas y registra los tiempos.</p>
+                </div>
+
+                <span class="contador-maquinas">
+                    Total de máquinas: <strong id="totalMaquinas">0</strong>
+                </span>
+            </div>
+
+            <div class="maquinas-filtros">
+                <div class="filtro-zona">
+                    <label>Zona</label>
+
+                    <div class="zona-toggle">
+                        <button type="button" class="zona-btn active" data-zona="todas">Todas</button>
+                        <button type="button" class="zona-btn" data-zona="oriente">Oriente</button>
+                        <button type="button" class="zona-btn" data-zona="poniente">Poniente</button>
+                    </div>
+                </div>
+
+                <div class="filtro-uso">
+                    <label>Uso</label>
+
+                    <select id="filtroUsoMaquinas">
+                        <option value="todas">Todas</option>
+                        <option value="si">En uso</option>
+                        <option value="no">Sin uso</option>
+                    </select>
+                </div>
+
+                <div class="filtro-buscar">
+                    <label>Buscar</label>
+                    <input type="text" id="buscarMaquina" placeholder="Buscar máquina...">
+                </div>
+            </div>
+
+            <table id="tablaMaquinas" class="tabla-maquinas-unica">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Máquina</th>
+                        <th>Zona</th>
+                        <th>Uso</th>
+                        <th>Tiempo</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+
+            <div class="monitor-info-box">
+                ℹ️ Selecciona el uso y el tiempo correspondiente para cada máquina utilizada.
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- MODAL SITUACIÓN -->
+    <div id="modalSituacion" class="modal-situacion">
+        <div class="modal-situacion-content">
+
+            <button type="button" class="cerrar-modal" onclick="cerrarModalSituacion()">×</button>
+
+            <h3>Situación</h3>
+
+            <label>Tiempo extra</label>
+
+            <div class="tiempo-situacion-grid">
+                <div>
+                    <input type="number" id="modalSituacionHoras" min="0" value="0">
+                    <small>Horas</small>
+                </div>
+
+                <div>
+                    <input type="number" id="modalSituacionMinutos" min="0" max="59" value="0">
+                    <small>Minutos</small>
+                </div>
+            </div>
+
+            <label>Motivo / descripción</label>
+            <textarea id="modalSituacionDescripcion" placeholder="Ej: pieza que se demora en salir, espera de material, ajuste adicional, etc."></textarea>
+
+            <div class="modal-situacion-actions">
+                <button type="button" class="btn-cancelar" onclick="cerrarModalSituacion()">Cancelar</button>
+                <button type="button" class="btn-guardar-situacion" onclick="guardarSituacion()">Guardar</button>
+            </div>
+
+        </div>
+    </div>
 
 </div>
 

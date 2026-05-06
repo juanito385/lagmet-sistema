@@ -7,6 +7,12 @@ const finJornadaHora = 16;
 const finJornadaMin = 45;
 
 /* =========================
+   VARIABLES GLOBALES
+========================= */
+let filtroZonaActual = "todas";
+let maquinasBD = [];
+
+/* =========================
    HORAS / MINUTOS
 ========================= */
 function horas() {
@@ -26,32 +32,19 @@ function minutos() {
 }
 
 /* =========================
-   MAQUINAS
-========================= 
-const oriente = [
-    "Torno Vertical CNC","Mandrinadora","Torno Vertical",
-    "Mandrinadora","Torno 1000","Torno 800",
-    "Torno Bulgaro","Torno Varileta","Cepillo",
-    "Escoplo","Taladro Radial"
-];
-
-const poniente = [
-    "Torno CNC 2","Torno CNC 3","Torno CNC 1",
-    "Centro Mecanizado 1","Centro Mecanizado 2",
-    "Router","Mecánica Banco","Balanceadora"
-];
-*/
-
-/* =========================
-   CREAR TABLAS
+   CREAR TABLA ÚNICA MÁQUINAS
 ========================= */
-function crear(lista, id, zona) {
-    const tbody = document.querySelector(`#${id} tbody`);
+function crearTablaMaquinas(lista) {
+    const tbody = document.querySelector("#tablaMaquinas tbody");
+    const totalMaquinas = document.getElementById("totalMaquinas");
+
     if (!tbody) return;
 
     tbody.innerHTML = "";
 
-    lista.forEach(maquina => {
+    lista.forEach((maquina, index) => {
+        const zona = (maquina.zona || "").toLowerCase();
+
         const fila = document.createElement("tr");
 
         fila.setAttribute("data-zona", zona);
@@ -59,24 +52,48 @@ function crear(lista, id, zona) {
         fila.setAttribute("data-id-maquina", maquina.id);
 
         fila.innerHTML = `
+            <td>${index + 1}</td>
+
             <td>${maquina.nombre_maquina}</td>
+
+            <td>
+                <span class="badge-zona ${zona}">
+                    ${maquina.zona}
+                </span>
+            </td>
+
             <td>
                 <select class="uso">
                     <option value="no">No</option>
                     <option value="si">Sí</option>
                 </select>
             </td>
+
             <td>
-                <select class="horas">${horas()}</select>
-                <select class="minutos">${minutos()}</select>
+                <div class="tiempo-maquina">
+                    <select class="horas">${horas()}</select>
+                    <select class="minutos">${minutos()}</select>
+                </div>
             </td>
         `;
 
         fila.classList.add("maquina-inactiva");
         tbody.appendChild(fila);
     });
+
+    if (totalMaquinas) {
+        totalMaquinas.textContent = lista.length;
+    }
+
+    cargarSelectFalloMaquina(lista);
+    actualizarColorTodasLasFilas();
+    aplicarFiltrosMaquinas();
+    calcular();
 }
 
+/* =========================
+   CARGAR MÁQUINAS DESDE BD
+========================= */
 async function cargarMaquinasDesdeBD() {
     try {
         const res = await fetch("php/obtener_maquinas.php");
@@ -87,21 +104,77 @@ async function cargarMaquinasDesdeBD() {
             return;
         }
 
-        const maquinasOriente = data.data.filter(m => m.zona.toLowerCase() === "oriente");
-        const maquinasPoniente = data.data.filter(m => m.zona.toLowerCase() === "poniente");
-
-        crear(maquinasOriente, "tablaOriente", "oriente");
-        crear(maquinasPoniente, "tablaPoniente", "poniente");
-
-        actualizarColorTodasLasFilas();
-        calcular();
+        maquinasBD = data.data;
+        crearTablaMaquinas(maquinasBD);
 
     } catch (error) {
         console.error("Error cargando máquinas desde BD:", error);
     }
 }
+
 /* =========================
-   COLOR FILAS MAQUINAS
+   SELECT FALLO MÁQUINA DINÁMICO
+========================= */
+function cargarSelectFalloMaquina(lista) {
+    const select = document.getElementById("maquinaFallo");
+    if (!select) return;
+
+    select.innerHTML = `<option value="">Seleccionar máquina</option>`;
+
+    const oriente = lista.filter(m => (m.zona || "").toLowerCase() === "oriente");
+    const poniente = lista.filter(m => (m.zona || "").toLowerCase() === "poniente");
+
+    if (oriente.length) {
+        const grupoOriente = document.createElement("optgroup");
+        grupoOriente.label = "Zona Oriente";
+
+        oriente.forEach(m => {
+            const option = document.createElement("option");
+            option.value = m.nombre_maquina;
+            option.textContent = m.nombre_maquina;
+            grupoOriente.appendChild(option);
+        });
+
+        select.appendChild(grupoOriente);
+    }
+
+    if (poniente.length) {
+        const grupoPoniente = document.createElement("optgroup");
+        grupoPoniente.label = "Zona Poniente";
+
+        poniente.forEach(m => {
+            const option = document.createElement("option");
+            option.value = m.nombre_maquina;
+            option.textContent = m.nombre_maquina;
+            grupoPoniente.appendChild(option);
+        });
+
+        select.appendChild(grupoPoniente);
+    }
+}
+
+/* =========================
+   FILTROS MÁQUINAS
+========================= */
+function aplicarFiltrosMaquinas() {
+    const busqueda = document.getElementById("buscarMaquina")?.value.toLowerCase().trim() || "";
+    const filtroUso = document.getElementById("filtroUsoMaquinas")?.value || "todas";
+
+    document.querySelectorAll("#tablaMaquinas tbody tr").forEach(fila => {
+        const zona = fila.getAttribute("data-zona") || "";
+        const maquina = (fila.getAttribute("data-maquina") || "").toLowerCase();
+        const uso = fila.querySelector(".uso")?.value || "no";
+
+        const coincideZona = filtroZonaActual === "todas" || zona === filtroZonaActual;
+        const coincideUso = filtroUso === "todas" || uso === filtroUso;
+        const coincideBusqueda = maquina.includes(busqueda);
+
+        fila.style.display = coincideZona && coincideUso && coincideBusqueda ? "" : "none";
+    });
+}
+
+/* =========================
+   COLOR FILAS MÁQUINAS
 ========================= */
 function actualizarColorFila(fila) {
     const uso = fila.querySelector(".uso");
@@ -119,9 +192,8 @@ function actualizarColorFila(fila) {
 
 function actualizarColorTodasLasFilas() {
     document
-        .querySelectorAll("#tablaOriente tbody tr, #tablaPoniente tbody tr")
+        .querySelectorAll("#tablaMaquinas tbody tr")
         .forEach(fila => actualizarColorFila(fila));
-
 }
 
 /* =========================
@@ -136,15 +208,12 @@ function formatearHoraAMPM(fecha) {
 }
 
 /* =========================
-   CALCULO
-========================= */
-/* =========================
-   CALCULO
+   CÁLCULO
 ========================= */
 function calcular() {
     let total = 0;
 
-    const filas = document.querySelectorAll("#tablaOriente tbody tr, #tablaPoniente tbody tr");
+    const filas = document.querySelectorAll("#tablaMaquinas tbody tr");
 
     filas.forEach(fila => {
         const uso = fila.querySelector(".uso");
@@ -159,13 +228,6 @@ function calcular() {
     const cantidad = parseInt(document.getElementById("cantidadProductos")?.value) || 1;
     total *= cantidad;
 
-    if (document.getElementById("almuerzo")?.value === "si") {
-        total += 0.75;
-    }
-
-    /* =========================
-       SUMAR SITUACION / EXTRA
-    ========================= */
     const situacionHoras = parseInt(document.getElementById("situacionHoras")?.value) || 0;
     const situacionMinutos = parseInt(document.getElementById("situacionMinutos")?.value) || 0;
 
@@ -239,11 +301,7 @@ function calcular() {
         }
     }
 
-    const horaFormateada = ahora.toLocaleTimeString("es-CL", {
-        hour: "numeric",
-        minute: "2-digit",
-        hour12: true
-    }).toUpperCase();
+    const horaFormateada = formatearHoraAMPM(ahora);
 
     const fechaFinInput = document.getElementById("fechaFin");
     const fechaFinVisual = document.getElementById("fechaFinVisual");
@@ -269,12 +327,12 @@ function calcular() {
 }
 
 /* =========================
-   VALIDAR SOLO NUMEROS
+   VALIDAR SOLO NÚMEROS
 ========================= */
-function permitirSoloNumeros(id){
+function permitirSoloNumeros(id) {
     const input = document.getElementById(id);
 
-    if(!input) return;
+    if (!input) return;
 
     input.addEventListener("input", () => {
         input.value = input.value.replace(/\D/g, "");
@@ -288,14 +346,8 @@ function permitirSoloNumeros(id){
     });
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-    permitirSoloNumeros("pedido");
-    permitirSoloNumeros("ot");
-    permitirSoloNumeros("Codigo");
-});
-
 /* =========================
-   SITUACION / EXTRA
+   SITUACIÓN / EXTRA
 ========================= */
 function abrirModalSituacion() {
     const modal = document.getElementById("modalSituacion");
@@ -340,7 +392,7 @@ function guardarSituacion() {
 }
 
 /* =========================
-   FALLO MAQUINA
+   FALLO MÁQUINA
 ========================= */
 function mostrarSelectorMaquinaFallo() {
     const fallo = document.getElementById("falloMaquina")?.value;
@@ -356,21 +408,14 @@ function mostrarSelectorMaquinaFallo() {
     }
 }
 
-/* Hacer funciones visibles para los onclick del HTML */
-window.abrirModalSituacion = abrirModalSituacion;
-window.cerrarModalSituacion = cerrarModalSituacion;
-window.guardarSituacion = guardarSituacion;
-window.mostrarSelectorMaquinaFallo = mostrarSelectorMaquinaFallo;
-
-
 /* =========================
    GUARDAR / ACTUALIZAR
 ========================= */
 async function guardarDatos() {
-
     const pedidoBase = document.getElementById("pedido").value.trim();
     const ot = document.getElementById("ot")?.value.trim() || "";
     const pedido = ot ? `${pedidoBase}-${ot}` : pedidoBase;
+
     const codigo = document.getElementById("Codigo").value.trim();
     const producto = document.getElementById("Producto").value.trim();
     const cantidad = parseInt(document.getElementById("cantidadProductos").value) || 0;
@@ -378,19 +423,17 @@ async function guardarDatos() {
     const fecha_fin = document.getElementById("fechaFin").value;
     const trabaja_sabado = document.getElementById("trabajaSabado").value;
 
-    /* NUEVO: SITUACION / EXTRA */
     const situacion_horas = parseInt(document.getElementById("situacionHoras")?.value) || 0;
     const situacion_minutos = parseInt(document.getElementById("situacionMinutos")?.value) || 0;
     const situacion_descripcion = document.getElementById("situacionDescripcion")?.value.trim() || "";
     const tiempo_muerto = (situacion_horas * 60) + situacion_minutos;
 
-    /* NUEVO: FALLO MAQUINA */
     const fallo_maquina = document.getElementById("falloMaquina")?.value || "no";
     const maquina_fallo = document.getElementById("maquinaFallo")?.value || "";
 
     const dias = parseInt(document.getElementById("dias").value) || 0;
     const grupo = document.getElementById("grupo").value;
-    const almuerzo = "no"; // ← fijo, ya no existe el selector
+    const almuerzo = "no";
     const salida = document.getElementById("salida").textContent;
 
     const user = JSON.parse(localStorage.getItem("user"));
@@ -420,11 +463,7 @@ async function guardarDatos() {
         return;
     }
 
-    /* =========================
-       VALIDACIÓN MAQUINAS
-    ========================= */
-
-    const filasValidacion = document.querySelectorAll("#tablaOriente tbody tr, #tablaPoniente tbody tr");
+    const filasValidacion = document.querySelectorAll("#tablaMaquinas tbody tr");
 
     let algunaActiva = false;
     let totalHoras = 0;
@@ -442,19 +481,19 @@ async function guardarDatos() {
 
     if (!algunaActiva) {
         alert("Debes seleccionar al menos una máquina en 'Sí'");
+        cambiarTabMonitoreo("maquinas");
         return;
     }
 
     if (totalHoras < 1) {
         alert("Debes ingresar al menos 1 hora total de trabajo");
+        cambiarTabMonitoreo("maquinas");
         return;
     }
 
-    const filas = document.querySelectorAll("#tablaOriente tbody tr, #tablaPoniente tbody tr");
-
     const maquinas = [];
 
-    filas.forEach(f => {
+    filasValidacion.forEach(f => {
         maquinas.push({
             zona: f.getAttribute("data-zona"),
             maquina: f.getAttribute("data-maquina"),
@@ -477,19 +516,12 @@ async function guardarDatos() {
         cantidad,
         fecha,
         fecha_fin,
-
-        /* antes se llamaba tiempo_muerto; ahora será el total de Situacion en minutos */
         tiempo_muerto,
-
-        /* datos completos de la Situacion */
         situacion_horas,
         situacion_minutos,
         situacion_descripcion,
-
-        /* datos de Fallo Máquina */
         fallo_maquina,
         maquina_fallo,
-
         dias,
         grupo,
         almuerzo,
@@ -513,6 +545,7 @@ async function guardarDatos() {
         if (data.success) {
             localStorage.removeItem("editandoId");
             alert("Guardado correctamente");
+
             limpiarFormulario();
 
             if (typeof renderProductos === "function") {
@@ -533,9 +566,6 @@ async function guardarDatos() {
     }
 }
 
-/* =========================
-   LIMPIAR
-========================= */
 /* =========================
    LIMPIAR
 ========================= */
@@ -560,7 +590,6 @@ function limpiarFormulario() {
     document.getElementById("grupo").value = "1";
     document.getElementById("trabajaSabado").value = "no";
 
-    /* LIMPIAR SITUACION / EXTRA */
     const situacionHoras = document.getElementById("situacionHoras");
     const situacionMinutos = document.getElementById("situacionMinutos");
     const situacionDescripcion = document.getElementById("situacionDescripcion");
@@ -579,7 +608,6 @@ function limpiarFormulario() {
 
     cerrarModalSituacion();
 
-    /* LIMPIAR FALLO MAQUINA */
     const falloMaquina = document.getElementById("falloMaquina");
     const maquinaFallo = document.getElementById("maquinaFallo");
 
@@ -590,7 +618,7 @@ function limpiarFormulario() {
         maquinaFallo.style.display = "none";
     }
 
-    document.querySelectorAll("#tablaOriente tbody tr, #tablaPoniente tbody tr").forEach(f => {
+    document.querySelectorAll("#tablaMaquinas tbody tr").forEach(f => {
         const uso = f.querySelector(".uso");
         const horas = f.querySelector(".horas");
         const minutos = f.querySelector(".minutos");
@@ -602,20 +630,42 @@ function limpiarFormulario() {
         actualizarColorFila(f);
     });
 
+    document.getElementById("buscarMaquina") && (document.getElementById("buscarMaquina").value = "");
+    document.getElementById("filtroUsoMaquinas") && (document.getElementById("filtroUsoMaquinas").value = "todas");
+
+    filtroZonaActual = "todas";
+
+    document.querySelectorAll(".zona-btn").forEach(btn => {
+        btn.classList.toggle("active", btn.dataset.zona === "todas");
+    });
+
+    aplicarFiltrosMaquinas();
     calcular();
+    cambiarTabMonitoreo("info");
 }
 
 /* =========================
    EVENTOS
 ========================= */
+document.addEventListener("click", e => {
+    if (!e.target.classList.contains("zona-btn")) return;
+
+    document.querySelectorAll(".zona-btn").forEach(btn => btn.classList.remove("active"));
+
+    e.target.classList.add("active");
+    filtroZonaActual = e.target.dataset.zona;
+
+    aplicarFiltrosMaquinas();
+});
+
 document.addEventListener("change", e => {
     const target = e.target;
 
     if (
-    target.classList.contains("uso") ||
-    target.classList.contains("horas") ||
-    target.classList.contains("minutos") ||
-    ["almuerzo", "grupo", "trabajaSabado", "cantidadProductos", "fecha"].includes(target.id)
+        target.classList.contains("uso") ||
+        target.classList.contains("horas") ||
+        target.classList.contains("minutos") ||
+        ["grupo", "trabajaSabado", "cantidadProductos", "fecha", "filtroUsoMaquinas"].includes(target.id)
     ) {
         const fila = target.closest("tr");
 
@@ -624,6 +674,7 @@ document.addEventListener("change", e => {
         }
 
         calcular();
+        aplicarFiltrosMaquinas();
 
         if (typeof cargarEstadoMaquinasDashboard === "function") {
             cargarEstadoMaquinasDashboard();
@@ -632,12 +683,60 @@ document.addEventListener("change", e => {
 });
 
 document.addEventListener("input", e => {
-    if (e.target.id === "cantidadProductos") calcular();
+    if (e.target.id === "cantidadProductos") {
+        calcular();
+    }
+
+    if (e.target.id === "buscarMaquina") {
+        aplicarFiltrosMaquinas();
+    }
 });
+
+/* =========================
+   TABS MONITOREO
+========================= */
+function cambiarTabMonitoreo(tab) {
+    const tabInfo = document.getElementById("tabInfoMonitoreo");
+    const tabMaquinas = document.getElementById("tabMaquinasMonitoreo");
+    const botones = document.querySelectorAll(".monitor-tab");
+
+    if (!tabInfo || !tabMaquinas) return;
+
+    tabInfo.classList.remove("active");
+    tabMaquinas.classList.remove("active");
+
+    botones.forEach(btn => btn.classList.remove("active"));
+
+    if (tab === "info") {
+        tabInfo.classList.add("active");
+        botones[0]?.classList.add("active");
+    }
+
+    if (tab === "maquinas") {
+        tabMaquinas.classList.add("active");
+        botones[1]?.classList.add("active");
+    }
+}
 
 /* =========================
    INICIO
 ========================= */
 window.addEventListener("DOMContentLoaded", () => {
+    permitirSoloNumeros("pedido");
+    permitirSoloNumeros("ot");
+    permitirSoloNumeros("Codigo");
+
     cargarMaquinasDesdeBD();
+    cambiarTabMonitoreo("info");
 });
+
+/* =========================
+   FUNCIONES GLOBALES
+========================= */
+window.abrirModalSituacion = abrirModalSituacion;
+window.cerrarModalSituacion = cerrarModalSituacion;
+window.guardarSituacion = guardarSituacion;
+window.mostrarSelectorMaquinaFallo = mostrarSelectorMaquinaFallo;
+window.guardarDatos = guardarDatos;
+window.limpiarFormulario = limpiarFormulario;
+window.cambiarTabMonitoreo = cambiarTabMonitoreo;
