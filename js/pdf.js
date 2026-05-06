@@ -117,7 +117,6 @@ async function descargarGanttExcel(){
             grupo.tareas.sort((a, b) => fechaLocal(a.inicio) - fechaLocal(b.inicio));
         });
 
-        /* Mantiene el mismo orden visual del Gantt */
         const ordenMaquinas = Object.values(agrupado).sort((a, b) => {
             return a.maquina.localeCompare(b.maquina, "es", {
                 numeric: true,
@@ -134,9 +133,13 @@ async function descargarGanttExcel(){
 
         ganttSheet.views = [{ showGridLines: true }];
 
+        const totalColumnas = dias.length + 2;
+
+        ganttSheet.mergeCells(1, 1, 1, totalColumnas);
+
         const titulo = ganttSheet.getCell("A1");
         titulo.value = "CARTA GANTT DE PRODUCCIÓN - LAGMET";
-        titulo.font = { bold: true, size: 14, color: { argb: "FFFFFFFF" } };
+        titulo.font = { bold: true, size: 16, color: { argb: "FFFFFFFF" } };
         titulo.fill = {
             type: "pattern",
             pattern: "solid",
@@ -144,20 +147,22 @@ async function descargarGanttExcel(){
         };
         titulo.alignment = { horizontal: "center", vertical: "middle" };
 
-        ganttSheet.mergeCells(1, 1, 1, dias.length + 2);
+        ganttSheet.getRow(1).height = 26;
+        ganttSheet.getRow(2).height = 8;
 
         const headerRow = ganttSheet.getRow(3);
         headerRow.values = ["Máquina", "Operador", ...dias.map(d => d.texto)];
+        headerRow.height = 24;
 
         headerRow.eachCell(cell => {
-            cell.font = { bold: true };
+            cell.font = { bold: true, color: { argb: "FF0F172A" } };
             cell.alignment = { horizontal: "center", vertical: "middle" };
             cell.fill = {
                 type: "pattern",
                 pattern: "solid",
                 fgColor: { argb: "FFB7DEE8" }
             };
-            cell.border = borderExcel();
+            cell.border = borderExcelSuave();
         });
 
         let filaActual = 4;
@@ -165,59 +170,117 @@ async function descargarGanttExcel(){
         ordenMaquinas.forEach(grupo => {
             const row = ganttSheet.getRow(filaActual);
 
+            row.height = 30;
+
             row.getCell(1).value = grupo.maquina;
             row.getCell(2).value = grupo.operador;
 
-            row.getCell(1).font = { bold: true };
-            row.getCell(1).alignment = { vertical: "middle" };
+            row.getCell(1).font = { bold: true, color: { argb: "FF111827" } };
+            row.getCell(2).font = { color: { argb: "FF111827" } };
+
+            row.getCell(1).alignment = { horizontal: "center", vertical: "middle" };
             row.getCell(2).alignment = { horizontal: "center", vertical: "middle" };
 
-            row.getCell(1).border = borderExcel();
-            row.getCell(2).border = borderExcel();
+            row.getCell(1).border = borderExcelSuave();
+            row.getCell(2).border = borderExcelSuave();
+
+            row.getCell(1).fill = fondoFilaExcel();
+            row.getCell(2).fill = fondoFilaExcel();
 
             dias.forEach((dia, index) => {
                 const cell = row.getCell(index + 3);
 
-                const tareaDelDia = grupo.tareas.find(tarea => {
-                    const inicio = fechaLocal(tarea.inicio);
-                    const fin = fechaLocal(tarea.fin);
-
-                    inicio.setHours(0,0,0,0);
-                    fin.setHours(0,0,0,0);
-
-                    return dia.fecha >= inicio && dia.fecha <= fin;
-                });
-
-                if (tareaDelDia) {
-                    cell.value = tareaDelDia.producto;
-                    cell.fill = {
-                        type: "pattern",
-                        pattern: "solid",
-                        fgColor: { argb: colorExcelEstado(tareaDelDia.estado) }
-                    };
-                    cell.font = { bold: true, color: { argb: "FF000000" } };
-                    cell.alignment = {
-                        horizontal: "center",
-                        vertical: "middle",
-                        wrapText: true
-                    };
-                } else {
-                    cell.alignment = { horizontal: "center", vertical: "middle" };
-                }
-
-                cell.border = borderExcel();
+                cell.border = borderExcelSuave();
+                cell.fill = fondoFilaExcel();
+                cell.alignment = { horizontal: "center", vertical: "middle" };
             });
 
-            row.height = 24;
+            grupo.tareas.forEach(tarea => {
+                const inicio = fechaLocal(tarea.inicio);
+                const fin = fechaLocal(tarea.fin);
+
+                inicio.setHours(0, 0, 0, 0);
+                fin.setHours(0, 0, 0, 0);
+
+                const inicioIndex = dias.findIndex(d => {
+                    const fecha = new Date(d.fecha);
+                    fecha.setHours(0, 0, 0, 0);
+                    return fecha.getTime() === inicio.getTime();
+                });
+
+                const finIndex = dias.findIndex(d => {
+                    const fecha = new Date(d.fecha);
+                    fecha.setHours(0, 0, 0, 0);
+                    return fecha.getTime() === fin.getTime();
+                });
+
+                if (inicioIndex === -1 || finIndex === -1) return;
+
+                const colInicio = inicioIndex + 3;
+                const colFin = finIndex + 3;
+
+                try {
+                    if (colInicio < colFin) {
+                        ganttSheet.mergeCells(filaActual, colInicio, filaActual, colFin);
+                    }
+
+                    const barra = row.getCell(colInicio);
+
+                    barra.value = tarea.producto;
+
+                    barra.fill = {
+                        type: "pattern",
+                        pattern: "solid",
+                        fgColor: { argb: colorExcelEstadoSuave(tarea.estado) }
+                    };
+
+                    barra.font = {
+                        bold: true,
+                        color: { argb: "FF000000" }
+                    };
+
+                    barra.alignment = {
+                        horizontal: "center",
+                        vertical: "middle"
+                    };
+
+                    barra.border = borderBarraExcel(tarea.estado);
+
+                } catch (mergeError) {
+                    console.warn("No se pudo fusionar barra:", tarea, mergeError);
+                }
+            });
+
+            filaActual++;
+
+            const separador = ganttSheet.getRow(filaActual);
+            separador.height = 7;
+
+            for (let col = 1; col <= totalColumnas; col++) {
+                const cell = separador.getCell(col);
+                cell.fill = {
+                    type: "pattern",
+                    pattern: "solid",
+                    fgColor: { argb: "FFFFFFFF" }
+                };
+            }
+
             filaActual++;
         });
 
         ganttSheet.getColumn(1).width = 24;
         ganttSheet.getColumn(2).width = 16;
 
-        for (let i = 3; i <= dias.length + 2; i++) {
-            ganttSheet.getColumn(i).width = 14;
+        for (let i = 3; i <= totalColumnas; i++) {
+            ganttSheet.getColumn(i).width = 13;
         }
+
+        /*
+        ganttSheet.autoFilter = {
+            from: "A3",
+            to: `${ganttSheet.getColumn(totalColumnas).letter}3`
+        };
+        */
 
         /* =========================
            HOJA 2: DETALLE
@@ -226,9 +289,11 @@ async function descargarGanttExcel(){
 
         detalleSheet.views = [{ showGridLines: true }];
 
+        detalleSheet.mergeCells("A1:G1");
+
         const detalleTitulo = detalleSheet.getCell("A1");
         detalleTitulo.value = "DETALLE DE PRODUCCIÓN";
-        detalleTitulo.font = { bold: true, size: 14, color: { argb: "FFFFFFFF" } };
+        detalleTitulo.font = { bold: true, size: 16, color: { argb: "FFFFFFFF" } };
         detalleTitulo.fill = {
             type: "pattern",
             pattern: "solid",
@@ -236,7 +301,8 @@ async function descargarGanttExcel(){
         };
         detalleTitulo.alignment = { horizontal: "center", vertical: "middle" };
 
-        detalleSheet.mergeCells("A1:G1");
+        detalleSheet.getRow(1).height = 26;
+        detalleSheet.getRow(2).height = 24;
 
         const detalleHeader = detalleSheet.getRow(2);
         detalleHeader.values = [
@@ -250,14 +316,14 @@ async function descargarGanttExcel(){
         ];
 
         detalleHeader.eachCell(cell => {
-            cell.font = { bold: true };
+            cell.font = { bold: true, color: { argb: "FF0F172A" } };
             cell.alignment = { horizontal: "center", vertical: "middle" };
             cell.fill = {
                 type: "pattern",
                 pattern: "solid",
                 fgColor: { argb: "FFB7DEE8" }
             };
-            cell.border = borderExcel();
+            cell.border = borderExcelSuave();
         });
 
         const registrosOrdenadosDetalle = [];
@@ -281,15 +347,17 @@ async function descargarGanttExcel(){
                 item.estado
             ];
 
+            row.height = 22;
+
             row.eachCell(cell => {
-                cell.border = borderExcel();
+                cell.border = borderExcelSuave();
                 cell.alignment = { vertical: "middle" };
             });
 
             row.getCell(7).fill = {
                 type: "pattern",
                 pattern: "solid",
-                fgColor: { argb: colorExcelEstado(item.estado) }
+                fgColor: { argb: colorExcelEstadoSuave(item.estado) }
             };
             row.getCell(7).font = { bold: true };
             row.getCell(7).alignment = { horizontal: "center", vertical: "middle" };
@@ -302,6 +370,11 @@ async function descargarGanttExcel(){
         detalleSheet.getColumn(5).width = 16;
         detalleSheet.getColumn(6).width = 16;
         detalleSheet.getColumn(7).width = 18;
+
+        detalleSheet.autoFilter = {
+            from: "A2",
+            to: "G2"
+        };
 
         /* =========================
            DESCARGA
@@ -320,6 +393,52 @@ async function descargarGanttExcel(){
         console.error("❌ Error al exportar Excel:", error);
         alert("No se pudo generar el Excel");
     }
+}
+
+/* =========================
+   HELPERS VISUALES EXCEL PRO
+========================= */
+function borderExcelSuave(){
+    return {
+        top: { style: "thin", color: { argb: "FFD9D9D9" } },
+        left: { style: "thin", color: { argb: "FFD9D9D9" } },
+        bottom: { style: "thin", color: { argb: "FFD9D9D9" } },
+        right: { style: "thin", color: { argb: "FFD9D9D9" } }
+    };
+}
+
+function fondoFilaExcel(){
+    return {
+        type: "pattern",
+        pattern: "solid",
+        fgColor: { argb: "FFFFFFFF" }
+    };
+}
+
+function colorExcelEstadoSuave(estado){
+    if (estado === "proceso") return "FF92D050";
+    if (estado === "pendiente") return "FF5B9BD5";
+    if (estado === "atrasado") return "FFFF4D4D";
+    if (estado === "tiempo-muerto") return "FFFFC000";
+    if (estado === "terminado") return "FFA6A6A6";
+    return "FFFFFFFF";
+}
+
+function borderBarraExcel(estado){
+    let color = "FF666666";
+
+    if (estado === "proceso") color = "FF2E7D32";
+    if (estado === "pendiente") color = "FF1565C0";
+    if (estado === "atrasado") color = "FFB71C1C";
+    if (estado === "tiempo-muerto") color = "FFB26A00";
+    if (estado === "terminado") color = "FF6B7280";
+
+    return {
+        top: { style: "medium", color: { argb: color } },
+        left: { style: "medium", color: { argb: color } },
+        bottom: { style: "medium", color: { argb: color } },
+        right: { style: "medium", color: { argb: color } }
+    };
 }
 
 /* =========================
