@@ -300,6 +300,17 @@ window.mostrarGantt = async function(){
     });
 };
 
+function abrirDetalleGantt(producto, pedido, inicio, fin, maquina, estado){
+    alert(
+        `Producto: ${producto}
+         Pedido: ${pedido}
+         Inicio: ${inicio}
+         Fin: ${fin}
+         Máquina: ${maquina}
+         Estado: ${estado.replace("gantt-", "")}`
+    );
+}
+
 /* =========================
    GANTT POR MÁQUINA AVANZADO
 ========================= */
@@ -464,18 +475,14 @@ window.mostrarGanttPorMaquina = async function(){
                 );
 
                 barrasHtml += `
-                        <div 
-                        class="gantt-machine-bar ${tarea.claseEstado}"
-                        title="Producto: ${tarea.producto}
-                        Pedido: ${tarea.pedido}
-                        Inicio: ${tarea.inicio}
-                        Fin: ${tarea.fin}
-                        Máquina: ${tarea.maquina}
-                        Estado: ${tarea.claseEstado.replace('gantt-','')}"
-                                style="
+                        <div
+                            class="gantt-machine-bar ${tarea.claseEstado}"
+                            onclick="abrirDetalleGantt('${tarea.producto}', '${tarea.pedido}', '${tarea.inicio}', '${tarea.fin}', '${tarea.maquina}', '${tarea.claseEstado}')"
+                            style="
                                 left:${offsetDias * anchoDia}px;
                                 width:${duracionDias * anchoDia}px;
-                            ">
+                            "
+                        >
                             ${tarea.producto}
                         </div>
                     `;
