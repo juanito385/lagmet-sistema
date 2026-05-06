@@ -27,7 +27,7 @@ function minutos() {
 
 /* =========================
    MAQUINAS
-========================= */
+========================= 
 const oriente = [
     "Torno Vertical CNC","Mandrinadora","Torno Vertical",
     "Mandrinadora","Torno 1000","Torno 800",
@@ -40,6 +40,7 @@ const poniente = [
     "Centro Mecanizado 1","Centro Mecanizado 2",
     "Router","Mecánica Banco","Balanceadora"
 ];
+*/
 
 /* =========================
    CREAR TABLAS
@@ -54,10 +55,11 @@ function crear(lista, id, zona) {
         const fila = document.createElement("tr");
 
         fila.setAttribute("data-zona", zona);
-        fila.setAttribute("data-maquina", maquina);
+        fila.setAttribute("data-maquina", maquina.nombre_maquina);
+        fila.setAttribute("data-id-maquina", maquina.id);
 
         fila.innerHTML = `
-            <td>${maquina}</td>
+            <td>${maquina.nombre_maquina}</td>
             <td>
                 <select class="uso">
                     <option value="no">No</option>
@@ -75,6 +77,29 @@ function crear(lista, id, zona) {
     });
 }
 
+async function cargarMaquinasDesdeBD() {
+    try {
+        const res = await fetch("php/obtener_maquinas.php");
+        const data = await res.json();
+
+        if (!data.success) {
+            console.error(data.message);
+            return;
+        }
+
+        const maquinasOriente = data.data.filter(m => m.zona.toLowerCase() === "oriente");
+        const maquinasPoniente = data.data.filter(m => m.zona.toLowerCase() === "poniente");
+
+        crear(maquinasOriente, "tablaOriente", "oriente");
+        crear(maquinasPoniente, "tablaPoniente", "poniente");
+
+        actualizarColorTodasLasFilas();
+        calcular();
+
+    } catch (error) {
+        console.error("Error cargando máquinas desde BD:", error);
+    }
+}
 /* =========================
    COLOR FILAS MAQUINAS
 ========================= */
@@ -614,8 +639,5 @@ document.addEventListener("input", e => {
    INICIO
 ========================= */
 window.addEventListener("DOMContentLoaded", () => {
-    crear(oriente,"tablaOriente","oriente");
-    crear(poniente,"tablaPoniente","poniente");
-    actualizarColorTodasLasFilas();
-    calcular();
+    cargarMaquinasDesdeBD();
 });
