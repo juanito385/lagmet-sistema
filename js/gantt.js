@@ -1,4 +1,3 @@
-console.log("🔥 GANTT.JS CARGADO");
 console.log("Gantt existe:", typeof window.Gantt);
 
 /* =========================
