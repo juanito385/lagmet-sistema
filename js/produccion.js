@@ -88,7 +88,7 @@ function crearTablaMaquinas(lista) {
                 <div class="custom-select-monitor custom-select-maquina" data-target-class="uso">
                     <button type="button" class="custom-select-selected">
                         No
-                        <span>⌄</span>
+                        <span></span>
                     </button>
 
                     <div class="custom-select-options">
@@ -107,7 +107,7 @@ function crearTablaMaquinas(lista) {
                     <div class="custom-select-monitor custom-select-maquina custom-tiempo" data-target-class="horas">
                         <button type="button" class="custom-select-selected">
                             0h
-                            <span>⌄</span>
+                            <span></span>
                         </button>
 
                         <div class="custom-select-options custom-options-small">
@@ -118,7 +118,7 @@ function crearTablaMaquinas(lista) {
                     <div class="custom-select-monitor custom-select-maquina custom-tiempo" data-target-class="minutos">
                         <button type="button" class="custom-select-selected">
                             0m
-                            <span>⌄</span>
+                            <span></span>
                         </button>
 
                         <div class="custom-select-options custom-options-small">
@@ -468,7 +468,7 @@ function mostrarSelectorMaquinaFallo() {
 
         const selected = maquinaCustom.querySelector(".custom-select-selected");
         if (selected) {
-            selected.innerHTML = `Seleccionar máquina <span>⌄</span>`;
+            selected.innerHTML = `Seleccionar máquina <span></span>`;
         }
     }
 }
@@ -715,9 +715,30 @@ function limpiarFormulario() {
    EVENTOS
 ========================= */
 /* =========================
-   CUSTOM SELECT GENERAL
+   CLICK GENERAL MONITOREO
 ========================= */
 document.addEventListener("click", e => {
+
+    /* =========================
+       BOTONES ZONA MAQUINAS
+    ========================= */
+    const zonaBtn = e.target.closest(".zona-btn");
+
+    if (zonaBtn) {
+        document.querySelectorAll(".zona-btn").forEach(btn => {
+            btn.classList.remove("active");
+        });
+
+        zonaBtn.classList.add("active");
+        filtroZonaActual = zonaBtn.dataset.zona || "todas";
+
+        aplicarFiltrosMaquinas();
+        return;
+    }
+
+    /* =========================
+       CUSTOM SELECTS
+    ========================= */
     const selectedBtn = e.target.closest(".custom-select-selected");
     const optionBtn = e.target.closest(".custom-select-options button");
 
@@ -735,7 +756,9 @@ document.addEventListener("click", e => {
 
     if (selectedBtn) {
         const wrapper = selectedBtn.closest(".custom-select-monitor");
-        const options = wrapper.querySelector(".custom-select-options");
+        const options = wrapper?.querySelector(".custom-select-options");
+
+        if (!wrapper || !options) return;
 
         document.querySelectorAll(".custom-select-options").forEach(menu => {
             if (menu !== options) menu.classList.remove("active");
@@ -769,7 +792,7 @@ document.addEventListener("click", e => {
         if (!targetInput) return;
 
         targetInput.value = optionBtn.dataset.value;
-        selected.innerHTML = `${optionBtn.textContent} <span>⌄</span>`;
+        selected.innerHTML = `${optionBtn.textContent} <span class="select-circle-icon"></span>`;
 
         wrapper.querySelector(".custom-select-options").classList.remove("active");
         selected.classList.remove("active");
@@ -789,7 +812,6 @@ document.addEventListener("click", e => {
         }
     }
 });
-
 document.addEventListener("change", e => {
     const target = e.target;
 

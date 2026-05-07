@@ -1,0 +1,104 @@
+/* =========================
+   RESPONSIVE DASHBOARD
+========================= */
+
+@media(max-width:1400px){
+    .dashboard-cards,
+    .dashboard-cards-pro{
+        grid-template-columns:repeat(3,1fr);
+    }
+
+    .dashboard-main-grid{
+        grid-template-columns:1fr;
+    }
+
+    .dashboard-mini-grid{
+        grid-template-columns:repeat(2,1fr);
+    }
+}
+
+@media(max-width:1200px){
+    .grid-4,
+    .grid-3{
+        grid-template-columns:repeat(2,1fr);
+    }
+
+    .extra-layout{
+        grid-template-columns:1fr;
+    }
+}
+
+@media(max-width:900px){
+    .maquinas-filtros{
+        grid-template-columns:1fr;
+    }
+
+    .zona-toggle{
+        flex-direction:column;
+    }
+
+    .tabla-maquinas-unica{
+        min-width:760px;
+    }
+
+    .maquinas-panel-nuevo{
+        overflow-x:auto;
+    }
+}
+
+@media(max-width:800px){
+    .dashboard-header{
+        flex-direction:column;
+    }
+
+    .dashboard-actions{
+        justify-content:flex-start;
+    }
+
+    .dashboard-cards,
+    .dashboard-cards-pro{
+        grid-template-columns:1fr;
+    }
+
+    .dashboard-mini-grid{
+        grid-template-columns:1fr;
+    }
+
+    .donut-layout{
+        flex-direction:column;
+    }
+
+    .status-boxes{
+        grid-template-columns:1fr;
+    }
+}
+
+@media(max-width:760px){
+    .monitoreo-header{
+        flex-direction:column;
+    }
+
+    .monitoreo-actions-top{
+        width:100%;
+        justify-content:flex-start;
+    }
+
+    .monitor-tabs{
+        flex-direction:column;
+    }
+
+    .monitor-tab{
+        width:100%;
+        border-radius:12px;
+    }
+
+    .grid-4,
+    .grid-3{
+        grid-template-columns:1fr;
+    }
+
+    .salida-panel{
+        flex-direction:column;
+        align-items:flex-start;
+    }
+}

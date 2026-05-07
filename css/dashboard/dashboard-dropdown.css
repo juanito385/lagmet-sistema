@@ -1,0 +1,55 @@
+/* =========================
+   DASHBOARD DROPDOWN
+========================= */
+
+.custom-select{
+    position:relative;
+    width:140px;
+    z-index:20;
+}
+
+.custom-select-btn{
+    width:100%;
+    height:42px;
+    padding:0 14px;
+    border-radius:12px;
+    border:1px solid rgba(255,255,255,0.18);
+    background:rgba(255,255,255,0.08);
+    color:white;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    cursor:pointer;
+    font-size:14px;
+}
+
+.custom-select-btn:hover{
+    background:rgba(255,255,255,0.12);
+}
+
+.custom-select-menu{
+    position:absolute;
+    top:50px;
+    right:0;
+    width:100%;
+    background:#202334;
+    border:1px solid rgba(255,255,255,0.14);
+    border-radius:14px;
+    overflow:hidden;
+    box-shadow:0 15px 35px rgba(0,0,0,0.45);
+    display:none;
+}
+
+.custom-select-menu.active{
+    display:block;
+}
+
+.custom-select-menu div{
+    padding:12px 14px;
+    color:white;
+    cursor:pointer;
+}
+
+.custom-select-menu div:hover{
+    background:#7c3aed;
+}

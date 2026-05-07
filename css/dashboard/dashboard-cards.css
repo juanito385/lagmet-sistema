@@ -1,0 +1,107 @@
+/* =========================
+   DASHBOARD CARDS
+========================= */
+
+.dashboard-cards,
+.dashboard-cards-pro{
+    display:grid;
+    grid-template-columns:repeat(6,1fr);
+    gap:14px;
+    margin-bottom:22px;
+}
+
+.dash-card{
+    min-height:125px;
+    padding:18px;
+    border-radius:16px;
+    background:rgba(255,255,255,0.055);
+    border:1px solid rgba(255,255,255,0.10);
+    box-shadow:0 18px 35px rgba(0,0,0,0.28);
+    display:flex;
+    align-items:center;
+    gap:16px;
+    transition:0.25s ease;
+    overflow:hidden;
+    position:relative;
+}
+
+.dash-card:hover{
+    transform:translateY(-4px);
+}
+
+.dash-card h3{
+    margin:0 0 8px;
+    font-size:14px;
+    color:#eef3ff;
+}
+
+.dash-card strong{
+    font-size:32px;
+    line-height:1;
+}
+
+.dash-card p{
+    margin:7px 0 0;
+    font-size:13px;
+}
+
+.dash-card small{
+    display:block;
+    margin-top:8px;
+    color:#b9c4d6;
+    font-size:12px;
+}
+
+.dash-icon{
+    width:58px;
+    height:58px;
+    min-width:58px;
+    border-radius:14px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:28px;
+}
+
+.card-purple{
+    border-color:rgba(139,92,246,.35);
+    background:linear-gradient(135deg,rgba(139,92,246,.22),rgba(255,255,255,.04));
+}
+
+.card-yellow{
+    border-color:rgba(245,158,11,.35);
+    background:linear-gradient(135deg,rgba(245,158,11,.20),rgba(255,255,255,.04));
+}
+
+.card-green{
+    border-color:rgba(34,197,94,.35);
+    background:linear-gradient(135deg,rgba(34,197,94,.18),rgba(255,255,255,.04));
+}
+
+.card-red{
+    border-color:rgba(239,68,68,.35);
+    background:linear-gradient(135deg,rgba(239,68,68,.20),rgba(255,255,255,.04));
+}
+
+.card-blue{
+    border-color:rgba(59,130,246,.35);
+    background:linear-gradient(135deg,rgba(59,130,246,.18),rgba(255,255,255,.04));
+}
+
+.card-cyan{
+    border-color:rgba(34,211,238,.35);
+    background:linear-gradient(135deg,rgba(34,211,238,.16),rgba(255,255,255,.04));
+}
+
+.purple{background:rgba(139,92,246,.35);}
+.blue{background:rgba(59,130,246,.35);}
+.yellow{background:rgba(245,158,11,.35);}
+.green{background:rgba(34,197,94,.35);}
+.red{background:rgba(239,68,68,.35);}
+.cyan{background:rgba(34,211,238,.28);}
+
+.green-text{color:#4ade80;}
+.yellow-text{color:#facc15;}
+.red-text{color:#fb7185;}
+.blue-text{color:#93c5fd;}
+.cyan-text{color:#67e8f9;}

@@ -1,0 +1,206 @@
+/* =========================
+   CUSTOM SELECT MONITOREO
+========================= */
+
+.custom-select-monitor{
+    position:relative;
+    width:100%;
+    z-index:20;
+}
+
+.custom-select-selected{
+    width:100%;
+    padding:14px 16px;
+    border-radius:10px;
+    border:1px solid rgba(255,255,255,0.16);
+    background:linear-gradient(
+        145deg,
+        rgba(255,255,255,0.08),
+        rgba(255,255,255,0.04)
+    );
+    color:white;
+    font-size:15px;
+    cursor:pointer;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
+
+.custom-select-selected.active{
+    border-color:#2f80ff;
+    box-shadow:0 0 0 4px rgba(47,128,255,0.18);
+}
+
+.custom-select-options{
+    display:none;
+    position:absolute;
+    top:calc(100% + 8px);
+    left:0;
+    width:100%;
+    background:#1f2233;
+    border:1px solid rgba(255,255,255,0.14);
+    border-radius:12px;
+    overflow:hidden;
+    z-index:9999;
+    box-shadow:0 18px 35px rgba(0,0,0,0.45);
+}
+
+.custom-select-options.active{
+    display:block;
+}
+
+.custom-select-options button{
+    width:100%;
+    padding:14px 16px;
+    border:none;
+    background:#1f2233;
+    color:white;
+    text-align:left;
+    font-size:15px;
+    cursor:pointer;
+}
+
+.custom-select-options button:hover{
+    background:#2f80ff;
+}
+
+/* ICONO CIRCULAR */
+
+.select-circle-icon{
+    width:24px;
+    height:24px;
+    min-width:24px;
+    border-radius:50%;
+    background:rgba(255,255,255,0.07);
+    position:relative;
+    transition:0.25s ease;
+}
+
+.select-circle-icon::before{
+    content:"";
+    position:absolute;
+    top:50%;
+    left:50%;
+    width:7px;
+    height:7px;
+    border-right:2px solid #ffffff;
+    border-bottom:2px solid #ffffff;
+    transform:translate(-50%, -60%) rotate(45deg);
+}
+
+.custom-select-selected:hover .select-circle-icon{
+    background:rgba(47,128,255,0.18);
+    transform:scale(1.05);
+}
+
+.custom-select-selected.active .select-circle-icon{
+    background:#2f80ff;
+    box-shadow:0 0 12px rgba(47,128,255,0.35);
+}
+
+/* MAQUINAS */
+
+.custom-select-maquina{
+    max-width:105px;
+}
+
+.custom-select-maquina .custom-select-selected{
+    padding:10px 12px;
+    min-height:42px;
+    font-size:14px;
+    justify-content:center;
+    gap:8px;
+}
+
+.custom-select-maquina .custom-select-options{
+    min-width:105px;
+}
+
+.custom-select-maquina .custom-select-options button{
+    padding:11px 12px;
+    text-align:center;
+    font-size:14px;
+}
+
+.custom-tiempo{
+    width:90px;
+}
+
+/* Ocultar icono sólo en tab máquinas */
+.custom-select-maquina .select-circle-icon{
+    display:none;
+}
+
+/* OPTIONS SMALL */
+
+.custom-options-small{
+    max-height:260px;
+    overflow-y:auto;
+}
+
+.custom-options-small::-webkit-scrollbar{
+    width:7px;
+}
+
+.custom-options-small::-webkit-scrollbar-track{
+    background:rgba(255,255,255,0.04);
+}
+
+.custom-options-small::-webkit-scrollbar-thumb{
+    background:rgba(47,128,255,0.55);
+    border-radius:20px;
+}
+
+.custom-options-small::-webkit-scrollbar-thumb:hover{
+    background:#2f80ff;
+}
+
+/* DROPDOWN MAQUINA FALLO */
+
+.maquina-fallo-custom .custom-select-options{
+    max-height:320px;
+    overflow-y:auto;
+}
+
+.maquina-fallo-custom .custom-select-options::-webkit-scrollbar{
+    width:8px;
+}
+
+.maquina-fallo-custom .custom-select-options::-webkit-scrollbar-track{
+    background:rgba(255,255,255,0.04);
+    border-radius:20px;
+}
+
+.maquina-fallo-custom .custom-select-options::-webkit-scrollbar-thumb{
+    background:rgba(47,128,255,0.55);
+    border-radius:20px;
+}
+
+.maquina-fallo-custom .custom-select-options::-webkit-scrollbar-thumb:hover{
+    background:#2f80ff;
+}
+
+/* FIX DROPDOWN TABLA MAQUINAS */
+
+.tabla-maquinas-unica .custom-select-options{
+    top:calc(100% + 6px);
+    left:0;
+    width:100%;
+    min-width:100%;
+    border-radius:12px;
+}
+
+.tabla-maquinas-unica .custom-select-options button{
+    padding:10px 12px;
+    min-height:42px;
+    line-height:1.1;
+}
+
+.tabla-maquinas-unica .custom-select-monitor{
+    position:relative;
+}
+
+.tabla-maquinas-unica .custom-select-monitor .custom-select-options{
+    position:absolute;
+    z-index:99999;
+}

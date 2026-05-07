@@ -1,0 +1,148 @@
+/* =========================
+   MODAL SITUACION
+========================= */
+
+.modal-situacion{
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,0.55);
+    backdrop-filter:blur(6px);
+    display:none;
+    align-items:center;
+    justify-content:center;
+    z-index:9999;
+}
+
+.modal-situacion.active{
+    display:flex;
+}
+
+.modal-situacion-content{
+    width:520px;
+    max-width:90%;
+    background:linear-gradient(145deg,rgba(42,44,63,0.98),rgba(28,30,45,0.98));
+    border:1px solid rgba(255,255,255,0.12);
+    border-radius:18px;
+    padding:26px;
+    box-shadow:0 25px 60px rgba(0,0,0,0.55);
+    position:relative;
+    animation:modalEntrada 0.25s ease;
+}
+
+@keyframes modalEntrada{
+    from{
+        opacity:0;
+        transform:translateY(20px) scale(0.96);
+    }
+    to{
+        opacity:1;
+        transform:translateY(0) scale(1);
+    }
+}
+
+.modal-situacion-content h3{
+    margin:0 0 22px;
+    font-size:24px;
+    color:white;
+}
+
+.cerrar-modal{
+    position:absolute;
+    top:18px;
+    right:20px;
+    border:none;
+    background:transparent;
+    color:#cfcfcf;
+    font-size:30px;
+    cursor:pointer;
+}
+
+.cerrar-modal:hover{
+    color:white;
+}
+
+.modal-situacion-content label{
+    display:block;
+    margin-bottom:8px;
+    color:#e5e7eb;
+    font-size:14px;
+    font-weight:600;
+}
+
+.tiempo-situacion-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:18px;
+    margin-bottom:20px;
+}
+
+.tiempo-situacion-grid input,
+.modal-situacion-content textarea{
+    width:100%;
+    box-sizing:border-box;
+    padding:13px;
+    border-radius:10px;
+    border:1px solid rgba(255,255,255,0.16);
+    background:rgba(255,255,255,0.06);
+    color:white;
+    outline:none;
+    font-size:15px;
+}
+
+.tiempo-situacion-grid input:focus,
+.modal-situacion-content textarea:focus{
+    border-color:#2f80ff;
+    box-shadow:0 0 0 3px rgba(47,128,255,0.18);
+}
+
+.tiempo-situacion-grid small{
+    display:block;
+    text-align:center;
+    margin-top:7px;
+    color:#bfc7d5;
+}
+
+.modal-situacion-content textarea{
+    height:110px;
+    resize:none;
+    margin-bottom:20px;
+}
+
+.modal-situacion-content textarea::placeholder{
+    color:#aeb4c0;
+}
+
+.modal-situacion-actions{
+    display:flex;
+    justify-content:flex-end;
+    gap:12px;
+}
+
+.btn-cancelar,
+.btn-guardar-situacion{
+    padding:12px 24px;
+    border-radius:10px;
+    cursor:pointer;
+    font-weight:600;
+    border:1px solid rgba(255,255,255,0.14);
+}
+
+.btn-cancelar{
+    background:rgba(255,255,255,0.06);
+    color:white;
+}
+
+.btn-cancelar:hover{
+    background:rgba(255,255,255,0.12);
+}
+
+.btn-guardar-situacion{
+    background:#2f80ff;
+    color:white;
+    border-color:#2f80ff;
+}
+
+.btn-guardar-situacion:hover{
+    background:#1f6fe5;
+    box-shadow:0 0 18px rgba(47,128,255,0.35);
+}

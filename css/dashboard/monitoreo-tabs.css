@@ -1,0 +1,48 @@
+/* =========================
+   MONITOREO TABS
+========================= */
+
+.monitor-tabs{
+    display:flex;
+    margin-bottom:0;
+}
+
+.monitor-tab{
+    min-width:210px;
+    padding:18px 26px;
+    border:1px solid rgba(255,255,255,0.12);
+    background:rgba(255,255,255,0.045);
+    color:#e5e7eb;
+    font-size:17px;
+    font-weight:700;
+    cursor:pointer;
+    border-radius:14px 14px 0 0;
+    transition:.2s ease;
+}
+
+.monitor-tab:hover{
+    background:rgba(255,255,255,0.08);
+}
+
+.monitor-tab.active{
+    color:#f59e0b;
+    border-bottom:3px solid #f59e0b;
+    background:rgba(255,255,255,0.075);
+}
+
+.monitor-tab-content{
+    display:none;
+    padding:18px;
+    border-radius:0 18px 18px 18px;
+    background:linear-gradient(
+        145deg,
+        rgba(255,255,255,0.055),
+        rgba(255,255,255,0.028)
+    );
+    border:1px solid rgba(255,255,255,0.10);
+    box-shadow:0 18px 40px rgba(0,0,0,0.28);
+}
+
+.monitor-tab-content.active{
+    display:block;
+}

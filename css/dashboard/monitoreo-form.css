@@ -1,0 +1,105 @@
+/* =========================
+   MONITOREO FORM
+========================= */
+
+.monitor-field{
+    display:flex;
+    flex-direction:column;
+}
+
+.monitor-field label{
+    color:#f8fafc;
+    font-size:14px;
+    margin-bottom:9px;
+}
+
+.monitor-field input,
+.monitor-field select,
+.monitor-field textarea{
+    width:100%;
+    box-sizing:border-box;
+    padding:14px 16px;
+    border-radius:10px;
+    border:1px solid rgba(255,255,255,0.13);
+    background:rgba(255,255,255,0.055);
+    color:white;
+    outline:none;
+    font-size:15px;
+}
+
+.monitor-field input::placeholder,
+.monitor-field textarea::placeholder{
+    color:#94a3b8;
+}
+
+.monitor-field input:focus,
+.monitor-field select:focus,
+.monitor-field textarea:focus{
+    border-color:#2f80ff;
+    box-shadow:0 0 0 3px rgba(47,128,255,0.16);
+}
+
+.monitor-field textarea{
+    min-height:82px;
+    resize:none;
+}
+
+/* NOTA + OT */
+
+.monitoreo-redesign .nota-ot-box{
+    display:flex;
+    align-items:center;
+    gap:10px;
+}
+
+.monitoreo-redesign .nota-ot-box input{
+    text-align:center;
+}
+
+.monitoreo-redesign .guion-ot{
+    color:#f59e0b;
+    font-size:22px;
+    font-weight:900;
+}
+
+/* SELECTS OSCUROS */
+
+.monitoreo-redesign select{
+    appearance:none;
+    -webkit-appearance:none;
+    -moz-appearance:none;
+
+    background:linear-gradient(
+        145deg,
+        rgba(255,255,255,0.08),
+        rgba(255,255,255,0.04)
+    );
+
+    color:#ffffff;
+
+    border:1px solid rgba(255,255,255,0.16);
+
+    transition:0.2s ease;
+
+    cursor:pointer;
+}
+
+.monitoreo-redesign select:hover{
+    border-color:rgba(47,128,255,0.55);
+}
+
+.monitoreo-redesign select:focus{
+    border-color:#2f80ff;
+    box-shadow:0 0 0 4px rgba(47,128,255,0.18);
+}
+
+.monitoreo-redesign select option{
+    background:#1f2233;
+    color:#ffffff;
+    padding:12px;
+    font-size:15px;
+}
+
+.monitoreo-redesign select::-ms-expand{
+    display:none;
+}

@@ -1,0 +1,51 @@
+/* =========================
+   MONITOREO EXTRA
+========================= */
+
+.extra-layout{
+    display:grid;
+    grid-template-columns:1.6fr 1fr;
+    gap:24px;
+    align-items:stretch;
+}
+
+.extra-box{
+    border:1px dashed rgba(255,255,255,0.22);
+    border-radius:16px;
+    padding:20px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:18px;
+}
+
+.extra-box h4{
+    margin:0 0 8px;
+    font-size:17px;
+}
+
+.extra-box p{
+    margin:0;
+    color:#cbd5e1;
+    font-size:14px;
+}
+
+.btn-extra{
+    width:50px;
+    height:50px;
+    border-radius:12px;
+    border:1px solid #2f80ff;
+    background:rgba(47,128,255,0.08);
+    color:#2f80ff;
+    font-size:34px;
+    line-height:1;
+    cursor:pointer;
+    transition:0.25s ease;
+}
+
+.btn-extra:hover{
+    background:#2f80ff;
+    color:white;
+    box-shadow:0 0 18px rgba(47,128,255,0.45);
+    transform:scale(1.05);
+}
