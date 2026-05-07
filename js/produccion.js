@@ -560,6 +560,7 @@ async function guardarDatos() {
 
     filasValidacion.forEach(f => {
         maquinas.push({
+            id_maquina: f.getAttribute("data-id-maquina"),
             zona: f.getAttribute("data-zona"),
             maquina: f.getAttribute("data-maquina"),
             uso: f.querySelector(".uso").value,

@@ -111,8 +111,8 @@ try {
     /* INSERTAR MAQUINAS NUEVAS */
     $stmtMaquina = $conn->prepare("
         INSERT INTO produccion_maquinas
-        (produccion_id, zona, maquina, uso, horas, minutos)
-        VALUES (?, ?, ?, ?, ?, ?)
+        (produccion_id, id_maquina, zona, maquina, uso, horas, minutos)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
     ");
 
     if (!$stmtMaquina) {
@@ -120,23 +120,25 @@ try {
     }
 
     foreach ($maquinas as $m) {
-        $zona = trim($m["zona"] ?? "");
-        $maquina = trim($m["maquina"] ?? "");
-        $uso = trim($m["uso"] ?? "no");
-        $horas = intval($m["horas"] ?? 0);
-        $minutos = intval($m["minutos"] ?? 0);
+            $id_maquina = intval($m["id_maquina"] ?? 0);
+            $zona = trim($m["zona"] ?? "");
+            $maquina = trim($m["maquina"] ?? "");
+            $uso = trim($m["uso"] ?? "no");
+            $horas = intval($m["horas"] ?? 0);
+            $minutos = intval($m["minutos"] ?? 0);
 
-        if ($zona === "" || $maquina === "") continue;
+            if ($zona === "" || $maquina === "") continue;
 
-        $stmtMaquina->bind_param(
-            "isssii",
-            $id,
-            $zona,
-            $maquina,
-            $uso,
-            $horas,
-            $minutos
-        );
+            $stmtMaquina->bind_param(
+                "iisssii",
+                $id,
+                $id_maquina,
+                $zona,
+                $maquina,
+                $uso,
+                $horas,
+                $minutos
+            );
 
         if (!$stmtMaquina->execute()) {
             throw new Exception("Error al insertar máquina: " . $stmtMaquina->error);

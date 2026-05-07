@@ -46,6 +46,7 @@ $salida = trim($input["salida"] ?? "--");
 $usuario_id = isset($input["usuario_id"]) && $input["usuario_id"] !== null ? intval($input["usuario_id"]) : null;
 $maquinas = $input["maquinas"] ?? [];
 
+
 $situacion_descripcion = trim($input["situacion_descripcion"] ?? "");
 
 $fallo_maquina = trim($input["fallo_maquina"] ?? "no");
@@ -120,11 +121,12 @@ try {
     $produccion_id = $conn->insert_id;
     $stmt->close();
 
+
     /* GUARDAR MAQUINAS */
     $stmtMaquina = $conn->prepare("
         INSERT INTO produccion_maquinas
-        (produccion_id, zona, maquina, uso, horas, minutos)
-        VALUES (?, ?, ?, ?, ?, ?)
+        (produccion_id, id_maquina, zona, maquina, uso, horas, minutos)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
     ");
 
     if (!$stmtMaquina) {
@@ -132,15 +134,19 @@ try {
     }
 
     foreach ($maquinas as $m) {
+        $id_maquina = intval($m["id_maquina"] ?? 0);
         $zona = trim($m["zona"] ?? "");
         $maquina = trim($m["maquina"] ?? "");
         $uso = trim($m["uso"] ?? "no");
         $horas = intval($m["horas"] ?? 0);
         $minutos = intval($m["minutos"] ?? 0);
 
+        error_log("ID MAQUINA: " . $id_maquina);
+
         $stmtMaquina->bind_param(
-            "isssii",
+            "iisssii",
             $produccion_id,
+            $id_maquina,
             $zona,
             $maquina,
             $uso,
