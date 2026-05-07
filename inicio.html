@@ -596,11 +596,20 @@
                 <div class="filtro-uso">
                     <label>Uso</label>
 
-                    <select id="filtroUsoMaquinas">
-                        <option value="todas">Todas</option>
-                        <option value="si">En uso</option>
-                        <option value="no">Sin uso</option>
-                    </select>
+                    <input type="hidden" id="filtroUsoMaquinas" value="todas">
+
+                    <div class="custom-select-monitor filtro-uso-custom" data-target="filtroUsoMaquinas">
+                        <button type="button" class="custom-select-selected">
+                            Todas
+                            <span class="select-circle-icon"></span>
+                        </button>
+
+                        <div class="custom-select-options">
+                            <button type="button" data-value="todas">Todas</button>
+                            <button type="button" data-value="si">En uso</button>
+                            <button type="button" data-value="no">Sin uso</button>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="filtro-buscar">

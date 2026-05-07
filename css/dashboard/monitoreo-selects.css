@@ -204,3 +204,35 @@
     position:absolute;
     z-index:99999;
 }
+
+/* =========================
+   FILTRO USO MAQUINAS CUSTOM
+========================= */
+
+.filtro-uso-custom .custom-select-options{
+    max-height:220px;
+    overflow:hidden;
+}
+
+/* =========================
+   FIX FILTRO USO SOBRE TABLA
+========================= */
+
+.maquinas-filtros{
+    position:relative;
+    z-index:1000;
+}
+
+.filtro-uso-custom{
+    position:relative;
+    z-index:1001;
+}
+
+.filtro-uso-custom .custom-select-options{
+    z-index:100000;
+}
+
+.tabla-maquinas-unica{
+    position:relative;
+    z-index:1;
+}
