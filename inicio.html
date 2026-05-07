@@ -100,6 +100,8 @@
             <button onclick="showSection('monitoreo')">🏭 Monitoreo</button>
             <button onclick="showSection('productos')">📦 Productos</button>
             <button onclick="showSection('documentacion')">📄 Documentación</button>
+            <button onclick="showSection('Flujo Proceso')">Flujo Proceso</button>
+            <button onclick="showSection('Estados')">Estados</button>
             <button onclick="showSection('configuracion')">⚙️ Configuración</button>
         </div>
     </div>
@@ -125,10 +127,10 @@
         </div>
 
         <div class="dashboard-actions">
-            <button class="period-btn active">Hoy</button>
-            <button class="period-btn">Ayer</button>
-            <button class="period-btn">Semana</button>
-            <button class="period-btn">Mes</button>
+            <button class="period-btn active" data-periodo="hoy">Hoy</button>
+            <button class="period-btn" data-periodo="ayer">Ayer</button>
+            <button class="period-btn" data-periodo="semana">Semana</button>
+            <button class="period-btn" data-periodo="mes">Mes</button>
 
             <div class="dashboard-date">
                 📅 <span id="fechaDashboard">--</span>

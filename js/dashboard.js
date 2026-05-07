@@ -2,9 +2,11 @@
    DASHBOARD LAGMET
 ========================= */
 
+let periodoDashboardActual = "hoy";
+
 async function cargarDashboard() {
     cargarFechaDashboard();
-    await cargarDatosDashboard();
+    await cargarDatosDashboard(periodoDashboardActual);
 }
 
 /* =========================
@@ -466,4 +468,30 @@ document.addEventListener("click", function(e){
             menu.classList.remove("active");
         }
     }
+});
+
+/* =========================
+   FILTROS SUPERIORES DASHBOARD
+========================= */
+function inicializarFiltrosDashboard() {
+    const botones = document.querySelectorAll(".period-btn");
+
+    if (!botones.length) return;
+
+    botones.forEach(btn => {
+        btn.addEventListener("click", async () => {
+            const periodo = btn.dataset.periodo || "hoy";
+
+            periodoDashboardActual = periodo;
+
+            botones.forEach(b => b.classList.remove("active"));
+            btn.classList.add("active");
+
+            await cargarDatosDashboard(periodoDashboardActual);
+        });
+    });
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+    inicializarFiltrosDashboard();
 });
