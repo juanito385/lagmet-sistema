@@ -872,6 +872,16 @@ function cambiarTabMonitoreo(tab) {
     }
 }
 
+/* =========================
+   CANCELAR PRODUCCION
+========================= */
+function cancelarProduccion(){
+
+    localStorage.removeItem("editandoId");
+
+    limpiarFormulario();
+}
+
 
 /* =========================
    INICIO
@@ -896,3 +906,4 @@ window.mostrarSelectorMaquinaFallo = mostrarSelectorMaquinaFallo;
 window.guardarDatos = guardarDatos;
 window.limpiarFormulario = limpiarFormulario;
 window.cambiarTabMonitoreo = cambiarTabMonitoreo;
+window.cancelarProduccion = cancelarProduccion;
