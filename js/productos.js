@@ -43,25 +43,59 @@ function formatearFechaVisual(fechaStr) {
     const partes = fechaStr.split("-");
     if (partes.length !== 3) return fechaStr;
 
-    const anio = partes[0];
-    const mes = partes[1];
-    const dia = partes[2];
-
-    return `${dia}/${mes}/${anio}`;
+    return `${partes[2]}/${partes[1]}/${partes[0]}`;
 }
 
+/* =========================
+   UTILIDADES
+========================= */
+function normalizarTexto(texto) {
+    return String(texto || "")
+        .trim()
+        .toLowerCase()
+        .replace(/\(\d+\)/g, "") // elimina (1) (2)
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .trim();
+}
+
+function actualizarColorFila(fila) {
+
+    if (!fila) return;
+
+    const uso = fila.querySelector(".uso");
+
+    fila.classList.remove(
+        "si",
+        "no",
+        "maquina-activa",
+        "maquina-inactiva"
+    );
+
+    if (!uso) return;
+
+    if (uso.value === "si") {
+
+        fila.classList.add("si");
+        fila.classList.add("maquina-activa");
+
+    } else {
+
+        fila.classList.add("no");
+        fila.classList.add("maquina-inactiva");
+    }
+}
 
 /* =========================
    RENDER PRODUCTOS
 ========================= */
 async function renderProductos() {
     const tbody = document.querySelector("#tablaProductos tbody");
-
     if (!tbody) return;
 
     tbody.innerHTML = `
         <tr>
-            <td colspan="6">Cargando datos...</td>
+            <td colspan="9">Cargando datos...</td>
         </tr>
     `;
 
@@ -72,7 +106,7 @@ async function renderProductos() {
         if (!data.success || !data.data.length) {
             tbody.innerHTML = `
                 <tr>
-                    <td colspan="6">No hay productos registrados</td>
+                    <td colspan="9">No hay productos registrados</td>
                 </tr>
             `;
 
@@ -84,42 +118,43 @@ async function renderProductos() {
         tbody.innerHTML = "";
 
         data.data.forEach(item => {
-    const fila = document.createElement("tr");
+            const fila = document.createElement("tr");
 
-    const fechaInicio = item.fecha || "-";
-    const fechaFin = item.fecha_fin || "-";
-    const dias = item.dias || "-";
-    const estado = obtenerEstadoProducto(fechaFin);
+            const fechaInicio = item.fecha || "-";
+            const fechaFin = item.fecha_fin || "-";
+            const dias = item.dias || "-";
+            const estado = obtenerEstadoProducto(fechaFin);
 
-    fila.innerHTML = `
-        <td>${item.producto ?? ""}</td>
-        <td>${item.numero_pedido ?? ""}</td>
-        <td>${item.codigo ?? ""}</td>
-        <td>${item.cantidad ?? ""}</td>
-        <td data-fecha="${fechaInicio}">${formatearFechaVisual(fechaInicio)}</td>
-        <td data-fecha="${fechaFin}">${formatearFechaVisual(fechaFin)}</td>
-        <td>${dias}</td>
-            <td>
-        <span class="badge-estado ${estado.clase}">
-            ${estado.texto}
-        </span>
-    </td>
-        <td>
-            <div class="acciones-producto">
-                <button class="btn-action editar" onclick="editarProducto(${item.id})" title="Editar">
-                    <span class="material-icons">edit</span>
-                </button>
+            fila.innerHTML = `
+                <td>${item.producto ?? ""}</td>
+                <td>${item.numero_pedido ?? ""}</td>
+                <td>${item.codigo ?? ""}</td>
+                <td>${item.cantidad ?? ""}</td>
+                <td data-fecha="${fechaInicio}">${formatearFechaVisual(fechaInicio)}</td>
+                <td data-fecha="${fechaFin}">${formatearFechaVisual(fechaFin)}</td>
+                <td>${dias}</td>
+                <td>
+                    <span class="badge-estado ${estado.clase}">
+                        ${estado.texto}
+                    </span>
+                </td>
+                <td>
+                    <div class="acciones-producto">
+                        <button class="btn-action editar" onclick="editarProducto(${item.id})" title="Editar">
+                            <span class="material-icons">edit</span>
+                        </button>
 
-                <button class="btn-action eliminar" onclick="eliminarProducto(${item.id})" title="Eliminar">
-                    <span class="material-icons">delete</span>
-                </button>
-            </div>
-        </td>
-    `;
+                        <button class="btn-action eliminar" onclick="eliminarProducto(${item.id})" title="Eliminar">
+                            <span class="material-icons">delete</span>
+                        </button>
+                    </div>
+                </td>
+            `;
 
-    fila.dataset.visible = "true";
-    tbody.appendChild(fila);
-});
+            fila.dataset.visible = "true";
+            tbody.appendChild(fila);
+        });
+
         ordenarProductos();
 
         const documentacion = document.getElementById("documentacion");
@@ -132,9 +167,10 @@ async function renderProductos() {
 
     } catch (error) {
         console.error(error);
+
         tbody.innerHTML = `
             <tr>
-                <td colspan="6">Error al cargar los datos</td>
+                <td colspan="9">Error al cargar los datos</td>
             </tr>
         `;
 
@@ -143,15 +179,14 @@ async function renderProductos() {
     }
 }
 
-
 /* =========================
    FILTRAR PRODUCTOS
 ========================= */
-function filtrarProductos(){
+function filtrarProductos() {
     const buscador = document.getElementById("buscadorProductos");
     const filtroFecha = document.getElementById("filtroFechaProductos");
 
-    if(!buscador || !filtroFecha) return;
+    if (!buscador || !filtroFecha) return;
 
     const busqueda = buscador.value.toLowerCase().trim();
     const fecha = filtroFecha.value;
@@ -160,8 +195,7 @@ function filtrarProductos(){
 
     filas.forEach(fila => {
         const celdas = fila.querySelectorAll("td");
-
-        if(celdas.length < 5) return;
+        if (celdas.length < 5) return;
 
         const producto = celdas[0].innerText.toLowerCase();
         const pedido = celdas[1].innerText.toLowerCase();
@@ -185,19 +219,17 @@ function filtrarProductos(){
     aplicarPaginacionProductos();
 }
 
-
 /* =========================
    ORDENAR PRODUCTOS
 ========================= */
-function ordenarProductos(){
+function ordenarProductos() {
     const tbody = document.querySelector("#tablaProductos tbody");
     const selectOrden = document.getElementById("ordenProductos");
 
-    if(!tbody || !selectOrden) return;
+    if (!tbody || !selectOrden) return;
 
     const filas = Array.from(tbody.querySelectorAll("tr"));
-
-    if(filas.length <= 1){
+    if (filas.length <= 1) {
         aplicarPaginacionProductos();
         return;
     }
@@ -208,13 +240,13 @@ function ordenarProductos(){
         const productoA = a.children[0]?.innerText.toLowerCase() || "";
         const productoB = b.children[0]?.innerText.toLowerCase() || "";
 
-        const fechaA = new Date(a.children[4]?.innerText || "");
-        const fechaB = new Date(b.children[4]?.innerText || "");
+        const fechaA = new Date(a.children[4]?.dataset.fecha || "");
+        const fechaB = new Date(b.children[4]?.dataset.fecha || "");
 
-        if(orden === "recientes") return fechaB - fechaA;
-        if(orden === "antiguos") return fechaA - fechaB;
-        if(orden === "az") return productoA.localeCompare(productoB);
-        if(orden === "za") return productoB.localeCompare(productoA);
+        if (orden === "recientes") return fechaB - fechaA;
+        if (orden === "antiguos") return fechaA - fechaB;
+        if (orden === "az") return productoA.localeCompare(productoB);
+        if (orden === "za") return productoB.localeCompare(productoA);
 
         return 0;
     });
@@ -224,30 +256,23 @@ function ordenarProductos(){
     filtrarProductos();
 }
 
-
 /* =========================
    PAGINACIÓN PRODUCTOS
 ========================= */
-function obtenerFilasVisiblesProductos(){
+function obtenerFilasVisiblesProductos() {
     const filas = Array.from(document.querySelectorAll("#tablaProductos tbody tr"));
-
     return filas.filter(fila => fila.dataset.visible !== "false");
 }
 
-function aplicarPaginacionProductos(){
+function aplicarPaginacionProductos() {
     const filas = Array.from(document.querySelectorAll("#tablaProductos tbody tr"));
     const visibles = obtenerFilasVisiblesProductos();
 
     const totalProductos = visibles.length;
     const totalPaginas = Math.ceil(totalProductos / productosPorPagina) || 1;
 
-    if(paginaActualProductos > totalPaginas){
-        paginaActualProductos = totalPaginas;
-    }
-
-    if(paginaActualProductos < 1){
-        paginaActualProductos = 1;
-    }
+    if (paginaActualProductos > totalPaginas) paginaActualProductos = totalPaginas;
+    if (paginaActualProductos < 1) paginaActualProductos = 1;
 
     const inicio = (paginaActualProductos - 1) * productosPorPagina;
     const fin = inicio + productosPorPagina;
@@ -264,12 +289,11 @@ function aplicarPaginacionProductos(){
     renderNumerosPaginacionProductos(totalPaginas);
 }
 
-function actualizarInfoPaginacionProductos(total, inicio, fin){
+function actualizarInfoPaginacionProductos(total, inicio, fin) {
     const info = document.getElementById("infoPaginacionProductos");
+    if (!info) return;
 
-    if(!info) return;
-
-    if(total === 0){
+    if (total === 0) {
         info.textContent = "Mostrando 0 de 0 productos";
         return;
     }
@@ -280,15 +304,14 @@ function actualizarInfoPaginacionProductos(total, inicio, fin){
     info.textContent = `Mostrando ${desde} a ${hasta} de ${total} productos`;
 }
 
-function renderNumerosPaginacionProductos(totalPaginas){
+function renderNumerosPaginacionProductos(totalPaginas) {
     const contenedor = document.getElementById("numerosPaginacionProductos");
-
-    if(!contenedor) return;
+    if (!contenedor) return;
 
     contenedor.innerHTML = "";
 
-    for(let i = 1; i <= totalPaginas; i++){
-        if(totalPaginas > 4 && i === 4 && paginaActualProductos < totalPaginas - 1){
+    for (let i = 1; i <= totalPaginas; i++) {
+        if (totalPaginas > 4 && i === 4 && paginaActualProductos < totalPaginas - 1) {
             const puntos = document.createElement("span");
             puntos.className = "puntos-paginacion";
             puntos.textContent = "...";
@@ -299,7 +322,7 @@ function renderNumerosPaginacionProductos(totalPaginas){
         const boton = document.createElement("button");
         boton.textContent = i;
 
-        if(i === paginaActualProductos){
+        if (i === paginaActualProductos) {
             boton.classList.add("activo");
         }
 
@@ -312,58 +335,173 @@ function renderNumerosPaginacionProductos(totalPaginas){
     }
 }
 
-function cambiarPaginaProductos(direccion){
+function cambiarPaginaProductos(direccion) {
     const visibles = obtenerFilasVisiblesProductos();
     const totalPaginas = Math.ceil(visibles.length / productosPorPagina) || 1;
 
     paginaActualProductos += direccion;
 
-    if(paginaActualProductos < 1){
-        paginaActualProductos = 1;
-    }
-
-    if(paginaActualProductos > totalPaginas){
-        paginaActualProductos = totalPaginas;
-    }
+    if (paginaActualProductos < 1) paginaActualProductos = 1;
+    if (paginaActualProductos > totalPaginas) paginaActualProductos = totalPaginas;
 
     aplicarPaginacionProductos();
 }
 
-
 /* =========================
    LIMPIAR FILTROS PRODUCTOS
 ========================= */
-function limpiarFiltrosProductos(){
+function limpiarFiltrosProductos() {
     const buscador = document.getElementById("buscadorProductos");
     const filtroFecha = document.getElementById("filtroFechaProductos");
     const orden = document.getElementById("ordenProductos");
 
-    if(buscador) buscador.value = "";
-    if(filtroFecha) filtroFecha.value = "";
-    if(orden) orden.value = "recientes";
+    if (buscador) buscador.value = "";
+    if (filtroFecha) filtroFecha.value = "";
+    if (orden) orden.value = "recientes";
 
     paginaActualProductos = 1;
     ordenarProductos();
 }
-
 
 /* =========================
    EDITAR PRODUCTO
 ========================= */
 function editarProducto(id) {
     localStorage.setItem("editandoId", id);
-
     showSection("monitoreo");
-
     cargarProductoParaEditar(id);
 }
 
+/* =========================
+   LIMPIAR MAQUINAS
+========================= */
+function limpiarMaquinasFormulario() {
 
+    document
+        .querySelectorAll("#tablaMaquinas tbody tr")
+        .forEach(fila => {
+
+            const uso = fila.querySelector(".uso");
+            const horas = fila.querySelector(".horas");
+            const minutos = fila.querySelector(".minutos");
+
+            if (uso) uso.value = "no";
+            if (horas) horas.value = 0;
+            if (minutos) minutos.value = 0;
+
+            actualizarColorFila(fila);
+        });
+}
+
+/* =========================
+   CARGAR MAQUINAS GUARDADAS
+========================= */
+async function cargarMaquinasGuardadasProducto(id) {
+
+    const resMaquinas = await fetch(`php/obtener_maquinas_produccion.php?id=${id}`);
+    const dataMaquinas = await resMaquinas.json();
+
+    console.log("MAQUINAS CARGADAS:", dataMaquinas);
+
+    if (!dataMaquinas.success || !Array.isArray(dataMaquinas.data)) return;
+
+    const filas = document.querySelectorAll("#tablaMaquinas tbody tr");
+
+    dataMaquinas.data.forEach(m => {
+
+        filas.forEach(fila => {
+
+            const zonaEl = fila.querySelector("td:nth-child(3)");
+            const maquinaEl = fila.querySelector("td:nth-child(2)");
+
+            const zona = zonaEl ? zonaEl.textContent.trim() : "";
+            const maquina = maquinaEl ? maquinaEl.textContent.trim() : "";
+
+            if (
+                normalizarTexto(zona) === normalizarTexto(m.zona) &&
+                normalizarTexto(maquina) === normalizarTexto(m.maquina)
+            ) {
+
+                const uso = fila.querySelector(".uso");
+                const horas = fila.querySelector(".horas");
+                const minutos = fila.querySelector(".minutos");
+
+                if (uso) {
+
+                        uso.value = m.uso || "no";
+
+                        const customSelect =
+                            fila.querySelector(".custom-select-selected");
+
+                        if (customSelect) {
+
+                            customSelect.innerHTML =
+                                uso.value === "si"
+                                    ? `Sí <span></span>`
+                                    : `No <span></span>`;
+                        }
+                    }
+                const horasValor = parseInt(m.horas) || 0;
+                const minutosValor = parseInt(m.minutos) || 0;
+
+                /* =========================
+                HORAS
+                ========================= */
+                if (horas) {
+
+                    horas.value = horasValor;
+
+                    const wrapperHoras =
+                        horas.parentElement.querySelector(
+                            '[data-target-class="horas"]'
+                        );
+
+                    const btnHoras =
+                        wrapperHoras?.querySelector(".custom-select-selected");
+
+                    if (btnHoras) {
+
+                        btnHoras.innerHTML =
+                            `${horasValor}h <span class="select-circle-icon"></span>`;
+                    }
+                }
+
+                /* =========================
+                MINUTOS
+                ========================= */
+                if (minutos) {
+
+                    minutos.value = minutosValor;
+
+                    const wrapperMinutos =
+                        minutos.parentElement.querySelector(
+                            '[data-target-class="minutos"]'
+                        );
+
+                    const btnMinutos =
+                        wrapperMinutos?.querySelector(".custom-select-selected");
+
+                    if (btnMinutos) {
+
+                        btnMinutos.innerHTML =
+                            `${minutosValor}m <span class="select-circle-icon"></span>`;
+                    }
+                }
+
+                actualizarColorFila(fila);
+
+                                actualizarColorFila(fila);
+                            }
+        });
+    });
+}
 /* =========================
    CARGAR DATOS AL FORMULARIO
 ========================= */
 async function cargarProductoParaEditar(id) {
+
     try {
+
         const response = await fetch("php/obtener_produccion.php");
         const data = await response.json();
 
@@ -374,16 +512,20 @@ async function cargarProductoParaEditar(id) {
             return;
         }
 
+        /* =========================
+           INFORMACIÓN PRINCIPAL
+        ========================= */
+
         const partesPedido = (item.numero_pedido || "").split("-");
 
         document.getElementById("pedido").value = partesPedido[0] || "";
 
         const otInput = document.getElementById("ot");
+
         if (otInput) {
             otInput.value = partesPedido[1] || "";
         }
 
-        
         document.getElementById("Codigo").value = item.codigo || "";
         document.getElementById("Producto").value = item.producto || "";
         document.getElementById("cantidadProductos").value = item.cantidad || 1;
@@ -392,119 +534,170 @@ async function cargarProductoParaEditar(id) {
         document.getElementById("salida").textContent = item.salida || "--";
         document.getElementById("grupo").value = item.grupo || "1";
 
+        /* =========================
+           FECHA FIN
+        ========================= */
+
         const fechaFin = document.getElementById("fechaFin");
-        if (fechaFin) fechaFin.value = item.fecha_fin || "";
+
+        if (fechaFin) {
+            fechaFin.value = item.fecha_fin || "";
+        }
 
         const fechaFinVisual = document.getElementById("fechaFinVisual");
+
         if (fechaFinVisual && item.fecha_fin) {
+
             const partes = item.fecha_fin.split("-");
-            fechaFinVisual.value = `${partes[2]}/${partes[1]}/${partes[0]}`;
+
+            fechaFinVisual.value =
+                `${partes[2]}/${partes[1]}/${partes[0]}`;
+
         } else if (fechaFinVisual) {
+
             fechaFinVisual.value = "";
         }
 
+        /* =========================
+           TRABAJA SABADO
+        ========================= */
+
         const trabajaSabado = document.getElementById("trabajaSabado");
-        if (trabajaSabado) trabajaSabado.value = item.trabaja_sabado || "no";
+
+        if (trabajaSabado) {
+            trabajaSabado.value = item.trabaja_sabado || "no";
+        }
 
         /* =========================
-           CARGAR SITUACION / EXTRA
+           SITUACION / EXTRA
         ========================= */
-        const totalMinutosSituacion = parseInt(item.tiempo_muerto) || 0;
 
-        const situacionHoras = document.getElementById("situacionHoras");
-        const situacionMinutos = document.getElementById("situacionMinutos");
-        const situacionDescripcion = document.getElementById("situacionDescripcion");
+        const totalMinutosSituacion =
+            parseInt(item.tiempo_muerto) || 0;
 
-        if (situacionHoras) situacionHoras.value = Math.floor(totalMinutosSituacion / 60);
-        if (situacionMinutos) situacionMinutos.value = totalMinutosSituacion % 60;
-        if (situacionDescripcion) situacionDescripcion.value = item.situacion_descripcion || "";
+        const situacionHoras =
+            document.getElementById("situacionHoras");
 
-        const modalHoras = document.getElementById("modalSituacionHoras");
-        const modalMinutos = document.getElementById("modalSituacionMinutos");
-        const modalDescripcion = document.getElementById("modalSituacionDescripcion");
+        const situacionMinutos =
+            document.getElementById("situacionMinutos");
 
-        if (modalHoras) modalHoras.value = Math.floor(totalMinutosSituacion / 60);
-        if (modalMinutos) modalMinutos.value = totalMinutosSituacion % 60;
-        if (modalDescripcion) modalDescripcion.value = item.situacion_descripcion || "";
+        const situacionDescripcion =
+            document.getElementById("situacionDescripcion");
+
+        if (situacionHoras) {
+            situacionHoras.value =
+                Math.floor(totalMinutosSituacion / 60);
+        }
+
+        if (situacionMinutos) {
+            situacionMinutos.value =
+                totalMinutosSituacion % 60;
+        }
+
+        if (situacionDescripcion) {
+            situacionDescripcion.value =
+                item.situacion_descripcion || "";
+        }
 
         /* =========================
-           CARGAR FALLO MAQUINA
+           MODAL SITUACION
         ========================= */
-        const falloMaquina = document.getElementById("falloMaquina");
-        const maquinaFallo = document.getElementById("maquinaFallo");
+
+        const modalHoras =
+            document.getElementById("modalSituacionHoras");
+
+        const modalMinutos =
+            document.getElementById("modalSituacionMinutos");
+
+        const modalDescripcion =
+            document.getElementById("modalSituacionDescripcion");
+
+        if (modalHoras) {
+            modalHoras.value =
+                Math.floor(totalMinutosSituacion / 60);
+        }
+
+        if (modalMinutos) {
+            modalMinutos.value =
+                totalMinutosSituacion % 60;
+        }
+
+        if (modalDescripcion) {
+            modalDescripcion.value =
+                item.situacion_descripcion || "";
+        }
+
+        /* =========================
+           FALLO MAQUINA
+        ========================= */
+
+        const falloMaquina =
+            document.getElementById("falloMaquina");
+
+        const maquinaFallo =
+            document.getElementById("maquinaFallo");
 
         if (falloMaquina) {
-            falloMaquina.value = item.fallo_maquina || "no";
+            falloMaquina.value =
+                item.fallo_maquina || "no";
         }
 
         if (maquinaFallo) {
+
             if (item.fallo_maquina === "si") {
+
                 maquinaFallo.style.display = "block";
-                maquinaFallo.value = item.maquina_fallo || "";
+                maquinaFallo.value =
+                    item.maquina_fallo || "";
+
             } else {
+
                 maquinaFallo.style.display = "none";
                 maquinaFallo.value = "";
             }
         }
 
         /* =========================
-           CARGAR MAQUINAS
+           LIMPIAR TABLA
         ========================= */
-        document
-            .querySelectorAll("#tablaOriente tbody tr, #tablaPoniente tbody tr")
-            .forEach(f => {
-                const uso = f.querySelector(".uso");
-                const horas = f.querySelector(".horas");
-                const minutos = f.querySelector(".minutos");
 
-                if (uso) uso.value = "no";
-                if (horas) horas.value = 0;
-                if (minutos) minutos.value = 0;
+        limpiarMaquinasFormulario();
 
-                actualizarColorFila(f);
-            });
+        /* =========================
+           ESPERAR RENDER TABLA
+        ========================= */
 
-        const resMaquinas = await fetch(`php/obtener_maquinas_produccion.php?id=${id}`);
-        const dataMaquinas = await resMaquinas.json();
+        setTimeout(async () => {
 
-        if (dataMaquinas.success) {
-            dataMaquinas.data.forEach(m => {
-                const filas = document.querySelectorAll("#tablaOriente tbody tr, #tablaPoniente tbody tr");
+            await cargarMaquinasGuardadasProducto(id);
 
-                filas.forEach(f => {
-                    const zona = f.getAttribute("data-zona");
-                    const maquina = f.getAttribute("data-maquina");
+            if (typeof calcular === "function") {
+                calcular();
+            }
 
-                    if (zona === m.zona && maquina === m.maquina) {
-                        const uso = f.querySelector(".uso");
-                        const horas = f.querySelector(".horas");
-                        const minutos = f.querySelector(".minutos");
+        }, 300);
 
-                        if (uso) uso.value = m.uso || "no";
-                        if (horas) horas.value = parseInt(m.horas) || 0;
-                        if (minutos) minutos.value = parseInt(m.minutos) || 0;
-
-                        actualizarColorFila(f);
-                    }
-                });
-            });
-        }
+        /* =========================
+           LOCAL STORAGE
+        ========================= */
 
         localStorage.setItem("editandoId", id);
 
-        calcular();
+        /* =========================
+           MOSTRAR MONITOREO
+        ========================= */
 
         if (typeof showSection === "function") {
             showSection("monitoreo");
         }
 
     } catch (error) {
+
         console.error(error);
+
         alert("Error cargando datos para edición");
     }
 }
-
-
 /* =========================
    ELIMINAR PRODUCTO
 ========================= */
