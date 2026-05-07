@@ -1,0 +1,128 @@
+<!-- DOCUMENTACIÓN -->
+<div id="documentacion" class="section">
+
+    <!-- CONTENEDOR PRINCIPAL -->
+    <div class="doc-top-container">
+
+        <!-- HEADER -->
+        <div class="doc-header-pro">
+            <h2>📁 Reportes</h2>
+            <p>Gestiona visualizaciones y reportes del sistema de producción.</p>
+        </div>
+
+        <!-- CONTENEDOR INTERNO (ACCIONES) -->
+        <div class="doc-actions-container">
+
+            <div class="doc-card-top">
+                <h3>⚡ Acciones rápidas</h3>
+                <span class="doc-badge">LAGMET</span>
+            </div>
+
+            <div class="doc-actions-pro">
+
+                <div class="action-card blue" onclick="mostrarGanttPorMaquina()">
+                    <div class="icon">📊</div>
+                    <div class="card-text">
+                        <h4>Ver Carta Gantt</h4>
+                        <p>Visualiza el plan de producción</p>
+                    </div>
+                    <div class="card-arrow">→</div>
+                </div>
+
+                <div class="action-card purple" onclick="descargarGanttImagen()">
+                    <div class="icon">📷</div>
+                    <div class="card-text">
+                        <h4>Descargar Imagen</h4>
+                        <p>Exporta como PNG</p>
+                    </div>
+                    <div class="card-arrow">→</div>
+                </div>
+
+                <div class="action-card green" onclick="descargarGanttExcel()">
+                    <div class="icon">📊</div>
+                    <div class="card-text">
+                        <h4>Descargar Excel</h4>
+                        <p>Archivo .xlsx</p>
+                    </div>
+                    <div class="card-arrow">→</div>
+                </div>
+
+                <div class="action-card orange" onclick="generarInforme()">
+                    <div class="icon">📄</div>
+                    <div class="card-text">
+                        <h4>Generar Informe</h4>
+                        <p>PDF profesional</p>
+                    </div>
+                    <div class="card-arrow">→</div>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+    <!-- GANTT (SEPARADO) -->
+<div class="doc-viewer-card gantt-panel">
+
+    <div class="gantt-header">
+        <h3>📅 Carta Gantt de Producción</h3>
+
+        <div class="gantt-controls">
+            <button onclick="mostrarGanttPorMaquina()">Actualizar</button>
+            <button onclick="mostrarGanttPorMaquina()">Hoy</button>
+        </div>
+    </div>
+
+    <div class="gantt-leyenda">
+        <span><b class="estado-verde"></b> En Proceso</span>
+        <span><b class="estado-azul"></b> Pendiente</span>
+        <span><b class="estado-rojo"></b> Retraso</span>
+        <span><b class="estado-naranja"></b> Tiempo Muerto</span>
+        <span><b class="estado-gris"></b> Terminado</span>
+    </div>
+
+    <div class="gantt-wrapper">
+        <div id="gantt-sidebar"></div>
+        <div id="gantt"></div>
+    </div>
+
+    <!-- MODAL DETALLE GANTT -->
+<div id="modalDetalleGantt" class="modal-gantt-detalle">
+    <div class="modal-gantt-card">
+
+        <button class="modal-gantt-cerrar" onclick="cerrarDetalleGantt()">×</button>
+
+        <div class="modal-gantt-header">
+            <span id="detalleGanttEstado" class="modal-gantt-badge">Estado</span>
+            <h3 id="detalleGanttProducto">Producto</h3>
+            <p id="detalleGanttPedido">Pedido</p>
+        </div>
+
+        <div class="modal-gantt-info">
+            <div>
+                <small>Fecha inicio</small>
+                <strong id="detalleGanttInicio">--</strong>
+            </div>
+
+            <div>
+                <small>Fecha fin</small>
+                <strong id="detalleGanttFin">--</strong>
+            </div>
+
+            <div>
+                <small>Máquina</small>
+                <strong id="detalleGanttMaquina">--</strong>
+            </div>
+
+            <div>
+                <small>Operador</small>
+                <strong id="detalleGanttOperador">Admin</strong>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+</div>
+
+</div>

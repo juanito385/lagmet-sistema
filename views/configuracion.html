@@ -1,0 +1,112 @@
+<!-- CONFIG -->
+<div id="configuracion" class="section config-section">
+    <h2>Configuración</h2>
+    <p>⚙️ Perfil y ajustes del sistema</p>
+
+    <div class="config-grid">
+
+       <!-- DATOS USUARIO -->
+<div class="config-card">
+    <h3>👤 Datos del usuario</h3>
+
+    <div class="config-row">
+        <div class="config-field">
+            <label>Nombre</label>
+            <input type="text" id="configNombre">
+        </div>
+
+        <div class="config-field">
+            <label>Correo</label>
+            <input type="email" id="configCorreo">
+        </div>
+
+        <div class="config-field">
+            <label>Rol</label>
+            <input type="text" id="configRol" disabled>
+        </div>
+    </div>
+
+    <!-- 🔥 ESTE ES EL BOTÓN CORRECTO -->
+    <button type="button" id="btnGuardarConfig">
+        Guardar cambios
+    </button>
+</div>
+
+<!-- SEGURIDAD -->
+<div class="config-card">
+    <h3>🔐 Seguridad</h3>
+
+    <div class="config-row">
+
+    <div class="config-field password-field">
+        <label>Contraseña actual</label>
+        <div class="password-box">
+            <input type="password" id="passwordActual">
+            <span class="toggle-password" data-target="passwordActual">visibility</span>
+        </div>
+    </div>
+
+    <div class="config-field password-field">
+        <label>Nueva contraseña</label>
+        <div class="password-box">
+            <input type="password" id="passwordNueva">
+            <span class="toggle-password" data-target="passwordNueva">visibility</span>
+        </div>
+    </div>
+
+    <div class="config-field password-field">
+        <label>Confirmar contraseña</label>
+        <div class="password-box">
+            <input type="password" id="passwordConfirmar">
+            <span class="toggle-password" data-target="passwordConfirmar">visibility</span>
+        </div>
+    </div>
+
+</div>
+
+    <!-- 🔥 ESTE ES EL BOTÓN CORRECTO -->
+    <button type="button" id="btnCambiarPassword">
+        Cambiar contraseña
+    </button>
+</div>
+
+        <!-- PREFERENCIAS -->
+        <div class="config-card">
+            <h3>🎨 Preferencias</h3>
+
+            <div class="config-row">
+                <div class="config-field">
+                    <label>Tema</label>
+                    <select>
+                        <option>Oscuro</option>
+                        <option>Claro</option>
+                    </select>
+                </div>
+
+                <div class="config-field">
+                    <label>Color principal</label>
+                    <select>
+                        <option>Naranjo</option>
+                        <option>Azul</option>
+                        <option>Verde</option>
+                    </select>
+                </div>
+            </div>
+
+            <button>Aplicar</button>
+        </div>
+
+        <!-- SISTEMA -->
+        <div class="config-card">
+            <h3>ℹ️ Sistema</h3>
+
+            <div class="config-info">
+                <p><strong>Empresa:</strong> LAGMET</p>
+                <p><strong>Versión:</strong> 1.0</p>
+                <p><strong>Base de datos:</strong> Conectada</p>
+                <p><strong>Estado:</strong> Activo</p>
+            </div>
+        </div>
+
+    </div>
+</div>

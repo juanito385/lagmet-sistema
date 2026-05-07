@@ -1,0 +1,313 @@
+<!-- MONITOREO -->
+<div id="monitoreo" class="section monitoreo-redesign">
+
+    <div class="monitoreo-header">
+        <div>
+            <h2>Monitoreo Producción</h2>
+            <p>Registro de producción y seguimiento de procesos</p>
+        </div>
+
+        <div class="monitoreo-actions-top">
+            <button type="button" class="btn-cancelar-monitor" onclick="cancelarProduccion()">Cancelar</button>
+            <button type="button" class="btn-guardar-monitor" onclick="guardarDatos()">💾 Guardar Producción</button>
+        </div>
+    </div>
+
+    <div class="monitor-tabs">
+        <button type="button" class="monitor-tab active" onclick="cambiarTabMonitoreo('info')">
+            📄 Información
+        </button>
+
+        <button type="button" class="monitor-tab" onclick="cambiarTabMonitoreo('maquinas')">
+            ⚙️ Máquinas
+        </button>
+    </div>
+
+    <!-- TAB INFORMACIÓN -->
+    <div id="tabInfoMonitoreo" class="monitor-tab-content active">
+
+        <div class="salida-panel">
+            <div class="salida-left">
+                <div class="salida-icon">🕒</div>
+                <div>
+                    <span>Tiempo estimado de salida</span>
+                    <strong id="salida">--</strong>
+                </div>
+            </div>
+
+            <div class="salida-info">
+                <span>Grupo actual</span>
+
+                <strong id="grupoActualTexto">
+                    Grupo 1<br>
+                    12:00 → 13:00
+                </strong>
+</div>
+        </div>
+
+        <div class="monitor-block">
+            <h3>📦 Información Principal</h3>
+
+            <div class="monitor-grid grid-3">
+                <div class="monitor-field">
+                    <label>Nombre Producto</label>
+                    <input type="text" id="Producto" placeholder="Ej: Eje metálico">
+                </div>
+
+                <div class="monitor-field">
+                    <label>Nota de Venta + OT</label>
+
+                    <div class="nota-ot-box">
+                        <input type="text" id="pedido" placeholder="12383" inputmode="numeric" maxlength="10">
+                        <span class="guion-ot">-</span>
+                        <input type="text" id="ot" placeholder="4" inputmode="numeric" maxlength="4">
+                    </div>
+                </div>
+
+                <div class="monitor-field">
+                    <label>Cód Interno</label>
+                    <input type="text" id="Codigo" placeholder="5567" inputmode="numeric" maxlength="10">
+                </div>
+            </div>
+        </div>
+
+        <div class="monitor-block">
+            <h3>📅 Fechas y Cantidades</h3>
+
+            <div class="monitor-grid grid-4">
+                <div class="monitor-field">
+                    <label>Cantidad de piezas</label>
+                    <input type="number" id="cantidadProductos" value="1" placeholder="Ej: 100">
+                </div>
+
+                <div class="monitor-field">
+                    <label>Fecha de inicio</label>
+                    <input type="date" id="fecha">
+                </div>
+
+                <div class="monitor-field">
+                    <label>Fecha Fin</label>
+                    <input type="text" id="fechaFinVisual" readonly placeholder="Se calcula automáticamente">
+                    <input type="hidden" id="fechaFin">
+                </div>
+
+                <div class="monitor-field">
+                    <label>Cantidad Días</label>
+                    <input type="number" id="dias" readonly placeholder="Se calcula automáticamente">
+                </div>
+            </div>
+        </div>
+
+        <div class="monitor-block">
+            <h3>⚙️ Configuración de Producción</h3>
+
+            <div class="monitor-grid grid-3">
+                <div class="monitor-field">
+                    <label>Grupo Almuerzo</label>
+                    <input type="hidden" id="grupo" value="1">
+
+                    <div class="custom-select-monitor" data-target="grupo">
+                        <button type="button" class="custom-select-selected">
+                            Grupo 1 (12:00 - 13:00)
+                            <span class="select-circle-icon"></span>
+                        </button>
+
+                        <div class="custom-select-options">
+                            <button type="button" data-value="1">
+                                Grupo 1 (12:00 - 13:00)
+                            </button>
+
+                            <button type="button" data-value="2">
+                                Grupo 2 (13:00 - 14:00)
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="monitor-field">
+                    <label>Trabaja sábado</label>
+                    <input type="hidden" id="trabajaSabado" value="no">
+
+                        <div class="custom-select-monitor" data-target="trabajaSabado">
+                            <button type="button" class="custom-select-selected">
+                                No
+                                <span class="select-circle-icon"></span>
+                            </button>
+
+                            <div class="custom-select-options">
+                                <button type="button" data-value="no">No</button>
+                                <button type="button" data-value="si">Sí</button>
+                            </div>
+                        </div>
+                                        </div>
+
+                <div class="monitor-field">
+                    <label>Fallo Máquina</label>
+
+                    <input type="hidden" id="falloMaquina" value="no">
+
+                        <div class="custom-select-monitor" data-target="falloMaquina" data-onchange="mostrarSelectorMaquinaFallo">
+                            <button type="button" class="custom-select-selected">
+                                No
+                                <span class="select-circle-icon"></span>
+                            </button>
+
+                            <div class="custom-select-options">
+                                <button type="button" data-value="no">No</button>
+                                <button type="button" data-value="si">Sí</button>
+                            </div>
+                        </div>
+
+                    <input type="hidden" id="maquinaFallo" value="">
+
+                    <div id="maquinaFalloCustom" class="custom-select-monitor maquina-fallo-custom" data-target="maquinaFallo" style="display:none; margin-top:10px;">
+                        <button type="button" class="custom-select-selected">
+                            Seleccionar máquina
+                            <span class="select-circle-icon"></span>
+                        </button>
+
+                        <div class="custom-select-options" id="opcionesMaquinaFallo">
+                            <!-- Se carga desde BD -->
+                        </div>
+</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="monitor-block">
+            <h3>📝 Observaciones y Extra</h3>
+
+            <div class="extra-layout">
+                <div class="monitor-field">
+                    <label>Observaciones / Situación / Extra</label>
+                    <textarea id="observacionesProduccion" placeholder="Escribe observaciones adicionales, situaciones especiales o información relevante..."></textarea>
+                </div>
+
+                <div class="extra-box">
+                    <div>
+                        <h4>Agregar registro extra</h4>
+                        <p>Agrega un tiempo adicional de producción si es necesario.</p>
+                    </div>
+
+                    <button type="button" class="btn-extra" onclick="abrirModalSituacion()">+</button>
+
+                    <input type="hidden" id="situacionHoras" value="0">
+                    <input type="hidden" id="situacionMinutos" value="0">
+                    <input type="hidden" id="situacionDescripcion" value="">
+                </div>
+            </div>
+        </div>
+
+        <div class="monitor-info-box">
+            ℹ️ Todos los campos son obligatorios, excepto observaciones y extra.
+        </div>
+
+    </div>
+
+    <!-- TAB MÁQUINAS -->
+    <div id="tabMaquinasMonitoreo" class="monitor-tab-content">
+
+        <div class="maquinas-panel-nuevo">
+
+            <div class="maquinas-panel-header">
+                <div>
+                    <h3>⚙️ Máquinas</h3>
+                    <p>Selecciona las máquinas utilizadas y registra los tiempos.</p>
+                </div>
+
+                <span class="contador-maquinas">
+                    Total de máquinas: <strong id="totalMaquinas">0</strong>
+                </span>
+            </div>
+
+            <div class="maquinas-filtros">
+                <div class="filtro-zona">
+                    <label>Zona</label>
+
+                    <div class="zona-toggle">
+                        <button type="button" class="zona-btn active" data-zona="todas">Todas</button>
+                        <button type="button" class="zona-btn" data-zona="oriente">Oriente</button>
+                        <button type="button" class="zona-btn" data-zona="poniente">Poniente</button>
+                    </div>
+                </div>
+
+                <div class="filtro-uso">
+                    <label>Uso</label>
+
+                    <input type="hidden" id="filtroUsoMaquinas" value="todas">
+
+                    <div class="custom-select-monitor filtro-uso-custom" data-target="filtroUsoMaquinas">
+                        <button type="button" class="custom-select-selected">
+                            Todas
+                            <span class="select-circle-icon"></span>
+                        </button>
+
+                        <div class="custom-select-options">
+                            <button type="button" data-value="todas">Todas</button>
+                            <button type="button" data-value="si">En uso</button>
+                            <button type="button" data-value="no">Sin uso</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="filtro-buscar">
+                    <label>Buscar</label>
+                    <input type="text" id="buscarMaquina" placeholder="Buscar máquina...">
+                </div>
+            </div>
+
+            <table id="tablaMaquinas" class="tabla-maquinas-unica">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Máquina</th>
+                        <th>Zona</th>
+                        <th>Uso</th>
+                        <th>Tiempo</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+
+            <div class="monitor-info-box">
+                ℹ️ Selecciona el uso y el tiempo correspondiente para cada máquina utilizada.
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- MODAL SITUACIÓN -->
+    <div id="modalSituacion" class="modal-situacion">
+        <div class="modal-situacion-content">
+
+            <button type="button" class="cerrar-modal" onclick="cerrarModalSituacion()">×</button>
+
+            <h3>Situación</h3>
+
+            <label>Tiempo extra</label>
+
+            <div class="tiempo-situacion-grid">
+                <div>
+                    <input type="number" id="modalSituacionHoras" min="0" value="0">
+                    <small>Horas</small>
+                </div>
+
+                <div>
+                    <input type="number" id="modalSituacionMinutos" min="0" max="59" value="0">
+                    <small>Minutos</small>
+                </div>
+            </div>
+
+            <label>Motivo / descripción</label>
+            <textarea id="modalSituacionDescripcion" placeholder="Ej: pieza que se demora en salir, espera de material, ajuste adicional, etc."></textarea>
+
+            <div class="modal-situacion-actions">
+                <button type="button" class="btn-cancelar" onclick="cerrarModalSituacion()">Cancelar</button>
+                <button type="button" class="btn-guardar-situacion" onclick="guardarSituacion()">Guardar</button>
+            </div>
+
+        </div>
+    </div>
+
+</div>

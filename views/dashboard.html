@@ -1,0 +1,243 @@
+<!-- DASHBOARD -->
+<div id="dashboard" class="section active dashboard-section">
+
+    <div class="dashboard-header">
+        <div>
+            <h1>Dashboard</h1>
+            <p>Resumen general de la producción</p>
+            <p id="user" class="dashboard-user">Hola Admin 👋</p>
+        </div>
+
+        <div class="dashboard-actions">
+            <button class="period-btn active" data-periodo="hoy">Hoy</button>
+            <button class="period-btn" data-periodo="ayer">Ayer</button>
+            <button class="period-btn" data-periodo="semana">Semana</button>
+            <button class="period-btn" data-periodo="mes">Mes</button>
+
+            <div class="dashboard-date">
+                📅 <span id="fechaDashboard">--</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="dashboard-cards dashboard-cards-pro">
+
+        <div class="dash-card card-purple">
+            <div class="dash-icon purple">📦</div>
+            <div>
+                <h3>Total de productos</h3>
+                <strong id="dashTotalProductos">0</strong>
+                <p class="green-text">Registrados en el sistema</p>
+                <small>+12 este mes</small>
+            </div>
+        </div>
+
+        <div class="dash-card card-yellow">
+            <div class="dash-icon yellow">⏱️</div>
+            <div>
+                <h3>Productos en proceso</h3>
+                <strong id="dashProductosProceso">0</strong>
+                <p class="yellow-text">Producción actual</p>
+                <small>+8 vs ayer ↗</small>
+            </div>
+        </div>
+
+        <div class="dash-card card-green">
+            <div class="dash-icon green">✅</div>
+            <div>
+                <h3>Máquinas operativas</h3>
+                <strong id="dashMaquinasOperativas">0</strong>
+                <p class="green-text">Funcionando correctamente</p>
+                <small>75% del total</small>
+            </div>
+        </div>
+
+        <div class="dash-card card-red">
+            <div class="dash-icon red">❌</div>
+            <div>
+                <h3>Máquinas detenidas</h3>
+                <strong id="dashMaquinasDetenidas">0</strong>
+                <p class="red-text">Requieren revisión</p>
+                <small>+2 vs ayer</small>
+            </div>
+        </div>
+
+        <div class="dash-card card-blue">
+            <div class="dash-icon blue">🕒</div>
+            <div>
+                <h3>Horas trabajadas</h3>
+                <strong id="dashHorasTrabajadas">0 h</strong>
+                <p class="blue-text">Tiempo total trabajado</p>
+                <small>Hoy</small>
+            </div>
+        </div>
+
+        <div class="dash-card card-cyan">
+            <div class="dash-icon cyan">⚡</div>
+            <div>
+                <h3>Eficiencia general</h3>
+                <strong id="dashEficiencia">0%</strong>
+                <p class="cyan-text">Producción vs meta</p>
+                <small>Meta diaria</small>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="dashboard-main-grid">
+
+        <div class="dashboard-panel panel-large">
+            <div class="panel-title">
+                <h3>📊 Producción por turno</h3>
+
+                <div class="custom-select" id="dropdownTurno">
+                    <button class="custom-select-btn" type="button" onclick="toggleDropdownTurno()">
+                        <span id="textoFiltroTurno">Hoy</span>
+                        <span class="material-icons">expand_more</span>
+                    </button>
+
+                    <div class="custom-select-menu" id="menuFiltroTurno">
+                        <div onclick="seleccionarFiltroTurno('Hoy')">Hoy</div>
+                        <div onclick="seleccionarFiltroTurno('Semana')">Semana</div>
+                        <div onclick="seleccionarFiltroTurno('Mes')">Mes</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bar-chart pro-chart">
+                <div class="bar-item">
+                    <span class="bar-number" id="turnoMananaNumero">0</span>
+                    <div class="bar blue-bar" id="turnoMananaBarra" style="height:0%;"></div>
+                    <p>🌤️ Mañana</p>
+                </div>
+
+                <div class="bar-item">
+                    <span class="bar-number" id="turnoTardeNumero">0</span>
+                    <div class="bar green-bar" id="turnoTardeBarra" style="height:0%;"></div>
+                    <p>☀️ Tarde</p>
+                </div>
+
+                <div class="bar-item">
+                    <span class="bar-number" id="turnoNocheNumero">0</span>
+                    <div class="bar purple-bar" id="turnoNocheBarra" style="height:0%;"></div>
+                    <p>🌙 Noche</p>
+                </div>
+            </div>
+
+            <div class="chart-footer">
+                <span>Total producido hoy: <strong id="totalProducidoHoy">0 piezas</strong></span>
+                <span>Meta diaria: <strong id="metaDiaria">0%</strong></span>
+            </div>
+        </div>
+
+        <div class="dashboard-panel">
+            <div class="panel-title">
+                <h3>📈 Producción últimos 7 días</h3>
+            </div>
+
+            <div class="line-chart-fake">
+                <canvas id="graficoProduccionSemanal"></canvas>
+            </div>
+
+            <div class="compare-boxes">
+                <div>
+                    <span>Hoy</span>
+                    <strong id="produccionHoy">0 piezas</strong>
+                </div>
+                <div>
+                    <span>Ayer</span>
+                    <strong id="produccionAyer">0 piezas</strong>
+                </div>
+            </div>
+        </div>
+
+        <div class="dashboard-panel">
+            <div class="panel-title">
+                <h3>⚙️ Resumen rápido</h3>
+            </div>
+
+            <div class="donut-layout">
+                <div class="donut-chart">
+                    <div class="donut-center">
+                        <strong id="donutTotal">0</strong>
+                        <span>Total</span>
+                    </div>
+                </div>
+
+                <div class="status-list">
+                    <p><span class="dot green-dot"></span> Operativas <strong id="resumenOperativas">0</strong></p>
+                    <p><span class="dot yellow-dot"></span> En proceso <strong id="resumenProceso">0</strong></p>
+                    <p><span class="dot red-dot"></span> Detenidas <strong id="resumenDetenidas">0</strong></p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="dashboard-mini-grid">
+
+        <div class="mini-panel danger">
+            <h3>🚨 Máquinas con más fallas</h3>
+            <p>Máquina 12 <span>3 fallas</span></p>
+            <p>Máquina 07 <span>2 fallas</span></p>
+            <p>Máquina 03 <span>1 falla</span></p>
+        </div>
+
+        <div class="mini-panel warning">
+            <h3>⏱️ Tiempo detenidas</h3>
+            <strong id="tiempoDetenido">0h 00m</strong>
+            <p>Promedio por máquina <span id="promedioDetenido">0h 00m</span></p>
+        </div>
+
+        <div class="mini-panel">
+            <h3>🏆 Top máquinas</h3>
+            <p>Máquina 03 <span>45 piezas</span></p>
+            <p>Máquina 08 <span>38 piezas</span></p>
+            <p>Máquina 01 <span>32 piezas</span></p>
+        </div>
+
+        <div class="mini-panel">
+            <h3>👤 Top usuarios</h3>
+            <p>Admin <span>62 piezas</span></p>
+            <p>Usuario 2 <span>48 piezas</span></p>
+            <p>Usuario 3 <span>36 piezas</span></p>
+        </div>
+
+        <div class="mini-panel status-production">
+            <h3>📋 Estado producción</h3>
+            <div class="status-boxes">
+                <div class="ok">Completados <strong>0</strong></div>
+                <div class="process">En proceso <strong>0</strong></div>
+                <div class="late">Atrasados <strong>0</strong></div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="dashboard-panel registros-panel">
+        <div class="panel-title">
+            <h3>Últimos registros ingresados</h3>
+            <button class="mini-btn" onclick="showSection('productos')">Ver todos</button>
+        </div>
+
+        <table class="dashboard-table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Producto</th>
+                    <th>Máquina</th>
+                    <th>Turno</th>
+                    <th>Cantidad</th>
+                    <th>Fecha</th>
+                    <th>Usuario</th>
+                </tr>
+            </thead>
+            <tbody id="tablaUltimosRegistros">
+                <tr>
+                    <td colspan="7">Cargando últimos registros...</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+</div>

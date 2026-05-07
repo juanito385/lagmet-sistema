@@ -149,7 +149,7 @@ function crearTablaMaquinas(lista) {
 ========================= */
 async function cargarMaquinasDesdeBD() {
     try {
-        const res = await fetch("php/obtener_maquinas.php");
+        const res = await fetch("/proyecto_lagmet/php/obtener_maquinas.php");
         const data = await res.json();
 
         if (!data.success) {
@@ -572,8 +572,8 @@ async function guardarDatos() {
     const editandoId = localStorage.getItem("editandoId");
 
     const url = editandoId
-        ? "php/actualizar_produccion.php"
-        : "php/guardar_produccion.php";
+    ? "/proyecto_lagmet/php/actualizar_produccion.php"
+    : "/proyecto_lagmet/php/guardar_produccion.php";
 
     const body = {
         numero_pedido: pedido,
@@ -883,11 +883,7 @@ function cancelarProduccion(){
     limpiarFormulario();
 }
 
-
-/* =========================
-   INICIO
-========================= */
-window.addEventListener("DOMContentLoaded", () => {
+function iniciarMonitoreo() {
     permitirSoloNumeros("pedido");
     permitirSoloNumeros("ot");
     permitirSoloNumeros("Codigo");
@@ -895,7 +891,8 @@ window.addEventListener("DOMContentLoaded", () => {
     cargarMaquinasDesdeBD();
     cambiarTabMonitoreo("info");
     actualizarGrupoActual();
-});
+}
+
 
 /* =========================
    FUNCIONES GLOBALES
@@ -908,3 +905,4 @@ window.guardarDatos = guardarDatos;
 window.limpiarFormulario = limpiarFormulario;
 window.cambiarTabMonitoreo = cambiarTabMonitoreo;
 window.cancelarProduccion = cancelarProduccion;
+window.iniciarMonitoreo = iniciarMonitoreo;

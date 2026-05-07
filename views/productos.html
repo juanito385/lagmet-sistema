@@ -1,0 +1,96 @@
+<!-- PRODUCTOS -->
+<div id="productos" class="section">
+
+    <h2>Productos</h2>
+
+    <!-- 🔍 CONTENEDOR BUSCADOR / FILTROS PRODUCTOS -->
+    <div class="productos-filtros-container">
+
+        <div class="filtro-grupo buscador-productos">
+            <div class="input-filtro">
+                <span class="material-icons">search</span>
+                <input 
+                    type="text"
+                    id="buscadorProductos"
+                    placeholder="Buscar por nombre, inicial, pedido o código..."
+                    onkeyup="filtrarProductos()"
+                >
+            </div>
+
+            <small>Ej: ajuste, aj, 343434, 0202</small>
+        </div>
+
+        <div class="filtro-grupo filtro-arriba">
+            <label>Filtrar por fecha</label>
+
+            <div class="input-filtro">
+                <span class="material-icons">calendar_month</span>
+                <input 
+                    type="date"
+                    id="filtroFechaProductos"
+                    onchange="filtrarProductos()"
+                >
+            </div>
+        </div>
+
+        <div class="filtro-grupo filtro-arriba">
+            <label>Ordenar por</label>
+
+            <div class="input-filtro">
+                <span class="material-icons">sort</span>
+                <select id="ordenProductos" onchange="ordenarProductos()">
+                    <option value="recientes">Más recientes</option>
+                    <option value="antiguos">Más antiguos</option>
+                    <option value="az">Producto A-Z</option>
+                    <option value="za">Producto Z-A</option>
+                </select>
+            </div>
+        </div>
+
+        <button class="btn-limpiar-filtros" onclick="limpiarFiltrosProductos()">
+            <span class="material-icons">refresh</span>
+            Limpiar filtros
+        </button>
+
+    </div>
+
+    <!-- 📦 CONTENEDOR TABLA -->
+    <div class="card">
+        <table id="tablaProductos">
+            <thead>
+                <tr>
+                    <th>Nombre Producto</th>
+                    <th>Nota de Venta</th>
+                    <th>Cod Interno</th>
+                    <th>Cantidad de piezas</th>
+                    <th>Fecha Inicio</th>
+                    <th>Fecha Fin</th>
+                    <th>Cantidad Días</th>
+                    <th>Estado</th>
+                    <th>Acción</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+
+        <!-- 📄 PAGINACIÓN PRODUCTOS -->
+        <div class="paginacion-productos">
+            <p id="infoPaginacionProductos">
+                Mostrando 0 de 0 productos
+            </p>
+
+            <div class="botones-paginacion">
+                <button onclick="cambiarPaginaProductos(-1)">
+                    <span class="material-icons">chevron_left</span>
+                </button>
+
+                <div id="numerosPaginacionProductos"></div>
+
+                <button onclick="cambiarPaginaProductos(1)">
+                    <span class="material-icons">chevron_right</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+</div>

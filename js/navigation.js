@@ -1,15 +1,83 @@
-function showSection(id){
-    document.querySelectorAll('.section')
-        .forEach(s => s.classList.remove('active'));
+async function showSection(seccion) {
 
-    document.getElementById(id).classList.add('active');
+    console.log("Cargando sección:", seccion);
 
-    document.querySelectorAll('.menu button')
-        .forEach(b => b.classList.remove('active'));
+    const contenido = document.getElementById("contenido");
 
-    const boton = document.querySelector(`.menu button[onclick="showSection('${id}')"]`);
-    if(boton) boton.classList.add('active');
+    if (!contenido) {
+        console.error("No existe el contenedor #contenido");
+        return;
+    }
 
-    if(id === "productos") renderProductos();
-    if(id === "documentacion") mostrarGanttPorMaquina();
+    try {
+
+        const response = await fetch(`views/${seccion}.html`);
+
+        console.log("Respuesta vista:", response.status, response.url);
+
+        if (!response.ok) {
+            throw new Error(`No se pudo cargar views/${seccion}.html`);
+        }
+
+        const html = await response.text();
+        contenido.innerHTML = html;
+
+        const seccionCargada = contenido.querySelector(".section");
+
+        if (seccionCargada) {
+            seccionCargada.classList.add("active");
+        }
+
+        document.querySelectorAll(".menu button")
+            .forEach(btn => btn.classList.remove("active"));
+
+        const botonActivo = document.querySelector(
+            `.menu button[onclick="showSection('${seccion}')"]`
+        );
+
+        if (botonActivo) {
+            botonActivo.classList.add("active");
+        }
+
+        if (seccion === "dashboard") {
+            if (typeof cargarDashboard === "function") {
+                cargarDashboard();
+            }
+        }
+
+        if (seccion === "monitoreo") {
+            if (typeof iniciarMonitoreo === "function") {
+                iniciarMonitoreo();
+            }
+        }
+
+        if (seccion === "productos") {
+            if (typeof renderProductos === "function") {
+                renderProductos();
+            }
+        }
+
+        if (seccion === "documentacion") {
+            if (typeof mostrarGanttPorMaquina === "function") {
+                mostrarGanttPorMaquina();
+            }
+        }
+
+        if (seccion === "configuracion") {
+            if (typeof cargarConfiguracion === "function") {
+                cargarConfiguracion();
+            }
+        }
+
+    } catch (error) {
+
+        console.error("Error cargando sección:", error);
+
+        contenido.innerHTML = `
+            <div class="section active">
+                <h2>Error al cargar sección</h2>
+                <p>No se encontró o falló: views/${seccion}.html</p>
+            </div>
+        `;
+    }
 }

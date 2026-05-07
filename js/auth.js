@@ -33,6 +33,11 @@ async function login() {
         if (data.success) {
             localStorage.setItem("user", JSON.stringify(data.user));
             iniciarApp();
+
+            if (typeof showSection === "function") {
+                showSection("dashboard");
+            }
+
         } else {
             error.textContent = data.message || "Datos incorrectos";
         }
@@ -45,12 +50,17 @@ async function login() {
 
 /* INICIAR */
 function iniciarApp() {
-    let user = JSON.parse(localStorage.getItem("user"));
+    const user = JSON.parse(localStorage.getItem("user"));
 
     if (user) {
         document.getElementById("login").style.display = "none";
         document.getElementById("app").style.display = "block";
-        document.getElementById("user").textContent = "Hola " + user.nombre;
+
+        const userTexto = document.getElementById("user");
+
+        if (userTexto) {
+            userTexto.textContent = "Hola " + user.nombre + " 👋";
+        }
     }
 }
 
@@ -58,25 +68,4 @@ function iniciarApp() {
 function logout() {
     localStorage.removeItem("user");
     location.reload();
-}
-
-function showSection(id) {
-    document.querySelectorAll(".section")
-        .forEach(s => s.classList.remove("active"));
-
-    document.getElementById(id).classList.add("active");
-
-    document.querySelectorAll(".menu button")
-        .forEach(b => b.classList.remove("active"));
-
-    const boton = document.querySelector(`.menu button[onclick="showSection('${id}')"]`);
-    if (boton) boton.classList.add("active");
-
-    if (id === "productos" && typeof renderProductos === "function") {
-        renderProductos();
-    }
-
-    if (id === "documentacion" && typeof mostrarGantt === "function") {
-        mostrarGantt();
-    }
 }
