@@ -13,7 +13,7 @@ if ($id <= 0) {
 }
 
 $stmt = $conn->prepare("
-    SELECT zona, maquina, uso, horas, minutos
+    SELECT id_maquina, zona, maquina, uso, horas, minutos
     FROM produccion_maquinas
     WHERE produccion_id = ?
 ");

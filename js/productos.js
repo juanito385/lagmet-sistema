@@ -367,8 +367,13 @@ function limpiarFiltrosProductos() {
    EDITAR PRODUCTO
 ========================= */
 function editarProducto(id) {
+
     localStorage.setItem("editandoId", id);
-    showSection("monitoreo");
+
+    if (typeof showSection === "function") {
+        showSection("monitoreo");
+    }
+
     cargarProductoParaEditar(id);
 }
 
@@ -388,6 +393,39 @@ function limpiarMaquinasFormulario() {
             if (uso) uso.value = "no";
             if (horas) horas.value = 0;
             if (minutos) minutos.value = 0;
+
+            /* RESET VISUAL USO */
+            const btnUso =
+                fila.querySelector(
+                    '.custom-select-maquina[data-target-class="uso"] .custom-select-selected'
+                );
+
+            if (btnUso) {
+                btnUso.innerHTML =
+                    `No <span class="select-circle-icon"></span>`;
+            }
+
+            /* RESET VISUAL HORAS */
+            const btnHoras =
+                fila.querySelector(
+                    '.custom-select-maquina[data-target-class="horas"] .custom-select-selected'
+                );
+
+            if (btnHoras) {
+                btnHoras.innerHTML =
+                    `0h <span class="select-circle-icon"></span>`;
+            }
+
+            /* RESET VISUAL MINUTOS */
+            const btnMinutos =
+                fila.querySelector(
+                    '.custom-select-maquina[data-target-class="minutos"] .custom-select-selected'
+                );
+
+            if (btnMinutos) {
+                btnMinutos.innerHTML =
+                    `0m <span class="select-circle-icon"></span>`;
+            }
 
             actualizarColorFila(fila);
         });
@@ -411,15 +449,13 @@ async function cargarMaquinasGuardadasProducto(id) {
 
         filas.forEach(fila => {
 
-            const zonaEl = fila.querySelector("td:nth-child(3)");
-            const maquinaEl = fila.querySelector("td:nth-child(2)");
-
-            const zona = zonaEl ? zonaEl.textContent.trim() : "";
-            const maquina = maquinaEl ? maquinaEl.textContent.trim() : "";
+            const idFila = fila.getAttribute("data-id-maquina");
+            const idGuardado = m.id_maquina;
 
             if (
-                normalizarTexto(zona) === normalizarTexto(m.zona) &&
-                normalizarTexto(maquina) === normalizarTexto(m.maquina)
+                idFila &&
+                idGuardado &&
+                String(idFila) === String(idGuardado)
             ) {
 
                 const uso = fila.querySelector(".uso");
@@ -437,8 +473,8 @@ async function cargarMaquinasGuardadasProducto(id) {
 
                             customSelect.innerHTML =
                                 uso.value === "si"
-                                    ? `Sí <span></span>`
-                                    : `No <span></span>`;
+                                    ? `Sí <span class="select-circle-icon"></span>`
+                                    : `No <span class="select-circle-icon"></span>`;
                         }
                     }
                 const horasValor = parseInt(m.horas) || 0;
@@ -490,7 +526,7 @@ async function cargarMaquinasGuardadasProducto(id) {
 
                 actualizarColorFila(fila);
 
-                                actualizarColorFila(fila);
+                            
                             }
         });
     });
@@ -658,16 +694,12 @@ async function cargarProductoParaEditar(id) {
         }
 
         /* =========================
-           LIMPIAR TABLA
-        ========================= */
-
-        limpiarMaquinasFormulario();
-
-        /* =========================
-           ESPERAR RENDER TABLA
+           ESPERAR TABLA MAQUINAS
         ========================= */
 
         setTimeout(async () => {
+
+            limpiarMaquinasFormulario();
 
             await cargarMaquinasGuardadasProducto(id);
 
@@ -675,21 +707,13 @@ async function cargarProductoParaEditar(id) {
                 calcular();
             }
 
-        }, 300);
+        }, 500);
 
         /* =========================
            LOCAL STORAGE
         ========================= */
 
         localStorage.setItem("editandoId", id);
-
-        /* =========================
-           MOSTRAR MONITOREO
-        ========================= */
-
-        if (typeof showSection === "function") {
-            showSection("monitoreo");
-        }
 
     } catch (error) {
 
