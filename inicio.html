@@ -383,8 +383,12 @@
 
             <div class="salida-info">
                 <span>Grupo actual</span>
-                <strong>Según selección</strong>
-            </div>
+
+                <strong id="grupoActualTexto">
+                    Grupo 1<br>
+                    12:00 → 13:00
+                </strong>
+</div>
         </div>
 
         <div class="monitor-block">
@@ -446,31 +450,72 @@
             <div class="monitor-grid grid-3">
                 <div class="monitor-field">
                     <label>Grupo Almuerzo</label>
-                    <select id="grupo">
-                        <option value="1">Grupo 1 (12:00 - 13:00)</option>
-                        <option value="2">Grupo 2 (13:00 - 14:00)</option>
-                    </select>
+                    <input type="hidden" id="grupo" value="1">
+
+                    <div class="custom-select-monitor" data-target="grupo">
+                        <button type="button" class="custom-select-selected">
+                            Grupo 1 (12:00 - 13:00)
+                            <span>⌄</span>
+                        </button>
+
+                        <div class="custom-select-options">
+                            <button type="button" data-value="1">
+                                Grupo 1 (12:00 - 13:00)
+                            </button>
+
+                            <button type="button" data-value="2">
+                                Grupo 2 (13:00 - 14:00)
+                            </button>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="monitor-field">
                     <label>Trabaja sábado</label>
-                    <select id="trabajaSabado">
-                        <option value="no">No</option>
-                        <option value="si">Sí</option>
-                    </select>
-                </div>
+                    <input type="hidden" id="trabajaSabado" value="no">
+
+                        <div class="custom-select-monitor" data-target="trabajaSabado">
+                            <button type="button" class="custom-select-selected">
+                                No
+                                <span>⌄</span>
+                            </button>
+
+                            <div class="custom-select-options">
+                                <button type="button" data-value="no">No</button>
+                                <button type="button" data-value="si">Sí</button>
+                            </div>
+                        </div>
+                                        </div>
 
                 <div class="monitor-field">
                     <label>Fallo Máquina</label>
 
-                    <select id="falloMaquina" onchange="mostrarSelectorMaquinaFallo()">
-                        <option value="no">No</option>
-                        <option value="si">Sí</option>
-                    </select>
+                    <input type="hidden" id="falloMaquina" value="no">
 
-                    <select id="maquinaFallo" style="display:none; margin-top:10px;">
-                        <option value="">Seleccionar máquina</option>
-                    </select>
+                        <div class="custom-select-monitor" data-target="falloMaquina" data-onchange="mostrarSelectorMaquinaFallo">
+                            <button type="button" class="custom-select-selected">
+                                No
+                                <span>⌄</span>
+                            </button>
+
+                            <div class="custom-select-options">
+                                <button type="button" data-value="no">No</button>
+                                <button type="button" data-value="si">Sí</button>
+                            </div>
+                        </div>
+
+                    <input type="hidden" id="maquinaFallo" value="">
+
+                    <div id="maquinaFalloCustom" class="custom-select-monitor maquina-fallo-custom" data-target="maquinaFallo" style="display:none; margin-top:10px;">
+                        <button type="button" class="custom-select-selected">
+                            Seleccionar máquina
+                            <span>⌄</span>
+                        </button>
+
+                        <div class="custom-select-options" id="opcionesMaquinaFallo">
+                            <!-- Se carga desde BD -->
+                        </div>
+</div>
                 </div>
             </div>
         </div>

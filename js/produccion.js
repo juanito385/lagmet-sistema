@@ -31,6 +31,26 @@ function minutos() {
     return op;
 }
 
+function generarOpcionesHorasCustom() {
+    let opciones = "";
+
+    for (let i = 0; i <= 10; i++) {
+        opciones += `<button type="button" data-value="${i}">${i}h</button>`;
+    }
+
+    return opciones;
+}
+
+function generarOpcionesMinutosCustom() {
+    let opciones = "";
+
+    for (let i = 0; i < 60; i += 5) {
+        opciones += `<button type="button" data-value="${i}">${i}m</button>`;
+    }
+
+    return opciones;
+}
+
 /* =========================
    CREAR TABLA ÚNICA MÁQUINAS
 ========================= */
@@ -63,16 +83,49 @@ function crearTablaMaquinas(lista) {
             </td>
 
             <td>
-                <select class="uso">
-                    <option value="no">No</option>
-                    <option value="si">Sí</option>
-                </select>
+                <input type="hidden" class="uso" value="no">
+
+                <div class="custom-select-monitor custom-select-maquina" data-target-class="uso">
+                    <button type="button" class="custom-select-selected">
+                        No
+                        <span>⌄</span>
+                    </button>
+
+                    <div class="custom-select-options">
+                        <button type="button" data-value="no">No</button>
+                        <button type="button" data-value="si">Sí</button>
+                    </div>
+                </div>
             </td>
 
             <td>
                 <div class="tiempo-maquina">
-                    <select class="horas">${horas()}</select>
-                    <select class="minutos">${minutos()}</select>
+
+                    <input type="hidden" class="horas" value="0">
+                    <input type="hidden" class="minutos" value="0">
+
+                    <div class="custom-select-monitor custom-select-maquina custom-tiempo" data-target-class="horas">
+                        <button type="button" class="custom-select-selected">
+                            0h
+                            <span>⌄</span>
+                        </button>
+
+                        <div class="custom-select-options custom-options-small">
+                            ${generarOpcionesHorasCustom()}
+                        </div>
+                    </div>
+
+                    <div class="custom-select-monitor custom-select-maquina custom-tiempo" data-target-class="minutos">
+                        <button type="button" class="custom-select-selected">
+                            0m
+                            <span>⌄</span>
+                        </button>
+
+                        <div class="custom-select-options custom-options-small">
+                            ${generarOpcionesMinutosCustom()}
+                        </div>
+                    </div>
+
                 </div>
             </td>
         `;
@@ -116,41 +169,25 @@ async function cargarMaquinasDesdeBD() {
    SELECT FALLO MÁQUINA DINÁMICO
 ========================= */
 function cargarSelectFalloMaquina(lista) {
-    const select = document.getElementById("maquinaFallo");
-    if (!select) return;
+    const opciones = document.getElementById("opcionesMaquinaFallo");
+    if (!opciones) return;
 
-    select.innerHTML = `<option value="">Seleccionar máquina</option>`;
+    opciones.innerHTML = "";
 
-    const oriente = lista.filter(m => (m.zona || "").toLowerCase() === "oriente");
-    const poniente = lista.filter(m => (m.zona || "").toLowerCase() === "poniente");
+    const placeholder = document.createElement("button");
+    placeholder.type = "button";
+    placeholder.dataset.value = "";
+    placeholder.textContent = "Seleccionar máquina";
+    opciones.appendChild(placeholder);
 
-    if (oriente.length) {
-        const grupoOriente = document.createElement("optgroup");
-        grupoOriente.label = "Zona Oriente";
+    lista.forEach(m => {
+        const option = document.createElement("button");
+        option.type = "button";
+        option.dataset.value = m.nombre_maquina;
+        option.textContent = m.nombre_maquina;
 
-        oriente.forEach(m => {
-            const option = document.createElement("option");
-            option.value = m.nombre_maquina;
-            option.textContent = m.nombre_maquina;
-            grupoOriente.appendChild(option);
-        });
-
-        select.appendChild(grupoOriente);
-    }
-
-    if (poniente.length) {
-        const grupoPoniente = document.createElement("optgroup");
-        grupoPoniente.label = "Zona Poniente";
-
-        poniente.forEach(m => {
-            const option = document.createElement("option");
-            option.value = m.nombre_maquina;
-            option.textContent = m.nombre_maquina;
-            grupoPoniente.appendChild(option);
-        });
-
-        select.appendChild(grupoPoniente);
-    }
+        opciones.appendChild(option);
+    });
 }
 
 /* =========================
@@ -205,6 +242,28 @@ function formatearHoraAMPM(fecha) {
         minute: "2-digit",
         hour12: true
     }).toUpperCase();
+}
+
+/* =========================
+   ACTUALIZAR GRUPO ACTUAL
+========================= */
+function actualizarGrupoActual() {
+    const grupo = document.getElementById("grupo")?.value;
+    const texto = document.getElementById("grupoActualTexto");
+
+    if (!texto) return;
+
+    if (grupo === "1") {
+        texto.innerHTML = `
+            Grupo 1<br>
+            12:00 → 13:00
+        `;
+    } else {
+        texto.innerHTML = `
+            Grupo 2<br>
+            13:00 → 14:00
+        `;
+    }
 }
 
 /* =========================
@@ -396,15 +455,21 @@ function guardarSituacion() {
 ========================= */
 function mostrarSelectorMaquinaFallo() {
     const fallo = document.getElementById("falloMaquina")?.value;
-    const maquina = document.getElementById("maquinaFallo");
+    const maquinaHidden = document.getElementById("maquinaFallo");
+    const maquinaCustom = document.getElementById("maquinaFalloCustom");
 
-    if (!maquina) return;
+    if (!maquinaHidden || !maquinaCustom) return;
 
     if (fallo === "si") {
-        maquina.style.display = "block";
+        maquinaCustom.style.display = "block";
     } else {
-        maquina.style.display = "none";
-        maquina.value = "";
+        maquinaCustom.style.display = "none";
+        maquinaHidden.value = "";
+
+        const selected = maquinaCustom.querySelector(".custom-select-selected");
+        if (selected) {
+            selected.innerHTML = `Seleccionar máquina <span>⌄</span>`;
+        }
     }
 }
 
@@ -588,6 +653,7 @@ function limpiarFormulario() {
 
     document.getElementById("salida").textContent = "--";
     document.getElementById("grupo").value = "1";
+    actualizarGrupoActual();
     document.getElementById("trabajaSabado").value = "no";
 
     const situacionHoras = document.getElementById("situacionHoras");
@@ -639,23 +705,89 @@ function limpiarFormulario() {
         btn.classList.toggle("active", btn.dataset.zona === "todas");
     });
 
-    aplicarFiltrosMaquinas();
     calcular();
+    actualizarGrupoActual();
+    aplicarFiltrosMaquinas();
     cambiarTabMonitoreo("info");
 }
 
 /* =========================
    EVENTOS
 ========================= */
+/* =========================
+   CUSTOM SELECT GENERAL
+========================= */
 document.addEventListener("click", e => {
-    if (!e.target.classList.contains("zona-btn")) return;
+    const selectedBtn = e.target.closest(".custom-select-selected");
+    const optionBtn = e.target.closest(".custom-select-options button");
 
-    document.querySelectorAll(".zona-btn").forEach(btn => btn.classList.remove("active"));
+    if (!selectedBtn && !optionBtn) {
+        document.querySelectorAll(".custom-select-options").forEach(menu => {
+            menu.classList.remove("active");
+        });
 
-    e.target.classList.add("active");
-    filtroZonaActual = e.target.dataset.zona;
+        document.querySelectorAll(".custom-select-selected").forEach(btn => {
+            btn.classList.remove("active");
+        });
 
-    aplicarFiltrosMaquinas();
+        return;
+    }
+
+    if (selectedBtn) {
+        const wrapper = selectedBtn.closest(".custom-select-monitor");
+        const options = wrapper.querySelector(".custom-select-options");
+
+        document.querySelectorAll(".custom-select-options").forEach(menu => {
+            if (menu !== options) menu.classList.remove("active");
+        });
+
+        document.querySelectorAll(".custom-select-selected").forEach(btn => {
+            if (btn !== selectedBtn) btn.classList.remove("active");
+        });
+
+        selectedBtn.classList.toggle("active");
+        options.classList.toggle("active");
+
+        return;
+    }
+
+    if (optionBtn) {
+        const wrapper = optionBtn.closest(".custom-select-monitor");
+        const selected = wrapper.querySelector(".custom-select-selected");
+
+        let targetInput = null;
+
+        if (wrapper.dataset.target) {
+            targetInput = document.getElementById(wrapper.dataset.target);
+        }
+
+        if (wrapper.dataset.targetClass) {
+            const fila = wrapper.closest("tr");
+            targetInput = fila?.querySelector(`.${wrapper.dataset.targetClass}`);
+        }
+
+        if (!targetInput) return;
+
+        targetInput.value = optionBtn.dataset.value;
+        selected.innerHTML = `${optionBtn.textContent} <span>⌄</span>`;
+
+        wrapper.querySelector(".custom-select-options").classList.remove("active");
+        selected.classList.remove("active");
+
+        const fila = wrapper.closest("tr");
+
+        if (fila) {
+            actualizarColorFila(fila);
+        }
+
+        calcular();
+        actualizarGrupoActual();
+        aplicarFiltrosMaquinas();
+
+        if (wrapper.dataset.onchange === "mostrarSelectorMaquinaFallo") {
+            mostrarSelectorMaquinaFallo();
+        }
+    }
 });
 
 document.addEventListener("change", e => {
@@ -718,6 +850,7 @@ function cambiarTabMonitoreo(tab) {
     }
 }
 
+
 /* =========================
    INICIO
 ========================= */
@@ -728,6 +861,7 @@ window.addEventListener("DOMContentLoaded", () => {
 
     cargarMaquinasDesdeBD();
     cambiarTabMonitoreo("info");
+    actualizarGrupoActual();
 });
 
 /* =========================
