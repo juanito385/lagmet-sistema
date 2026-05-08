@@ -1,0 +1,38 @@
+/* =========================
+   DOCUMENTACION PRO LIMPIA
+========================= */
+
+#documentacion{
+    padding:10px 6px;
+    overflow:visible;
+}
+
+/* =========================
+   CONTENEDOR SUPERIOR
+========================= */
+
+.doc-top-container{
+    background:linear-gradient(145deg, rgba(10,20,45,0.9), rgba(15,30,60,0.6));
+    border:1px solid rgba(255,255,255,0.08);
+    border-radius:26px;
+    padding:28px;
+    margin-bottom:30px;
+    box-shadow:0 20px 50px rgba(0,0,0,0.35);
+    position:relative;
+    z-index:1;
+}
+
+/* Badge superior */
+.doc-top-container::after{
+    content:"LAGMET";
+    position:absolute;
+    top:20px;
+    right:24px;
+    font-size:12px;
+    font-weight:700;
+    color:#ffb15a;
+    border:1px solid rgba(245,124,0,0.4);
+    padding:6px 12px;
+    border-radius:999px;
+    background:rgba(0,0,0,0.2);
+}

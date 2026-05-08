@@ -1,0 +1,44 @@
+/* =========================
+   HEADER
+========================= */
+
+.doc-header-pro{
+    margin-bottom:22px;
+}
+
+.doc-header-pro h2{
+    margin:0 0 8px 0;
+    font-size:36px;
+    font-weight:800;
+    color:#ffffff;
+}
+
+.doc-header-pro p{
+    margin:0;
+    font-size:15px;
+    color:#bfc7d5;
+}
+
+/* CARD ACCIONES */
+
+.doc-card-pro{
+    margin-top:10px;
+}
+
+.doc-card-top{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:20px;
+}
+
+.doc-card-top h3{
+    margin:0;
+    font-size:20px;
+    font-weight:700;
+    color:#ffffff;
+}
+
+.doc-badge{
+    display:none;
+}

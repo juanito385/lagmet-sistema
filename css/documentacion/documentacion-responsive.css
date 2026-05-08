@@ -1,0 +1,112 @@
+/* =========================
+   RESPONSIVE DOCUMENTACIÓN
+========================= */
+
+@media(max-width:1200px){
+
+    .doc-actions-pro{
+        grid-template-columns:repeat(2, 1fr);
+    }
+
+    .gantt-wrapper{
+        grid-template-columns:320px 1fr;
+    }
+
+    .gantt-side-head{
+        grid-template-columns:1fr 0.8fr 0.6fr;
+        font-size:14px;
+    }
+
+    .gantt-side-row{
+        grid-template-columns:1fr 0.8fr 0.6fr;
+        font-size:13px;
+    }
+}
+
+/* =========================
+   TABLET
+========================= */
+
+@media(max-width:900px){
+
+    .gantt-wrapper{
+        grid-template-columns:1fr;
+    }
+
+    #gantt-sidebar{
+        display:none;
+    }
+
+    .gantt-header{
+        flex-direction:column;
+        align-items:flex-start;
+        gap:14px;
+    }
+
+    .gantt-controls{
+        flex-wrap:wrap;
+    }
+
+    #gantt{
+        height:520px;
+        min-height:520px;
+    }
+}
+
+/* =========================
+   MOBILE
+========================= */
+
+@media(max-width:700px){
+
+    .doc-actions-pro{
+        grid-template-columns:1fr;
+    }
+
+    .doc-header-pro h2{
+        font-size:30px;
+    }
+
+    .doc-top-container{
+        padding:20px;
+    }
+
+    .gantt-panel{
+        padding:16px;
+    }
+
+    .gantt-header h3{
+        font-size:22px;
+    }
+
+    .gantt-controls button{
+        width:100%;
+        justify-content:center;
+    }
+
+    .gantt-leyenda{
+        gap:8px;
+        padding:12px;
+    }
+
+    .gantt-leyenda span{
+        font-size:12px;
+    }
+
+    #gantt{
+        height:480px;
+        min-height:480px;
+    }
+
+    .modal-gantt-info{
+        grid-template-columns:1fr;
+    }
+
+    .modal-gantt-card{
+        padding:20px;
+    }
+
+    .modal-gantt-header h3{
+        font-size:24px;
+    }
+}

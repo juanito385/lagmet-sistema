@@ -30,25 +30,42 @@
     flex-shrink:0;
 }
 
+/* =========================
+   LOGO SIDEBAR IRONIX
+========================= */
+
 .logo-sidebar{
     width:100%;
     display:flex;
     justify-content:center;
     align-items:center;
-    padding:25px 10px;
-    overflow:hidden;
+
+    padding:22px 18px 28px;
+
+    border-bottom:
+        1px solid rgba(255,255,255,0.06);
+
+    margin-bottom:20px;
 }
 
 .logo-sidebar img{
-    width:190px;
+
+    width:100%;
+    max-width:220px;
+
     height:auto;
+
     object-fit:contain;
+
     display:block;
 
+    transition:0.3s ease;
+
     filter:
-        drop-shadow(0 0 8px rgba(0,168,255,0.35))
-        drop-shadow(0 0 18px rgba(0,168,255,0.18));
+        drop-shadow(0 0 10px rgba(0,168,255,0.20))
+        drop-shadow(0 0 25px rgba(0,168,255,0.12));
 }
+
 
 /* MENU */
 .menu{

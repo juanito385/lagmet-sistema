@@ -1,0 +1,350 @@
+/* =========================
+   PANEL GANTT
+========================= */
+
+.doc-viewer-card{
+    display:block;
+    visibility:visible;
+    opacity:1;
+    background:rgba(255,255,255,0.04);
+    border:1px solid rgba(255,255,255,0.08);
+    border-radius:20px;
+    padding:24px;
+    min-height:700px;
+    backdrop-filter:blur(10px);
+    box-shadow:0 10px 24px rgba(0,0,0,0.25);
+    margin-top:30px;
+    position:relative;
+    z-index:2;
+}
+
+/* =========================
+   GANTT PRO LAGMET
+========================= */
+
+.gantt-panel{
+    background:rgba(255,255,255,0.05);
+    border:1px solid rgba(255,255,255,0.08);
+    border-radius:22px;
+    padding:24px;
+    box-shadow:0 18px 45px rgba(0,0,0,0.35);
+}
+
+/* =========================
+   HEADER GANTT
+========================= */
+
+.gantt-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:18px;
+}
+
+.gantt-header h3{
+    margin:0;
+    color:#ffffff;
+    font-size:26px;
+    font-weight:800;
+}
+
+/* =========================
+   CONTROLES
+========================= */
+
+.gantt-controls{
+    display:flex;
+    gap:10px;
+    align-items:center;
+}
+
+.gantt-controls button{
+    background:rgba(255,255,255,0.16);
+    color:#fff;
+    border:none;
+    border-radius:12px;
+    padding:12px 18px;
+    font-weight:700;
+    cursor:pointer;
+    transition:0.2s ease;
+}
+
+.gantt-controls button:hover{
+    background:rgba(255,255,255,0.25);
+}
+
+/* =========================
+   LEYENDA
+========================= */
+
+.gantt-leyenda{
+    background:#fff;
+    border-radius:14px;
+    padding:16px 18px;
+    margin-bottom:16px;
+    display:flex;
+    gap:12px;
+    flex-wrap:wrap;
+}
+
+.gantt-leyenda span{
+    color:#111;
+    background:#f2f2f2;
+    padding:8px 12px;
+    border-radius:10px;
+    font-size:14px;
+}
+
+.gantt-leyenda b{
+    display:inline-block;
+    width:13px;
+    height:13px;
+    border-radius:50%;
+    margin-right:7px;
+}
+
+.estado-verde{
+    background:#28a745;
+}
+
+.estado-azul{
+    background:#5dade2;
+}
+
+.estado-rojo{
+    background:#e74c3c;
+}
+
+.estado-naranja{
+    background:#f39c12;
+}
+
+.estado-gris{
+    background:#9aa0a6;
+}
+
+/* =========================
+   WRAPPER
+========================= */
+
+.gantt-wrapper{
+    display:grid;
+    grid-template-columns:400px 1fr;
+    background:#fff;
+    border-radius:16px;
+    overflow:hidden;
+    min-height:560px;
+}
+
+/* =========================
+   SIDEBAR IZQUIERDO
+========================= */
+
+#gantt-sidebar{
+    border-right:1px solid #ddd;
+    background:#fafafa;
+    overflow:hidden;
+}
+
+/* =========================
+   HEADER SIDEBAR
+========================= */
+
+.gantt-side-head{
+    height:105px;
+    display:grid;
+    grid-template-columns:1.35fr 1fr 0.7fr;
+    align-items:end;
+    gap:18px;
+    padding:0 24px 20px;
+    border-bottom:1px solid #ddd;
+    color:#111;
+    font-size:16px;
+    background:#fff;
+}
+
+.gantt-side-head strong{
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    text-align:center;
+}
+
+/* =========================
+   FILAS SIDEBAR
+========================= */
+
+.gantt-side-row{
+    height:52px;
+    display:grid;
+    grid-template-columns:1.35fr 1fr 0.7fr;
+    align-items:center;
+    gap:18px;
+    padding:0 24px;
+    border-bottom:1px solid #eee;
+    color:#111;
+    font-size:15px;
+}
+
+.gantt-side-producto{
+    display:flex;
+    align-items:center;
+    justify-content:flex-start;
+    gap:8px;
+    overflow:hidden;
+    white-space:nowrap;
+}
+
+.gantt-side-producto strong{
+    font-size:15px;
+    overflow:hidden;
+    text-overflow:ellipsis;
+}
+
+.gantt-side-producto small{
+    color:#666;
+    overflow:hidden;
+    text-overflow:ellipsis;
+}
+
+.gantt-color-dot{
+    width:12px;
+    height:38px;
+    min-width:12px;
+    border-radius:8px;
+    display:inline-block;
+}
+
+/* =========================
+   CENTRADOS
+========================= */
+
+.gantt-side-row div:nth-child(2){
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    text-align:center;
+    white-space:nowrap;
+}
+
+.gantt-side-row div:nth-child(3){
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    text-align:center;
+    white-space:nowrap;
+}
+
+/* =========================
+   CONTENEDOR GANTT
+========================= */
+
+#gantt{
+    display:block;
+    width:100%;
+    height:560px;
+    min-height:560px;
+    overflow:auto;
+    background:#ffffff;
+    border-radius:0;
+    padding:0;
+}
+
+/* =========================
+   FRAPPE GANTT
+========================= */
+
+#gantt .gantt-container{
+    height:560px !important;
+    min-height:560px !important;
+    overflow:auto !important;
+}
+
+#gantt svg{
+    min-height:560px !important;
+}
+
+/* =========================
+   COLORES ESTADOS
+========================= */
+
+#gantt .gantt-pendiente .bar{
+    fill:#b0b0b0 !important;
+}
+
+#gantt .gantt-pendiente .bar-progress{
+    fill:#8a8a8a !important;
+}
+
+#gantt .gantt-proceso .bar{
+    fill:#4facfe !important;
+}
+
+#gantt .gantt-proceso .bar-progress{
+    fill:#1976d2 !important;
+}
+
+#gantt .gantt-terminado .bar{
+    fill:#43e97b !important;
+}
+
+#gantt .gantt-terminado .bar-progress{
+    fill:#1b9b50 !important;
+}
+
+#gantt .gantt-tiempo-muerto .bar{
+    fill:#ff9800 !important;
+}
+
+#gantt .gantt-tiempo-muerto .bar-progress{
+    fill:#e65100 !important;
+}
+
+#gantt .gantt-atrasado .bar{
+    fill:#e53935 !important;
+}
+
+#gantt .gantt-atrasado .bar-progress{
+    fill:#b71c1c !important;
+}
+
+/* =========================
+   TEXTO GANTT
+========================= */
+
+.gantt .bar-label{
+    fill:#fff !important;
+    font-size:12px;
+    font-weight:600;
+}
+
+.gantt .grid-header{
+    fill:#fff !important;
+}
+
+.gantt .lower-text,
+.gantt .upper-text{
+    fill:#555 !important;
+    font-size:13px;
+}
+
+/* =========================
+   GRID
+========================= */
+
+.gantt .today-highlight{
+    fill:#ffe0b2 !important;
+    opacity:0.45;
+}
+
+.gantt .grid-row{
+    fill:#fff !important;
+}
+
+.gantt .row-line{
+    stroke:#eee !important;
+}
+
+.gantt .tick{
+    stroke:#eeeeee !important;
+}
