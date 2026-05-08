@@ -24,7 +24,7 @@ window.mostrarGantt = async function(){
         }
 
         try {
-            const response = await fetch("php/obtener_produccion.php");
+            const response = await fetch("php/produccion/obtener_produccion.php");
             const data = await response.json();
 
             if (!data.success || !data.data || !data.data.length) {

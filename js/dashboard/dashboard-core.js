@@ -28,7 +28,7 @@ function cargarFechaDashboard() {
 ========================= */
 async function cargarDatosDashboard(periodo = "hoy") {
     try {
-        const response = await fetch(`php/obtener_dashboard.php?periodo=${periodo}`);
+        const response = await fetch(`php/dashboard/obtener_dashboard.php?periodo=${periodo}`);
         const data = await response.json();
 
         console.log("DASHBOARD DATA:", data);

@@ -1,6 +1,6 @@
 <?php
 header('Content-Type: application/json');
-require_once __DIR__ . "/conexion.php";
+require_once __DIR__ . "/../conexion.php";
 
 $hoy = date("Y-m-d");
 $ayer = date("Y-m-d", strtotime("-1 day"));

@@ -1,5 +1,5 @@
 console.log("CONFIGURACION.JS CARGADO");
-
+ 
 /* =========================
    CARGAR USUARIO
 ========================= */
@@ -13,7 +13,7 @@ function cargarUsuario() {
         return;
     }
 
-    fetch("php/obtener_usuario.php")
+    fetch("php/config/obtener_usuario.php")
         .then(res => res.json())
         .then(data => {
             if (data.success && data.usuario) {
@@ -36,7 +36,7 @@ function guardarConfiguracion() {
     formData.append("nombre", nombre);
     formData.append("correo", correo);
 
-    fetch("php/actualizar_usuario.php", {
+    fetch("php/config/actualizar_usuario.php", {
         method: "POST",
         body: formData
     })
@@ -68,7 +68,7 @@ function cambiarPasswordConfiguracion() {
     formData.append("nueva", passwordNueva.value);
     formData.append("confirmar", passwordConfirmar.value);
 
-    fetch("php/cambiar_password.php", {
+    fetch("php/config/cambiar_password.php", {
         method: "POST",
         body: formData
     })

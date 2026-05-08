@@ -134,7 +134,7 @@ async function cargarMaquinasGuardadasProducto(id) {
 ========================= */
 async function cargarProductoParaEditar(id) {
     try {
-        const response = await fetch("php/obtener_produccion.php");
+        const response = await fetch(`php/obtener_maquinas_produccion.php?id=${id}`);
         const data = await response.json();
 
         const item = data.data.find(p => p.id == id);

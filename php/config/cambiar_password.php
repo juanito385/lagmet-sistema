@@ -3,7 +3,7 @@ error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
 header('Content-Type: application/json');
-include("conexion.php");
+require_once __DIR__ . "/../conexion.php";
 
 $id = 1;
 

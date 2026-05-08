@@ -7,7 +7,7 @@ async function eliminarProducto(id) {
     if (!confirmar) return;
 
     try {
-        const response = await fetch("php/eliminar_produccion.php", {
+        const response = await fetch("php/produccion/eliminar_produccion.php", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"

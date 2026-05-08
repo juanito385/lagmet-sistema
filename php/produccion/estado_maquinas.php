@@ -1,6 +1,6 @@
 <?php
 header('Content-Type: application/json');
-include("conexion.php");
+require_once __DIR__ . "/../conexion.php";
 
 $sql = "
 SELECT m.numero_maquina, m.nombre_maquina,

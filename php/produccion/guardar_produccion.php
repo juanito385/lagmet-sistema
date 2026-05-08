@@ -1,6 +1,6 @@
 <?php
 header('Content-Type: application/json');
-require_once __DIR__ . "/conexion.php";
+require_once __DIR__ . "/../conexion.php";
 
 date_default_timezone_set("America/Santiago");
 

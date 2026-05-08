@@ -1,6 +1,6 @@
 <?php
 header('Content-Type: application/json');
-require_once __DIR__ . "/conexion.php";
+require_once __DIR__ . "/../conexion.php";
 
 $id = intval($_GET["id"] ?? 0);
 

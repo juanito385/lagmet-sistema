@@ -1,6 +1,6 @@
 <?php
 header('Content-Type: application/json');
-include("conexion.php");
+require_once __DIR__ . "/../conexion.php";
 
 // ⚠️ Por ahora usamos el usuario 1 (admin)
 $id = 1;

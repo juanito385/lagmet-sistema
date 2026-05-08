@@ -161,7 +161,7 @@ async function cargarMaquinasDesdeBD() {
 
     try {
 
-        const res = await fetch("/proyecto_lagmet/php/obtener_maquinas.php");
+        const res = await fetch("/proyecto_lagmet/php/maquinas/obtener_maquinas.php");
 
         const data = await res.json();
 
