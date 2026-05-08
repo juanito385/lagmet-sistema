@@ -1,0 +1,54 @@
+/* =========================
+   ESTADOS PRODUCTOS
+========================= */
+
+.badge-estado{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    padding:6px 12px;
+    border-radius:999px;
+    font-size:13px;
+    font-weight:700;
+    white-space:nowrap;
+}
+
+/* =========================
+   EN PROCESO
+========================= */
+
+.estado-proceso{
+    background:rgba(46, 204, 113, 0.18);
+    color:#2ecc71;
+    border:1px solid rgba(46, 204, 113, 0.45);
+}
+
+/* =========================
+   ATRASADO
+========================= */
+
+.estado-atrasado{
+    background:rgba(255, 77, 90, 0.18);
+    color:#ff4d5a;
+    border:1px solid rgba(255, 77, 90, 0.45);
+}
+
+/* =========================
+   SIN FECHA
+========================= */
+
+.estado-sin-fecha{
+    background:rgba(255,255,255,0.12);
+    color:#cfcfcf;
+    border:1px solid rgba(255,255,255,0.25);
+}
+
+/* =========================
+   TERMINA HOY
+========================= */
+
+.estado-hoy{
+    background:rgba(52, 152, 219, 0.18);
+    color:#3498db;
+    border:1px solid rgba(52, 152, 219, 0.45);
+}

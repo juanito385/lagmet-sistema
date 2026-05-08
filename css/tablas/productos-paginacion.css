@@ -1,0 +1,63 @@
+/* =========================
+   PAGINACIÓN PRODUCTOS
+========================= */
+
+.paginacion-productos{
+    width:100%;
+    padding:16px 24px 10px 24px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:20px;
+}
+
+.paginacion-productos p{
+    margin:0;
+    color:#bfc0cf;
+    font-size:14px;
+}
+
+.botones-paginacion{
+    display:flex;
+    align-items:center;
+    gap:8px;
+}
+
+.botones-paginacion button,
+#numerosPaginacionProductos button{
+    width:36px;
+    height:36px;
+    border:none;
+    border-radius:10px;
+    background:rgba(255,255,255,0.08);
+    color:white;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    transition:0.25s ease;
+    border:1px solid rgba(255,255,255,0.08);
+}
+
+#numerosPaginacionProductos{
+    display:flex;
+    align-items:center;
+    gap:8px;
+}
+
+#numerosPaginacionProductos button.activo{
+    border-color:#4cc3ff;
+    color:#4cc3ff;
+    box-shadow:0 0 0 2px rgba(76,195,255,0.12);
+}
+
+.botones-paginacion button:hover,
+#numerosPaginacionProductos button:hover{
+    background:rgba(76,195,255,0.18);
+    color:#4cc3ff;
+}
+
+.puntos-paginacion{
+    color:#bfc0cf;
+    padding:0 6px;
+}

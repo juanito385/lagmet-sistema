@@ -1,0 +1,24 @@
+/* =========================
+   TABLAS GENERALES
+========================= */
+
+table{
+    width:100%;
+    border-collapse:collapse;
+}
+
+td,
+th{
+    padding:10px;
+    text-align:center;
+}
+
+tr{
+    border-bottom:1px solid rgba(255,255,255,0.08);
+}
+
+th{
+    font-size:15px;
+    font-weight:700;
+    color:#f2f2f2;
+}

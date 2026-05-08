@@ -1,0 +1,71 @@
+/* =========================
+   TABLA PRODUCTOS
+========================= */
+
+#tablaProductos{
+    width:100%;
+    min-width:1200px;
+    margin-top:15px;
+    border-radius:14px;
+    table-layout:auto;
+}
+
+#tablaProductos th{
+    background:rgba(255,255,255,0.15);
+    padding:14px 10px;
+}
+
+#tablaProductos td{
+    background:rgba(255,255,255,0.03);
+    padding:14px 10px;
+}
+
+#tablaProductos th,
+#tablaProductos td{
+    text-align:center;
+    vertical-align:middle;
+    white-space:nowrap;
+}
+
+#tablaProductos th:nth-child(6),
+#tablaProductos td:nth-child(6){
+    min-width:120px;
+}
+
+/* =========================
+   CONTENEDOR RESPONSIVE
+========================= */
+
+#productos .card{
+    overflow-x:auto;
+}
+
+/* =========================
+   TABLA RESPONSIVE PRODUCTOS
+========================= */
+
+@media(max-width:1200px){
+
+    #tablaProductos{
+        min-width:1100px;
+    }
+
+    #tablaProductos th,
+    #tablaProductos td{
+        font-size:13px;
+        padding:12px 8px;
+    }
+}
+
+@media(max-width:900px){
+
+    #tablaProductos{
+        min-width:1000px;
+    }
+
+    #tablaProductos th,
+    #tablaProductos td{
+        font-size:12px;
+        padding:10px 6px;
+    }
+}

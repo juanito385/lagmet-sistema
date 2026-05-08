@@ -1,0 +1,151 @@
+/* =========================
+   ESTADOS VISUALES MAQUINAS
+========================= */
+
+#tablaMaquinas{
+    border-collapse:separate !important;
+    border-spacing:0 !important;
+}
+
+/* =========================
+   ESTADOS LEGACY
+========================= */
+
+tr.si{
+    background:rgba(0,255,0,0.10);
+    border-left:4px solid #2e7d32;
+}
+
+tr.no{
+    background:rgba(255,0,0,0.08);
+    border-left:4px solid #c62828;
+}
+
+/* =========================
+   TABLAS ANTIGUAS
+========================= */
+
+#tablaOriente th,
+#tablaPoniente th,
+#tablaOriente td,
+#tablaPoniente td{
+    padding:14px 12px;
+}
+
+#tablaOriente th:nth-child(1),
+#tablaPoniente th:nth-child(1){
+    width:50%;
+    text-align:left;
+}
+
+#tablaPoniente td:nth-child(1),
+#tablaOriente td:nth-child(1){
+    text-align:left;
+}
+
+#tablaOriente th:nth-child(2),
+#tablaPoniente th:nth-child(2){
+    width:20%;
+}
+
+#tablaOriente th:nth-child(3),
+#tablaPoniente th:nth-child(3){
+    width:30%;
+}
+
+#tablaOriente select,
+#tablaPoniente select{
+    margin:4px;
+    padding:7px 8px;
+    border-radius:8px;
+    border:none;
+    outline:none;
+}
+
+/* =========================
+   FILAS ACTIVAS
+========================= */
+
+#tablaMaquinas tbody tr.maquina-activa td{
+    background:rgba(46,204,113,0.22) !important;
+    border-top:1px solid rgba(46,204,113,0.30);
+    border-bottom:1px solid rgba(46,204,113,0.30);
+}
+
+#tablaOriente tbody tr.maquina-activa,
+#tablaPoniente tbody tr.maquina-activa{
+    background:rgba(46,204,113,0.25) !important;
+    border-left:4px solid #2ecc71 !important;
+}
+
+/* =========================
+   FILAS INACTIVAS
+========================= */
+
+#tablaMaquinas tbody tr.maquina-inactiva td{
+    background:rgba(255,77,90,0.16) !important;
+    border-top:1px solid rgba(255,77,90,0.22);
+    border-bottom:1px solid rgba(255,77,90,0.22);
+}
+
+#tablaOriente tbody tr.maquina-inactiva,
+#tablaPoniente tbody tr.maquina-inactiva{
+    background:rgba(255,77,90,0.12) !important;
+    border-left:4px solid #ff4d5a !important;
+}
+
+/* =========================
+   BORDE IZQUIERDO
+========================= */
+
+#tablaMaquinas tbody tr.maquina-activa td:first-child{
+    border-left:5px solid #2ecc71 !important;
+}
+
+#tablaMaquinas tbody tr.maquina-inactiva td:first-child{
+    border-left:5px solid #ff4d5a !important;
+}
+
+/* =========================
+   BORDE DERECHO
+========================= */
+
+#tablaMaquinas tbody tr.maquina-activa td:last-child{
+    border-right:5px solid #2ecc71 !important;
+}
+
+#tablaMaquinas tbody tr.maquina-inactiva td:last-child{
+    border-right:5px solid #ff4d5a !important;
+}
+
+/* =========================
+   SELECTS ACTIVOS
+========================= */
+
+#tablaMaquinas tbody tr.maquina-activa select{
+    background:rgba(46,204,113,0.18) !important;
+    border:1px solid rgba(46,204,113,0.40) !important;
+    color:#ffffff !important;
+}
+
+/* =========================
+   SELECTS INACTIVOS
+========================= */
+
+#tablaMaquinas tbody tr.maquina-inactiva select{
+    background:rgba(255,77,90,0.14) !important;
+    border:1px solid rgba(255,77,90,0.35) !important;
+    color:#ffffff !important;
+}
+
+/* =========================
+   HOVER
+========================= */
+
+#tablaMaquinas tbody tr.maquina-activa:hover td{
+    background:rgba(46,204,113,0.28) !important;
+}
+
+#tablaMaquinas tbody tr.maquina-inactiva:hover td{
+    background:rgba(255,77,90,0.22) !important;
+}

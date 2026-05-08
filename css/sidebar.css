@@ -30,19 +30,24 @@
     flex-shrink:0;
 }
 
-/* LOGO SIDEBAR */
 .logo-sidebar{
     width:100%;
     display:flex;
     justify-content:center;
     align-items:center;
-    margin-top:-55px;
-    margin-bottom:-10px;
+    padding:25px 10px;
+    overflow:hidden;
 }
 
 .logo-sidebar img{
-    width:200px;
+    width:190px;
     height:auto;
+    object-fit:contain;
+    display:block;
+
+    filter:
+        drop-shadow(0 0 8px rgba(0,168,255,0.35))
+        drop-shadow(0 0 18px rgba(0,168,255,0.18));
 }
 
 /* MENU */
