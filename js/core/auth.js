@@ -14,7 +14,7 @@ async function login() {
     try {
         console.log("Enviando login...");
 
-        const response = await fetch("php/login.php", {
+        const response = await fetch("php/auth/login.php", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
@@ -26,7 +26,7 @@ async function login() {
         });
 
         const text = await response.text();
-        console.log("Respuesta login.php:", text);
+        console.log("Respuesta auth/login.php:", text);
 
         const data = JSON.parse(text);
 

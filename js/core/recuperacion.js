@@ -41,7 +41,7 @@ document.addEventListener("input", e=>{
 async function enviarCodigo(){
     const email = document.getElementById("emailRec").value;
 
-    const res = await fetch("php/enviar_codigo.php",{
+    const res = await fetch("php/auth/enviar_codigo.php",{
         method:"POST",
         headers:{"Content-Type":"application/x-www-form-urlencoded"},
         body:`email=${email}`
@@ -62,7 +62,7 @@ async function enviarCodigo(){
 async function verificarCodigo(){
     const codigo = document.getElementById("codigo").value;
 
-    const res = await fetch("php/verificar_codigo.php",{
+    const res = await fetch("php/auth/verificar_codigo.php",{
         method:"POST",
         headers:{"Content-Type":"application/x-www-form-urlencoded"},
         body:`email=${emailRecuperacion}&codigo=${codigo}`
@@ -82,7 +82,7 @@ async function verificarCodigo(){
 async function cambiarPasswordRecuperacion(){
     const pass = document.getElementById("nuevaPass").value;
 
-    const res = await fetch("php/recuperar_password_confirmar.php",{
+    const res = await fetch("php/auth/recuperar_password_confirmar.php",{
         method:"POST",
         headers:{"Content-Type":"application/x-www-form-urlencoded"},
         body:`email=${emailRecuperacion}&password=${pass}`
