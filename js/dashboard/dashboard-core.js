@@ -7,11 +7,15 @@ async function cargarDashboard() {
     await cargarDatosDashboard(periodoDashboardActual);
 }
 
-/* =========================
-   FECHA DASHBOARD
-========================= */
-function cargarFechaDashboard() {
+function obtenerFechaISOHoy() {
     const fecha = new Date();
+    return fecha.toISOString().split("T")[0];
+}
+
+function formatearFechaDashboard(fechaISO) {
+    if (!fechaISO) return "--";
+
+    const fecha = new Date(`${fechaISO}T00:00:00`);
 
     const opciones = {
         day: "2-digit",
@@ -19,16 +23,38 @@ function cargarFechaDashboard() {
         year: "numeric"
     };
 
-    const fechaTexto = fecha.toLocaleDateString("es-CL", opciones);
+    return fecha.toLocaleDateString("es-CL", opciones);
+}
+
+/* =========================
+   FECHA DASHBOARD
+========================= */
+function cargarFechaDashboard(fechaISO = null) {
+    const fechaFinal = fechaISO || obtenerFechaISOHoy();
+    const fechaTexto = formatearFechaDashboard(fechaFinal);
+
     actualizarTexto("fechaDashboard", fechaTexto);
+
+    const inputFecha = document.getElementById("fechaFiltroDashboard");
+
+    if (inputFecha && !inputFecha.value) {
+        inputFecha.value = fechaFinal;
+    }
 }
 
 /* =========================
    DATOS DESDE BD
 ========================= */
-async function cargarDatosDashboard(periodo = "hoy") {
+async function cargarDatosDashboard(periodo = "hoy", fecha = null) {
     try {
-        const response = await fetch(`php/dashboard/obtener_dashboard.php?periodo=${periodo}`);
+        const params = new URLSearchParams();
+        params.append("periodo", periodo);
+
+        if (periodo === "fecha" && fecha) {
+            params.append("fecha", fecha);
+        }
+
+        const response = await fetch(`php/dashboard/obtener_dashboard.php?${params.toString()}`);
         const data = await response.json();
 
         console.log("DASHBOARD DATA:", data);

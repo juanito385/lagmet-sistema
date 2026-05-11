@@ -14,10 +14,20 @@
             <button class="period-btn" data-periodo="semana">Semana</button>
             <button class="period-btn" data-periodo="mes">Mes</button>
 
-            <button class="dashboard-date fecha-compacta" id="btnFechaDashboard" type="button">
-    <span class="material-symbols-outlined">calendar_month</span>
-    <span id="fechaDashboard" class="fecha-texto">--</span>
-</button>
+            <div class="dashboard-date fecha-filtro-dashboard" id="btnFechaDashboard">
+                <button class="fecha-btn-dashboard" id="abrirFechaDashboard" type="button" title="Seleccionar fecha">
+                    <span class="material-symbols-outlined">calendar_month</span>
+                </button>
+
+                <span id="fechaDashboard" class="fecha-texto fecha-oculta">--</span>
+
+                <input 
+                    type="date" 
+                    id="fechaFiltroDashboard" 
+                    class="fecha-input-dashboard"
+                    aria-label="Filtrar dashboard por fecha"
+                >
+            </div>
         </div>
     </div>
 

@@ -104,23 +104,22 @@
 }
 
 /* =========================
-   FECHA DASHBOARD COMPACTA
+   FECHA DASHBOARD FILTRO
 ========================= */
 
-.dashboard-date.fecha-compacta {
-    width: 48px;
-    min-width: 48px;
-    height: 42px;
+@media(max-width:800px){
+    .fecha-filtro-dashboard{
+        min-width:220px;
+    }
+}
 
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0;
-
-    overflow: hidden;
-    cursor: pointer;
-
-    transition: 0.25s ease;
+@media(max-width:480px){
+    .fecha-filtro-dashboard{
+        grid-column:span 2;
+        width:100%;
+        min-width:100%;
+        justify-content:center;
+    }
 }
 
 .dashboard-date.fecha-compacta .material-symbols-outlined {
@@ -181,7 +180,7 @@
         min-width:0;
     }
 
-    .dashboard-date.fecha-compacta{
+    .fecha-filtro-dashboard{
         grid-column:span 2;
         width:100%;
         min-width:100%;

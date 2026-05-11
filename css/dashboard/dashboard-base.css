@@ -65,9 +65,83 @@
 }
 
 .dashboard-date{
-    padding:13px 18px;
+    padding:0;
     border-radius:12px;
     background:rgba(255,255,255,0.06);
     border:1px solid rgba(255,255,255,0.14);
-    font-weight:600;
+    font-weight:700;
+    color:#fff;
+}
+
+/* =========================
+   FILTRO FECHA DASHBOARD
+========================= */
+
+.fecha-filtro-dashboard{
+    min-width:48px;
+    height:48px;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:10px;
+
+    overflow:hidden;
+    transition:all 0.25s ease;
+}
+
+.fecha-btn-dashboard{
+    width:48px;
+    height:48px;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    border:none;
+    background:transparent;
+    color:#dce7ff;
+
+    cursor:pointer;
+    border-radius:12px;
+    transition:all 0.25s ease;
+}
+
+.fecha-btn-dashboard .material-symbols-outlined{
+    font-size:24px;
+    color:#dce7ff;
+}
+
+.fecha-btn-dashboard:hover{
+    background:rgba(139,92,246,0.18);
+}
+
+.fecha-filtro-dashboard .fecha-texto{
+    color:#fff;
+    font-size:15px;
+    font-weight:700;
+    white-space:nowrap;
+    padding-right:16px;
+}
+
+.fecha-filtro-dashboard.active{
+    min-width:280px;
+    justify-content:flex-start;
+
+    background:linear-gradient(135deg,#2563eb,#1d4ed8);
+    border-color:rgba(147,197,253,0.85);
+    box-shadow:0 0 20px rgba(37,99,235,0.35);
+}
+
+.fecha-filtro-dashboard:not(.active) .fecha-texto,
+.fecha-filtro-dashboard .fecha-texto.fecha-oculta{
+    display:none;
+}
+
+.fecha-input-dashboard{
+    position:absolute;
+    opacity:0;
+    pointer-events:none;
+    width:0;
+    height:0;
 }

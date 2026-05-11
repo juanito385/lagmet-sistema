@@ -61,24 +61,63 @@ function inicializarFiltrosDashboard() {
             periodoDashboardActual = periodo;
 
             botones.forEach(b => b.classList.remove("active"));
-            btn.classList.add("active");
+                btn.classList.add("active");
 
-            await cargarDatosDashboard(periodoDashboardActual);
+                const btnFecha = document.getElementById("btnFechaDashboard");
+                const inputFecha = document.getElementById("fechaFiltroDashboard");
+                const textoFecha = document.getElementById("fechaDashboard");
+
+                if (btnFecha) btnFecha.classList.remove("active");
+                if (inputFecha) inputFecha.value = "";
+
+                if (textoFecha) {
+                    textoFecha.textContent = "--";
+                    textoFecha.classList.add("fecha-oculta");
+                }
+
+                await cargarDatosDashboard(periodoDashboardActual);
         });
     });
 }
 
-document.addEventListener("click", function(e) {
-    const btnFecha = document.getElementById("btnFechaDashboard");
+function inicializarCalendarioDashboard() {
+    const inputFecha = document.getElementById("fechaFiltroDashboard");
+    const contenedorFecha = document.getElementById("btnFechaDashboard");
+    const btnAbrirFecha = document.getElementById("abrirFechaDashboard");
+    const textoFecha = document.getElementById("fechaDashboard");
+    const botonesPeriodo = document.querySelectorAll(".period-btn");
 
-    if (!btnFecha) return;
+    if (!inputFecha || !contenedorFecha || !btnAbrirFecha || !textoFecha) return;
 
-    if (btnFecha.contains(e.target)) {
-        btnFecha.classList.toggle("activa");
-    } else {
-        btnFecha.classList.remove("activa");
-    }
-});
+    if (inputFecha.dataset.inicializado === "true") return;
+
+    inputFecha.dataset.inicializado = "true";
+
+    btnAbrirFecha.addEventListener("click", () => {
+        if (typeof inputFecha.showPicker === "function") {
+            inputFecha.showPicker();
+        } else {
+            inputFecha.click();
+        }
+    });
+
+    inputFecha.addEventListener("change", async () => {
+        const fechaSeleccionada = inputFecha.value;
+
+        if (!fechaSeleccionada) return;
+
+        periodoDashboardActual = "fecha";
+
+        botonesPeriodo.forEach(btn => btn.classList.remove("active"));
+
+        contenedorFecha.classList.add("active");
+        textoFecha.classList.remove("fecha-oculta");
+
+        cargarFechaDashboard(fechaSeleccionada);
+
+        await cargarDatosDashboard("fecha", fechaSeleccionada);
+    });
+}
 
 /* =========================
    FUNCIONES GLOBALES DASHBOARD
@@ -87,3 +126,4 @@ window.toggleDropdownTurno = toggleDropdownTurno;
 window.seleccionarFiltroTurno = seleccionarFiltroTurno;
 window.cargarDashboard = cargarDashboard;
 window.inicializarFiltrosDashboard = inicializarFiltrosDashboard;
+window.inicializarCalendarioDashboard = inicializarCalendarioDashboard;

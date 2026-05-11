@@ -41,13 +41,17 @@ async function showSection(seccion) {
 
         if (seccion === "dashboard") {
 
-            if (typeof inicializarFiltrosDashboard === "function") {
+        if (typeof inicializarFiltrosDashboard === "function") {
                 inicializarFiltrosDashboard();
-            }
+        }
 
-            if (typeof cargarDashboard === "function") {
+        if (typeof inicializarCalendarioDashboard === "function") {
+                inicializarCalendarioDashboard();
+        }
+
+        if (typeof cargarDashboard === "function") {
                 await cargarDashboard();
-            }
+        }
 
         }
 

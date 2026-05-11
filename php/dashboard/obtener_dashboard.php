@@ -7,8 +7,19 @@ $ayer = date("Y-m-d", strtotime("-1 day"));
 $inicioMes = date("Y-m-01");
 
 $periodo = $_GET["periodo"] ?? "hoy";
+$fechaFiltro = $_GET["fecha"] ?? "";
+
+$fechaConsulta = $hoy;
+
+if ($periodo === "fecha" && preg_match('/^\d{4}-\d{2}-\d{2}$/', $fechaFiltro)) {
+    $fechaConsulta = $fechaFiltro;
+}
 
 $wherePeriodo = "fecha = '$hoy'";
+
+if ($periodo === "ayer") {
+    $wherePeriodo = "fecha = '$ayer'";
+}
 
 if ($periodo === "semana") {
     $wherePeriodo = "fecha >= DATE_SUB(CURDATE(), INTERVAL 6 DAY)";
@@ -16,6 +27,10 @@ if ($periodo === "semana") {
 
 if ($periodo === "mes") {
     $wherePeriodo = "fecha >= '$inicioMes'";
+}
+
+if ($periodo === "fecha") {
+    $wherePeriodo = "fecha = '$fechaConsulta'";
 }
 
 $response = [
@@ -158,7 +173,7 @@ $sql = "SELECT
         FROM produccion_maquinas pm
         INNER JOIN produccion p ON pm.produccion_id = p.id
         WHERE pm.uso = 'si'
-        AND p.fecha = '$hoy'";
+        AND p.$wherePeriodo";
 $res = $conn->query($sql);
 
 $horasTrabajadas = 0;
