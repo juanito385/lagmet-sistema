@@ -44,15 +44,125 @@ function formatearMinutos($minutos) {
     return $horas . "h " . str_pad($mins, 2, "0", STR_PAD_LEFT) . "m";
 }
 
-/* TOTAL PRODUCTOS */
+/* TOTAL PRODUCTOS GENERAL */
 $sql = "SELECT COUNT(*) AS total FROM produccion";
 $res = $conn->query($sql);
-$totalProductos = ($res && $row = $res->fetch_assoc()) ? intval($row["total"]) : 0;
+$totalProductosGeneral = ($res && $row = $res->fetch_assoc()) ? intval($row["total"]) : 0;
 
-/* PRODUCTOS EN PROCESO */
+/* TOTAL PRODUCTOS SEGÚN FILTRO */
+$totalProductos = $totalProductosGeneral;
+$totalProductosTexto = "Registrados en el sistema";
+$totalProductosDetalle = "Total general: " . $totalProductosGeneral;
+
+if ($periodo === "ayer") {
+    $sql = "SELECT COUNT(*) AS total FROM produccion WHERE $wherePeriodo";
+    $res = $conn->query($sql);
+    $totalProductos = ($res && $row = $res->fetch_assoc()) ? intval($row["total"]) : 0;
+
+    $totalProductosTexto = "Registrados ayer";
+    $totalProductosDetalle = "Total general: " . $totalProductosGeneral;
+}
+
+if ($periodo === "semana") {
+    $sql = "SELECT COUNT(*) AS total FROM produccion WHERE $wherePeriodo";
+    $res = $conn->query($sql);
+    $totalProductos = ($res && $row = $res->fetch_assoc()) ? intval($row["total"]) : 0;
+
+    $totalProductosTexto = "Registrados esta semana";
+    $totalProductosDetalle = "Total general: " . $totalProductosGeneral;
+}
+
+if ($periodo === "mes") {
+    $sql = "SELECT COUNT(*) AS total FROM produccion WHERE $wherePeriodo";
+    $res = $conn->query($sql);
+    $totalProductos = ($res && $row = $res->fetch_assoc()) ? intval($row["total"]) : 0;
+
+    $totalProductosTexto = "Registrados este mes";
+    $totalProductosDetalle = "Total general: " . $totalProductosGeneral;
+}
+
+if ($periodo === "fecha") {
+    $sql = "SELECT COUNT(*) AS total FROM produccion WHERE $wherePeriodo";
+    $res = $conn->query($sql);
+    $totalProductos = ($res && $row = $res->fetch_assoc()) ? intval($row["total"]) : 0;
+
+    $totalProductosTexto = "Registrados en la fecha seleccionada";
+    $totalProductosDetalle = "Total general: " . $totalProductosGeneral;
+}
+
+/* =========================
+   PRODUCTOS EN PROCESO
+   En proceso = fecha_fin no vencida
+========================= */
+
+$fechaReferencia = $hoy;
+
+if ($periodo === "ayer") {
+    $fechaReferencia = $ayer;
+}
+
+if ($periodo === "fecha") {
+    $fechaReferencia = $fechaConsulta;
+}
+
+$productosProcesoTexto = "Producción activa actualmente";
+$productosProcesoDetalle = "Según fecha estimada de término";
+
+/* Hoy: activos actualmente, sin limitar por fecha de ingreso */
 $sql = "SELECT COUNT(*) AS total 
-        FROM produccion 
-        WHERE fecha_fin IS NULL OR fecha_fin = ''";
+        FROM produccion
+        WHERE fecha_fin IS NOT NULL
+        AND fecha_fin != ''
+        AND fecha_fin >= '$fechaReferencia'";
+
+if ($periodo === "ayer") {
+    $productosProcesoTexto = "En proceso según ayer";
+    $productosProcesoDetalle = "Con fecha de término igual o posterior a ayer";
+
+    $sql = "SELECT COUNT(*) AS total 
+            FROM produccion
+            WHERE $wherePeriodo
+            AND fecha_fin IS NOT NULL
+            AND fecha_fin != ''
+            AND fecha_fin >= '$fechaReferencia'";
+}
+
+if ($periodo === "semana") {
+    $productosProcesoTexto = "En proceso esta semana";
+    $productosProcesoDetalle = "Registrados esta semana y aún vigentes";
+
+    $sql = "SELECT COUNT(*) AS total 
+            FROM produccion
+            WHERE $wherePeriodo
+            AND fecha_fin IS NOT NULL
+            AND fecha_fin != ''
+            AND fecha_fin >= CURDATE()";
+}
+
+if ($periodo === "mes") {
+    $productosProcesoTexto = "En proceso este mes";
+    $productosProcesoDetalle = "Registrados este mes y aún vigentes";
+
+    $sql = "SELECT COUNT(*) AS total 
+            FROM produccion
+            WHERE $wherePeriodo
+            AND fecha_fin IS NOT NULL
+            AND fecha_fin != ''
+            AND fecha_fin >= CURDATE()";
+}
+
+if ($periodo === "fecha") {
+    $productosProcesoTexto = "En proceso para la fecha seleccionada";
+    $productosProcesoDetalle = "Con fecha de término igual o posterior a " . date("d/m/Y", strtotime($fechaConsulta));
+
+    $sql = "SELECT COUNT(*) AS total 
+            FROM produccion
+            WHERE fecha <= '$fechaConsulta'
+            AND fecha_fin IS NOT NULL
+            AND fecha_fin != ''
+            AND fecha_fin >= '$fechaConsulta'";
+}
+
 $res = $conn->query($sql);
 $productosProceso = ($res && $row = $res->fetch_assoc()) ? intval($row["total"]) : 0;
 
@@ -206,6 +316,60 @@ if ($res && $row = $res->fetch_assoc()) {
     $maquinasDetenidas = intval($row["detenidas"] ?? 0);
 }
 
+$porcentajeOperativas = $totalMaquinas > 0 
+    ? round(($maquinasOperativas / $totalMaquinas) * 100) 
+    : 0;
+
+$porcentajeDetenidas = $totalMaquinas > 0 
+    ? round(($maquinasDetenidas / $totalMaquinas) * 100) 
+    : 0;
+
+/* LISTA MÁQUINAS OPERATIVAS */
+$sql = "SELECT 
+            id,
+            numero_maquina,
+            nombre_maquina,
+            zona,
+            estado,
+            observacion,
+            fecha_actualizacion
+        FROM maquinas
+        WHERE estado = 'Si'
+        ORDER BY zona ASC, numero_maquina ASC";
+
+$res = $conn->query($sql);
+
+$listaMaquinasOperativas = [];
+
+if ($res) {
+    while ($row = $res->fetch_assoc()) {
+        $listaMaquinasOperativas[] = $row;
+    }
+}
+
+/* LISTA MÁQUINAS DETENIDAS */
+$sql = "SELECT 
+            id,
+            numero_maquina,
+            nombre_maquina,
+            zona,
+            estado,
+            observacion,
+            fecha_actualizacion
+        FROM maquinas
+        WHERE estado = 'No'
+        ORDER BY zona ASC, numero_maquina ASC";
+
+$res = $conn->query($sql);
+
+$listaMaquinasDetenidas = [];
+
+if ($res) {
+    while ($row = $res->fetch_assoc()) {
+        $listaMaquinasDetenidas[] = $row;
+    }
+}
+
 /* TIEMPO DETENIDAS */
 $sql = "SELECT 
             SUM(TIMESTAMPDIFF(MINUTE, fecha_actualizacion, NOW())) AS total_minutos
@@ -293,9 +457,20 @@ $eficiencia = $metaDiaria > 0 ? round(($produccionHoy / $metaDiaria) * 100) : 0;
 /* RESPUESTA FINAL */
 $response["cards"] = [
     "total_productos" => $totalProductos,
+    "total_productos_general" => $totalProductosGeneral,
+    "total_productos_texto" => $totalProductosTexto,
+    "total_productos_detalle" => $totalProductosDetalle,
+
     "productos_proceso" => $productosProceso,
+    "productos_proceso_texto" => $productosProcesoTexto,
+    "productos_proceso_detalle" => $productosProcesoDetalle,
+
     "maquinas_operativas" => $maquinasOperativas,
     "maquinas_detenidas" => $maquinasDetenidas,
+    "porcentaje_operativas" => $porcentajeOperativas,
+    "porcentaje_detenidas" => $porcentajeDetenidas,
+    "lista_maquinas_operativas" => $listaMaquinasOperativas,
+    "lista_maquinas_detenidas" => $listaMaquinasDetenidas,
     "horas_trabajadas" => $horasTrabajadas . "h " . str_pad($minutosTrabajados, 2, "0", STR_PAD_LEFT) . "m",
     "eficiencia" => $eficiencia,
     "total_mes" => $totalMes

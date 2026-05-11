@@ -34,44 +34,79 @@
     <div class="dashboard-cards dashboard-cards-pro">
 
         <div class="dash-card card-purple">
-            <div class="dash-icon purple">📦</div>
-            <div>
-                <h3>Total de productos</h3>
-                <strong id="dashTotalProductos">0</strong>
-                <p class="green-text">Registrados en el sistema</p>
-                <small>+12 este mes</small>
-            </div>
+    <div class="dash-icon purple">📦</div>
+        <div>
+            <h3>Total de productos</h3>
+            <strong id="dashTotalProductos">0</strong>
+            <p id="dashTotalProductosTexto" class="green-text">Registrados en el sistema</p>
+            <small id="dashTotalProductosDetalle">Este mes: 0</small>
         </div>
+    </div>
 
         <div class="dash-card card-yellow">
             <div class="dash-icon yellow">⏱️</div>
             <div>
                 <h3>Productos en proceso</h3>
                 <strong id="dashProductosProceso">0</strong>
-                <p class="yellow-text">Producción actual</p>
-                <small>+8 vs ayer ↗</small>
+                <p id="dashProductosProcesoTexto" class="yellow-text">Producción activa actualmente</p>
+                <small id="dashProductosProcesoDetalle">Según fecha estimada de término</small>
             </div>
         </div>
 
-        <div class="dash-card card-green">
-            <div class="dash-icon green">✅</div>
-            <div>
-                <h3>Máquinas operativas</h3>
-                <strong id="dashMaquinasOperativas">0</strong>
-                <p class="green-text">Funcionando correctamente</p>
-                <small>75% del total</small>
-            </div>
+        <div class="dash-card card-green card-maquinas" id="cardMaquinasOperativas">
+    <div class="dash-icon green">✅</div>
+
+    <div>
+        <h3>Máquinas operativas</h3>
+        <strong id="dashMaquinasOperativas">0</strong>
+        <p class="green-text">Funcionando correctamente</p>
+        <small id="dashMaquinasOperativasDetalle">0% del total</small>
+    </div>
+
+    <button class="card-action-btn green-action" type="button" onclick="toggleMaquinasDropdown('operativas')">
+        Ver máquinas
+        <span class="material-symbols-outlined">expand_more</span>
+    </button>
+
+    <div class="maquinas-dropdown-card" id="dropdownMaquinasOperativas">
+        <div class="maquinas-dropdown-header">
+            <h4>Máquinas operativas <span id="tituloMaquinasOperativas">(0)</span></h4>
+            <span class="status-dot-card green-dot-card"></span>
         </div>
 
-        <div class="dash-card card-red">
-            <div class="dash-icon red">❌</div>
-            <div>
-                <h3>Máquinas detenidas</h3>
-                <strong id="dashMaquinasDetenidas">0</strong>
-                <p class="red-text">Requieren revisión</p>
-                <small>+2 vs ayer</small>
+        <div class="maquinas-dropdown-list" id="listaMaquinasOperativas">
+            <p class="maquinas-empty">Sin máquinas operativas</p>
+        </div>
+    </div>
+    </div>
+
+    <div class="dash-card card-red card-maquinas" id="cardMaquinasDetenidas">
+        <div class="dash-icon red">❌</div>
+
+        <div>
+            <h3>Máquinas detenidas</h3>
+            <strong id="dashMaquinasDetenidas">0</strong>
+            <p class="red-text">Requieren revisión</p>
+            <small id="dashMaquinasDetenidasDetalle">0% del total</small>
+        </div>
+
+        <button class="card-action-btn red-action" type="button" onclick="toggleMaquinasDropdown('detenidas')">
+            Ver máquinas
+            <span class="material-symbols-outlined">expand_more</span>
+        </button>
+
+        <div class="maquinas-dropdown-card" id="dropdownMaquinasDetenidas">
+            <div class="maquinas-dropdown-header">
+                <h4>Máquinas detenidas <span id="tituloMaquinasDetenidas">(0)</span></h4>
+                <span class="status-dot-card red-dot-card"></span>
+            </div>
+
+            <div class="maquinas-dropdown-list" id="listaMaquinasDetenidas">
+                <p class="maquinas-empty">Sin máquinas detenidas</p>
             </div>
         </div>
+    </div>
+
 
         <div class="dash-card card-blue">
             <div class="dash-icon blue">🕒</div>

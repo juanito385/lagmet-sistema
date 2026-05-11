@@ -8,6 +8,9 @@
     grid-template-columns:repeat(6,1fr);
     gap:14px;
     margin-bottom:22px;
+    position:relative;
+    z-index:30;
+    overflow:visible;
 }
 
 .dash-card{
@@ -105,3 +108,216 @@
 .red-text{color:#fb7185;}
 .blue-text{color:#93c5fd;}
 .cyan-text{color:#67e8f9;}
+
+/* =========================
+   CARDS MÁQUINAS / DROPDOWN
+========================= */
+
+.card-maquinas{
+    overflow:visible;
+    z-index:31;
+    padding-bottom:54px;
+}
+
+.card-maquinas.active{
+    z-index:100;
+}
+
+
+.card-action-btn{
+    position:absolute;
+    left:50%;
+    bottom:14px;
+    transform:translateX(-50%);
+
+    min-width:132px;
+    height:34px;
+    padding:0 14px;
+
+    border-radius:11px;
+    border:1px solid rgba(255,255,255,0.14);
+    background:rgba(255,255,255,0.07);
+    color:#eef3ff;
+
+    font-size:12px;
+    font-weight:800;
+    cursor:pointer;
+    white-space:nowrap;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:5px;
+
+    transition:0.25s ease;
+    z-index:5;
+}
+
+.card-action-btn .material-symbols-outlined{
+    font-size:16px;
+}
+
+.card-action-btn:hover{
+    transform:translateX(-50%) translateY(-1px);
+}
+
+.card-action-btn .material-symbols-outlined{
+    font-size:16px;
+}
+
+.card-action-btn:hover{
+    transform:translateX(-50%) translateY(-1px);
+}
+.green-action{
+    border-color:rgba(34,197,94,0.35);
+}
+
+.green-action:hover{
+    background:rgba(34,197,94,0.16);
+    box-shadow:0 0 14px rgba(34,197,94,0.20);
+}
+
+.red-action{
+    border-color:rgba(239,68,68,0.35);
+}
+
+.red-action:hover{
+    background:rgba(239,68,68,0.16);
+    box-shadow:0 0 14px rgba(239,68,68,0.20);
+}
+
+.maquinas-dropdown-card{
+    position:absolute;
+    top:calc(100% + 14px);
+    left:50%;
+    transform:translateX(-50%) translateY(-8px);
+
+    width:430px;
+    max-height:360px;
+    padding:16px;
+
+    border-radius:16px;
+    background:rgba(15,23,42,0.98);
+    border:1px solid rgba(255,255,255,0.14);
+    box-shadow:0 28px 60px rgba(0,0,0,0.55);
+    backdrop-filter:blur(16px);
+
+    opacity:0;
+    visibility:hidden;
+    pointer-events:none;
+
+    z-index:200;
+    transition:0.25s ease;
+}
+
+.card-maquinas.active .maquinas-dropdown-card{
+    opacity:1;
+    visibility:visible;
+    pointer-events:auto;
+    transform:translateX(-50%) translateY(0);
+}
+
+.maquinas-dropdown-card::before{
+    content:"";
+    position:absolute;
+    top:-8px;
+    left:50%;
+    transform:translateX(-50%) rotate(45deg);
+
+    width:16px;
+    height:16px;
+    background:rgba(15,23,42,0.96);
+    border-left:1px solid rgba(255,255,255,0.12);
+    border-top:1px solid rgba(255,255,255,0.12);
+}
+
+.maquinas-dropdown-header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    margin-bottom:12px;
+}
+
+.maquinas-dropdown-header h4{
+    margin:0;
+    font-size:15px;
+    color:#fff;
+}
+
+.status-dot-card{
+    width:8px;
+    height:8px;
+    border-radius:50%;
+}
+
+.green-dot-card{
+    background:#22c55e;
+    box-shadow:0 0 12px rgba(34,197,94,0.8);
+}
+
+.red-dot-card{
+    background:#ef4444;
+    box-shadow:0 0 12px rgba(239,68,68,0.8);
+}
+
+.maquinas-dropdown-list{
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+    max-height:270px;
+    overflow-y:auto;
+    padding-right:4px;
+}
+
+.maquina-row-card{
+    display:grid;
+    grid-template-columns:1.4fr 0.8fr 0.9fr;
+    align-items:center;
+    gap:10px;
+
+    padding:10px 12px;
+    border-radius:12px;
+    background:rgba(255,255,255,0.045);
+    border:1px solid rgba(255,255,255,0.075);
+}
+
+.maquina-row-card strong{
+    font-size:13px;
+    color:#fff;
+    line-height:1.2;
+}
+
+.maquina-row-card span{
+    font-size:12px;
+    color:#aebbd0;
+}
+
+.estado-maquina-card{
+    justify-self:end;
+    font-size:12px;
+    font-weight:800;
+}
+
+.estado-operativa{
+    color:#4ade80 !important;
+}
+
+.estado-detenida{
+    color:#fb7185 !important;
+}
+
+.maquinas-empty{
+    margin:0;
+    padding:12px;
+    color:#aebbd0;
+    font-size:13px;
+    text-align:center;
+}
+
+.card-maquinas small{
+    margin-top:6px;
+    font-size:11.5px;
+    line-height:1.2;
+    max-width:120px;
+}
