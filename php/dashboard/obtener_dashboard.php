@@ -297,6 +297,29 @@ if ($res && $row = $res->fetch_assoc()) {
     $minutosTrabajados = $minutosTrabajados % 60;
 }
 
+$horasTrabajadasTexto = "Tiempo trabajado hoy";
+$horasTrabajadasDetalle = "Según máquinas utilizadas";
+
+if ($periodo === "ayer") {
+    $horasTrabajadasTexto = "Tiempo trabajado ayer";
+    $horasTrabajadasDetalle = "Según registros de ayer";
+}
+
+if ($periodo === "semana") {
+    $horasTrabajadasTexto = "Tiempo trabajado esta semana";
+    $horasTrabajadasDetalle = "Acumulado últimos 7 días";
+}
+
+if ($periodo === "mes") {
+    $horasTrabajadasTexto = "Tiempo trabajado este mes";
+    $horasTrabajadasDetalle = "Acumulado mensual";
+}
+
+if ($periodo === "fecha") {
+    $horasTrabajadasTexto = "Tiempo trabajado en la fecha seleccionada";
+    $horasTrabajadasDetalle = "Fecha: " . date("d/m/Y", strtotime($fechaConsulta));
+}
+
 /* MÁQUINAS DESDE BD */
 $sql = "SELECT 
             COUNT(*) AS total,
@@ -449,10 +472,53 @@ if ($res) {
         $ultimos[] = $row;
     }
 }
+/* =========================
+   EFICIENCIA GENERAL
+   Producción del período / meta del período
+========================= */
 
-/* EFICIENCIA */
 $metaDiaria = 100;
-$eficiencia = $metaDiaria > 0 ? round(($produccionHoy / $metaDiaria) * 100) : 0;
+
+/* Producción según filtro activo */
+$sql = "SELECT SUM(cantidad) AS total 
+        FROM produccion 
+        WHERE $wherePeriodo";
+
+$res = $conn->query($sql);
+$produccionPeriodo = ($res && $row = $res->fetch_assoc()) ? intval($row["total"] ?? 0) : 0;
+
+/* Meta según período */
+$metaPeriodo = $metaDiaria;
+$eficienciaTexto = "Producción vs meta diaria";
+$eficienciaDetalle = "Meta diaria: " . $metaDiaria . " piezas";
+
+if ($periodo === "ayer") {
+    $metaPeriodo = $metaDiaria;
+    $eficienciaTexto = "Producción vs meta de ayer";
+    $eficienciaDetalle = "Meta diaria: " . $metaPeriodo . " piezas";
+}
+
+if ($periodo === "semana") {
+    $metaPeriodo = $metaDiaria * 7;
+    $eficienciaTexto = "Producción vs meta semanal";
+    $eficienciaDetalle = "Meta semanal: " . $metaPeriodo . " piezas";
+}
+
+if ($periodo === "mes") {
+    $diasMesTranscurridos = intval(date("j"));
+    $metaPeriodo = $metaDiaria * $diasMesTranscurridos;
+
+    $eficienciaTexto = "Producción vs meta mensual";
+    $eficienciaDetalle = "Meta acumulada: " . $metaPeriodo . " piezas";
+}
+
+if ($periodo === "fecha") {
+    $metaPeriodo = $metaDiaria;
+    $eficienciaTexto = "Producción vs meta de la fecha";
+    $eficienciaDetalle = "Meta diaria: " . $metaPeriodo . " piezas";
+}
+
+$eficiencia = $metaPeriodo > 0 ? round(($produccionPeriodo / $metaPeriodo) * 100) : 0;
 
 /* RESPUESTA FINAL */
 $response["cards"] = [
@@ -472,9 +538,17 @@ $response["cards"] = [
     "lista_maquinas_operativas" => $listaMaquinasOperativas,
     "lista_maquinas_detenidas" => $listaMaquinasDetenidas,
     "horas_trabajadas" => $horasTrabajadas . "h " . str_pad($minutosTrabajados, 2, "0", STR_PAD_LEFT) . "m",
+    "horas_trabajadas_texto" => $horasTrabajadasTexto,
+    "horas_trabajadas_detalle" => $horasTrabajadasDetalle,
+
     "eficiencia" => $eficiencia,
+    "eficiencia_texto" => $eficienciaTexto,
+    "eficiencia_detalle" => $eficienciaDetalle,
+    "produccion_periodo" => $produccionPeriodo,
+    "meta_periodo" => $metaPeriodo,
+
     "total_mes" => $totalMes
-];
+    ];
 
 $response["turnos"] = [
     "manana" => $turnos["Mañana"],

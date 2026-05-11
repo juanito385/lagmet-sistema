@@ -24,7 +24,12 @@ function cargarCards(cards) {
     );
 
     actualizarTexto("dashHorasTrabajadas", cards.horas_trabajadas ?? "0h 00m");
+    actualizarTexto("dashHorasTrabajadasTexto", cards.horas_trabajadas_texto ?? "Tiempo trabajado hoy");
+    actualizarTexto("dashHorasTrabajadasDetalle", cards.horas_trabajadas_detalle ?? "Según máquinas utilizadas");
+
     actualizarTexto("dashEficiencia", `${cards.eficiencia ?? 0}%`);
+    actualizarTexto("dashEficienciaTexto", cards.eficiencia_texto ?? "Producción vs meta diaria");
+    actualizarTexto("dashEficienciaDetalle", cards.eficiencia_detalle ?? "Meta diaria: 100 piezas");
 
     renderListaMaquinasDashboard("operativas", cards.lista_maquinas_operativas ?? []);
     renderListaMaquinasDashboard("detenidas", cards.lista_maquinas_detenidas ?? []);
