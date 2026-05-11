@@ -47,6 +47,8 @@
 
 <link rel="stylesheet" href="css/estados.css">
 
+<link rel="stylesheet" href="css/perfil.css">
+
 
 <link rel="stylesheet" href="css/responsive.css">
 
@@ -113,21 +115,36 @@ href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" />
 
 <div class="sidebar">
 
+    <button class="sidebar-toggle" onclick="toggleSidebar()">
+        <span class="material-symbols-outlined">menu</span>
+    </button>
+
     <div class="sidebar-top">
             <div class="logo-sidebar">
             <img src="img/branding/logo-ironix (2).png" alt="Logo IRONIX">
         </div>
 
         <div class="menu">
-            <button onclick="showSection('dashboard')">📊 Dashboard</button>
-            <button onclick="showSection('monitoreo')">🏭 Monitoreo</button>
-            <button onclick="showSection('productos')">📦 Productos</button>
-            <button onclick="showSection('documentacion')">📄 Documentación</button>
+            <button onclick="showSection('dashboard')">
+                <span class="material-symbols-outlined">bar_chart</span>
+                Dashboard</button>
+            <button onclick="showSection('monitoreo')">
+                <span class="material-symbols-outlined">monitor_heart</span>
+                Monitoreo</button>
+            <button onclick="showSection('productos')">
+                <span class="material-symbols-outlined">inventory_2</span>
+                Productos</button>
+            <button onclick="showSection('documentacion')">
+                <span class="material-symbols-outlined">description</span>
+                Documentación</button>
             <button onclick="showSection('flujo-proceso')">
                 <span class="material-symbols-outlined">share</span>
                     Flujo Proceso
             </button>
-            <button onclick="showSection('estados')">Estados</button>
+            <button onclick="showSection('estados')">
+                <span class="material-symbols-outlined">assignment_turned_in</span>
+                Estados
+            </button>
         </div>
     </div>
 
@@ -233,6 +250,12 @@ href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" />
 
 <script src="js/core/main.js"></script>
 <script src="js/core/configuracion.js"></script>
+
+<script>
+function toggleSidebar() {
+    document.querySelector(".sidebar").classList.toggle("collapsed");
+}
+</script>
 
 </body>
 </html>
