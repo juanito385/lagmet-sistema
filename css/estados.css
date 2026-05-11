@@ -1,0 +1,483 @@
+/* =========================
+   ESTADOS
+   CSS encapsulado para NO afectar Dashboard
+========================= */
+
+.estados-section {
+    padding: 14px;
+    color: #fff;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.estados-section .estados-header,
+.estados-section .estados-panel,
+.estados-section .estado-detalle,
+.estados-section .estado-historial,
+.estados-section .estado-acciones {
+    background: rgba(255,255,255,0.055);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 12px;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.22);
+}
+
+/* HEADER */
+.estados-section .estados-header {
+    padding: 22px 26px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 14px;
+}
+
+.estados-section .estados-title-box {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.estados-section .estados-icon .material-symbols-outlined {
+    font-size: 44px;
+    color: #3d8cff;
+    font-variation-settings:
+    'FILL' 0,
+    'wght' 300,
+    'GRAD' 0,
+    'opsz' 48;
+}
+
+.estados-section .estados-title-box h2 {
+    margin: 0;
+    font-size: 34px;
+    font-weight: 900;
+    color: #fff;
+}
+
+.estados-section .estados-title-box p {
+    margin: 4px 0 0;
+    color: #cfd6e6;
+    font-size: 15px;
+}
+
+.estados-section .btn-nuevo-estado {
+    background: linear-gradient(135deg, #0b5bd3, #0f6cf0);
+    border: 1px solid #2f83ff;
+    color: #fff;
+    border-radius: 6px;
+    padding: 13px 24px;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+/* CARDS */
+.estados-section .estados-cards {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 12px;
+    margin-bottom: 14px;
+}
+
+.estados-section .estado-card {
+    min-height: 95px;
+    background: rgba(255,255,255,0.055);
+    border: 1px solid rgba(255,255,255,0.10);
+    border-radius: 10px;
+    padding: 18px 22px;
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    position: relative;
+    overflow: hidden;
+}
+
+.estados-section .estado-card::after {
+    content: "";
+    position: absolute;
+    left: 18px;
+    right: 18px;
+    bottom: 10px;
+    height: 3px;
+    border-radius: 20px;
+}
+
+.estados-section .estado-card-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.estados-section .estado-card-icon .material-symbols-outlined {
+    font-size: 32px;
+    color: #fff;
+}
+
+.estados-section .estado-card h3 {
+    margin: 0;
+    font-size: 30px;
+    color: #fff;
+}
+
+.estados-section .estado-card p {
+    margin: 3px 0 0;
+    color: #fff;
+    font-size: 14px;
+}
+
+.estados-section .estado-pendiente .estado-card-icon { background: rgba(45,123,232,0.28); }
+.estados-section .estado-pendiente::after { background: #2d7be8; }
+
+.estados-section .estado-proceso .estado-card-icon { background: rgba(255,199,0,0.28); }
+.estados-section .estado-proceso::after { background: #ffc400; }
+
+.estados-section .estado-pausado .estado-card-icon { background: rgba(255,128,0,0.28); }
+.estados-section .estado-pausado::after { background: #ff8000; }
+
+.estados-section .estado-terminado .estado-card-icon { background: rgba(80,210,95,0.25); }
+.estados-section .estado-terminado::after { background: #4fd25f; }
+
+.estados-section .estado-entregado .estado-card-icon { background: rgba(165,80,255,0.24); }
+.estados-section .estado-entregado::after { background: #9b4dff; }
+
+.estados-section .estado-atrasado .estado-card-icon { background: rgba(255,70,55,0.25); }
+.estados-section .estado-atrasado::after { background: #ff4b3e; }
+
+/* PANEL */
+.estados-section .estados-panel {
+    overflow: hidden;
+    margin-bottom: 14px;
+}
+
+.estados-section .estados-filtros {
+    padding: 20px 22px;
+    display: grid;
+    grid-template-columns: 1.4fr 1.1fr 1.1fr 1fr 1fr auto;
+    gap: 18px;
+    align-items: end;
+}
+
+.estados-section .estado-field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.estados-section .estado-field label {
+    color: #fff;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.estados-section .estado-field input,
+.estados-section .estado-field select,
+.estados-section .estado-search {
+    height: 42px;
+    background: rgba(10,18,30,0.35);
+    border: 1px solid rgba(255,255,255,0.16);
+    border-radius: 6px;
+    color: #fff;
+}
+
+.estados-section .estado-field input,
+.estados-section .estado-field select {
+    padding: 0 14px;
+}
+
+.estados-section .estado-search {
+    display: flex;
+    align-items: center;
+    padding: 0 12px;
+}
+
+.estados-section .estado-search input {
+    flex: 1;
+    height: auto;
+    background: transparent;
+    border: none;
+    padding: 0;
+    outline: none;
+}
+
+.estados-section .estado-search .material-symbols-outlined {
+    color: #cfd6e6;
+    font-size: 22px;
+}
+
+.estados-section .btn-filtrar-estados {
+    height: 42px;
+    min-width: 130px;
+    background: linear-gradient(135deg, #2e8cff, #0757cb);
+    border: none;
+    border-radius: 6px;
+    color: #fff;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+/* TABLA */
+.estados-section .estados-table {
+    width: 100%;
+    border-collapse: collapse;
+    color: #fff;
+}
+
+.estados-section .estados-table th {
+    text-align: left;
+    padding: 14px 18px;
+    font-size: 13px;
+    color: #fff;
+    background: rgba(255,255,255,0.04);
+    border-top: 1px solid rgba(255,255,255,0.08);
+    border-bottom: 1px solid rgba(255,255,255,0.12);
+}
+
+.estados-section .estados-table td {
+    padding: 13px 18px;
+    font-size: 13px;
+    color: #eef3ff;
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+}
+
+.estados-section .estados-table tr:nth-child(even) td {
+    background: rgba(255,255,255,0.025);
+}
+
+.estados-section .badge {
+    padding: 5px 9px;
+    border-radius: 5px;
+    font-size: 12px;
+    font-weight: 700;
+    display: inline-block;
+}
+
+.estados-section .badge-terminado { background: rgba(70,190,85,0.40); color: #dfffdf; border: 1px solid rgba(70,190,85,0.65); }
+.estados-section .badge-proceso { background: rgba(255,200,0,0.34); color: #ffe766; border: 1px solid rgba(255,200,0,0.75); }
+.estados-section .badge-pausado { background: rgba(255,125,0,0.35); color: #ffd3a3; border: 1px solid rgba(255,125,0,0.65); }
+.estados-section .badge-entregado { background: rgba(140,80,255,0.35); color: #dec7ff; border: 1px solid rgba(140,80,255,0.65); }
+.estados-section .badge-atrasado { background: rgba(255,65,55,0.35); color: #ffd1d1; border: 1px solid rgba(255,65,55,0.65); }
+.estados-section .badge-pendiente { background: rgba(45,123,232,0.35); color: #d5e7ff; border: 1px solid rgba(45,123,232,0.65); }
+
+.estados-section .progreso-cell {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.estados-section .barra-progreso {
+    width: 105px;
+    height: 7px;
+    background: rgba(255,255,255,0.10);
+    border-radius: 20px;
+    overflow: hidden;
+}
+
+.estados-section .barra-progreso div {
+    height: 100%;
+    background: #45ca52;
+    border-radius: 20px;
+}
+
+.estados-section .barra-progreso.yellow div { background: #ffc400; }
+.estados-section .barra-progreso.orange div { background: #ff8500; }
+.estados-section .barra-progreso.red div { background: #ff5146; }
+
+.estados-section .btn-editar {
+    width: 28px;
+    height: 28px;
+    background: linear-gradient(135deg, #246ddf, #094eb9);
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.estados-section .estados-pagination {
+    padding: 14px 20px;
+    display: flex;
+    justify-content: space-between;
+    color: #dbe4f4;
+    font-size: 13px;
+}
+
+.estados-section .estados-pagination div {
+    display: flex;
+    gap: 8px;
+}
+
+.estados-section .estados-pagination button {
+    min-width: 28px;
+    height: 28px;
+    background: rgba(255,255,255,0.06);
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+}
+
+.estados-section .estados-pagination button.active {
+    background: #2f83ff;
+}
+
+/* INFERIOR */
+.estados-section .estados-bottom {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr 0.65fr;
+    gap: 14px;
+}
+
+.estados-section .estado-detalle,
+.estados-section .estado-historial,
+.estados-section .estado-acciones {
+    padding: 16px 20px;
+}
+
+.estados-section .estado-detalle h3,
+.estados-section .estado-historial h3,
+.estados-section .estado-acciones h3 {
+    margin: 0 0 14px;
+    color: #3d8cff;
+    font-size: 20px;
+}
+
+.estados-section .detalle-head {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 14px;
+}
+
+.estados-section .detalle-check {
+    color: #4fd25f;
+    font-size: 34px;
+}
+
+.estados-section .detalle-head strong {
+    background: rgba(255,255,255,0.06);
+    border-radius: 5px;
+    padding: 8px 18px;
+}
+
+.estados-section .detalle-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+}
+
+.estados-section .detalle-grid p {
+    color: #fff;
+    font-size: 14px;
+    line-height: 1.55;
+}
+
+.estados-section .detalle-grid span {
+    color: #cfd6e6;
+}
+
+.estados-section .detalle-progress {
+    margin-top: 8px;
+    background: rgba(255,255,255,0.06);
+    border-radius: 8px;
+    padding: 12px;
+}
+
+.estados-section .detalle-progress > div:first-child {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+}
+
+/* TIMELINE */
+.estados-section .timeline {
+    position: relative;
+    padding-left: 20px;
+}
+
+.estados-section .timeline::before {
+    content: "";
+    position: absolute;
+    top: 10px;
+    left: 7px;
+    width: 2px;
+    height: 120px;
+    background: rgba(255,255,255,0.12);
+}
+
+.estados-section .timeline-item {
+    position: relative;
+    margin-bottom: 18px;
+}
+
+.estados-section .timeline-item > span {
+    position: absolute;
+    left: -20px;
+    top: 3px;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+}
+
+.estados-section .timeline-item.green > span { background: #4fd25f; box-shadow: 0 0 0 4px rgba(79,210,95,0.20); }
+.estados-section .timeline-item.yellow > span { background: #ffc400; box-shadow: 0 0 0 4px rgba(255,196,0,0.18); }
+.estados-section .timeline-item.blue > span { background: #3d8cff; box-shadow: 0 0 0 4px rgba(61,140,255,0.20); }
+
+.estados-section .timeline-item strong {
+    color: #fff;
+}
+
+.estados-section .timeline-item p {
+    margin: 4px 0 0;
+    color: #cfd6e6;
+    font-size: 12px;
+}
+
+.estados-section .btn-historial {
+    margin-top: 8px;
+    background: rgba(30,120,255,0.18);
+    border: 1px solid rgba(47,131,255,0.50);
+    color: #76b6ff;
+    padding: 10px 18px;
+    border-radius: 6px;
+}
+
+/* ACCIONES */
+.estados-section .estado-acciones {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.estados-section .accion {
+    height: 45px;
+    border-radius: 6px;
+    font-weight: 700;
+    background: rgba(255,255,255,0.06);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 0 14px;
+    cursor: pointer;
+}
+
+.estados-section .accion.terminar {
+    border: 1px solid rgba(70,190,85,0.75);
+    color: #91ff9d;
+}
+
+.estados-section .accion.pausar {
+    border: 1px solid rgba(255,196,0,0.75);
+    color: #ffe766;
+}
+
+.estados-section .accion.reanudar {
+    border: 1px solid rgba(47,131,255,0.75);
+    color: #76b6ff;
+}
+
+.estados-section .accion.entregar {
+    border: 1px solid rgba(155,77,255,0.75);
+    color: #d7b8ff;
+}

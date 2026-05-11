@@ -1,0 +1,358 @@
+<section class="section estados-section">
+
+    <!-- HEADER -->
+    <div class="estados-header">
+        <div class="estados-title-box">
+            <div class="estados-icon">
+                <span class="material-symbols-outlined">fact_check</span>
+            </div>
+
+            <div>
+                <h2>Estados</h2>
+                <p>Seguimiento y control de estados de órdenes y piezas</p>
+            </div>
+        </div>
+
+        <button class="btn-nuevo-estado">+ Nuevo Estado Manual</button>
+    </div>
+
+    <!-- CARDS -->
+    <div class="estados-cards">
+
+        <div class="estado-card estado-pendiente">
+            <div class="estado-card-icon">
+                <span class="material-symbols-outlined">pending</span>
+            </div>
+            <div>
+                <h3>18</h3>
+                <p>Pendiente</p>
+            </div>
+        </div>
+
+        <div class="estado-card estado-proceso">
+            <div class="estado-card-icon">
+                <span class="material-symbols-outlined">play_arrow</span>
+            </div>
+            <div>
+                <h3>27</h3>
+                <p>En proceso</p>
+            </div>
+        </div>
+
+        <div class="estado-card estado-pausado">
+            <div class="estado-card-icon">
+                <span class="material-symbols-outlined">pause</span>
+            </div>
+            <div>
+                <h3>6</h3>
+                <p>Pausado</p>
+            </div>
+        </div>
+
+        <div class="estado-card estado-terminado">
+            <div class="estado-card-icon">
+                <span class="material-symbols-outlined">check</span>
+            </div>
+            <div>
+                <h3>42</h3>
+                <p>Terminado</p>
+            </div>
+        </div>
+
+        <div class="estado-card estado-entregado">
+            <div class="estado-card-icon">
+                <span class="material-symbols-outlined">local_shipping</span>
+            </div>
+            <div>
+                <h3>15</h3>
+                <p>Entregado</p>
+            </div>
+        </div>
+
+        <div class="estado-card estado-atrasado">
+            <div class="estado-card-icon">
+                <span class="material-symbols-outlined">timer</span>
+            </div>
+            <div>
+                <h3>7</h3>
+                <p>Atrasado</p>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- FILTROS + TABLA -->
+    <div class="estados-panel">
+
+        <div class="estados-filtros">
+            <div class="estado-field field-buscar">
+                <label>Buscar orden / producto</label>
+                <div class="estado-search">
+                    <input type="text" placeholder="Buscar...">
+                    <span class="material-symbols-outlined">search</span>
+                </div>
+            </div>
+
+            <div class="estado-field">
+                <label>Estado</label>
+                <select>
+                    <option>Todos</option>
+                    <option>Pendiente</option>
+                    <option>En proceso</option>
+                    <option>Pausado</option>
+                    <option>Terminado</option>
+                    <option>Entregado</option>
+                    <option>Atrasado</option>
+                </select>
+            </div>
+
+            <div class="estado-field">
+                <label>Área / Máquina</label>
+                <select>
+                    <option>Todas</option>
+                    <option>Torno Vertical</option>
+                    <option>Fresadora CNC</option>
+                    <option>Soldado</option>
+                </select>
+            </div>
+
+            <div class="estado-field">
+                <label>Fecha desde</label>
+                <input type="date" value="2025-05-01">
+            </div>
+
+            <div class="estado-field">
+                <label>Fecha hasta</label>
+                <input type="date" value="2025-05-21">
+            </div>
+
+            <button class="btn-filtrar-estados">
+                <span class="material-symbols-outlined">filter_alt</span>
+                Filtrar
+            </button>
+        </div>
+
+        <table class="estados-table">
+            <thead>
+                <tr>
+                    <th>Orden de trabajo</th>
+                    <th>Producto</th>
+                    <th>Área / Máquina</th>
+                    <th>Fecha inicio</th>
+                    <th>Fecha fin estimada</th>
+                    <th>Estado actual</th>
+                    <th>Progreso</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                <tr>
+                    <td>OT-2025-00045</td>
+                    <td>Liner Saddle Block 430-b</td>
+                    <td>Torno Vertical</td>
+                    <td>21/05/2025 08:00</td>
+                    <td>21/05/2025 17:00</td>
+                    <td><span class="badge badge-terminado">Terminado</span></td>
+                    <td>
+                        <div class="progreso-cell">
+                            <span>100%</span>
+                            <div class="barra-progreso"><div style="width:100%"></div></div>
+                        </div>
+                    </td>
+                    <td><button class="btn-editar">✎</button></td>
+                </tr>
+
+                <tr>
+                    <td>OT-2025-00044</td>
+                    <td>Housing Support 210-a</td>
+                    <td>Fresadora CNC</td>
+                    <td>20/05/2025 07:30</td>
+                    <td>21/05/2025 16:30</td>
+                    <td><span class="badge badge-proceso">En proceso</span></td>
+                    <td>
+                        <div class="progreso-cell">
+                            <span>65%</span>
+                            <div class="barra-progreso yellow"><div style="width:65%"></div></div>
+                        </div>
+                    </td>
+                    <td><button class="btn-editar">✎</button></td>
+                </tr>
+
+                <tr>
+                    <td>OT-2025-00043</td>
+                    <td>Shaft Coupling 320-c</td>
+                    <td>Torno Horizontal</td>
+                    <td>19/05/2025 09:00</td>
+                    <td>21/05/2025 12:00</td>
+                    <td><span class="badge badge-pausado">Pausado</span></td>
+                    <td>
+                        <div class="progreso-cell">
+                            <span>40%</span>
+                            <div class="barra-progreso orange"><div style="width:40%"></div></div>
+                        </div>
+                    </td>
+                    <td><button class="btn-editar">✎</button></td>
+                </tr>
+
+                <tr>
+                    <td>OT-2025-00042</td>
+                    <td>Flange Adapter 150-d</td>
+                    <td>Soldado</td>
+                    <td>18/05/2025 10:00</td>
+                    <td>19/05/2025 18:00</td>
+                    <td><span class="badge badge-entregado">Entregado</span></td>
+                    <td>
+                        <div class="progreso-cell">
+                            <span>100%</span>
+                            <div class="barra-progreso"><div style="width:100%"></div></div>
+                        </div>
+                    </td>
+                    <td><button class="btn-editar">✎</button></td>
+                </tr>
+
+                <tr>
+                    <td>OT-2025-00041</td>
+                    <td>Valve Body 500-e</td>
+                    <td>Fresadora CNC</td>
+                    <td>16/05/2025 08:00</td>
+                    <td>20/05/2025 17:00</td>
+                    <td><span class="badge badge-atrasado">Atrasado</span></td>
+                    <td>
+                        <div class="progreso-cell">
+                            <span>75%</span>
+                            <div class="barra-progreso red"><div style="width:75%"></div></div>
+                        </div>
+                    </td>
+                    <td><button class="btn-editar">✎</button></td>
+                </tr>
+
+                <tr>
+                    <td>OT-2025-00040</td>
+                    <td>Bracket Mount 120-f</td>
+                    <td>Perforadora</td>
+                    <td>21/05/2025 11:00</td>
+                    <td>22/05/2025 12:00</td>
+                    <td><span class="badge badge-pendiente">Pendiente</span></td>
+                    <td>
+                        <div class="progreso-cell">
+                            <span>0%</span>
+                            <div class="barra-progreso empty"><div style="width:0%"></div></div>
+                        </div>
+                    </td>
+                    <td><button class="btn-editar">✎</button></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="estados-pagination">
+            <span>Mostrando 1 a 6 de 115 resultados</span>
+            <div>
+                <button>‹</button>
+                <button class="active">1</button>
+                <button>2</button>
+                <button>3</button>
+                <button>4</button>
+                <button>5</button>
+                <button>...</button>
+                <button>20</button>
+                <button>›</button>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- INFERIOR -->
+    <div class="estados-bottom">
+
+        <div class="estado-detalle">
+            <h3>Detalle del Estado</h3>
+
+            <div class="detalle-head">
+                <span class="detalle-check material-symbols-outlined">check_circle</span>
+                <strong>OT-2025-00045</strong>
+                <span class="badge badge-terminado">Terminado</span>
+            </div>
+
+            <div class="detalle-grid">
+                <div>
+                    <p><span>Producto:</span><br>Liner Saddle Block 430-b</p>
+                    <p><span>Área / Máquina:</span><br>Torno Vertical</p>
+                    <p><span>Inicio:</span><br>21/05/2025 08:00</p>
+                </div>
+
+                <div>
+                    <p><span>Fecha fin estimada:</span><br>21/05/2025 17:00</p>
+                    <p><span>Fecha fin real:</span><br>21/05/2025 16:45</p>
+                    <p><span>Operador:</span><br>J. Pérez</p>
+                </div>
+            </div>
+
+            <div class="detalle-progress">
+                <div>
+                    <span>Progreso del flujo</span>
+                    <strong>100%</strong>
+                </div>
+                <div class="barra-progreso"><div style="width:100%"></div></div>
+            </div>
+        </div>
+
+        <div class="estado-historial">
+            <h3>Historial de Estados</h3>
+
+            <div class="timeline">
+                <div class="timeline-item green">
+                    <span></span>
+                    <div>
+                        <strong>Terminado</strong>
+                        <p>21/05/2025 16:45 · Trabajo completado correctamente · J. Pérez</p>
+                    </div>
+                </div>
+
+                <div class="timeline-item yellow">
+                    <span></span>
+                    <div>
+                        <strong>En proceso</strong>
+                        <p>21/05/2025 08:00 · Inicio de trabajo en máquina · J. Pérez</p>
+                    </div>
+                </div>
+
+                <div class="timeline-item blue">
+                    <span></span>
+                    <div>
+                        <strong>Pendiente</strong>
+                        <p>20/05/2025 17:30 · Orden creada y programada · Sistema</p>
+                    </div>
+                </div>
+            </div>
+
+            <button class="btn-historial">Ver historial completo</button>
+        </div>
+
+        <div class="estado-acciones">
+            <h3>Acciones rápidas</h3>
+
+            <button class="accion terminar">
+                <span class="material-symbols-outlined">check_circle</span>
+                Marcar como Terminado
+            </button>
+
+            <button class="accion pausar">
+                <span class="material-symbols-outlined">pause</span>
+                Pausar Trabajo
+            </button>
+
+            <button class="accion reanudar">
+                <span class="material-symbols-outlined">play_arrow</span>
+                Reanudar Trabajo
+            </button>
+
+            <button class="accion entregar">
+                <span class="material-symbols-outlined">local_shipping</span>
+                Marcar como Entregado
+            </button>
+        </div>
+
+    </div>
+
+</section>
