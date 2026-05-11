@@ -154,3 +154,36 @@
     width: auto;
     max-width: 190px;
 }
+
+@media(max-width:800px){
+    .dashboard-actions{
+        width:100%;
+        justify-content:flex-start;
+        gap:8px;
+    }
+
+    .period-btn{
+        min-width:82px;
+        padding:11px 16px;
+        font-size:14px;
+    }
+}
+
+@media(max-width:480px){
+    .dashboard-actions{
+        display:grid;
+        grid-template-columns:repeat(2, 1fr);
+        width:100%;
+    }
+
+    .period-btn{
+        width:100%;
+        min-width:0;
+    }
+
+    .dashboard-date.fecha-compacta{
+        grid-column:span 2;
+        width:100%;
+        min-width:100%;
+    }
+}

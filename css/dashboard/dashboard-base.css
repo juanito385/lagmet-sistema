@@ -32,26 +32,36 @@
 .dashboard-actions{
     display:flex;
     align-items:center;
-    gap:8px;
+    gap:10px;
     flex-wrap:wrap;
     justify-content:flex-end;
-
 }
 
 .period-btn{
+    min-width:88px;
     padding:12px 20px;
     border-radius:12px;
     border:1px solid rgba(255,255,255,0.12);
     background:rgba(255,255,255,0.05);
     color:#fff;
     cursor:pointer;
-    font-weight:600;
+    font-weight:700;
+    letter-spacing:0.2px;
+    transition:all 0.25s ease;
 }
 
-.period-btn.active,
 .period-btn:hover{
+    background:rgba(139,92,246,0.18);
+    border-color:rgba(139,92,246,0.45);
+    box-shadow:0 0 14px rgba(139,92,246,0.22);
+    transform:translateY(-1px);
+}
+
+.period-btn.active{
     background:linear-gradient(135deg,#8b5cf6,#6d28d9);
-    box-shadow:0 0 18px rgba(139,92,246,0.35);
+    border-color:rgba(167,139,250,0.85);
+    box-shadow:0 0 20px rgba(139,92,246,0.38);
+    color:#fff;
 }
 
 .dashboard-date{

@@ -40,9 +40,15 @@ async function showSection(seccion) {
         }
 
         if (seccion === "dashboard") {
-            if (typeof cargarDashboard === "function") {
-                cargarDashboard();
+
+            if (typeof inicializarFiltrosDashboard === "function") {
+                inicializarFiltrosDashboard();
             }
+
+            if (typeof cargarDashboard === "function") {
+                await cargarDashboard();
+            }
+
         }
 
         if (seccion === "monitoreo") {

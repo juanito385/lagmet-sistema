@@ -50,6 +50,11 @@ function inicializarFiltrosDashboard() {
     if (!botones.length) return;
 
     botones.forEach(btn => {
+
+        if (btn.dataset.inicializado === "true") return;
+
+        btn.dataset.inicializado = "true";
+
         btn.addEventListener("click", async () => {
             const periodo = btn.dataset.periodo || "hoy";
 
