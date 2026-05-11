@@ -44,7 +44,10 @@
 <link rel="stylesheet" href="css/configuracion.css">
 
 <link rel="stylesheet" href="css/flujo-proceso.css">
+
 <link rel="stylesheet" href="css/estados.css">
+
+
 <link rel="stylesheet" href="css/responsive.css">
 
 <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
@@ -125,13 +128,44 @@ href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" />
                     Flujo Proceso
             </button>
             <button onclick="showSection('estados')">Estados</button>
-            <button onclick="showSection('configuracion')">⚙️ Configuración</button>
         </div>
     </div>
 
     <div class="sidebar-bottom">
-        <button class="logout" onclick="logout()">Cerrar sesión</button>
+
+    <div class="sidebar-user">
+
+        <button class="sidebar-user-btn">
+            <div class="sidebar-user-avatar">ADM</div>
+
+            <div class="sidebar-user-info">
+                <strong>Admin</strong>
+                <span>Administrador</span>
+            </div>
+
+            <span class="material-symbols-outlined">expand_more</span>
+        </button>
+
+        <div class="sidebar-user-menu">
+            <button onclick="showSection('perfil')">
+                <span class="material-symbols-outlined">person</span>
+                Ver perfil
+            </button>
+
+            <button onclick="showSection('configuracion')">
+                <span class="material-symbols-outlined">settings</span>
+                Configuración
+            </button>
+
+            <button class="sidebar-user-logout" onclick="logout()">
+                <span class="material-symbols-outlined">logout</span>
+                Cerrar sesión
+            </button>
+        </div>
+
     </div>
+
+</div>
 
 
 

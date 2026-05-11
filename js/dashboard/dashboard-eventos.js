@@ -63,6 +63,18 @@ function inicializarFiltrosDashboard() {
     });
 }
 
+document.addEventListener("click", function(e) {
+    const btnFecha = document.getElementById("btnFechaDashboard");
+
+    if (!btnFecha) return;
+
+    if (btnFecha.contains(e.target)) {
+        btnFecha.classList.toggle("activa");
+    } else {
+        btnFecha.classList.remove("activa");
+    }
+});
+
 /* =========================
    FUNCIONES GLOBALES DASHBOARD
 ========================= */
