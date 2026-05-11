@@ -206,15 +206,118 @@ $res = $conn->query($sql);
 $produccionAyer = ($res && $row = $res->fetch_assoc()) ? intval($row["total"] ?? 0) : 0;
 
 /* =========================
-   PRODUCCIÓN ÚLTIMOS 7 DÍAS
+   GRÁFICO PRODUCCIÓN SEGÚN FILTRO
 ========================= */
-$sql = "SELECT 
-            DATE(fecha) as dia,
-            SUM(cantidad) as total
-        FROM produccion
-        WHERE fecha >= DATE_SUB(CURDATE(), INTERVAL 6 DAY)
-        GROUP BY dia
-        ORDER BY dia ASC";
+
+$graficoProduccionTitulo = "Producción de hoy";
+
+if ($periodo === "ayer") {
+    $graficoProduccionTitulo = "Producción de ayer";
+}
+
+if ($periodo === "semana") {
+    $graficoProduccionTitulo = "Producción últimos 7 días";
+}
+
+if ($periodo === "mes") {
+    $graficoProduccionTitulo = "Producción del mes";
+}
+
+if ($periodo === "fecha") {
+    $graficoProduccionTitulo = "Producción del " . date("d/m/Y", strtotime($fechaConsulta));
+}
+
+/* HOY / AYER / FECHA: gráfico por turnos */
+if ($periodo === "hoy" || $periodo === "ayer" || $periodo === "fecha") {
+
+    $sql = "SELECT 
+                turno AS etiqueta,
+                SUM(cantidad) AS total
+            FROM produccion
+            WHERE $wherePeriodo
+            GROUP BY turno
+            ORDER BY 
+                CASE 
+                    WHEN turno = 'Mañana' THEN 1
+                    WHEN turno = 'Tarde' THEN 2
+                    WHEN turno = 'Noche' THEN 3
+                    ELSE 4
+                END";
+
+    $res = $conn->query($sql);
+
+    $semana = [];
+
+    if ($res) {
+        while ($row = $res->fetch_assoc()) {
+            $semana[] = [
+                "fecha" => $row["etiqueta"],
+                "total" => intval($row["total"] ?? 0),
+                "tipo" => "turno"
+            ];
+        }
+    }
+
+    if (empty($semana)) {
+        $semana = [
+            ["fecha" => "Mañana", "total" => 0, "tipo" => "turno"],
+            ["fecha" => "Tarde", "total" => 0, "tipo" => "turno"],
+            ["fecha" => "Noche", "total" => 0, "tipo" => "turno"]
+        ];
+    }
+}
+
+/* SEMANA: últimos 7 días */
+if ($periodo === "semana") {
+
+    $sql = "SELECT 
+                DATE(fecha) AS dia,
+                SUM(cantidad) AS total
+            FROM produccion
+            WHERE fecha >= DATE_SUB(CURDATE(), INTERVAL 6 DAY)
+            GROUP BY dia
+            ORDER BY dia ASC";
+
+    $res = $conn->query($sql);
+
+    $semana = [];
+
+    if ($res) {
+        while ($row = $res->fetch_assoc()) {
+            $semana[] = [
+                "fecha" => $row["dia"],
+                "total" => intval($row["total"] ?? 0),
+                "tipo" => "fecha"
+            ];
+        }
+    }
+}
+
+/* MES: producción por día del mes */
+if ($periodo === "mes") {
+
+    $sql = "SELECT 
+                DATE(fecha) AS dia,
+                SUM(cantidad) AS total
+            FROM produccion
+            WHERE fecha >= '$inicioMes'
+            GROUP BY dia
+            ORDER BY dia ASC";
+
+    $res = $conn->query($sql);
+
+    $semana = [];
+
+    if ($res) {
+        while ($row = $res->fetch_assoc()) {
+            $semana[] = [
+                "fecha" => $row["dia"],
+                "total" => intval($row["total"] ?? 0),
+                "tipo" => "fecha"
+            ];
+        }
+    }
+}
 
 $res = $conn->query($sql);
 
@@ -411,23 +514,38 @@ $promedioMinutosDetenidas = $maquinasDetenidas > 0
     ? round($totalMinutosDetenidas / $maquinasDetenidas) 
     : 0;
 
-/* ESTADO PRODUCCIÓN */
-$sql = "SELECT 
-            SUM(CASE WHEN fecha_fin IS NOT NULL THEN 1 ELSE 0 END) AS completados,
-            SUM(CASE WHEN fecha_fin IS NULL THEN 1 ELSE 0 END) AS en_proceso,
-            SUM(CASE WHEN fecha_fin < '$hoy' AND fecha_fin IS NOT NULL THEN 1 ELSE 0 END) AS atrasados
-        FROM produccion";
-$res = $conn->query($sql);
+/* ESTADO PRODUCCIÓN TEMPORAL */
+$fechaReferenciaEstado = $hoy;
 
-$completados = 0;
-$enProceso = 0;
-$atrasados = 0;
-
-if ($res && $row = $res->fetch_assoc()) {
-    $completados = intval($row["completados"] ?? 0);
-    $enProceso = intval($row["en_proceso"] ?? 0);
-    $atrasados = intval($row["atrasados"] ?? 0);
+if ($periodo === "ayer") {
+    $fechaReferenciaEstado = $ayer;
 }
+
+if ($periodo === "fecha") {
+    $fechaReferenciaEstado = $fechaConsulta;
+}
+
+/* En proceso: productos activos en la fecha de referencia */
+$sql = "SELECT COUNT(*) AS total
+        FROM produccion
+        WHERE fecha <= '$fechaReferenciaEstado'
+        AND fecha_fin IS NOT NULL
+        AND fecha_fin != ''
+        AND fecha_fin >= '$fechaReferenciaEstado'";
+$res = $conn->query($sql);
+$enProceso = ($res && $row = $res->fetch_assoc()) ? intval($row["total"] ?? 0) : 0;
+
+/* Atrasados: productos cuya fecha fin ya venció */
+$sql = "SELECT COUNT(*) AS total
+        FROM produccion
+        WHERE fecha_fin IS NOT NULL
+        AND fecha_fin != ''
+        AND fecha_fin < '$fechaReferenciaEstado'";
+$res = $conn->query($sql);
+$atrasados = ($res && $row = $res->fetch_assoc()) ? intval($row["total"] ?? 0) : 0;
+
+/* Completados temporal: total general - en proceso - atrasados */
+$completados = max(0, $totalProductosGeneral - $enProceso - $atrasados);
 
 /* ÚLTIMOS REGISTROS */
 $sql = "SELECT 
@@ -564,6 +682,7 @@ $response["comparacion"] = [
 ];
 
 $response["semana"] = $semana;
+$response["grafico_produccion_titulo"] = $graficoProduccionTitulo;
 
 $response["tiempo_detenido"] = [
     "total" => formatearMinutos($totalMinutosDetenidas),

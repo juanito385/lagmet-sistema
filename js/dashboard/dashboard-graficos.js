@@ -55,10 +55,16 @@ function cargarProduccionSemanal(semana) {
     if (!canvas) return;
 
     if (!semana || !semana.length) {
-        return;
+        semana = [
+            { fecha: "Sin datos", total: 0, tipo: "turno" }
+        ];
     }
 
     const dias = semana.map(item => {
+        if (item.tipo === "turno") {
+            return item.fecha;
+        }
+
         const fecha = new Date(item.fecha + "T00:00:00");
 
         return fecha.toLocaleDateString("es-CL", {

@@ -68,6 +68,12 @@ async function cargarDatosDashboard(periodo = "hoy", fecha = null) {
         cargarTurnos(data.turnos);
         cargarComparacion(data.comparacion);
         cargarProduccionSemanal(data.semana);
+
+        actualizarTexto(
+            "tituloGraficoProduccion",
+            `📈 ${data.grafico_produccion_titulo ?? "Producción últimos 7 días"}`
+        );
+
         cargarResumenRapido(data.resumen);
         cargarTiempoDetenido(data.tiempo_detenido);
         cargarFallas(data.fallas);
@@ -79,4 +85,4 @@ async function cargarDatosDashboard(periodo = "hoy", fecha = null) {
     } catch (error) {
         console.error("Error cargando dashboard:", error);
     }
-}
+} 
