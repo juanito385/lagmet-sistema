@@ -37,7 +37,7 @@ $response = [
     "success" => true
 ];
 
-function formatearMinutos($minutos) {
+function formatearMinutos(int $minutos): string {
     $horas = floor($minutos / 60);
     $mins = $minutos % 60;
 
