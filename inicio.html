@@ -40,10 +40,17 @@
 <link rel="stylesheet" href="css/documentacion/documentacion-gantt-machine.css">
 <link rel="stylesheet" href="css/documentacion/documentacion-modal.css">
 <link rel="stylesheet" href="css/documentacion/documentacion-responsive.css">
+
 <link rel="stylesheet" href="css/configuracion.css">
+
+<link rel="stylesheet" href="css/flujo-proceso.css"> 
 <link rel="stylesheet" href="css/responsive.css">
 
 <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+<link rel="stylesheet"
+href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" />
+
 <link rel="icon" href="img/branding/favicon.png">
 </head>
 
@@ -103,10 +110,8 @@
 <div class="sidebar">
 
     <div class="sidebar-top">
-        <div class="logo-sidebar">
             <div class="logo-sidebar">
             <img src="img/branding/logo-ironix (2).png" alt="Logo IRONIX">
-        </div>
         </div>
 
         <div class="menu">
@@ -114,8 +119,11 @@
             <button onclick="showSection('monitoreo')">🏭 Monitoreo</button>
             <button onclick="showSection('productos')">📦 Productos</button>
             <button onclick="showSection('documentacion')">📄 Documentación</button>
-            <button onclick="showSection('Flujo Proceso')">Flujo Proceso</button>
-            <button onclick="showSection('Estados')">Estados</button>
+            <button onclick="showSection('flujo-proceso')">
+                <span class="material-symbols-outlined">share</span>
+                    Flujo Proceso
+            </button>
+            <button onclick="showSection('estados')">Estados</button>
             <button onclick="showSection('configuracion')">⚙️ Configuración</button>
         </div>
     </div>

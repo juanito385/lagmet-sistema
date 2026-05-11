@@ -117,3 +117,11 @@
     transform:translateY(-2px);
     box-shadow:0 8px 18px rgba(198,40,40,0.35);
 }
+
+.menu button .material-symbols-outlined {
+    color: #5ba7ff;
+}
+
+.menu button.active .material-symbols-outlined {
+    color: #5ba7ff;
+}

@@ -69,6 +69,12 @@ async function showSection(seccion) {
             }
         }
 
+        if (seccion === "flujo-proceso") {
+            if (typeof iniciarFlujoProceso === "function") {
+                iniciarFlujoProceso();
+            }
+        }
+
     } catch (error) {
 
         console.error("Error cargando sección:", error);
