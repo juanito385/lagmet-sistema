@@ -1,35 +1,11 @@
 /* =========================
    ESTADOS - IRONIX
-   Tabs Producción / Máquinas
+   Producción / Máquinas + Cards BD
 ========================= */
-
-function iniciarEstados() {
-    const seccionEstados = document.querySelector(".estados-section");
-
-    if (!seccionEstados) return;
-
-    // Evita duplicar eventos si la función se llama más de una vez
-    if (seccionEstados.dataset.estadosInit === "true") return;
-    seccionEstados.dataset.estadosInit = "true";
-
-    const tabs = seccionEstados.querySelectorAll(".estado-tab");
-    const vistas = seccionEstados.querySelectorAll(".estado-vista");
-
-    if (!tabs.length || !vistas.length) return;
-
-    tabs.forEach(tab => {
-        tab.addEventListener("click", () => {
-            const panel = tab.dataset.estadoTab;
-
-            cambiarPanelEstados(panel);
-        });
-    });
-}
 
 /* =========================
    CAMBIAR PANEL
 ========================= */
-
 function cambiarPanelEstados(panel) {
     const seccionEstados = document.querySelector(".estados-section");
 
@@ -50,77 +26,95 @@ function cambiarPanelEstados(panel) {
         vista.classList.remove("active");
     });
 
-    const vistaActiva = document.getElementById(`vista-estados-${panel}`);
+    const vistaActiva = seccionEstados.querySelector(`#vista-estados-${panel}`);
 
     if (vistaActiva) {
         vistaActiva.classList.add("active");
     }
 
-    /*
-        Más adelante aquí podemos cargar datos reales desde BD:
-
-        if (panel === "produccion") {
-            cargarEstadosProduccion();
-        }
-
-        if (panel === "maquinas") {
-            cargarEstadosMaquinas();
-        }
-    */
+    if (panel === "produccion") {
+        cargarCardsEstadosProduccion();
+    }
 }
 
 /* =========================
-   ESTADOS - IRONIX
-   Cambio de panel Producción / Máquinas
+   CARGAR CARDS PRODUCCIÓN
 ========================= */
+async function cargarCardsEstadosProduccion() {
+    try {
+        console.log("Cargando cards estados producción...");
 
-(function () {
+        const response = await fetch("php/estados/obtener_estados_produccion.php");
+        const data = await response.json();
 
-    if (window.__estadosTabsInit) return;
-    window.__estadosTabsInit = true;
+        console.log("ESTADOS PRODUCCIÓN:", data);
 
-    document.addEventListener("click", function (e) {
-
-        const tab = e.target.closest(".estado-tab");
-
-        if (!tab) return;
-
-        const section = tab.closest(".estados-section");
-
-        if (!section) return;
-
-        const panel = tab.dataset.estadoTab;
-
-        if (!panel) return;
-
-        const tabs = section.querySelectorAll(".estado-tab");
-        const vistas = section.querySelectorAll(".estado-vista");
-
-        tabs.forEach(item => {
-            item.classList.remove("active");
-        });
-
-        tab.classList.add("active");
-
-        vistas.forEach(vista => {
-            vista.classList.remove("active");
-        });
-
-        const vistaActiva = section.querySelector(`#vista-estados-${panel}`);
-
-        if (vistaActiva) {
-            vistaActiva.classList.add("active");
+        if (!data.success) {
+            console.error("Error estados producción:", data.message);
+            return;
         }
 
-    });
+        const pendiente = document.getElementById("estadoPendiente");
+        const proceso = document.getElementById("estadoProceso");
+        const pausado = document.getElementById("estadoPausado");
+        const terminado = document.getElementById("estadoTerminado");
+        const entregado = document.getElementById("estadoEntregado");
+        const atrasado = document.getElementById("estadoAtrasado");
 
-})();
+        if (pendiente) pendiente.textContent = data.cards.pendiente ?? 0;
+        if (proceso) proceso.textContent = data.cards.en_proceso ?? 0;
+        if (pausado) pausado.textContent = data.cards.pausado ?? 0;
+        if (terminado) terminado.textContent = data.cards.terminado ?? 0;
+        if (entregado) entregado.textContent = data.cards.entregado ?? 0;
+        if (atrasado) atrasado.textContent = data.cards.atrasado ?? 0;
+
+    } catch (error) {
+        console.error("Error cargando cards de estados:", error);
+    }
+}
 
 /* =========================
-   INICIAR AL CARGAR
+   CLICK GLOBAL PARA TABS
+   Funciona aunque estados.html se cargue después
 ========================= */
+document.addEventListener("click", function (e) {
+    const tab = e.target.closest(".estado-tab");
 
-document.addEventListener("DOMContentLoaded", () => {
-    iniciarEstados();
+    if (!tab) return;
+
+    const panel = tab.dataset.estadoTab;
+
+    if (!panel) return;
+
+    cambiarPanelEstados(panel);
 });
 
+/* =========================
+   DETECTAR CUANDO APARECE ESTADOS
+========================= */
+const observerEstados = new MutationObserver(() => {
+    const seccionEstados = document.querySelector(".estados-section");
+
+    if (!seccionEstados) return;
+
+    if (seccionEstados.dataset.cardsCargadas === "true") return;
+
+    seccionEstados.dataset.cardsCargadas = "true";
+    cargarCardsEstadosProduccion();
+});
+
+observerEstados.observe(document.body, {
+    childList: true,
+    subtree: true
+});
+
+/* =========================
+   INTENTO DIRECTO POR SI YA ESTÁ CARGADO
+========================= */
+document.addEventListener("DOMContentLoaded", () => {
+    const seccionEstados = document.querySelector(".estados-section");
+
+    if (seccionEstados) {
+        cargarCardsEstadosProduccion();
+    }
+});
