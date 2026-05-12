@@ -1,3 +1,39 @@
+/* =========================
+   VARIABLES GLOBALES IRONIX
+   Estados producción / máquinas
+========================= */
+
+:root {
+    /* PRODUCCIÓN */
+    --estado-pendiente: #2d7be8;
+    --estado-proceso: #ffc400;
+    --estado-pausado: #ff8500;
+    --estado-terminado: #4fd25f;
+    --estado-entregado: #9b4dff;
+    --estado-atrasado: #ff4b3e;
+    --estado-tiempo-muerto: #f39c12;
+
+    /* PRODUCCIÓN - FONDOS */
+    --estado-pendiente-bg: rgba(45, 123, 232, 0.35);
+    --estado-proceso-bg: rgba(255, 196, 0, 0.34);
+    --estado-pausado-bg: rgba(255, 133, 0, 0.35);
+    --estado-terminado-bg: rgba(79, 210, 95, 0.35);
+    --estado-entregado-bg: rgba(155, 77, 255, 0.35);
+    --estado-atrasado-bg: rgba(255, 75, 62, 0.35);
+    --estado-tiempo-muerto-bg: rgba(243, 156, 18, 0.35);
+
+    /* MÁQUINAS */
+    --maquina-operativa: #4fd25f;
+    --maquina-no-operativa: #ff4b3e;
+    --maquina-mantencion: #ff8500;
+
+    /* MÁQUINAS - FONDOS */
+    --maquina-operativa-bg: rgba(79, 210, 95, 0.35);
+    --maquina-no-operativa-bg: rgba(255, 75, 62, 0.35);
+    --maquina-mantencion-bg: rgba(255, 133, 0, 0.35);
+}
+
+
 body{ 
     margin:0;
     font-family:Arial, sans-serif;
