@@ -413,3 +413,37 @@
 .sidebar.collapsed .sidebar-user-menu {
     left: calc(100% + 14px);
 }
+
+/* =========================
+   FIX CARGA ICONOS SIDEBAR
+========================= */
+
+.sidebar .material-symbols-outlined,
+.sidebar .material-icons {
+    width: 24px;
+    min-width: 24px;
+    height: 24px;
+    min-height: 24px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 24px;
+    line-height: 1;
+
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+/* Evita que el texto del menú se corra mientras cargan los íconos */
+.sidebar .menu button {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+/* Mantiene el texto estable */
+.sidebar .menu button span:not(.material-symbols-outlined):not(.material-icons) {
+    white-space: nowrap;
+}
