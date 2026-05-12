@@ -181,113 +181,15 @@
                                 </tr>
                             </thead>
 
-                            <tbody>
-                                <tr>
-                                    <td>OT-2025-00052</td>
-                                    <td>Liner Saddle Block 430-b</td>
-                                    <td>Torno Vertical</td>
-                                    <td>21/05/2025 08:00</td>
-                                    <td>21/05/2025 17:00</td>
-                                    <td><span class="badge badge-terminado">Terminado</span></td>
-                                    <td>
-                                        <div class="progreso-cell">
-                                            <span>100%</span>
-                                            <div class="barra-progreso"><div style="width:100%"></div></div>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <button class="btn-editar" type="button">
-                                            <span class="material-symbols-outlined">edit</span>
-                                        </button>
-                                    </td>
-                                </tr>
-
-                                <tr>
-                                    <td>OT-2025-00051</td>
-                                    <td>Housing Support 210-a</td>
-                                    <td>Fresadora CNC</td>
-                                    <td>21/05/2025 07:30</td>
-                                    <td>21/05/2025 16:30</td>
-                                    <td><span class="badge badge-proceso">En proceso</span></td>
-                                    <td>
-                                        <div class="progreso-cell">
-                                            <span>60%</span>
-                                            <div class="barra-progreso yellow"><div style="width:60%"></div></div>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <button class="btn-editar" type="button">
-                                            <span class="material-symbols-outlined">edit</span>
-                                        </button>
-                                    </td>
-                                </tr>
-
-                                <tr>
-                                    <td>OT-2025-00050</td>
-                                    <td>Shaft Coupling 320-c</td>
-                                    <td>Torno Horizontal</td>
-                                    <td>20/05/2025 09:00</td>
-                                    <td>21/05/2025 12:00</td>
-                                    <td><span class="badge badge-pausado">Pausado</span></td>
-                                    <td>
-                                        <div class="progreso-cell">
-                                            <span>40%</span>
-                                            <div class="barra-progreso orange"><div style="width:40%"></div></div>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <button class="btn-editar" type="button">
-                                            <span class="material-symbols-outlined">edit</span>
-                                        </button>
-                                    </td>
-                                </tr>
-
-                                <tr>
-                                    <td>OT-2025-00049</td>
-                                    <td>Flange Adapter 150-d</td>
-                                    <td>Soldadura</td>
-                                    <td>19/05/2025 10:00</td>
-                                    <td>20/05/2025 18:00</td>
-                                    <td><span class="badge badge-entregado">Entregado</span></td>
-                                    <td>
-                                        <div class="progreso-cell">
-                                            <span>100%</span>
-                                            <div class="barra-progreso"><div style="width:100%"></div></div>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <button class="btn-editar" type="button">
-                                            <span class="material-symbols-outlined">edit</span>
-                                        </button>
-                                    </td>
-                                </tr>
-
-                                <tr>
-                                    <td>OT-2025-00048</td>
-                                    <td>Valve Body 500-e</td>
-                                    <td>Fresadora CNC</td>
-                                    <td>18/05/2025 08:00</td>
-                                    <td>20/05/2025 17:00</td>
-                                    <td><span class="badge badge-atrasado">Atrasado</span></td>
-                                    <td>
-                                        <div class="progreso-cell">
-                                            <span>75%</span>
-                                            <div class="barra-progreso red"><div style="width:75%"></div></div>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <button class="btn-editar" type="button">
-                                            <span class="material-symbols-outlined">edit</span>
-                                        </button>
-                                    </td>
-                                </tr>
+                            <tbody id="tablaEstadosProduccion">
+                                
                             </tbody>
                         </table>
                     </div>
 
                     <!-- PAGINACIÓN PRODUCCIÓN -->
                     <div class="estados-pagination">
-                        <span>Mostrando 1 a 5 de 94 resultados</span>
+                        <span id="resumenEstadosProduccion">Cargando registros...</span>
 
                         <div>
                             <button type="button">‹</button>
