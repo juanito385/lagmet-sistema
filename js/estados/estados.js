@@ -3,6 +3,8 @@
    Producción / Máquinas + Cards BD + Tabla Producción
 ========================= */
 
+let estadosProduccionData = [];
+
 /* =========================
    CAMBIAR PANEL
 ========================= */
@@ -68,7 +70,8 @@ async function cargarCardsEstadosProduccion() {
         if (entregado) entregado.textContent = data.cards.entregado ?? 0;
         if (atrasado) atrasado.textContent = data.cards.atrasado ?? 0;
 
-        renderTablaEstadosProduccion(data.data);
+        estadosProduccionData = data.data || [];
+        renderTablaEstadosProduccion(estadosProduccionData);
 
     } catch (error) {
         console.error("Error cargando estados de producción:", error);
@@ -143,6 +146,96 @@ function renderTablaEstadosProduccion(registros) {
     if (resumen) {
         resumen.textContent = `Mostrando 1 a ${registros.length} de ${registros.length} resultados`;
     }
+}
+
+/* =========================
+   FILTRAR TABLA PRODUCCIÓN
+========================= */
+function filtrarEstadosProduccion() {
+    const buscar = document.getElementById("filtroEstadoBuscar")?.value.toLowerCase().trim() || "";
+    const estado = document.getElementById("filtroEstadoActual")?.value || "todos";
+    const maquina = document.getElementById("filtroEstadoMaquina")?.value.toLowerCase().trim() || "todas";
+    const fechaDesde = document.getElementById("filtroEstadoDesde")?.value || "";
+    const fechaHasta = document.getElementById("filtroEstadoHasta")?.value || "";
+
+    console.log("FILTRANDO PRODUCCIÓN:", {
+        buscar,
+        estado,
+        maquina,
+        fechaDesde,
+        fechaHasta,
+        totalOriginal: estadosProduccionData.length
+    });
+
+    let filtrados = [...estadosProduccionData];
+
+    if (buscar !== "") {
+        filtrados = filtrados.filter(item => {
+            const orden = (item.orden || "").toLowerCase();
+            const producto = (item.producto || "").toLowerCase();
+            const codigo = (item.codigo || "").toLowerCase();
+
+            return orden.includes(buscar) ||
+                   producto.includes(buscar) ||
+                   codigo.includes(buscar);
+        });
+    }
+
+    if (estado !== "todos") {
+        filtrados = filtrados.filter(item => {
+            return (item.estado_actual || "").toLowerCase() === estado;
+        });
+    }
+
+    if (maquina !== "todas") {
+        filtrados = filtrados.filter(item => {
+            const maquinas = (item.maquina || "").toLowerCase();
+            return maquinas.includes(maquina);
+        });
+    }
+
+    if (fechaDesde !== "") {
+        filtrados = filtrados.filter(item => {
+            const fechaItem = obtenerFechaISOEstado(item.fecha_inicio);
+            return fechaItem && fechaItem >= fechaDesde;
+        });
+    }
+
+    if (fechaHasta !== "") {
+        filtrados = filtrados.filter(item => {
+            const fechaItem = obtenerFechaISOEstado(item.fecha_inicio);
+            return fechaItem && fechaItem <= fechaHasta;
+        });
+    }
+
+    console.log("RESULTADO FILTRO:", filtrados.length);
+
+    renderTablaEstadosProduccion(filtrados);
+}
+
+/* =========================
+   LIMPIAR FILTROS PRODUCCIÓN
+========================= */
+function limpiarFiltrosEstadosProduccion() {
+    const buscar = document.getElementById("filtroEstadoBuscar");
+    const estado = document.getElementById("filtroEstadoActual");
+    const maquina = document.getElementById("filtroEstadoMaquina");
+    const fechaDesde = document.getElementById("filtroEstadoDesde");
+    const fechaHasta = document.getElementById("filtroEstadoHasta");
+
+    if (buscar) buscar.value = "";
+    if (estado) estado.value = "todos";
+    if (maquina) maquina.value = "todas";
+    if (fechaDesde) fechaDesde.value = "";
+    if (fechaHasta) fechaHasta.value = "";
+
+    renderTablaEstadosProduccion(estadosProduccionData);
+}
+
+function obtenerFechaISOEstado(fecha) {
+    if (!fecha) return "";
+
+    return fecha.split(" ")[0];
 }
 
 /* =========================
@@ -232,15 +325,63 @@ function formatearFechaEstado(fecha) {
    Funciona aunque estados.html se cargue después
 ========================= */
 document.addEventListener("click", function (e) {
+
     const tab = e.target.closest(".estado-tab");
 
-    if (!tab) return;
+    if (tab) {
+        const panel = tab.dataset.estadoTab;
 
-    const panel = tab.dataset.estadoTab;
+        if (!panel) return;
 
-    if (!panel) return;
+        cambiarPanelEstados(panel);
+        return;
+    }
 
-    cambiarPanelEstados(panel);
+    const btnFiltrarProduccion = e.target.closest("#btnFiltrarEstadosProduccion");
+
+    if (btnFiltrarProduccion) {
+        filtrarEstadosProduccion();
+        return;
+    }
+
+    const btnLimpiarProduccion = e.target.closest("#btnLimpiarEstadosProduccion");
+
+    if (btnLimpiarProduccion) {
+        limpiarFiltrosEstadosProduccion();
+        return;
+    }
+
+    const btnAyudaEstados = e.target.closest("#btnAyudaEstados");
+
+    if (btnAyudaEstados) {
+        const boxAyuda = document.getElementById("boxAyudaEstados");
+
+        if (boxAyuda) {
+            boxAyuda.classList.toggle("active");
+        }
+
+        return;
+    }
+
+});
+
+document.addEventListener("click", function (e) {
+    const ayudaWrap = e.target.closest(".estado-ayuda-wrap");
+    const boxAyuda = document.getElementById("boxAyudaEstados");
+
+    if (!ayudaWrap && boxAyuda) {
+        boxAyuda.classList.remove("active");
+    }
+});
+
+document.addEventListener("keydown", function (e) {
+    if (e.key !== "Enter") return;
+
+    const inputBuscar = e.target.closest("#filtroEstadoBuscar");
+
+    if (inputBuscar) {
+        filtrarEstadosProduccion();
+    }
 });
 
 /* =========================

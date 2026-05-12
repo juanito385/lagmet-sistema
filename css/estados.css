@@ -295,7 +295,7 @@
 .estados-section .estados-filtros {
     padding: 20px 22px;
     display: grid;
-    grid-template-columns: 1.4fr 1.1fr 1.1fr 1fr 1fr auto;
+    grid-template-columns: 1.4fr 1.1fr 1.1fr 1fr 1fr auto auto;
     gap: 18px;
     align-items: end;
 }
@@ -1181,4 +1181,98 @@
 
 .estados-section .estados-top-box .estados-switch-container {
     margin-bottom: 0;
+}
+
+/* =========================
+   AYUDA FILTROS ESTADOS
+========================= */
+
+.estados-section .estado-ayuda-wrap {
+    position: absolute;
+    top: 12px;
+    right: 14px;
+    z-index: 20;
+}
+
+.estados-section .estados-panel {
+    position: relative;
+}
+
+.estados-section .btn-ayuda-estados {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    border: 1px solid rgba(255,255,255,0.22);
+    background: rgba(47,131,255,0.18);
+    color: #8fc2ff;
+    font-size: 13px;
+    font-weight: 900;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.estados-section .btn-ayuda-estados:hover {
+    background: rgba(47,131,255,0.35);
+    color: #fff;
+}
+
+.estados-section .estado-ayuda-box {
+    position: absolute;
+    top: 30px;
+    right: 0;
+    width: 310px;
+    background: rgba(24, 27, 43, 0.98);
+    border: 1px solid rgba(61,140,255,0.35);
+    border-radius: 10px;
+    padding: 14px;
+    box-shadow: 0 18px 40px rgba(0,0,0,0.45);
+    display: none;
+}
+
+.estados-section .estado-ayuda-box.active {
+    display: block;
+}
+
+.estados-section .estado-ayuda-box strong {
+    display: block;
+    margin-bottom: 10px;
+    color: #3d8cff;
+    font-size: 14px;
+}
+
+.estados-section .estado-ayuda-box p {
+    margin: 7px 0;
+    color: #dbe4f4;
+    font-size: 12.5px;
+    line-height: 1.45;
+}
+
+/* =========================
+   BOTÓN LIMPIAR FILTROS
+========================= */
+
+.estados-section .btn-limpiar-filtros {
+    width: 42px;
+    height: 42px;
+    border-radius: 6px;
+    border: 1px solid rgba(255,255,255,0.16);
+    background: rgba(255,255,255,0.06);
+    color: #cfd6e6;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: 0.2s ease;
+}
+
+.estados-section .btn-limpiar-filtros:hover {
+    background: rgba(255,80,80,0.18);
+    border-color: rgba(255,80,80,0.45);
+    color: #ffb3b3;
+}
+
+.estados-section .btn-limpiar-filtros .material-symbols-outlined {
+    font-size: 21px;
 }

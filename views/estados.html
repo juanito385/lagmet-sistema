@@ -18,7 +18,7 @@
         </button>
     </div>
 
-
+    <!-- CONTENEDOR SUPERIOR -->
     <div class="estados-top-box">
 
         <!-- TABS PRINCIPALES -->
@@ -34,14 +34,11 @@
             </button>
         </div>
 
-
-            <!-- =========================================================
-                    CONTENEDOR QUE CAMBIA ENTRE PRODUCCIÓN Y MÁQUINAS
-                ========================================================== -->
+        <!-- CONTENEDOR QUE CAMBIA ENTRE PRODUCCIÓN Y MÁQUINAS -->
         <div class="estados-switch-container">
 
             <!-- =========================================================
-                PANEL PRODUCCIÓN
+                 PANEL PRODUCCIÓN
             ========================================================== -->
             <div class="estado-vista active" id="vista-estados-produccion">
 
@@ -113,54 +110,89 @@
                 <!-- PANEL TABLA PRODUCCIÓN -->
                 <div class="estados-panel">
 
+                                    <div class="estado-ayuda-wrap">
+                    <button type="button" class="btn-ayuda-estados" id="btnAyudaEstados">?</button>
+
+                    <div class="estado-ayuda-box" id="boxAyudaEstados">
+                        <strong>¿Cómo funciona este apartado?</strong>
+                        <p>• Usa los filtros para buscar por orden, producto, estado, máquina o fecha.</p>
+                        <p>• Luego presiona el botón <b>Filtrar</b> para aplicar la búsqueda.</p>
+                        <p>• La tabla mostrará solo los resultados que coincidan.</p>
+                        <p>• Si quieres ver todo de nuevo, deja los filtros en “Todos” o vacíos y vuelve a filtrar.</p>
+                    </div>
+                </div>
+
                     <!-- FILTROS PRODUCCIÓN -->
                     <div class="estados-filtros">
 
                         <div class="estado-field field-buscar">
                             <label>Buscar orden / producto</label>
                             <div class="estado-search">
-                                <input type="text" placeholder="Buscar...">
+                                <input 
+                                    type="text" 
+                                    id="filtroEstadoBuscar" 
+                                    placeholder="Buscar..."
+                                >
                                 <span class="material-symbols-outlined">search</span>
                             </div>
                         </div>
 
                         <div class="estado-field">
                             <label>Estado</label>
-                            <select>
-                                <option>Todos</option>
-                                <option>Pendiente</option>
-                                <option>En proceso</option>
-                                <option>Pausado</option>
-                                <option>Terminado</option>
-                                <option>Entregado</option>
-                                <option>Atrasado</option>
+                            <select id="filtroEstadoActual">
+                                <option value="todos">Todos</option>
+                                <option value="pendiente">Pendiente</option>
+                                <option value="en_proceso">En proceso</option>
+                                <option value="pausado">Pausado</option>
+                                <option value="terminado">Terminado</option>
+                                <option value="entregado">Entregado</option>
+                                <option value="atrasado">Atrasado</option>
                             </select>
                         </div>
 
                         <div class="estado-field">
                             <label>Área / Máquina</label>
-                            <select>
-                                <option>Todas</option>
-                                <option>Torno Vertical</option>
-                                <option>Fresadora CNC</option>
-                                <option>Torno Horizontal</option>
-                                <option>Soldadura</option>
+                            <select id="filtroEstadoMaquina">
+                                <option value="todas">Todas</option>
+                                <option value="torno vertical">Torno Vertical</option>
+                                <option value="fresadora cnc">Fresadora CNC</option>
+                                <option value="torno horizontal">Torno Horizontal</option>
+                                <option value="soldadura">Soldadura</option>
                             </select>
                         </div>
 
                         <div class="estado-field">
                             <label>Fecha desde</label>
-                            <input type="date" value="2025-05-01">
+                            <input 
+                                type="date" 
+                                id="filtroEstadoDesde"
+                            >
                         </div>
 
                         <div class="estado-field">
                             <label>Fecha hasta</label>
-                            <input type="date" value="2025-05-21">
+                            <input 
+                                type="date" 
+                                id="filtroEstadoHasta"
+                            >
                         </div>
 
-                        <button class="btn-filtrar-estados" type="button">
+                        <button 
+                            class="btn-filtrar-estados" 
+                            id="btnFiltrarEstadosProduccion" 
+                            type="button"
+                        >
                             <span class="material-symbols-outlined">filter_alt</span>
                             Filtrar
+                        </button>
+
+                        <button 
+                            class="btn-limpiar-filtros" 
+                            id="btnLimpiarEstadosProduccion" 
+                            type="button"
+                            title="Limpiar filtros"
+                        >
+                            <span class="material-symbols-outlined">restart_alt</span>
                         </button>
 
                     </div>
@@ -182,7 +214,6 @@
                             </thead>
 
                             <tbody id="tablaEstadosProduccion">
-                                
                             </tbody>
                         </table>
                     </div>
@@ -209,7 +240,7 @@
             </div>
 
             <!-- =========================================================
-                PANEL MÁQUINAS
+                 PANEL MÁQUINAS
             ========================================================== -->
             <div class="estado-vista" id="vista-estados-maquinas">
 
@@ -221,7 +252,7 @@
                             <span class="material-symbols-outlined">check_circle</span>
                         </div>
                         <div>
-                            <h3>18</h3>
+                            <h3 id="estadoMaquinasOperativas">18</h3>
                             <p>Operativas</p>
                             <small>95% del total</small>
                         </div>
@@ -232,7 +263,7 @@
                             <span class="material-symbols-outlined">cancel</span>
                         </div>
                         <div>
-                            <h3>1</h3>
+                            <h3 id="estadoMaquinasNoOperativas">1</h3>
                             <p>No operativas</p>
                             <small>5% del total</small>
                         </div>
@@ -243,7 +274,7 @@
                             <span class="material-symbols-outlined">build</span>
                         </div>
                         <div>
-                            <h3>0</h3>
+                            <h3 id="estadoMaquinasMantencion">0</h3>
                             <p>En mantención</p>
                             <small>0% del total</small>
                         </div>
@@ -260,31 +291,39 @@
                         <div class="estado-field field-buscar">
                             <label>Buscar máquina</label>
                             <div class="estado-search">
-                                <input type="text" placeholder="Buscar máquina...">
+                                <input 
+                                    type="text" 
+                                    id="filtroMaquinaBuscar" 
+                                    placeholder="Buscar máquina..."
+                                >
                                 <span class="material-symbols-outlined">search</span>
                             </div>
                         </div>
 
                         <div class="estado-field">
                             <label>Estado</label>
-                            <select>
-                                <option>Todos</option>
-                                <option>Operativa</option>
-                                <option>No operativa</option>
-                                <option>En mantención</option>
+                            <select id="filtroMaquinaEstado">
+                                <option value="todos">Todos</option>
+                                <option value="operativa">Operativa</option>
+                                <option value="no_operativa">No operativa</option>
+                                <option value="mantencion">En mantención</option>
                             </select>
                         </div>
 
                         <div class="estado-field">
                             <label>Zona</label>
-                            <select>
-                                <option>Todas</option>
-                                <option>Oriente</option>
-                                <option>Poniente</option>
+                            <select id="filtroMaquinaZona">
+                                <option value="todas">Todas</option>
+                                <option value="oriente">Oriente</option>
+                                <option value="poniente">Poniente</option>
                             </select>
                         </div>
 
-                        <button class="btn-filtrar-estados" type="button">
+                        <button 
+                            class="btn-filtrar-estados" 
+                            id="btnFiltrarEstadosMaquinas" 
+                            type="button"
+                        >
                             <span class="material-symbols-outlined">filter_alt</span>
                             Filtrar
                         </button>
@@ -321,7 +360,7 @@
                                 </tr>
                             </thead>
 
-                            <tbody>
+                            <tbody id="tablaEstadosMaquinas">
                                 <tr>
                                     <td>Torno Vertical CNC</td>
                                     <td>Oriente</td>
@@ -437,7 +476,7 @@
 
                     <!-- PAGINACIÓN MÁQUINAS -->
                     <div class="estados-pagination">
-                        <span>Mostrando 1 a 5 de 19 máquinas</span>
+                        <span id="resumenEstadosMaquinas">Mostrando 1 a 5 de 19 máquinas</span>
 
                         <div>
                             <button type="button">‹</button>
