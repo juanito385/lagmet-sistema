@@ -10,24 +10,32 @@
     box-sizing: border-box;
 }
 
+/* =========================
+   BASE DE PANELES
+========================= */
+
 .estados-section .estados-header,
 .estados-section .estados-panel,
 .estados-section .estado-detalle,
 .estados-section .estado-historial,
-.estados-section .estado-acciones {
+.estados-section .estado-acciones,
+.estados-section .maquinas-regla {
     background: rgba(255,255,255,0.055);
     border: 1px solid rgba(255,255,255,0.12);
     border-radius: 12px;
     box-shadow: 0 15px 35px rgba(0,0,0,0.22);
 }
 
-/* HEADER */
+/* =========================
+   HEADER
+========================= */
+
 .estados-section .estados-header {
     padding: 22px 26px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 14px;
+    margin-bottom: 10px;
 }
 
 .estados-section .estados-title-box {
@@ -51,6 +59,7 @@
     font-size: 34px;
     font-weight: 900;
     color: #fff;
+    letter-spacing: 0.3px;
 }
 
 .estados-section .estados-title-box p {
@@ -67,9 +76,84 @@
     padding: 13px 24px;
     font-weight: 800;
     cursor: pointer;
+    transition: 0.2s ease;
 }
 
-/* CARDS */
+.estados-section .btn-nuevo-estado:hover {
+    filter: brightness(1.12);
+    transform: translateY(-1px);
+}
+
+/* =========================
+   TABS PRODUCCIÓN / MÁQUINAS
+========================= */
+
+.estados-section .estados-tabs {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    width: min(720px, 100%);
+    background: rgba(255,255,255,0.045);
+    border: 1px solid rgba(255,255,255,0.10);
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 14px;
+}
+
+.estados-section .estado-tab {
+    height: 42px;
+    border: none;
+    background: transparent;
+    color: #cfd6e6;
+    font-weight: 800;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    position: relative;
+    transition: 0.2s ease;
+}
+
+.estados-section .estado-tab .material-symbols-outlined {
+    font-size: 22px;
+}
+
+.estados-section .estado-tab:hover {
+    background: rgba(61,140,255,0.12);
+    color: #fff;
+}
+
+.estados-section .estado-tab.active {
+    background: linear-gradient(135deg, rgba(47,131,255,0.32), rgba(47,131,255,0.16));
+    color: #fff;
+}
+
+.estados-section .estado-tab.active::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 2px;
+    background: #3d8cff;
+}
+
+/* =========================
+   VISTAS
+========================= */
+
+.estados-section .estado-vista {
+    display: none;
+}
+
+.estados-section .estado-vista.active {
+    display: block;
+}
+
+/* =========================
+   CARDS
+========================= */
+
 .estados-section .estados-cards {
     display: grid;
     grid-template-columns: repeat(6, 1fr);
@@ -88,6 +172,7 @@
     gap: 18px;
     position: relative;
     overflow: hidden;
+    box-shadow: 0 12px 28px rgba(0,0,0,0.18);
 }
 
 .estados-section .estado-card::after {
@@ -103,6 +188,7 @@
 .estados-section .estado-card-icon {
     width: 56px;
     height: 56px;
+    min-width: 56px;
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -118,14 +204,23 @@
     margin: 0;
     font-size: 30px;
     color: #fff;
+    line-height: 1;
 }
 
 .estados-section .estado-card p {
-    margin: 3px 0 0;
+    margin: 5px 0 0;
     color: #fff;
     font-size: 14px;
 }
 
+.estados-section .estado-card small {
+    display: block;
+    margin-top: 4px;
+    color: #cfd6e6;
+    font-size: 12px;
+}
+
+/* Cards producción */
 .estados-section .estado-pendiente .estado-card-icon { background: rgba(45,123,232,0.28); }
 .estados-section .estado-pendiente::after { background: #2d7be8; }
 
@@ -144,7 +239,54 @@
 .estados-section .estado-atrasado .estado-card-icon { background: rgba(255,70,55,0.25); }
 .estados-section .estado-atrasado::after { background: #ff4b3e; }
 
-/* PANEL */
+/* Cards máquinas */
+.estados-section .maquinas-cards {
+    grid-template-columns: repeat(3, minmax(220px, 1fr));
+}
+
+.estados-section .maquina-operativa {
+    border-color: rgba(80,210,95,0.35);
+    background: linear-gradient(135deg, rgba(30,120,55,0.26), rgba(255,255,255,0.045));
+}
+
+.estados-section .maquina-operativa .estado-card-icon {
+    background: rgba(80,210,95,0.28);
+}
+
+.estados-section .maquina-operativa::after {
+    background: #4fd25f;
+}
+
+.estados-section .maquina-no-operativa {
+    border-color: rgba(255,70,80,0.38);
+    background: linear-gradient(135deg, rgba(155,35,55,0.26), rgba(255,255,255,0.045));
+}
+
+.estados-section .maquina-no-operativa .estado-card-icon {
+    background: rgba(255,70,80,0.28);
+}
+
+.estados-section .maquina-no-operativa::after {
+    background: #ff4b55;
+}
+
+.estados-section .maquina-mantencion {
+    border-color: rgba(255,140,0,0.42);
+    background: linear-gradient(135deg, rgba(180,95,20,0.26), rgba(255,255,255,0.045));
+}
+
+.estados-section .maquina-mantencion .estado-card-icon {
+    background: rgba(255,140,0,0.30);
+}
+
+.estados-section .maquina-mantencion::after {
+    background: #ff8c00;
+}
+
+/* =========================
+   PANEL / FILTROS
+========================= */
+
 .estados-section .estados-panel {
     overflow: hidden;
     margin-bottom: 14px;
@@ -158,6 +300,10 @@
     align-items: end;
 }
 
+.estados-section .maquinas-filtros {
+    grid-template-columns: 1.6fr 1fr 1fr auto;
+}
+
 .estados-section .estado-field {
     display: flex;
     flex-direction: column;
@@ -167,7 +313,7 @@
 .estados-section .estado-field label {
     color: #fff;
     font-size: 14px;
-    font-weight: 600;
+    font-weight: 700;
 }
 
 .estados-section .estado-field input,
@@ -178,11 +324,21 @@
     border: 1px solid rgba(255,255,255,0.16);
     border-radius: 6px;
     color: #fff;
+    box-sizing: border-box;
 }
 
 .estados-section .estado-field input,
 .estados-section .estado-field select {
     padding: 0 14px;
+}
+
+.estados-section .estado-field select {
+    cursor: pointer;
+}
+
+.estados-section .estado-field input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(1);
+    opacity: 0.75;
 }
 
 .estados-section .estado-search {
@@ -217,13 +373,77 @@
     align-items: center;
     justify-content: center;
     gap: 8px;
+    cursor: pointer;
+    transition: 0.2s ease;
 }
 
-/* TABLA */
+.estados-section .btn-filtrar-estados:hover {
+    filter: brightness(1.12);
+    transform: translateY(-1px);
+}
+
+/* =========================
+   REGLA MÁQUINAS
+========================= */
+
+.estados-section .maquinas-regla {
+    margin: 0 22px 18px;
+    padding: 15px 18px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    background: linear-gradient(135deg, rgba(47,131,255,0.14), rgba(255,255,255,0.045));
+    border-color: rgba(47,131,255,0.35);
+}
+
+.estados-section .maquinas-regla-icon {
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(47,131,255,0.18);
+    color: #76b6ff;
+}
+
+.estados-section .maquinas-regla-icon .material-symbols-outlined {
+    font-size: 28px;
+}
+
+.estados-section .maquinas-regla strong {
+    display: block;
+    color: #fff;
+    margin-bottom: 3px;
+    font-size: 14px;
+}
+
+.estados-section .maquinas-regla p {
+    margin: 0;
+    color: #cfd6e6;
+    font-size: 13px;
+    line-height: 1.45;
+}
+
+/* =========================
+   TABLAS
+========================= */
+
+.estados-section .estados-table-wrap {
+    width: 100%;
+    overflow-x: auto;
+}
+
 .estados-section .estados-table {
     width: 100%;
     border-collapse: collapse;
     color: #fff;
+    min-width: 980px;
+}
+
+.estados-section .maquinas-table {
+    min-width: 1050px;
 }
 
 .estados-section .estados-table th {
@@ -234,6 +454,7 @@
     background: rgba(255,255,255,0.04);
     border-top: 1px solid rgba(255,255,255,0.08);
     border-bottom: 1px solid rgba(255,255,255,0.12);
+    white-space: nowrap;
 }
 
 .estados-section .estados-table td {
@@ -241,31 +462,122 @@
     font-size: 13px;
     color: #eef3ff;
     border-bottom: 1px solid rgba(255,255,255,0.07);
+    vertical-align: middle;
 }
 
 .estados-section .estados-table tr:nth-child(even) td {
     background: rgba(255,255,255,0.025);
 }
 
+.estados-section .estados-table tr:hover td {
+    background: rgba(61,140,255,0.06);
+}
+
+/* =========================
+   BADGES
+========================= */
+
 .estados-section .badge {
     padding: 5px 9px;
     border-radius: 5px;
     font-size: 12px;
-    font-weight: 700;
+    font-weight: 800;
     display: inline-block;
+    white-space: nowrap;
 }
 
-.estados-section .badge-terminado { background: rgba(70,190,85,0.40); color: #dfffdf; border: 1px solid rgba(70,190,85,0.65); }
-.estados-section .badge-proceso { background: rgba(255,200,0,0.34); color: #ffe766; border: 1px solid rgba(255,200,0,0.75); }
-.estados-section .badge-pausado { background: rgba(255,125,0,0.35); color: #ffd3a3; border: 1px solid rgba(255,125,0,0.65); }
-.estados-section .badge-entregado { background: rgba(140,80,255,0.35); color: #dec7ff; border: 1px solid rgba(140,80,255,0.65); }
-.estados-section .badge-atrasado { background: rgba(255,65,55,0.35); color: #ffd1d1; border: 1px solid rgba(255,65,55,0.65); }
-.estados-section .badge-pendiente { background: rgba(45,123,232,0.35); color: #d5e7ff; border: 1px solid rgba(45,123,232,0.65); }
+.estados-section .badge-terminado {
+    background: rgba(70,190,85,0.40);
+    color: #dfffdf;
+    border: 1px solid rgba(70,190,85,0.65);
+}
+
+.estados-section .badge-proceso {
+    background: rgba(255,200,0,0.34);
+    color: #ffe766;
+    border: 1px solid rgba(255,200,0,0.75);
+}
+
+.estados-section .badge-pausado {
+    background: rgba(255,125,0,0.35);
+    color: #ffd3a3;
+    border: 1px solid rgba(255,125,0,0.65);
+}
+
+.estados-section .badge-entregado {
+    background: rgba(140,80,255,0.35);
+    color: #dec7ff;
+    border: 1px solid rgba(140,80,255,0.65);
+}
+
+.estados-section .badge-atrasado {
+    background: rgba(255,65,55,0.35);
+    color: #ffd1d1;
+    border: 1px solid rgba(255,65,55,0.65);
+}
+
+.estados-section .badge-pendiente {
+    background: rgba(45,123,232,0.35);
+    color: #d5e7ff;
+    border: 1px solid rgba(45,123,232,0.65);
+}
+
+/* Badges máquinas */
+.estados-section .badge-operativa {
+    background: rgba(70,190,85,0.36);
+    color: #dfffdf;
+    border: 1px solid rgba(70,190,85,0.65);
+}
+
+.estados-section .badge-no-operativa {
+    background: rgba(255,65,75,0.34);
+    color: #ffd1d1;
+    border: 1px solid rgba(255,65,75,0.70);
+}
+
+.estados-section .badge-mantencion {
+    background: rgba(255,135,0,0.34);
+    color: #ffd8ad;
+    border: 1px solid rgba(255,135,0,0.70);
+}
+
+/* =========================
+   DISPONIBILIDAD MÁQUINAS
+========================= */
+
+.estados-section .disponibilidad {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 800;
+    font-size: 12px;
+    white-space: nowrap;
+}
+
+.estados-section .disponibilidad .material-symbols-outlined {
+    font-size: 18px;
+}
+
+.estados-section .disponibilidad.disponible {
+    color: #5cff70;
+}
+
+.estados-section .disponibilidad.bloqueada {
+    color: #ff5b5b;
+}
+
+/* =========================
+   PROGRESO
+========================= */
 
 .estados-section .progreso-cell {
     display: flex;
     align-items: center;
     gap: 12px;
+}
+
+.estados-section .progreso-cell span {
+    min-width: 38px;
 }
 
 .estados-section .barra-progreso {
@@ -285,21 +597,44 @@
 .estados-section .barra-progreso.yellow div { background: #ffc400; }
 .estados-section .barra-progreso.orange div { background: #ff8500; }
 .estados-section .barra-progreso.red div { background: #ff5146; }
+.estados-section .barra-progreso.empty div { background: transparent; }
+
+/* =========================
+   BOTONES TABLA
+========================= */
 
 .estados-section .btn-editar {
-    width: 28px;
-    height: 28px;
+    width: 30px;
+    height: 30px;
     background: linear-gradient(135deg, #246ddf, #094eb9);
     color: #fff;
     border: none;
-    border-radius: 5px;
+    border-radius: 6px;
     cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: 0.2s ease;
 }
+
+.estados-section .btn-editar:hover {
+    filter: brightness(1.15);
+    transform: translateY(-1px);
+}
+
+.estados-section .btn-editar .material-symbols-outlined {
+    font-size: 18px;
+}
+
+/* =========================
+   PAGINACIÓN
+========================= */
 
 .estados-section .estados-pagination {
     padding: 14px 20px;
     display: flex;
     justify-content: space-between;
+    align-items: center;
     color: #dbe4f4;
     font-size: 13px;
 }
@@ -316,13 +651,21 @@
     color: #fff;
     border: none;
     border-radius: 6px;
+    cursor: pointer;
 }
 
 .estados-section .estados-pagination button.active {
     background: #2f83ff;
 }
 
-/* INFERIOR */
+.estados-section .estados-pagination button:hover {
+    background: rgba(47,131,255,0.35);
+}
+
+/* =========================
+   INFERIOR PRODUCCIÓN
+========================= */
+
 .estados-section .estados-bottom {
     display: grid;
     grid-template-columns: 1.2fr 1fr 0.65fr;
@@ -390,7 +733,14 @@
     margin-bottom: 8px;
 }
 
-/* TIMELINE */
+.estados-section .detalle-progress .barra-progreso {
+    width: 100%;
+}
+
+/* =========================
+   TIMELINE
+========================= */
+
 .estados-section .timeline {
     position: relative;
     padding-left: 20px;
@@ -420,12 +770,24 @@
     border-radius: 50%;
 }
 
-.estados-section .timeline-item.green > span { background: #4fd25f; box-shadow: 0 0 0 4px rgba(79,210,95,0.20); }
-.estados-section .timeline-item.yellow > span { background: #ffc400; box-shadow: 0 0 0 4px rgba(255,196,0,0.18); }
-.estados-section .timeline-item.blue > span { background: #3d8cff; box-shadow: 0 0 0 4px rgba(61,140,255,0.20); }
+.estados-section .timeline-item.green > span {
+    background: #4fd25f;
+    box-shadow: 0 0 0 4px rgba(79,210,95,0.20);
+}
+
+.estados-section .timeline-item.yellow > span {
+    background: #ffc400;
+    box-shadow: 0 0 0 4px rgba(255,196,0,0.18);
+}
+
+.estados-section .timeline-item.blue > span {
+    background: #3d8cff;
+    box-shadow: 0 0 0 4px rgba(61,140,255,0.20);
+}
 
 .estados-section .timeline-item strong {
     color: #fff;
+    font-size: 15px;
 }
 
 .estados-section .timeline-item p {
@@ -441,9 +803,13 @@
     color: #76b6ff;
     padding: 10px 18px;
     border-radius: 6px;
+    cursor: pointer;
 }
 
-/* ACCIONES */
+/* =========================
+   ACCIONES
+========================= */
+
 .estados-section .estado-acciones {
     display: flex;
     flex-direction: column;
@@ -453,13 +819,19 @@
 .estados-section .accion {
     height: 45px;
     border-radius: 6px;
-    font-weight: 700;
+    font-weight: 800;
     background: rgba(255,255,255,0.06);
     display: flex;
     align-items: center;
     gap: 12px;
     padding: 0 14px;
     cursor: pointer;
+    transition: 0.2s ease;
+}
+
+.estados-section .accion:hover {
+    transform: translateY(-1px);
+    filter: brightness(1.1);
 }
 
 .estados-section .accion.terminar {
@@ -480,4 +852,333 @@
 .estados-section .accion.entregar {
     border: 1px solid rgba(155,77,255,0.75);
     color: #d7b8ff;
+}
+
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media (max-width: 1400px) {
+    .estados-section .estados-cards {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    .estados-section .estados-filtros {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    .estados-section .btn-filtrar-estados {
+        width: 100%;
+    }
+
+    .estados-section .estados-bottom {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 900px) {
+    .estados-section {
+        padding: 10px;
+    }
+
+    .estados-section .estados-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+    }
+
+    .estados-section .btn-nuevo-estado {
+        width: 100%;
+    }
+
+    .estados-section .estados-tabs {
+        grid-template-columns: 1fr;
+    }
+
+    .estados-section .estados-cards,
+    .estados-section .maquinas-cards {
+        grid-template-columns: 1fr;
+    }
+
+    .estados-section .estados-filtros,
+    .estados-section .maquinas-filtros {
+        grid-template-columns: 1fr;
+    }
+
+    .estados-section .detalle-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .estados-section .estados-pagination {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+}
+
+/* =========================================================
+   AJUSTE NUEVO LAYOUT ESTADOS
+   Tabla producción + paneles compactos laterales
+========================================================= */
+
+/* GRID CENTRAL: TABLA IZQUIERDA + PANELES DERECHA */
+.estados-section .estados-main-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(360px, 420px);
+    gap: 14px;
+    margin-bottom: 14px;
+    align-items: start;
+}
+
+/* PANEL DE TABLA */
+.estados-section .estados-panel-tabla {
+    min-width: 0;
+    margin-bottom: 0;
+}
+
+/* FILTROS MÁS COMPACTOS DENTRO DEL PANEL PRINCIPAL */
+.estados-section .estados-panel-tabla .estados-filtros {
+    padding: 18px 20px;
+    grid-template-columns: 1.35fr 0.85fr 0.95fr 0.85fr 0.85fr auto;
+    gap: 12px;
+}
+
+.estados-section .estados-panel-tabla .estado-field label {
+    font-size: 13px;
+}
+
+.estados-section .estados-panel-tabla .estado-field input,
+.estados-section .estados-panel-tabla .estado-field select,
+.estados-section .estados-panel-tabla .estado-search {
+    height: 40px;
+}
+
+/* TABLA UN POCO MÁS COMPACTA PARA QUE SE PAREZCA A LA IMAGEN */
+.estados-section .estados-panel-tabla .estados-table {
+    min-width: 1060px;
+}
+
+.estados-section .estados-panel-tabla .estados-table th {
+    padding: 13px 14px;
+    font-size: 12px;
+}
+
+.estados-section .estados-panel-tabla .estados-table td {
+    padding: 12px 14px;
+    font-size: 12.5px;
+}
+
+/* PANELES COMPACTOS DERECHA */
+.estados-section .estados-side-panels {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 14px;
+    min-width: 0;
+}
+
+/* MINI CARDS */
+.estados-section .estado-mini-card {
+    background: rgba(255,255,255,0.055);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 12px;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.22);
+    padding: 16px 18px;
+    min-width: 0;
+}
+
+.estados-section .estado-mini-card h3 {
+    margin: 0 0 14px;
+    color: #3d8cff;
+    font-size: 18px;
+    font-weight: 800;
+}
+
+/* DETALLE COMPACTO */
+.estados-section .detalle-head.mini {
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 12px;
+}
+
+.estados-section .detalle-head.mini .detalle-check {
+    font-size: 30px;
+}
+
+.estados-section .detalle-head.mini strong {
+    padding: 7px 12px;
+    font-size: 13px;
+}
+
+.estados-section .mini-detalle-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+}
+
+.estados-section .mini-detalle-grid p {
+    margin: 0 0 10px;
+    color: #fff;
+    font-size: 12.5px;
+    line-height: 1.45;
+}
+
+.estados-section .mini-detalle-grid span {
+    color: #cfd6e6;
+    font-size: 12px;
+}
+
+/* PROGRESO COMPACTO */
+.estados-section .detalle-progress.mini {
+    margin-top: 4px;
+    padding: 11px;
+}
+
+.estados-section .detalle-progress.mini > div:first-child {
+    font-size: 13px;
+}
+
+.estados-section .detalle-progress.mini .barra-progreso {
+    width: 100%;
+}
+
+/* HISTORIAL COMPACTO */
+.estados-section .timeline.mini {
+    padding-left: 18px;
+}
+
+.estados-section .timeline.mini::before {
+    left: 7px;
+    height: calc(100% - 18px);
+}
+
+.estados-section .timeline.mini .timeline-item {
+    margin-bottom: 15px;
+}
+
+.estados-section .timeline.mini .timeline-item > span {
+    width: 14px;
+    height: 14px;
+    left: -18px;
+}
+
+.estados-section .timeline.mini .timeline-item strong {
+    font-size: 13.5px;
+}
+
+.estados-section .timeline.mini .timeline-item p {
+    font-size: 11.8px;
+    line-height: 1.45;
+}
+
+/* BOTÓN HISTORIAL COMPACTO */
+.estados-section .estado-mini-card .btn-historial {
+    width: 100%;
+    margin-top: 4px;
+}
+
+/* AJUSTE ZONA INFERIOR PARA QUE QUEDE MÁS PARECIDA A LA IMAGEN */
+.estados-section .estados-bottom {
+    grid-template-columns: 1.15fr 1fr 0.72fr;
+    align-items: stretch;
+}
+
+.estados-section .estado-detalle,
+.estados-section .estado-historial,
+.estados-section .estado-acciones {
+    min-height: 260px;
+}
+
+/* ACCIONES MÁS ORDENADAS */
+.estados-section .estado-acciones .accion {
+    justify-content: flex-start;
+    min-height: 46px;
+}
+
+/* =========================================================
+   RESPONSIVE NUEVO LAYOUT
+========================================================= */
+
+@media (max-width: 1500px) {
+    .estados-section .estados-main-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .estados-section .estados-side-panels {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .estados-section .estados-panel-tabla .estados-filtros {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    .estados-section .btn-filtrar-estados {
+        width: 100%;
+    }
+}
+
+@media (max-width: 1100px) {
+    .estados-section .estados-side-panels {
+        grid-template-columns: 1fr;
+    }
+
+    .estados-section .mini-detalle-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .estados-section .estados-bottom {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 900px) {
+    .estados-section .estados-main-grid {
+        gap: 12px;
+    }
+
+    .estados-section .estados-panel-tabla .estados-filtros {
+        grid-template-columns: 1fr;
+    }
+
+    .estados-section .estado-mini-card {
+        padding: 15px;
+    }
+}
+
+/* CONTENEDOR SUPERIOR QUE CAMBIA ENTRE PRODUCCIÓN Y MÁQUINAS */
+.estados-section .estados-switch-container {
+    margin-bottom: 14px;
+}
+
+/* =========================
+   CONTENEDOR SUPERIOR GENERAL
+========================= */
+
+.estados-section .estados-top-box {
+    background: rgba(255,255,255,0.045);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 16px;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.22);
+    padding: 16px;
+    margin-bottom: 16px;
+}
+
+/* =========================
+   TABS DENTRO DEL CONTAINER SUPERIOR
+========================= */
+
+.estados-section .estados-top-box {
+    background: rgba(255,255,255,0.045);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 16px;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.22);
+    padding: 16px;
+    margin-bottom: 16px;
+}
+
+.estados-section .estados-top-box .estados-tabs {
+    margin-bottom: 16px;
+}
+
+.estados-section .estados-top-box .estados-switch-container {
+    margin-bottom: 0;
 }

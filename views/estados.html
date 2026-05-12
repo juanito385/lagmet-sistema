@@ -1,4 +1,4 @@
-<section class="section estados-section">
+<section class="section estados-section" id="section-estados">
 
     <!-- HEADER -->
     <div class="estados-header">
@@ -9,268 +9,564 @@
 
             <div>
                 <h2>Estados</h2>
-                <p>Seguimiento y control de estados de órdenes y piezas</p>
+                <p>Seguimiento y control centralizado de producción y máquinas</p>
             </div>
         </div>
 
-        <button class="btn-nuevo-estado">+ Nuevo Estado Manual</button>
+        <button class="btn-nuevo-estado" type="button">
+            + Nuevo Estado Manual
+        </button>
     </div>
 
-    <!-- CARDS -->
-    <div class="estados-cards">
 
-        <div class="estado-card estado-pendiente">
-            <div class="estado-card-icon">
-                <span class="material-symbols-outlined">pending</span>
-            </div>
-            <div>
-                <h3>18</h3>
-                <p>Pendiente</p>
-            </div>
-        </div>
+    <div class="estados-top-box">
 
-        <div class="estado-card estado-proceso">
-            <div class="estado-card-icon">
-                <span class="material-symbols-outlined">play_arrow</span>
-            </div>
-            <div>
-                <h3>27</h3>
-                <p>En proceso</p>
-            </div>
-        </div>
+        <!-- TABS PRINCIPALES -->
+        <div class="estados-tabs">
+            <button class="estado-tab active" data-estado-tab="produccion" type="button">
+                <span class="material-symbols-outlined">precision_manufacturing</span>
+                Producción
+            </button>
 
-        <div class="estado-card estado-pausado">
-            <div class="estado-card-icon">
-                <span class="material-symbols-outlined">pause</span>
-            </div>
-            <div>
-                <h3>6</h3>
-                <p>Pausado</p>
-            </div>
-        </div>
-
-        <div class="estado-card estado-terminado">
-            <div class="estado-card-icon">
-                <span class="material-symbols-outlined">check</span>
-            </div>
-            <div>
-                <h3>42</h3>
-                <p>Terminado</p>
-            </div>
-        </div>
-
-        <div class="estado-card estado-entregado">
-            <div class="estado-card-icon">
-                <span class="material-symbols-outlined">local_shipping</span>
-            </div>
-            <div>
-                <h3>15</h3>
-                <p>Entregado</p>
-            </div>
-        </div>
-
-        <div class="estado-card estado-atrasado">
-            <div class="estado-card-icon">
-                <span class="material-symbols-outlined">timer</span>
-            </div>
-            <div>
-                <h3>7</h3>
-                <p>Atrasado</p>
-            </div>
-        </div>
-
-    </div>
-
-    <!-- FILTROS + TABLA -->
-    <div class="estados-panel">
-
-        <div class="estados-filtros">
-            <div class="estado-field field-buscar">
-                <label>Buscar orden / producto</label>
-                <div class="estado-search">
-                    <input type="text" placeholder="Buscar...">
-                    <span class="material-symbols-outlined">search</span>
-                </div>
-            </div>
-
-            <div class="estado-field">
-                <label>Estado</label>
-                <select>
-                    <option>Todos</option>
-                    <option>Pendiente</option>
-                    <option>En proceso</option>
-                    <option>Pausado</option>
-                    <option>Terminado</option>
-                    <option>Entregado</option>
-                    <option>Atrasado</option>
-                </select>
-            </div>
-
-            <div class="estado-field">
-                <label>Área / Máquina</label>
-                <select>
-                    <option>Todas</option>
-                    <option>Torno Vertical</option>
-                    <option>Fresadora CNC</option>
-                    <option>Soldado</option>
-                </select>
-            </div>
-
-            <div class="estado-field">
-                <label>Fecha desde</label>
-                <input type="date" value="2025-05-01">
-            </div>
-
-            <div class="estado-field">
-                <label>Fecha hasta</label>
-                <input type="date" value="2025-05-21">
-            </div>
-
-            <button class="btn-filtrar-estados">
-                <span class="material-symbols-outlined">filter_alt</span>
-                Filtrar
+            <button class="estado-tab" data-estado-tab="maquinas" type="button">
+                <span class="material-symbols-outlined">engineering</span>
+                Máquinas
             </button>
         </div>
 
-        <table class="estados-table">
-            <thead>
-                <tr>
-                    <th>Orden de trabajo</th>
-                    <th>Producto</th>
-                    <th>Área / Máquina</th>
-                    <th>Fecha inicio</th>
-                    <th>Fecha fin estimada</th>
-                    <th>Estado actual</th>
-                    <th>Progreso</th>
-                    <th>Acciones</th>
-                </tr>
-            </thead>
 
-            <tbody>
-                <tr>
-                    <td>OT-2025-00045</td>
-                    <td>Liner Saddle Block 430-b</td>
-                    <td>Torno Vertical</td>
-                    <td>21/05/2025 08:00</td>
-                    <td>21/05/2025 17:00</td>
-                    <td><span class="badge badge-terminado">Terminado</span></td>
-                    <td>
-                        <div class="progreso-cell">
-                            <span>100%</span>
-                            <div class="barra-progreso"><div style="width:100%"></div></div>
+            <!-- =========================================================
+                    CONTENEDOR QUE CAMBIA ENTRE PRODUCCIÓN Y MÁQUINAS
+                ========================================================== -->
+        <div class="estados-switch-container">
+
+            <!-- =========================================================
+                PANEL PRODUCCIÓN
+            ========================================================== -->
+            <div class="estado-vista active" id="vista-estados-produccion">
+
+                <!-- CARDS PRODUCCIÓN -->
+                <div class="estados-cards">
+
+                    <div class="estado-card estado-pendiente">
+                        <div class="estado-card-icon">
+                            <span class="material-symbols-outlined">pending</span>
                         </div>
-                    </td>
-                    <td><button class="btn-editar">✎</button></td>
-                </tr>
-
-                <tr>
-                    <td>OT-2025-00044</td>
-                    <td>Housing Support 210-a</td>
-                    <td>Fresadora CNC</td>
-                    <td>20/05/2025 07:30</td>
-                    <td>21/05/2025 16:30</td>
-                    <td><span class="badge badge-proceso">En proceso</span></td>
-                    <td>
-                        <div class="progreso-cell">
-                            <span>65%</span>
-                            <div class="barra-progreso yellow"><div style="width:65%"></div></div>
+                        <div>
+                            <h3>22</h3>
+                            <p>Pendiente</p>
                         </div>
-                    </td>
-                    <td><button class="btn-editar">✎</button></td>
-                </tr>
+                    </div>
 
-                <tr>
-                    <td>OT-2025-00043</td>
-                    <td>Shaft Coupling 320-c</td>
-                    <td>Torno Horizontal</td>
-                    <td>19/05/2025 09:00</td>
-                    <td>21/05/2025 12:00</td>
-                    <td><span class="badge badge-pausado">Pausado</span></td>
-                    <td>
-                        <div class="progreso-cell">
-                            <span>40%</span>
-                            <div class="barra-progreso orange"><div style="width:40%"></div></div>
+                    <div class="estado-card estado-proceso">
+                        <div class="estado-card-icon">
+                            <span class="material-symbols-outlined">play_arrow</span>
                         </div>
-                    </td>
-                    <td><button class="btn-editar">✎</button></td>
-                </tr>
-
-                <tr>
-                    <td>OT-2025-00042</td>
-                    <td>Flange Adapter 150-d</td>
-                    <td>Soldado</td>
-                    <td>18/05/2025 10:00</td>
-                    <td>19/05/2025 18:00</td>
-                    <td><span class="badge badge-entregado">Entregado</span></td>
-                    <td>
-                        <div class="progreso-cell">
-                            <span>100%</span>
-                            <div class="barra-progreso"><div style="width:100%"></div></div>
+                        <div>
+                            <h3>34</h3>
+                            <p>En proceso</p>
                         </div>
-                    </td>
-                    <td><button class="btn-editar">✎</button></td>
-                </tr>
+                    </div>
 
-                <tr>
-                    <td>OT-2025-00041</td>
-                    <td>Valve Body 500-e</td>
-                    <td>Fresadora CNC</td>
-                    <td>16/05/2025 08:00</td>
-                    <td>20/05/2025 17:00</td>
-                    <td><span class="badge badge-atrasado">Atrasado</span></td>
-                    <td>
-                        <div class="progreso-cell">
-                            <span>75%</span>
-                            <div class="barra-progreso red"><div style="width:75%"></div></div>
+                    <div class="estado-card estado-pausado">
+                        <div class="estado-card-icon">
+                            <span class="material-symbols-outlined">pause</span>
                         </div>
-                    </td>
-                    <td><button class="btn-editar">✎</button></td>
-                </tr>
-
-                <tr>
-                    <td>OT-2025-00040</td>
-                    <td>Bracket Mount 120-f</td>
-                    <td>Perforadora</td>
-                    <td>21/05/2025 11:00</td>
-                    <td>22/05/2025 12:00</td>
-                    <td><span class="badge badge-pendiente">Pendiente</span></td>
-                    <td>
-                        <div class="progreso-cell">
-                            <span>0%</span>
-                            <div class="barra-progreso empty"><div style="width:0%"></div></div>
+                        <div>
+                            <h3>9</h3>
+                            <p>Pausado</p>
                         </div>
-                    </td>
-                    <td><button class="btn-editar">✎</button></td>
-                </tr>
-            </tbody>
-        </table>
+                    </div>
 
-        <div class="estados-pagination">
-            <span>Mostrando 1 a 6 de 115 resultados</span>
-            <div>
-                <button>‹</button>
-                <button class="active">1</button>
-                <button>2</button>
-                <button>3</button>
-                <button>4</button>
-                <button>5</button>
-                <button>...</button>
-                <button>20</button>
-                <button>›</button>
+                    <div class="estado-card estado-terminado">
+                        <div class="estado-card-icon">
+                            <span class="material-symbols-outlined">check</span>
+                        </div>
+                        <div>
+                            <h3>58</h3>
+                            <p>Terminado</p>
+                        </div>
+                    </div>
+
+                    <div class="estado-card estado-entregado">
+                        <div class="estado-card-icon">
+                            <span class="material-symbols-outlined">local_shipping</span>
+                        </div>
+                        <div>
+                            <h3>18</h3>
+                            <p>Entregado</p>
+                        </div>
+                    </div>
+
+                    <div class="estado-card estado-atrasado">
+                        <div class="estado-card-icon">
+                            <span class="material-symbols-outlined">timer</span>
+                        </div>
+                        <div>
+                            <h3>11</h3>
+                            <p>Atrasado</p>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- PANEL TABLA PRODUCCIÓN -->
+                <div class="estados-panel">
+
+                    <!-- FILTROS PRODUCCIÓN -->
+                    <div class="estados-filtros">
+
+                        <div class="estado-field field-buscar">
+                            <label>Buscar orden / producto</label>
+                            <div class="estado-search">
+                                <input type="text" placeholder="Buscar...">
+                                <span class="material-symbols-outlined">search</span>
+                            </div>
+                        </div>
+
+                        <div class="estado-field">
+                            <label>Estado</label>
+                            <select>
+                                <option>Todos</option>
+                                <option>Pendiente</option>
+                                <option>En proceso</option>
+                                <option>Pausado</option>
+                                <option>Terminado</option>
+                                <option>Entregado</option>
+                                <option>Atrasado</option>
+                            </select>
+                        </div>
+
+                        <div class="estado-field">
+                            <label>Área / Máquina</label>
+                            <select>
+                                <option>Todas</option>
+                                <option>Torno Vertical</option>
+                                <option>Fresadora CNC</option>
+                                <option>Torno Horizontal</option>
+                                <option>Soldadura</option>
+                            </select>
+                        </div>
+
+                        <div class="estado-field">
+                            <label>Fecha desde</label>
+                            <input type="date" value="2025-05-01">
+                        </div>
+
+                        <div class="estado-field">
+                            <label>Fecha hasta</label>
+                            <input type="date" value="2025-05-21">
+                        </div>
+
+                        <button class="btn-filtrar-estados" type="button">
+                            <span class="material-symbols-outlined">filter_alt</span>
+                            Filtrar
+                        </button>
+
+                    </div>
+
+                    <!-- TABLA PRODUCCIÓN -->
+                    <div class="estados-table-wrap">
+                        <table class="estados-table">
+                            <thead>
+                                <tr>
+                                    <th>Orden de trabajo</th>
+                                    <th>Producto</th>
+                                    <th>Área / Máquina</th>
+                                    <th>Fecha inicio</th>
+                                    <th>Fecha fin estimada</th>
+                                    <th>Estado actual</th>
+                                    <th>Progreso</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+                                <tr>
+                                    <td>OT-2025-00052</td>
+                                    <td>Liner Saddle Block 430-b</td>
+                                    <td>Torno Vertical</td>
+                                    <td>21/05/2025 08:00</td>
+                                    <td>21/05/2025 17:00</td>
+                                    <td><span class="badge badge-terminado">Terminado</span></td>
+                                    <td>
+                                        <div class="progreso-cell">
+                                            <span>100%</span>
+                                            <div class="barra-progreso"><div style="width:100%"></div></div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <button class="btn-editar" type="button">
+                                            <span class="material-symbols-outlined">edit</span>
+                                        </button>
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td>OT-2025-00051</td>
+                                    <td>Housing Support 210-a</td>
+                                    <td>Fresadora CNC</td>
+                                    <td>21/05/2025 07:30</td>
+                                    <td>21/05/2025 16:30</td>
+                                    <td><span class="badge badge-proceso">En proceso</span></td>
+                                    <td>
+                                        <div class="progreso-cell">
+                                            <span>60%</span>
+                                            <div class="barra-progreso yellow"><div style="width:60%"></div></div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <button class="btn-editar" type="button">
+                                            <span class="material-symbols-outlined">edit</span>
+                                        </button>
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td>OT-2025-00050</td>
+                                    <td>Shaft Coupling 320-c</td>
+                                    <td>Torno Horizontal</td>
+                                    <td>20/05/2025 09:00</td>
+                                    <td>21/05/2025 12:00</td>
+                                    <td><span class="badge badge-pausado">Pausado</span></td>
+                                    <td>
+                                        <div class="progreso-cell">
+                                            <span>40%</span>
+                                            <div class="barra-progreso orange"><div style="width:40%"></div></div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <button class="btn-editar" type="button">
+                                            <span class="material-symbols-outlined">edit</span>
+                                        </button>
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td>OT-2025-00049</td>
+                                    <td>Flange Adapter 150-d</td>
+                                    <td>Soldadura</td>
+                                    <td>19/05/2025 10:00</td>
+                                    <td>20/05/2025 18:00</td>
+                                    <td><span class="badge badge-entregado">Entregado</span></td>
+                                    <td>
+                                        <div class="progreso-cell">
+                                            <span>100%</span>
+                                            <div class="barra-progreso"><div style="width:100%"></div></div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <button class="btn-editar" type="button">
+                                            <span class="material-symbols-outlined">edit</span>
+                                        </button>
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td>OT-2025-00048</td>
+                                    <td>Valve Body 500-e</td>
+                                    <td>Fresadora CNC</td>
+                                    <td>18/05/2025 08:00</td>
+                                    <td>20/05/2025 17:00</td>
+                                    <td><span class="badge badge-atrasado">Atrasado</span></td>
+                                    <td>
+                                        <div class="progreso-cell">
+                                            <span>75%</span>
+                                            <div class="barra-progreso red"><div style="width:75%"></div></div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <button class="btn-editar" type="button">
+                                            <span class="material-symbols-outlined">edit</span>
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- PAGINACIÓN PRODUCCIÓN -->
+                    <div class="estados-pagination">
+                        <span>Mostrando 1 a 5 de 94 resultados</span>
+
+                        <div>
+                            <button type="button">‹</button>
+                            <button type="button" class="active">1</button>
+                            <button type="button">2</button>
+                            <button type="button">3</button>
+                            <button type="button">4</button>
+                            <button type="button">5</button>
+                            <button type="button">...</button>
+                            <button type="button">19</button>
+                            <button type="button">›</button>
+                        </div>
+                    </div>
+
+                </div>
+
             </div>
-        </div>
 
+            <!-- =========================================================
+                PANEL MÁQUINAS
+            ========================================================== -->
+            <div class="estado-vista" id="vista-estados-maquinas">
+
+                <!-- CARDS MÁQUINAS -->
+                <div class="estados-cards maquinas-cards">
+
+                    <div class="estado-card maquina-operativa">
+                        <div class="estado-card-icon">
+                            <span class="material-symbols-outlined">check_circle</span>
+                        </div>
+                        <div>
+                            <h3>18</h3>
+                            <p>Operativas</p>
+                            <small>95% del total</small>
+                        </div>
+                    </div>
+
+                    <div class="estado-card maquina-no-operativa">
+                        <div class="estado-card-icon">
+                            <span class="material-symbols-outlined">cancel</span>
+                        </div>
+                        <div>
+                            <h3>1</h3>
+                            <p>No operativas</p>
+                            <small>5% del total</small>
+                        </div>
+                    </div>
+
+                    <div class="estado-card maquina-mantencion">
+                        <div class="estado-card-icon">
+                            <span class="material-symbols-outlined">build</span>
+                        </div>
+                        <div>
+                            <h3>0</h3>
+                            <p>En mantención</p>
+                            <small>0% del total</small>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- PANEL TABLA MÁQUINAS -->
+                <div class="estados-panel maquinas-panel">
+
+                    <!-- FILTROS MÁQUINAS -->
+                    <div class="estados-filtros maquinas-filtros">
+
+                        <div class="estado-field field-buscar">
+                            <label>Buscar máquina</label>
+                            <div class="estado-search">
+                                <input type="text" placeholder="Buscar máquina...">
+                                <span class="material-symbols-outlined">search</span>
+                            </div>
+                        </div>
+
+                        <div class="estado-field">
+                            <label>Estado</label>
+                            <select>
+                                <option>Todos</option>
+                                <option>Operativa</option>
+                                <option>No operativa</option>
+                                <option>En mantención</option>
+                            </select>
+                        </div>
+
+                        <div class="estado-field">
+                            <label>Zona</label>
+                            <select>
+                                <option>Todas</option>
+                                <option>Oriente</option>
+                                <option>Poniente</option>
+                            </select>
+                        </div>
+
+                        <button class="btn-filtrar-estados" type="button">
+                            <span class="material-symbols-outlined">filter_alt</span>
+                            Filtrar
+                        </button>
+
+                    </div>
+
+                    <!-- REGLA AUTOMÁTICA -->
+                    <div class="maquinas-regla">
+                        <div class="maquinas-regla-icon">
+                            <span class="material-symbols-outlined">shield</span>
+                        </div>
+
+                        <div>
+                            <strong>Regla automática</strong>
+                            <p>
+                                Las máquinas con estado <b>No operativa</b> o <b>En mantención</b>
+                                se desactivan en Monitoreo y no pueden ser seleccionadas hasta nuevo aviso.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- TABLA MÁQUINAS -->
+                    <div class="estados-table-wrap">
+                        <table class="estados-table maquinas-table">
+                            <thead>
+                                <tr>
+                                    <th>Máquina</th>
+                                    <th>Zona</th>
+                                    <th>Estado</th>
+                                    <th>Disponibilidad en Monitoreo</th>
+                                    <th>Motivo</th>
+                                    <th>Última actualización</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+                                <tr>
+                                    <td>Torno Vertical CNC</td>
+                                    <td>Oriente</td>
+                                    <td><span class="badge badge-no-operativa">No operativa</span></td>
+                                    <td>
+                                        <span class="disponibilidad bloqueada">
+                                            <span class="material-symbols-outlined">lock</span>
+                                            Bloqueada en formulario
+                                        </span>
+                                    </td>
+                                    <td>Falla eléctrica en motor principal</td>
+                                    <td>
+                                        21/05/2025 09:15<br>
+                                        <small>J. Pérez</small>
+                                    </td>
+                                    <td>
+                                        <button class="btn-editar" type="button">
+                                            <span class="material-symbols-outlined">edit</span>
+                                        </button>
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td>Mandrinadora (1)</td>
+                                    <td>Oriente</td>
+                                    <td><span class="badge badge-operativa">Operativa</span></td>
+                                    <td>
+                                        <span class="disponibilidad disponible">
+                                            <span class="material-symbols-outlined">check_circle</span>
+                                            Disponible
+                                        </span>
+                                    </td>
+                                    <td>—</td>
+                                    <td>
+                                        21/05/2025 08:45<br>
+                                        <small>S. Torres</small>
+                                    </td>
+                                    <td>
+                                        <button class="btn-editar" type="button">
+                                            <span class="material-symbols-outlined">edit</span>
+                                        </button>
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td>Soldadora MIG-1</td>
+                                    <td>Poniente</td>
+                                    <td><span class="badge badge-mantencion">En mantención</span></td>
+                                    <td>
+                                        <span class="disponibilidad bloqueada">
+                                            <span class="material-symbols-outlined">lock</span>
+                                            Bloqueada en formulario
+                                        </span>
+                                    </td>
+                                    <td>Mantención preventiva programada</td>
+                                    <td>
+                                        21/05/2025 07:30<br>
+                                        <small>M. Rojas</small>
+                                    </td>
+                                    <td>
+                                        <button class="btn-editar" type="button">
+                                            <span class="material-symbols-outlined">edit</span>
+                                        </button>
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td>Torno Horizontal CNC</td>
+                                    <td>Poniente</td>
+                                    <td><span class="badge badge-operativa">Operativa</span></td>
+                                    <td>
+                                        <span class="disponibilidad disponible">
+                                            <span class="material-symbols-outlined">check_circle</span>
+                                            Disponible
+                                        </span>
+                                    </td>
+                                    <td>—</td>
+                                    <td>
+                                        21/05/2025 07:10<br>
+                                        <small>Admin</small>
+                                    </td>
+                                    <td>
+                                        <button class="btn-editar" type="button">
+                                            <span class="material-symbols-outlined">edit</span>
+                                        </button>
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td>Centro de Mecanizado 2</td>
+                                    <td>Poniente</td>
+                                    <td><span class="badge badge-operativa">Operativa</span></td>
+                                    <td>
+                                        <span class="disponibilidad disponible">
+                                            <span class="material-symbols-outlined">check_circle</span>
+                                            Disponible
+                                        </span>
+                                    </td>
+                                    <td>—</td>
+                                    <td>
+                                        21/05/2025 06:50<br>
+                                        <small>A. Gómez</small>
+                                    </td>
+                                    <td>
+                                        <button class="btn-editar" type="button">
+                                            <span class="material-symbols-outlined">edit</span>
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- PAGINACIÓN MÁQUINAS -->
+                    <div class="estados-pagination">
+                        <span>Mostrando 1 a 5 de 19 máquinas</span>
+
+                        <div>
+                            <button type="button">‹</button>
+                            <button type="button" class="active">1</button>
+                            <button type="button">2</button>
+                            <button type="button">3</button>
+                            <button type="button">4</button>
+                            <button type="button">›</button>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
     </div>
 
-    <!-- INFERIOR -->
+    <!-- =========================================================
+         PANEL INFERIOR FIJO
+         Este bloque NO cambia al presionar Producción / Máquinas
+    ========================================================== -->
     <div class="estados-bottom">
 
+        <!-- DETALLE -->
         <div class="estado-detalle">
             <h3>Detalle del Estado</h3>
 
             <div class="detalle-head">
                 <span class="detalle-check material-symbols-outlined">check_circle</span>
-                <strong>OT-2025-00045</strong>
+                <strong>OT-2025-00052</strong>
                 <span class="badge badge-terminado">Terminado</span>
             </div>
 
@@ -297,6 +593,7 @@
             </div>
         </div>
 
+        <!-- HISTORIAL -->
         <div class="estado-historial">
             <h3>Historial de Estados</h3>
 
@@ -326,28 +623,31 @@
                 </div>
             </div>
 
-            <button class="btn-historial">Ver historial completo</button>
+            <button class="btn-historial" type="button">
+                Ver historial completo
+            </button>
         </div>
 
+        <!-- ACCIONES -->
         <div class="estado-acciones">
             <h3>Acciones rápidas</h3>
 
-            <button class="accion terminar">
+            <button class="accion terminar" type="button">
                 <span class="material-symbols-outlined">check_circle</span>
                 Marcar como Terminado
             </button>
 
-            <button class="accion pausar">
+            <button class="accion pausar" type="button">
                 <span class="material-symbols-outlined">pause</span>
                 Pausar Trabajo
             </button>
 
-            <button class="accion reanudar">
+            <button class="accion reanudar" type="button">
                 <span class="material-symbols-outlined">play_arrow</span>
                 Reanudar Trabajo
             </button>
 
-            <button class="accion entregar">
+            <button class="accion entregar" type="button">
                 <span class="material-symbols-outlined">local_shipping</span>
                 Marcar como Entregado
             </button>
