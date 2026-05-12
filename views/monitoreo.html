@@ -141,26 +141,28 @@
                         </div>
                                         </div>
 
-                <div class="monitor-field">
+                <div class="monitor-field monitor-field-fallo">
                     <label>Fallo Máquina</label>
 
                     <input type="hidden" id="falloMaquina" value="no">
 
-                        <div class="custom-select-monitor" data-target="falloMaquina" data-onchange="mostrarSelectorMaquinaFallo">
-                            <button type="button" class="custom-select-selected">
-                                No
-                                <span class="select-circle-icon"></span>
-                            </button>
+                    <div class="custom-select-monitor" data-target="falloMaquina">
+                        <button type="button" class="custom-select-selected">
+                            No
+                            <span class="select-circle-icon"></span>
+                        </button>
 
-                            <div class="custom-select-options">
-                                <button type="button" data-value="no">No</button>
-                                <button type="button" data-value="si">Sí</button>
-                            </div>
+                        <div class="custom-select-options">
+                            <button type="button" data-value="no">No</button>
+                            <button type="button" data-value="si">Sí</button>
                         </div>
+                    </div>
 
                     <input type="hidden" id="maquinaFallo" value="">
 
-                    <div id="maquinaFalloCustom" class="custom-select-monitor maquina-fallo-custom" data-target="maquinaFallo" style="display:none; margin-top:10px;">
+                    <div id="maquinaFalloCustom"
+                        class="custom-select-monitor maquina-fallo-custom"
+                        data-target="maquinaFallo">
                         <button type="button" class="custom-select-selected">
                             Seleccionar máquina
                             <span class="select-circle-icon"></span>
@@ -169,7 +171,7 @@
                         <div class="custom-select-options" id="opcionesMaquinaFallo">
                             <!-- Se carga desde BD -->
                         </div>
-</div>
+                    </div>
                 </div>
             </div>
         </div>

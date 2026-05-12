@@ -236,3 +236,31 @@
     position:relative;
     z-index:1;
 }
+
+/* =========================
+   FIX SELECT FALLO MÁQUINA
+========================= */
+
+.monitor-field-fallo{
+    position:relative;
+    overflow:visible;
+}
+
+#maquinaFalloCustom{
+    display:none;
+    margin-top:12px;
+    position:relative;
+    z-index:1;
+}
+
+#maquinaFalloCustom .custom-select-options{
+    z-index:100000;
+}
+
+.monitor-field-fallo > .custom-select-monitor:first-of-type{
+    z-index:40;
+}
+
+.monitor-field-fallo > #maquinaFalloCustom{
+    z-index:30;
+}

@@ -204,20 +204,45 @@ const item = data.data.find(p => String(p.id) === String(id));
 
         const falloMaquina = document.getElementById("falloMaquina");
         const maquinaFallo = document.getElementById("maquinaFallo");
+        const maquinaFalloCustom = document.getElementById("maquinaFalloCustom");
 
         if (falloMaquina) {
             falloMaquina.value = item.fallo_maquina || "no";
+
+            const wrapperFallo = falloMaquina.closest(".custom-select-monitor");
+            const selectedFallo = wrapperFallo?.querySelector(".custom-select-selected");
+
+            if (selectedFallo) {
+                selectedFallo.innerHTML =
+                    (item.fallo_maquina === "si"
+                        ? `Sí <span class="select-circle-icon"></span>`
+                        : `No <span class="select-circle-icon"></span>`);
+            }
         }
 
         if (maquinaFallo) {
-            if (item.fallo_maquina === "si") {
-                maquinaFallo.style.display = "block";
-                maquinaFallo.value = item.maquina_fallo || "";
-            } else {
-                maquinaFallo.style.display = "none";
-                maquinaFallo.value = "";
-            }
+            maquinaFallo.value = item.maquina_fallo || "";
         }
+
+        if (maquinaFalloCustom) {
+            const selectedMaquina = maquinaFalloCustom.querySelector(".custom-select-selected");
+
+            if (item.fallo_maquina === "si") {
+                maquinaFalloCustom.style.display = "block";
+
+                if (selectedMaquina) {
+                    selectedMaquina.innerHTML =
+                        `${item.maquina_fallo || "Seleccionar máquina"} <span class="select-circle-icon"></span>`;
+                }
+            } else {
+                maquinaFalloCustom.style.display = "none";
+
+                if (selectedMaquina) {
+                    selectedMaquina.innerHTML =
+                        `Seleccionar máquina <span class="select-circle-icon"></span>`;
+                }
+    }
+}
 
         setTimeout(async () => {
             limpiarMaquinasFormulario();

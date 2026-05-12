@@ -204,12 +204,21 @@ function limpiarFormulario() {
 
     const falloMaquina = document.getElementById("falloMaquina");
     const maquinaFallo = document.getElementById("maquinaFallo");
+    const maquinaFalloCustom = document.getElementById("maquinaFalloCustom");
 
     if (falloMaquina) falloMaquina.value = "no";
 
     if (maquinaFallo) {
         maquinaFallo.value = "";
-        maquinaFallo.style.display = "none";
+    }
+
+    if (maquinaFalloCustom) {
+        maquinaFalloCustom.style.display = "none";
+
+        const selected = maquinaFalloCustom.querySelector(".custom-select-selected");
+        if (selected) {
+            selected.innerHTML = `Seleccionar máquina <span class="select-circle-icon"></span>`;
+        }
     }
 
     document.querySelectorAll("#tablaMaquinas tbody tr").forEach(f => {

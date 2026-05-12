@@ -95,6 +95,15 @@ function mostrarSelectorMaquinaFallo() {
 
     if (!maquinaHidden || !maquinaCustom) return;
 
+    // cerrar cualquier custom select abierto
+    document.querySelectorAll(".custom-select-options").forEach(menu => {
+        menu.classList.remove("active");
+    });
+
+    document.querySelectorAll(".custom-select-selected").forEach(btn => {
+        btn.classList.remove("active");
+    });
+
     if (fallo === "si") {
         maquinaCustom.style.display = "block";
     } else {
@@ -103,7 +112,7 @@ function mostrarSelectorMaquinaFallo() {
 
         const selected = maquinaCustom.querySelector(".custom-select-selected");
         if (selected) {
-            selected.innerHTML = `Seleccionar máquina <span></span>`;
+            selected.innerHTML = `Seleccionar máquina <span class="select-circle-icon"></span>`;
         }
     }
 }

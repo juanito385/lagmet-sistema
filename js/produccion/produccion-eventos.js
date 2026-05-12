@@ -52,8 +52,11 @@ document.addEventListener("click", e => {
         return;
     }
 
-    if (optionBtn) {
+        if (optionBtn) {
         const wrapper = optionBtn.closest(".custom-select-monitor");
+
+        if (!wrapper) return;
+
         const selected = wrapper.querySelector(".custom-select-selected");
 
         let targetInput = null;
@@ -70,10 +73,23 @@ document.addEventListener("click", e => {
         if (!targetInput) return;
 
         targetInput.value = optionBtn.dataset.value;
-        selected.innerHTML = `${optionBtn.textContent} <span class="select-circle-icon"></span>`;
 
-        wrapper.querySelector(".custom-select-options").classList.remove("active");
-        selected.classList.remove("active");
+        if (selected) {
+            selected.innerHTML = `${optionBtn.textContent} <span class="select-circle-icon"></span>`;
+        }
+
+        /*
+            IMPORTANTE:
+            Cerramos todos los dropdowns para evitar que el menú de
+            Fallo Máquina quede abierto encima del selector de máquina.
+        */
+        document.querySelectorAll(".custom-select-options").forEach(menu => {
+            menu.classList.remove("active");
+        });
+
+        document.querySelectorAll(".custom-select-selected").forEach(btn => {
+            btn.classList.remove("active");
+        });
 
         const fila = wrapper.closest("tr");
 
@@ -81,13 +97,16 @@ document.addEventListener("click", e => {
             actualizarColorFila(fila);
         }
 
+        if (targetInput.id === "falloMaquina") {
+            mostrarSelectorMaquinaFallo();
+        }
+
         calcular();
         actualizarGrupoActual();
         aplicarFiltrosMaquinas();
 
-        if (wrapper.dataset.onchange === "mostrarSelectorMaquinaFallo") {
-            mostrarSelectorMaquinaFallo();
-        }
+        return;
+    
     }
 });
 
