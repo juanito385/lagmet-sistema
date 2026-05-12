@@ -14,6 +14,33 @@ if ($id <= 0) {
     exit;
 }
 
+$check = $conn->prepare("SELECT id FROM produccion WHERE id = ?");
+
+if (!$check) {
+    echo json_encode([
+        "success" => false,
+        "message" => "Error al validar producción: " . $conn->error
+    ]);
+    exit;
+}
+
+$check->bind_param("i", $id);
+$check->execute();
+
+$resultCheck = $check->get_result();
+
+if ($resultCheck->num_rows === 0) {
+    echo json_encode([
+        "success" => false,
+        "message" => "No existe una producción con el ID indicado"
+    ]);
+
+    $check->close();
+    exit;
+}
+
+$check->close();
+
 $numero_pedido = trim($input["numero_pedido"] ?? "");
 $codigo = trim($input["codigo"] ?? "");
 $producto = trim($input["producto"] ?? "");
@@ -119,26 +146,28 @@ try {
         throw new Exception("Error en INSERT maquinas: " . $conn->error);
     }
 
-    foreach ($maquinas as $m) {
-            $id_maquina = intval($m["id_maquina"] ?? 0);
-            $zona = trim($m["zona"] ?? "");
-            $maquina = trim($m["maquina"] ?? "");
-            $uso = trim($m["uso"] ?? "no");
-            $horas = intval($m["horas"] ?? 0);
-            $minutos = intval($m["minutos"] ?? 0);
+        foreach ($maquinas as $m) {
+        $id_maquina = intval($m["id_maquina"] ?? 0);
+        $zona = trim($m["zona"] ?? "");
+        $maquina = trim($m["maquina"] ?? "");
+        $uso = trim($m["uso"] ?? "no");
+        $horas = intval($m["horas"] ?? 0);
+        $minutos = intval($m["minutos"] ?? 0);
 
-            if ($zona === "" || $maquina === "") continue;
+        if ($id_maquina <= 0 || $zona === "" || $maquina === "") {
+            continue;
+        }
 
-            $stmtMaquina->bind_param(
-                "iisssii",
-                $id,
-                $id_maquina,
-                $zona,
-                $maquina,
-                $uso,
-                $horas,
-                $minutos
-            );
+        $stmtMaquina->bind_param(
+            "iisssii",
+            $id,
+            $id_maquina,
+            $zona,
+            $maquina,
+            $uso,
+            $horas,
+            $minutos
+        );
 
         if (!$stmtMaquina->execute()) {
             throw new Exception("Error al insertar máquina: " . $stmtMaquina->error);

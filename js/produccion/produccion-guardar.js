@@ -97,8 +97,8 @@ async function guardarDatos() {
     const editandoId = localStorage.getItem("editandoId");
 
     const url = editandoId
-        ? "/proyecto_lagmet/php/actualizar_produccion.php"
-        : "/proyecto_lagmet/php/guardar_produccion.php";
+        ? "/proyecto_lagmet/php/produccion/actualizar_produccion.php"
+        : "/proyecto_lagmet/php/produccion/guardar_produccion.php";
 
     const body = {
         numero_pedido: pedido,
@@ -161,6 +161,8 @@ async function guardarDatos() {
    LIMPIAR
 ========================= */
 function limpiarFormulario() {
+    localStorage.removeItem("editandoId");
+
     document.getElementById("pedido").value = "";
 
     const otInput = document.getElementById("ot");

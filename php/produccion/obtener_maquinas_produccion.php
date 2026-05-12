@@ -18,6 +18,14 @@ $stmt = $conn->prepare("
     WHERE produccion_id = ?
 ");
 
+if (!$stmt) {
+    echo json_encode([
+        "success" => false,
+        "message" => "Error al preparar consulta de máquinas: " . $conn->error
+    ]);
+    exit;
+}
+
 $stmt->bind_param("i", $id);
 $stmt->execute();
 

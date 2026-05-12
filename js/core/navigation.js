@@ -57,7 +57,7 @@ async function showSection(seccion) {
 
         if (seccion === "monitoreo") {
             if (typeof iniciarMonitoreo === "function") {
-                iniciarMonitoreo();
+                await iniciarMonitoreo();
             }
         }
 

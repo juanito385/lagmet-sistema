@@ -1,16 +1,15 @@
 /* =========================
    EDITAR PRODUCTO
 ========================= */
-function editarProducto(id) {
+async function editarProducto(id) {
     localStorage.setItem("editandoId", id);
 
     if (typeof showSection === "function") {
-        showSection("monitoreo");
+        await showSection("monitoreo");
     }
 
-    cargarProductoParaEditar(id);
+    await cargarProductoParaEditar(id);
 }
-
 /* =========================
    LIMPIAR MÁQUINAS
 ========================= */
@@ -58,7 +57,7 @@ function limpiarMaquinasFormulario() {
    CARGAR MÁQUINAS GUARDADAS
 ========================= */
 async function cargarMaquinasGuardadasProducto(id) {
-    const resMaquinas = await fetch(`php/obtener_maquinas_produccion.php?id=${id}`);
+    const resMaquinas = await fetch(`php/produccion/obtener_maquinas_produccion.php?id=${id}`);
     const dataMaquinas = await resMaquinas.json();
 
     console.log("MAQUINAS CARGADAS:", dataMaquinas);
@@ -134,10 +133,15 @@ async function cargarMaquinasGuardadasProducto(id) {
 ========================= */
 async function cargarProductoParaEditar(id) {
     try {
-        const response = await fetch(`php/obtener_maquinas_produccion.php?id=${id}`);
-        const data = await response.json();
+    const response = await fetch(`php/produccion/obtener_produccion.php`);
+    const data = await response.json();
 
-        const item = data.data.find(p => p.id == id);
+    if (!data.success || !Array.isArray(data.data)) {
+        alert(data.message || "No se pudo obtener la producción");
+        return;
+    }
+
+const item = data.data.find(p => String(p.id) === String(id));
 
         if (!item) {
             alert("No se encontró el registro");

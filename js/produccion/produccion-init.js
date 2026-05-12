@@ -1,16 +1,18 @@
 /* =========================
    INICIAR MONITOREO
 ========================= */
-function iniciarMonitoreo() {
+async function iniciarMonitoreo() {
     permitirSoloNumeros("pedido");
     permitirSoloNumeros("ot");
     permitirSoloNumeros("Codigo");
 
-    cargarMaquinasDesdeBD();
+    if (typeof cargarMaquinasDesdeBD === "function") {
+        await cargarMaquinasDesdeBD();
+    }
+
     cambiarTabMonitoreo("info");
     actualizarGrupoActual();
 }
-
 /* =========================
    FUNCIONES GLOBALES
 ========================= */

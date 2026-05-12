@@ -98,7 +98,7 @@ try {
     }
 
     $stmt->bind_param(
-        "sssissiisssssssi",
+        "sssissiissssssis",
         $numero_pedido,
         $codigo,
         $producto,
@@ -117,8 +117,16 @@ try {
         $turno
     );
 
-    $stmt->execute();
+    if (!$stmt->execute()) {
+        throw new Exception("Error al insertar producción: " . $stmt->error);
+    }
+
     $produccion_id = $conn->insert_id;
+
+    if ($produccion_id <= 0) {
+        throw new Exception("No se pudo obtener el ID de la producción creada");
+    }
+
     $stmt->close();
 
 
@@ -141,7 +149,9 @@ try {
         $horas = intval($m["horas"] ?? 0);
         $minutos = intval($m["minutos"] ?? 0);
 
-        error_log("ID MAQUINA: " . $id_maquina);
+        if ($id_maquina <= 0 || $zona === "" || $maquina === "") {
+            continue;
+        }
 
         $stmtMaquina->bind_param(
             "iisssii",
@@ -154,7 +164,9 @@ try {
             $minutos
         );
 
-        $stmtMaquina->execute();
+        if (!$stmtMaquina->execute()) {
+            throw new Exception("Error al insertar máquina de producción: " . $stmtMaquina->error);
+        }
     }
 
     $stmtMaquina->close();
