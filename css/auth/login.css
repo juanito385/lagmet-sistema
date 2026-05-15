@@ -1,0 +1,461 @@
+/* ===============================
+   LOGIN IRONIX - FONDO AMBIENTAL
+================================ */
+
+.login-final{
+    height:100vh;
+    min-height:100vh;
+    width:100%;
+    position:fixed;
+    inset:0;
+    overflow:hidden;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    padding:0;
+    background:
+        #020711
+        url("../../assets/img/Fondo-Login.png")
+        center center / cover
+        no-repeat;
+    color:#ffffff;
+    z-index:999;
+}
+
+/* Cuando el login se oculta, no debe interferir */
+#login[style*="display: none"]{
+    pointer-events:none;
+}
+
+/* Capa oscura */
+.login-final::before{
+    content:"";
+    position:absolute;
+    inset:0;
+    background:
+        radial-gradient(circle at center, rgba(0,0,0,0.08), rgba(0,0,0,0.34) 72%),
+        linear-gradient(rgba(0,0,0,0.12), rgba(0,0,0,0.28));
+    z-index:1;
+    pointer-events:none;
+}
+
+/* ===============================
+   PANEL CENTRAL
+================================ */
+
+.ironix-login-card{
+    position:relative;
+    z-index:2;
+    width:min(560px, 42vw);
+    max-height:92vh;
+    padding:26px 42px;
+    text-align:center;
+    border:1px solid rgba(0,174,255,0.55);
+    background:
+        linear-gradient(180deg, rgba(5,15,31,0.90), rgba(2,7,16,0.96));
+    box-shadow:
+        0 0 70px rgba(0,140,255,0.22),
+        0 30px 90px rgba(0,0,0,0.65),
+        inset 0 0 45px rgba(0,120,255,0.08);
+    backdrop-filter:blur(18px);
+    transform:translateY(-8px);
+    clip-path:polygon(
+        4% 0,
+        96% 0,
+        100% 6%,
+        100% 94%,
+        96% 100%,
+        4% 100%,
+        0 94%,
+        0 6%
+    );
+}
+
+/* líneas superior e inferior */
+.ironix-login-card::before,
+.ironix-login-card::after{
+    content:"";
+    position:absolute;
+    left:50%;
+    width:74%;
+    height:1px;
+    transform:translateX(-50%);
+    background:linear-gradient(
+        90deg,
+        transparent,
+        rgba(0,190,255,0.95),
+        transparent
+    );
+}
+
+.ironix-login-card::before{
+    top:0;
+}
+
+.ironix-login-card::after{
+    bottom:0;
+}
+
+/* ===============================
+   LOGO
+================================ */
+
+.ironix-login-brand{
+    position:relative;
+    margin-bottom:18px;
+}
+
+.ironix-brand-glow{
+    position:absolute;
+    top:-26px;
+    left:50%;
+    width:190px;
+    height:190px;
+    transform:translateX(-50%);
+    border-radius:50%;
+    background:
+        radial-gradient(circle, rgba(0,180,255,0.42), rgba(0,85,180,0.16) 38%, transparent 66%),
+        repeating-radial-gradient(
+            circle,
+            rgba(0,160,255,0.36) 0,
+            rgba(0,160,255,0.36) 2px,
+            transparent 3px,
+            transparent 20px
+        );
+    filter:drop-shadow(0 0 34px rgba(0,150,255,0.45));
+    opacity:0.75;
+    z-index:-1;
+}
+
+.ironix-login-logo{
+    width:340px;
+    max-width:100%;
+    display:block;
+    margin:0 auto;
+    filter:
+        drop-shadow(0 0 18px rgba(0,140,255,0.45))
+        drop-shadow(0 0 24px rgba(255,132,0,0.18));
+}
+
+.ironix-login-brand p{
+    margin:12px 0 0;
+    color:#d8dde8;
+    font-size:12px;
+    letter-spacing:3px;
+    line-height:1.55;
+    text-shadow:0 0 10px rgba(0,0,0,0.65);
+}
+
+/* ===============================
+   FORMULARIO
+================================ */
+
+.ironix-login-form{
+    width:100%;
+    margin-top:20px;
+    padding:22px 30px 20px;
+    border:1px solid rgba(0,153,255,0.34);
+    background:rgba(0,0,0,0.22);
+    box-shadow:
+        inset 0 0 28px rgba(0,119,255,0.06),
+        0 0 24px rgba(0,0,0,0.24);
+    clip-path:polygon(
+        5% 0,
+        95% 0,
+        100% 10%,
+        100% 100%,
+        0 100%,
+        0 10%
+    );
+}
+
+.ironix-form-header h2{
+    margin:0 0 6px;
+    color:#00b7ff;
+    font-size:20px;
+    font-weight:800;
+    letter-spacing:2px;
+}
+
+.ironix-form-header p{
+    margin:0 0 18px;
+    color:#aeb9c8;
+    font-size:13px;
+}
+
+/* ===============================
+   INPUTS
+================================ */
+
+.ironix-input-group{
+    position:relative;
+    width:100%;
+    height:44px;
+    margin:8px 0;
+}
+
+.ironix-input-group input{
+    width:100%;
+    height:100%;
+    padding:0 48px;
+    border-radius:6px;
+    border:1px solid rgba(255,255,255,0.14);
+    background:rgba(2,8,16,0.88);
+    color:#ffffff;
+    outline:none;
+    font-size:14px;
+    transition:0.25s ease;
+}
+
+.ironix-input-group input::placeholder{
+    color:#98a8bb;
+}
+
+.ironix-input-group input:focus{
+    border-color:#00aaff;
+    background:rgba(4,14,28,0.96);
+    box-shadow:
+        0 0 0 3px rgba(0,153,255,0.18),
+        0 0 18px rgba(0,153,255,0.28);
+}
+
+.ironix-input-group > .material-symbols-outlined:first-child{
+    position:absolute;
+    left:16px;
+    top:50%;
+    transform:translateY(-50%);
+    color:#00aaff;
+    font-size:22px;
+    z-index:2;
+}
+
+.ironix-eye-icon{
+    position:absolute;
+    right:16px;
+    top:50%;
+    transform:translateY(-50%);
+    color:#b8c6d8;
+    font-size:20px;
+    cursor:pointer;
+    z-index:2;
+}
+
+/* ===============================
+   OPCIONES
+================================ */
+
+.ironix-login-options{
+    margin:10px 0 14px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:12px;
+}
+
+.ironix-remember{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    color:#c8d2df;
+    font-size:13px;
+    cursor:pointer;
+    user-select:none;
+}
+
+.ironix-remember input{
+    width:16px;
+    height:16px;
+    margin:0;
+    accent-color:#008cff;
+}
+
+.forgot{
+    margin:0;
+    color:#00aaff;
+    font-size:13px;
+    cursor:pointer;
+    transition:0.25s ease;
+    user-select:none;
+}
+
+.forgot:hover{
+    color:#57ceff;
+    text-shadow:0 0 12px rgba(0,170,255,0.55);
+}
+
+/* ===============================
+   BOTONES
+================================ */
+
+.ironix-btn-login,
+.ironix-btn-sso{
+    width:100%;
+    height:46px;
+    border-radius:6px;
+    cursor:pointer;
+    font-size:14px;
+    font-weight:800;
+    letter-spacing:1px;
+    transition:0.25s ease;
+}
+
+.ironix-btn-login{
+    position:relative;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:12px;
+    border:1px solid rgba(0,153,255,0.52);
+    background:linear-gradient(135deg, #004ba8, #006ad8);
+    color:#ffffff;
+    box-shadow:
+        0 0 24px rgba(0,119,255,0.24),
+        inset 0 0 18px rgba(255,255,255,0.06);
+}
+
+.ironix-btn-login .material-symbols-outlined{
+    position:absolute;
+    right:26px;
+    color:#48caff;
+    font-size:22px;
+}
+
+.ironix-btn-login:hover{
+    background:linear-gradient(135deg, #0066d9, #008cff);
+    box-shadow:
+        0 0 30px rgba(0,153,255,0.4),
+        inset 0 0 18px rgba(255,255,255,0.08);
+    transform:translateY(-2px);
+}
+
+.ironix-btn-sso{
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    gap:10px;
+    border:1px solid rgba(255,255,255,0.16);
+    background:rgba(0,0,0,0.28);
+    color:#e4eaf4;
+}
+
+.ironix-btn-sso:hover{
+    background:rgba(0,153,255,0.12);
+    border-color:rgba(0,153,255,0.32);
+    transform:translateY(-2px);
+}
+
+/* ===============================
+   ERROR / DIVISOR / FOOTER
+================================ */
+
+.login-error{
+    min-height:18px;
+    margin:12px 0 0;
+    color:#ff4d4d;
+    font-size:13px;
+    font-weight:600;
+}
+
+.ironix-divider{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    margin:16px 0 12px;
+    color:#919aaa;
+}
+
+.ironix-divider span{
+    flex:1;
+    height:1px;
+    background:rgba(255,255,255,0.12);
+}
+
+.ironix-divider small{
+    font-size:12px;
+}
+
+.ironix-login-footer{
+    margin-top:14px;
+    color:#7f8795;
+    font-size:11px;
+}
+
+/* ===============================
+   RESPONSIVE
+================================ */
+
+@media (max-width:900px){
+    .ironix-login-card{
+        width:90%;
+        max-height:92vh;
+        padding:30px 26px;
+    }
+
+    .ironix-login-logo{
+        width:300px;
+    }
+}
+
+@media (max-width:560px){
+    .login-final{
+        background-position:center center;
+    }
+
+    .ironix-login-card{
+        width:94%;
+        max-height:94vh;
+        padding:28px 20px;
+        clip-path:none;
+        border-radius:22px;
+    }
+
+    .ironix-login-form{
+        padding:20px 18px;
+        clip-path:none;
+        border-radius:16px;
+    }
+
+    .ironix-login-logo{
+        width:240px;
+    }
+
+    .ironix-login-brand p{
+        font-size:11px;
+        letter-spacing:2px;
+    }
+
+    .ironix-login-options{
+        flex-direction:column;
+        align-items:flex-start;
+    }
+}
+
+/* ===============================
+   ESTADO AUTENTICADO
+   Oculta login y muestra app
+================================ */
+
+body.usuario-logueado #login,
+body.usuario-logueado #recuperar{
+    display:none !important;
+    visibility:hidden !important;
+    opacity:0 !important;
+    pointer-events:none !important;
+    z-index:-1 !important;
+}
+
+body.usuario-logueado #app{
+    display:block !important;
+    visibility:visible !important;
+    opacity:1 !important;
+    position:relative !important;
+    z-index:1 !important;
+    min-height:100vh;
+}
+
+body.usuario-logueado #contenido{
+    display:block !important;
+    visibility:visible !important;
+    opacity:1 !important;
+    min-height:100vh;
+}
