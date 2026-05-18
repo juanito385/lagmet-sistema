@@ -128,7 +128,7 @@ function renderTablaEstadosProduccion(registros) {
                         ${formatearTextoEstado(estado)}
                     </span>
 
-                    ${item.esta_atrasado ? `
+                    ${mostrarAlertaAtraso ? `
                         <button 
                             class="btn-alerta-atraso" 
                             type="button"
