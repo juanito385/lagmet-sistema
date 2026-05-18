@@ -4,6 +4,7 @@
 ========================= */
 
 let estadosProduccionData = [];
+let estadoProduccionSeleccionada = null;
 
 /* =========================
    CAMBIAR PANEL
@@ -105,6 +106,7 @@ function renderTablaEstadosProduccion(registros) {
 
     registros.forEach(item => {
         const estado = item.estado_actual || "pendiente";
+        const mostrarAlertaAtraso = item.esta_atrasado === true;
 
         const progreso = calcularProgresoEstado(
             estado,
@@ -121,9 +123,22 @@ function renderTablaEstadosProduccion(registros) {
             <td>${formatearFechaEstado(item.fecha_inicio)}</td>
             <td>${formatearFechaEstado(item.fecha_fin_estimada)}</td>
             <td>
-                <span class="badge ${obtenerClaseBadgeEstado(estado)}">
-                    ${formatearTextoEstado(estado)}
-                </span>
+                <div class="estado-con-alerta">
+                    <span class="badge ${obtenerClaseBadgeEstado(estado)}">
+                        ${formatearTextoEstado(estado)}
+                    </span>
+
+                    ${item.esta_atrasado ? `
+                        <button 
+                            class="btn-alerta-atraso" 
+                            type="button"
+                            data-fecha="${formatearFechaEstado(item.fecha_fin_estimada)}"
+                            title="Producción atrasada"
+                        >
+                            <span class="material-symbols-outlined">warning</span>
+                        </button>
+                    ` : ""}
+                </div>
             </td>
             <td>
                 <div class="progreso-cell">
@@ -183,6 +198,11 @@ function filtrarEstadosProduccion() {
 
     if (estado !== "todos") {
         filtrados = filtrados.filter(item => {
+
+            if (estado === "atrasado") {
+                return item.esta_atrasado === true;
+            }
+
             return (item.estado_actual || "").toLowerCase() === estado;
         });
     }
@@ -321,6 +341,311 @@ function formatearFechaEstado(fecha) {
 }
 
 /* =========================
+   ALERTA DE ATRASO
+========================= */
+function mostrarAlertaAtraso(boton) {
+    const alertaAbierta = document.querySelector(".tooltip-atraso");
+
+    if (alertaAbierta) {
+        alertaAbierta.remove();
+    }
+
+    const fecha = boton.dataset.fecha || "Sin fecha";
+
+    const tooltip = document.createElement("div");
+    tooltip.className = "tooltip-atraso";
+
+    tooltip.innerHTML = `
+        <strong>
+            <span class="material-symbols-outlined">warning</span>
+            Está atrasado
+        </strong>
+        <p>La fecha fin estimada (${fecha}) ya ha pasado.</p>
+        <small>Haz clic fuera para cerrar</small>
+    `;
+
+    document.body.appendChild(tooltip);
+
+    const rect = boton.getBoundingClientRect();
+
+    tooltip.style.top = `${rect.bottom + window.scrollY + 8}px`;
+    tooltip.style.left = `${rect.left + window.scrollX - 120}px`;
+}
+
+/* =========================
+   SELECCIONAR PRODUCCIÓN
+   Carga detalle inferior + historial
+========================= */
+function seleccionarEstadoProduccion(id) {
+    const item = estadosProduccionData.find(registro => String(registro.id) === String(id));
+
+    if (!item) {
+        console.warn("No se encontró la producción seleccionada:", id);
+        return;
+    }
+
+    estadoProduccionSeleccionada = item;
+
+    cargarDetalleEstadoProduccion(item);
+    cargarHistorialEstadoProduccion(item.id);
+}
+
+/* =========================
+   CARGAR DETALLE INFERIOR
+========================= */
+function cargarDetalleEstadoProduccion(item) {
+    const estado = item.estado_actual || "pendiente";
+
+    const progreso = calcularProgresoEstado(
+        estado,
+        item.fecha_inicio,
+        item.fecha_fin_estimada
+    );
+
+    actualizarTextoEstado("detalleOT", item.orden || "Sin orden");
+    actualizarTextoEstado("detalleProducto", item.producto || "Sin producto");
+    actualizarTextoEstado("detalleMaquina", item.maquina || "Sin máquina");
+    actualizarTextoEstado("detalleInicio", formatearFechaEstado(item.fecha_inicio));
+    actualizarTextoEstado("detalleFechaEstimada", formatearFechaHoraEstado(item.fecha_fin_estimada));
+    actualizarTextoEstado("detalleFechaReal", formatearFechaHoraEstado(item.fecha_fin_real));
+    actualizarTextoEstado("detalleOperador", item.operador || "Admin");
+    actualizarTextoEstado("detalleProgresoTexto", `${progreso}%`);
+
+    const badge = document.getElementById("detalleEstadoBadge");
+
+    if (badge) {
+        badge.textContent = formatearTextoEstado(estado);
+        badge.className = `badge ${obtenerClaseBadgeEstado(estado)}`;
+    }
+
+    const icono = document.getElementById("detalleEstadoIcono");
+
+    if (icono) {
+        icono.textContent = obtenerIconoEstado(estado);
+        icono.className = `detalle-check material-symbols-outlined ${obtenerClaseIconoEstado(estado)}`;
+    }
+
+    const barra = document.getElementById("detalleProgresoBarra");
+
+    if (barra) {
+        barra.style.width = `${progreso}%`;
+    }
+}
+
+/* =========================
+   CARGAR HISTORIAL REAL
+========================= */
+async function cargarHistorialEstadoProduccion(produccionId) {
+    const contenedor = document.getElementById("detalleHistorial");
+
+    if (!contenedor) return;
+
+    contenedor.innerHTML = `
+        <div class="timeline-item blue">
+            <span></span>
+            <div>
+                <strong>Cargando historial...</strong>
+                <p>Consultando cambios registrados.</p>
+            </div>
+        </div>
+    `;
+
+    try {
+        const response = await fetch(`php/estados/obtener_historial_estado.php?produccion_id=${produccionId}`);
+        const data = await response.json();
+
+        if (!data.success) {
+            contenedor.innerHTML = `
+                <div class="timeline-item red">
+                    <span></span>
+                    <div>
+                        <strong>Error</strong>
+                        <p>${data.message || "No se pudo cargar el historial."}</p>
+                    </div>
+                </div>
+            `;
+            return;
+        }
+
+        renderHistorialEstadoProduccion(data.data || []);
+
+    } catch (error) {
+        console.error("Error cargando historial:", error);
+
+        contenedor.innerHTML = `
+            <div class="timeline-item red">
+                <span></span>
+                <div>
+                    <strong>Error de conexión</strong>
+                    <p>No se pudo consultar el historial de estados.</p>
+                </div>
+            </div>
+        `;
+    }
+}
+
+/* =========================
+   RENDER HISTORIAL
+========================= */
+function renderHistorialEstadoProduccion(historial) {
+    const contenedor = document.getElementById("detalleHistorial");
+
+    if (!contenedor) return;
+
+    if (!historial || historial.length === 0) {
+        contenedor.innerHTML = `
+            <div class="timeline-item blue">
+                <span></span>
+                <div>
+                    <strong>Sin historial</strong>
+                    <p>Esta producción todavía no tiene cambios de estado registrados.</p>
+                </div>
+            </div>
+        `;
+        return;
+    }
+
+    contenedor.innerHTML = "";
+
+    historial.forEach(item => {
+        const estado = item.estado_nuevo || "pendiente";
+        const clase = obtenerClaseTimelineEstado(estado);
+
+        const fila = document.createElement("div");
+        fila.className = `timeline-item ${clase}`;
+
+        fila.innerHTML = `
+            <span></span>
+            <div>
+                <strong>${formatearTextoEstado(estado)}</strong>
+                <p>
+                    ${formatearFechaHoraEstado(item.fecha_cambio)}
+                    - ${item.observacion || "Cambio de estado registrado"}
+                    - ${item.usuario_nombre || "Admin"}
+                </p>
+            </div>
+        `;
+
+        contenedor.appendChild(fila);
+    });
+}
+
+/* =========================
+   HELPERS DETALLE / HISTORIAL
+========================= */
+function actualizarTextoEstado(id, valor) {
+    const elemento = document.getElementById(id);
+
+    if (elemento) {
+        elemento.textContent = valor || "—";
+    }
+}
+
+function formatearFechaHoraEstado(fecha) {
+    if (!fecha) return "Sin fecha";
+
+    const partes = fecha.split(" ");
+    const fechaBase = partes[0] || "";
+    const horaBase = partes[1] || "";
+
+    const fechaFormateada = formatearFechaEstado(fechaBase);
+
+    if (!horaBase) return fechaFormateada;
+
+    const horaCorta = horaBase.substring(0, 5);
+
+    return `${fechaFormateada} ${horaCorta}`;
+}
+
+function obtenerIconoEstado(estado) {
+    const iconos = {
+        pendiente: "schedule",
+        en_proceso: "play_circle",
+        pausado: "pause_circle",
+        terminado: "check_circle",
+        entregado: "local_shipping",
+        atrasado: "warning"
+    };
+
+    return iconos[estado] || "info";
+}
+
+function obtenerClaseIconoEstado(estado) {
+    const clases = {
+        pendiente: "icono-pendiente",
+        en_proceso: "icono-proceso",
+        pausado: "icono-pausado",
+        terminado: "icono-terminado",
+        entregado: "icono-entregado",
+        atrasado: "icono-atrasado"
+    };
+
+    return clases[estado] || "icono-pendiente";
+}
+
+function obtenerClaseTimelineEstado(estado) {
+    const clases = {
+        pendiente: "blue",
+        en_proceso: "yellow",
+        pausado: "orange",
+        terminado: "green",
+        entregado: "purple",
+        atrasado: "red"
+    };
+
+    return clases[estado] || "blue";
+}
+
+
+/* =========================
+   CAMBIAR ESTADO DESDE ACCIONES RÁPIDAS
+========================= */
+async function cambiarEstadoProduccion(nuevoEstado, observacion = "") {
+    if (!estadoProduccionSeleccionada) {
+        alert("Primero selecciona una orden de trabajo.");
+        return;
+    }
+
+    const produccionId = estadoProduccionSeleccionada.id;
+
+    try {
+        const response = await fetch("php/estados/cambiar_estado.php", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                produccion_id: produccionId,
+                estado: nuevoEstado,
+                observacion: observacion
+            })
+        });
+
+        const data = await response.json();
+
+        if (!data.success) {
+            alert(data.message || "No se pudo cambiar el estado.");
+            return;
+        }
+
+        await cargarCardsEstadosProduccion();
+
+        const actualizado = estadosProduccionData.find(
+            item => String(item.id) === String(produccionId)
+        );
+
+        if (actualizado) {
+            estadoProduccionSeleccionada = actualizado;
+            cargarDetalleEstadoProduccion(actualizado);
+            await cargarHistorialEstadoProduccion(produccionId);
+        }
+
+    } catch (error) {
+        console.error("Error cambiando estado:", error);
+        alert("Error de conexión al cambiar el estado.");
+    }
+}
+/* =========================
    CLICK GLOBAL PARA TABS
    Funciona aunque estados.html se cargue después
 ========================= */
@@ -351,6 +676,14 @@ document.addEventListener("click", function (e) {
         return;
     }
 
+    const btnEditarEstado = e.target.closest(".btn-editar");
+
+    if (btnEditarEstado && btnEditarEstado.dataset.id) {
+        console.log("EDITAR ESTADO CLICK:", btnEditarEstado.dataset.id);
+        seleccionarEstadoProduccion(btnEditarEstado.dataset.id);
+        return;
+    }
+
     const btnAyudaEstados = e.target.closest("#btnAyudaEstados");
 
     if (btnAyudaEstados) {
@@ -363,6 +696,27 @@ document.addEventListener("click", function (e) {
         return;
     }
 
+    const btnAlertaAtraso = e.target.closest(".btn-alerta-atraso");
+
+    if (btnAlertaAtraso) {
+        e.stopPropagation();
+        mostrarAlertaAtraso(btnAlertaAtraso);
+        return;
+    }
+
+});
+
+document.addEventListener("click", function (e) {
+    const tooltip = document.querySelector(".tooltip-atraso");
+
+    if (!tooltip) return;
+
+    const clickDentroTooltip = e.target.closest(".tooltip-atraso");
+    const clickBotonAlerta = e.target.closest(".btn-alerta-atraso");
+
+    if (!clickDentroTooltip && !clickBotonAlerta) {
+        tooltip.remove();
+    }
 });
 
 document.addEventListener("click", function (e) {
@@ -371,6 +725,46 @@ document.addEventListener("click", function (e) {
 
     if (!ayudaWrap && boxAyuda) {
         boxAyuda.classList.remove("active");
+    }
+
+    const btnEstadoTerminado = e.target.closest("#btnEstadoTerminado");
+
+    if (btnEstadoTerminado) {
+        cambiarEstadoProduccion(
+            "terminado",
+            "Trabajo marcado como terminado desde acciones rápidas"
+        );
+        return;
+    }
+
+    const btnEstadoPausado = e.target.closest("#btnEstadoPausado");
+
+    if (btnEstadoPausado) {
+        cambiarEstadoProduccion(
+            "pausado",
+            "Trabajo pausado desde acciones rápidas"
+        );
+        return;
+    }
+
+    const btnEstadoProceso = e.target.closest("#btnEstadoProceso");
+
+    if (btnEstadoProceso) {
+        cambiarEstadoProduccion(
+            "en_proceso",
+            "Trabajo reanudado desde acciones rápidas"
+        );
+        return;
+    }
+
+    const btnEstadoEntregado = e.target.closest("#btnEstadoEntregado");
+
+    if (btnEstadoEntregado) {
+        cambiarEstadoProduccion(
+            "entregado",
+            "Trabajo marcado como entregado desde acciones rápidas"
+        );
+        return;
     }
 });
 

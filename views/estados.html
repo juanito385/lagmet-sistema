@@ -495,105 +495,120 @@
         </div>
     </div>
 
-    <!-- =========================================================
-         PANEL INFERIOR FIJO
-         Este bloque NO cambia al presionar Producción / Máquinas
-    ========================================================== -->
-    <div class="estados-bottom">
+<!-- =========================================================
+     PANEL INFERIOR FIJO
+     Este bloque NO cambia al presionar Producción / Máquinas
+========================================================== -->
+<div class="estados-bottom">
 
-        <!-- DETALLE -->
-        <div class="estado-detalle">
-            <h3>Detalle del Estado</h3>
+    <!-- DETALLE -->
+    <div class="estado-detalle">
+        <h3>Detalle del Estado</h3>
 
-            <div class="detalle-head">
-                <span class="detalle-check material-symbols-outlined">check_circle</span>
-                <strong>OT-2025-00052</strong>
-                <span class="badge badge-terminado">Terminado</span>
+        <div class="detalle-head">
+            <span id="detalleEstadoIcono" class="detalle-check material-symbols-outlined icono-pendiente">
+                info
+            </span>
+
+            <strong id="detalleOT">Seleccione una OT</strong>
+
+            <span id="detalleEstadoBadge" class="badge badge-pendiente">
+                Sin selección
+            </span>
+        </div>
+
+        <div class="detalle-grid">
+            <div>
+                <p>
+                    <span>Producto:</span><br>
+                    <strong id="detalleProducto">—</strong>
+                </p>
+
+                <p>
+                    <span>Área / Máquina:</span><br>
+                    <strong id="detalleMaquina">—</strong>
+                </p>
+
+                <p>
+                    <span>Inicio:</span><br>
+                    <strong id="detalleInicio">—</strong>
+                </p>
             </div>
 
-            <div class="detalle-grid">
-                <div>
-                    <p><span>Producto:</span><br>Liner Saddle Block 430-b</p>
-                    <p><span>Área / Máquina:</span><br>Torno Vertical</p>
-                    <p><span>Inicio:</span><br>21/05/2025 08:00</p>
-                </div>
+            <div>
+                <p>
+                    <span>Fecha fin estimada:</span><br>
+                    <strong id="detalleFechaEstimada">—</strong>
+                </p>
 
-                <div>
-                    <p><span>Fecha fin estimada:</span><br>21/05/2025 17:00</p>
-                    <p><span>Fecha fin real:</span><br>21/05/2025 16:45</p>
-                    <p><span>Operador:</span><br>J. Pérez</p>
-                </div>
-            </div>
+                <p>
+                    <span>Fecha fin real:</span><br>
+                    <strong id="detalleFechaReal">—</strong>
+                </p>
 
-            <div class="detalle-progress">
-                <div>
-                    <span>Progreso del flujo</span>
-                    <strong>100%</strong>
-                </div>
-                <div class="barra-progreso"><div style="width:100%"></div></div>
+                <p>
+                    <span>Operador:</span><br>
+                    <strong id="detalleOperador">—</strong>
+                </p>
             </div>
         </div>
 
-        <!-- HISTORIAL -->
-        <div class="estado-historial">
-            <h3>Historial de Estados</h3>
-
-            <div class="timeline">
-                <div class="timeline-item green">
-                    <span></span>
-                    <div>
-                        <strong>Terminado</strong>
-                        <p>21/05/2025 16:45 · Trabajo completado correctamente · J. Pérez</p>
-                    </div>
-                </div>
-
-                <div class="timeline-item yellow">
-                    <span></span>
-                    <div>
-                        <strong>En proceso</strong>
-                        <p>21/05/2025 08:00 · Inicio de trabajo en máquina · J. Pérez</p>
-                    </div>
-                </div>
-
-                <div class="timeline-item blue">
-                    <span></span>
-                    <div>
-                        <strong>Pendiente</strong>
-                        <p>20/05/2025 17:30 · Orden creada y programada · Sistema</p>
-                    </div>
-                </div>
+        <div class="detalle-progress">
+            <div>
+                <span>Progreso del flujo</span>
+                <strong id="detalleProgresoTexto">0%</strong>
             </div>
 
-            <button class="btn-historial" type="button">
-                Ver historial completo
-            </button>
+            <div class="barra-progreso">
+                <div id="detalleProgresoBarra" style="width:0%"></div>
+            </div>
         </div>
-
-        <!-- ACCIONES -->
-        <div class="estado-acciones">
-            <h3>Acciones rápidas</h3>
-
-            <button class="accion terminar" type="button">
-                <span class="material-symbols-outlined">check_circle</span>
-                Marcar como Terminado
-            </button>
-
-            <button class="accion pausar" type="button">
-                <span class="material-symbols-outlined">pause</span>
-                Pausar Trabajo
-            </button>
-
-            <button class="accion reanudar" type="button">
-                <span class="material-symbols-outlined">play_arrow</span>
-                Reanudar Trabajo
-            </button>
-
-            <button class="accion entregar" type="button">
-                <span class="material-symbols-outlined">local_shipping</span>
-                Marcar como Entregado
-            </button>
-        </div>
-
     </div>
+
+    <!-- HISTORIAL -->
+    <div class="estado-historial">
+        <h3>Historial de Estados</h3>
+
+        <div class="timeline" id="detalleHistorial">
+            <div class="timeline-item blue">
+                <span></span>
+                <div>
+                    <strong>Sin selección</strong>
+                    <p>Seleccione una orden de trabajo para ver su historial.</p>
+                </div>
+            </div>
+        </div>
+
+        <button class="btn-historial" id="btnHistorialCompleto" type="button">
+            Ver historial completo
+        </button>
+    </div>
+
+    <!-- ACCIONES -->
+    <div class="estado-acciones">
+        <h3>Acciones rápidas</h3>
+
+        <button class="accion terminar" id="btnEstadoTerminado" type="button">
+            <span class="material-symbols-outlined">check_circle</span>
+            Marcar como Terminado
+        </button>
+
+        <button class="accion pausar" id="btnEstadoPausado" type="button">
+            <span class="material-symbols-outlined">pause</span>
+            Pausar Trabajo
+        </button>
+
+        <button class="accion reanudar" id="btnEstadoProceso" type="button">
+            <span class="material-symbols-outlined">play_arrow</span>
+            Reanudar Trabajo
+        </button>
+
+        <button class="accion entregar" id="btnEstadoEntregado" type="button">
+            <span class="material-symbols-outlined">local_shipping</span>
+            Marcar como Entregado
+        </button>
+    </div>
+
+</div>
 
 </section>

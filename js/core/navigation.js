@@ -11,7 +11,9 @@ async function showSection(seccion) {
 
     try {
 
-        const response = await fetch(`views/${seccion}.html`);
+        const response = await fetch(`views/${seccion}.html?v=${Date.now()}`, {
+            cache: "no-store"
+        });
 
         console.log("Respuesta vista:", response.status, response.url);
 
@@ -82,6 +84,18 @@ async function showSection(seccion) {
         if (seccion === "flujo-proceso") {
             if (typeof iniciarFlujoProceso === "function") {
                 iniciarFlujoProceso();
+            }
+        }
+
+        if (seccion === "estados") {
+            const seccionEstados = document.querySelector(".estados-section");
+
+            if (seccionEstados) {
+                seccionEstados.dataset.cardsCargadas = "true";
+            }
+
+            if (typeof cargarCardsEstadosProduccion === "function") {
+                await cargarCardsEstadosProduccion();
             }
         }
 
