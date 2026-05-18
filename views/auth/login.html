@@ -1,60 +1,17 @@
-<!-- ===============================
-     LOGIN IRONIX
-================================ -->
-<div id="login" class="login">
+<!-- LOGIN IRONIX -->
+<div id="login" class="login login-final">
 
-    <!-- PANEL IZQUIERDO DECORATIVO -->
-    <aside class="login-hud-panel login-hud-left">
+    <section class="ironix-login-card">
 
-        <div class="hud-card">
-            <h3>ESTADO DEL SISTEMA</h3>
+        <!-- LOGO -->
+        <div class="ironix-login-brand">
+            <div class="ironix-brand-glow"></div>
 
-            <div class="hud-metric">
-                <span>CPU</span>
-                <strong>65%</strong>
-            </div>
-
-            <div class="hud-metric">
-                <span>Memoria</span>
-                <strong>72%</strong>
-            </div>
-
-            <div class="hud-metric">
-                <span>Red</span>
-                <strong>48%</strong>
-            </div>
-        </div>
-
-        <div class="hud-card">
-            <h3>ALERTAS DEL SISTEMA</h3>
-
-            <div class="hud-alert">
-                <span class="alert-dot warning"></span>
-                <p>Temperatura elevada</p>
-            </div>
-
-            <div class="hud-alert">
-                <span class="alert-dot normal"></span>
-                <p>Operación normal</p>
-            </div>
-
-            <div class="hud-alert">
-                <span class="alert-dot danger"></span>
-                <p>Revisión pendiente</p>
-            </div>
-        </div>
-
-    </aside>
-
-
-    <!-- CONTENEDOR CENTRAL -->
-    <section class="login-box">
-
-        <!-- LOGO / MARCA -->
-        <div class="login-brand">
-            <div class="login-brand-core"></div>
-
-            <h1>IRONI<span>X</span></h1>
+            <img 
+                src="./assets/img/logo-login.png" 
+                alt="Logo IRONIX"
+                class="ironix-login-logo"
+            >
 
             <p>
                 INDUSTRIAL MONITORING &<br>
@@ -62,48 +19,42 @@
             </p>
         </div>
 
+        <!-- FORMULARIO -->
+        <div class="ironix-login-form">
 
-        <!-- PANEL FORMULARIO -->
-        <div class="login-form-panel">
-
-            <div class="login-form-header">
+            <div class="ironix-form-header">
                 <h2>INICIAR SESIÓN</h2>
                 <p>Accede a tu sistema de control industrial</p>
             </div>
 
-
-            <!-- INPUT USUARIO -->
-            <div class="login-input-group">
-                <span class="login-input-icon">👤</span>
+            <div class="ironix-input-group">
+                <span class="material-symbols-outlined">person</span>
 
                 <input 
                     type="email" 
                     id="email" 
                     placeholder="Usuario"
-                    autocomplete="email"
+                    autocomplete="off"
                 >
             </div>
 
-
-            <!-- INPUT CONTRASEÑA -->
-            <div class="login-input-group">
-                <span class="login-input-icon">🔒</span>
+            <div class="ironix-input-group">
+                <span class="material-symbols-outlined">lock</span>
 
                 <input 
                     type="password" 
                     id="password" 
                     placeholder="Contraseña"
-                    autocomplete="current-password"
+                    autocomplete="new-password"
                 >
 
-                <span class="login-password-icon">👁</span>
+                <span class="material-symbols-outlined ironix-eye-icon">
+                    visibility
+                </span>
             </div>
 
-
-            <!-- OPCIONES -->
-            <div class="login-options">
-
-                <label class="login-remember">
+            <div class="ironix-login-options">
+                <label class="ironix-remember">
                     <input type="checkbox" id="recordarUsuario">
                     <span>Recordar usuario</span>
                 </label>
@@ -111,112 +62,32 @@
                 <p class="forgot" onclick="mostrarRecuperar()">
                     ¿Olvidaste tu contraseña?
                 </p>
-
             </div>
 
-
-            <!-- BOTÓN PRINCIPAL -->
-            <button type="button" class="btn-login" onclick="login()">
+            <button type="button" class="ironix-btn-login" onclick="login()">
                 INICIAR SESIÓN
-                <span>→</span>
+                <span class="material-symbols-outlined">arrow_forward</span>
             </button>
 
-
-            <!-- ERROR -->
             <p id="error" class="login-error"></p>
 
-
-            <!-- DIVISOR -->
-            <div class="login-divider">
+            <div class="ironix-divider">
                 <span></span>
                 <small>o continuar con</small>
                 <span></span>
             </div>
 
-
-            <!-- BOTÓN SSO VISUAL -->
-            <button type="button" class="btn-sso">
-                <span>🛡</span>
+            <button type="button" class="ironix-btn-sso">
+                <span class="material-symbols-outlined">shield</span>
                 SSO EMPRESARIAL
             </button>
 
-
-            <!-- FOOTER -->
-            <footer class="login-footer">
-                IRONIX © 2026 Powered by LAGMET
+            <footer class="ironix-login-footer">
+                IRONIX © 2026 Powered by JIN
             </footer>
 
         </div>
 
     </section>
-
-
-    <!-- PANEL DERECHO DECORATIVO -->
-    <aside class="login-hud-panel login-hud-right">
-
-        <div class="hud-card">
-            <h3>MÓDULOS DEL SISTEMA</h3>
-
-            <div class="hud-module">
-                <div>
-                    <strong>Dashboard</strong>
-                    <span>Monitoreo general</span>
-                </div>
-                <em>Activo</em>
-            </div>
-
-            <div class="hud-module">
-                <div>
-                    <strong>Gantt producción</strong>
-                    <span>Planificación y tareas</span>
-                </div>
-                <em>Activo</em>
-            </div>
-
-            <div class="hud-module">
-                <div>
-                    <strong>Monitoreo en tiempo real</strong>
-                    <span>Equipos y sensores</span>
-                </div>
-                <em>Activo</em>
-            </div>
-
-            <div class="hud-module">
-                <div>
-                    <strong>Reportes</strong>
-                    <span>Análisis y estadísticas</span>
-                </div>
-                <em>Activo</em>
-            </div>
-        </div>
-
-
-        <div class="hud-card">
-            <h3>PRODUCCIÓN HOY</h3>
-
-            <div class="hud-production-grid">
-                <div>
-                    <span>Órdenes</span>
-                    <strong>24</strong>
-                </div>
-
-                <div>
-                    <span>En proceso</span>
-                    <strong>18</strong>
-                </div>
-
-                <div>
-                    <span>Completadas</span>
-                    <strong>15</strong>
-                </div>
-
-                <div>
-                    <span>Eficiencia</span>
-                    <strong>89%</strong>
-                </div>
-            </div>
-        </div>
-
-    </aside>
 
 </div>

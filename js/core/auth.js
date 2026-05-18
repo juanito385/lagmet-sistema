@@ -108,16 +108,6 @@ function iniciarApp(cargarDashboard = false) {
     });
 }
 
-/* ===============================
-   MANTENER SESIÓN AL RECARGAR
-================================ */
-document.addEventListener("DOMContentLoaded", () => {
-    const user = localStorage.getItem("user");
-
-    if (user) {
-        iniciarApp(true);
-    }
-});
 
 
 

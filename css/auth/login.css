@@ -2,6 +2,11 @@
    LOGIN IRONIX - FONDO AMBIENTAL
 ================================ */
 
+.login-final,
+.login-final *{
+    box-sizing:border-box;
+}
+
 .login-final{
     height:100vh;
     min-height:100vh;
@@ -27,160 +32,230 @@
     pointer-events:none;
 }
 
-/* Capa oscura */
+/* Capa oscura suave */
 .login-final::before{
     content:"";
     position:absolute;
     inset:0;
     background:
-        radial-gradient(circle at center, rgba(0,0,0,0.08), rgba(0,0,0,0.34) 72%),
-        linear-gradient(rgba(0,0,0,0.12), rgba(0,0,0,0.28));
+        radial-gradient(circle at center, rgba(0,0,0,0.04), rgba(0,0,0,0.26) 74%),
+        linear-gradient(rgba(0,0,0,0.08), rgba(0,0,0,0.22));
     z-index:1;
     pointer-events:none;
 }
 
 /* ===============================
-   PANEL CENTRAL
+   PANEL CENTRAL - ESQUINAS Y BORDE
 ================================ */
 
 .ironix-login-card{
     position:relative;
     z-index:2;
-    width:min(560px, 42vw);
-    max-height:92vh;
-    padding:26px 42px;
+    width:clamp(380px, 38vw, 450px);
+    min-height:520px;
+    max-height:82vh;
+    padding:18px 24px 16px;
     text-align:center;
-    border:1px solid rgba(0,174,255,0.55);
+    overflow:hidden;
+
+    border:1px solid rgba(69, 197, 255, 0.45);
     background:
-        linear-gradient(180deg, rgba(5,15,31,0.90), rgba(2,7,16,0.96));
+        linear-gradient(180deg, rgba(4,12,26,0.92), rgba(2,7,16,0.97));
     box-shadow:
-        0 0 70px rgba(0,140,255,0.22),
-        0 30px 90px rgba(0,0,0,0.65),
-        inset 0 0 45px rgba(0,120,255,0.08);
-    backdrop-filter:blur(18px);
-    transform:translateY(-8px);
+        0 0 18px rgba(0,160,255,0.16),
+        0 0 40px rgba(0,110,255,0.08),
+        inset 0 0 20px rgba(0,140,255,0.04);
+
+    transform:translateY(-40px);
+
+    /* corte de esquinas más visible */
     clip-path:polygon(
-        4% 0,
-        96% 0,
-        100% 6%,
-        100% 94%,
-        96% 100%,
-        4% 100%,
-        0 94%,
-        0 6%
+        8% 0,
+        92% 0,
+        100% 7%,
+        100% 93%,
+        92% 100%,
+        8% 100%,
+        0 93%,
+        0 7%
     );
 }
 
-/* líneas superior e inferior */
-.ironix-login-card::before,
+/* Borde principal azul */
+.ironix-login-card::before{
+    content:"";
+    position:absolute;
+    inset:0;
+    pointer-events:none;
+
+    border:1px solid rgba(0,170,255,0.30);
+    box-shadow:
+        inset 0 0 12px rgba(0,160,255,0.05),
+        0 0 10px rgba(0,170,255,0.10);
+
+    clip-path:polygon(
+    10% 0,
+    90% 0,
+    100% 9%,
+    100% 91%,
+    90% 100%,
+    10% 100%,
+    0 91%,
+    0 9%
+);
+}
+
+/* Líneas + detalles de esquinas */
 .ironix-login-card::after{
     content:"";
     position:absolute;
-    left:50%;
-    width:74%;
-    height:1px;
-    transform:translateX(-50%);
-    background:linear-gradient(
-        90deg,
-        transparent,
-        rgba(0,190,255,0.95),
-        transparent
-    );
-}
+    inset:0;
+    z-index:4;
+    pointer-events:none;
 
-.ironix-login-card::before{
-    top:0;
-}
+    background:
+        /* Línea superior */
+        linear-gradient(
+            90deg,
+            transparent,
+            rgba(0,220,255,1),
+            transparent
+        ) top center / 88% 2px no-repeat,
 
-.ironix-login-card::after{
-    bottom:0;
-}
+        /* Línea inferior */
+        linear-gradient(
+            90deg,
+            transparent,
+            rgba(0,220,255,0.9),
+            transparent
+        ) bottom center / 88% 2px no-repeat,
 
+        /* Línea izquierda */
+        linear-gradient(
+            180deg,
+            transparent,
+            rgba(0,200,255,0.7),
+            transparent
+        ) left center / 2px 82% no-repeat,
+
+        /* Línea derecha */
+        linear-gradient(
+            180deg,
+            transparent,
+            rgba(0,200,255,0.7),
+            transparent
+        ) right center / 2px 82% no-repeat,
+
+        /* Diagonal superior izquierda */
+        linear-gradient(
+            135deg,
+            transparent 47%,
+            rgba(0,220,255,0.75) 47%,
+            transparent 54%
+        ) top left / 49px 49px no-repeat,
+
+        /* Diagonal superior derecha */
+        linear-gradient(
+            225deg,
+            transparent 40%,
+            rgba(0,220,255,0.75) 47%,
+            transparent 54%
+        ) top right / 49px 49px no-repeat,
+
+        /* Diagonal inferior izquierda */
+        linear-gradient(
+            45deg,
+            transparent 40%,
+            rgba(0,220,255,0.75) 47%,
+            transparent 54%
+        ) bottom left / 49px 49px no-repeat,
+
+        /* Diagonal inferior derecha */
+        linear-gradient(
+            315deg,
+            transparent 40%,
+            rgba(0,220,255,0.75) 47%,
+            transparent 54%
+        ) bottom right / 49px 49px no-repeat;
+}
 /* ===============================
-   LOGO
+   LOGO / CABECERA
 ================================ */
 
 .ironix-login-brand{
     position:relative;
-    margin-bottom:18px;
+    margin-bottom:10px;
 }
 
 .ironix-brand-glow{
     position:absolute;
-    top:-26px;
+    top:-14px;
     left:50%;
-    width:190px;
-    height:190px;
+    width:150px;
+    height:150px;
     transform:translateX(-50%);
     border-radius:50%;
     background:
-        radial-gradient(circle, rgba(0,180,255,0.42), rgba(0,85,180,0.16) 38%, transparent 66%),
-        repeating-radial-gradient(
-            circle,
-            rgba(0,160,255,0.36) 0,
-            rgba(0,160,255,0.36) 2px,
-            transparent 3px,
-            transparent 20px
-        );
-    filter:drop-shadow(0 0 34px rgba(0,150,255,0.45));
+        radial-gradient(circle, rgba(0,180,255,0.30), rgba(0,85,180,0.10) 40%, transparent 68%);
+    filter:blur(1px) drop-shadow(0 0 20px rgba(0,150,255,0.30));
     opacity:0.75;
     z-index:-1;
 }
 
 .ironix-login-logo{
-    width:340px;
+    width:clamp(220px, 18vw, 285px);
     max-width:100%;
     display:block;
     margin:0 auto;
     filter:
-        drop-shadow(0 0 18px rgba(0,140,255,0.45))
-        drop-shadow(0 0 24px rgba(255,132,0,0.18));
+        drop-shadow(0 0 14px rgba(0,140,255,0.32))
+        drop-shadow(0 0 14px rgba(255,132,0,0.10));
 }
 
 .ironix-login-brand p{
-    margin:12px 0 0;
+    margin:10px 0 0;
     color:#d8dde8;
-    font-size:12px;
-    letter-spacing:3px;
-    line-height:1.55;
-    text-shadow:0 0 10px rgba(0,0,0,0.65);
+    font-size:10px;
+    letter-spacing:2.8px;
+    line-height:1.4;
+    text-shadow:0 0 8px rgba(0,0,0,0.55);
 }
 
 /* ===============================
-   FORMULARIO
+   FORMULARIO INTERNO
 ================================ */
 
 .ironix-login-form{
     width:100%;
-    margin-top:20px;
-    padding:22px 30px 20px;
-    border:1px solid rgba(0,153,255,0.34);
-    background:rgba(0,0,0,0.22);
+    margin-top:14px;
+    padding:16px 22px 16px;
+    border:1px solid rgba(0,153,255,0.28);
+    background:rgba(0,0,0,0.20);
     box-shadow:
-        inset 0 0 28px rgba(0,119,255,0.06),
-        0 0 24px rgba(0,0,0,0.24);
+        inset 0 0 16px rgba(0,119,255,0.04),
+        0 0 14px rgba(0,0,0,0.20);
     clip-path:polygon(
-        5% 0,
-        95% 0,
-        100% 10%,
+        6% 0,
+        94% 0,
+        100% 9%,
         100% 100%,
         0 100%,
-        0 10%
+        0 9%
     );
 }
 
 .ironix-form-header h2{
-    margin:0 0 6px;
+    margin:0 0 4px;
     color:#00b7ff;
-    font-size:20px;
+    font-size:16px;
     font-weight:800;
-    letter-spacing:2px;
+    letter-spacing:1.6px;
 }
 
 .ironix-form-header p{
-    margin:0 0 18px;
+    margin:0 0 12px;
     color:#aeb9c8;
-    font-size:13px;
+    font-size:11px;
 }
 
 /* ===============================
@@ -190,20 +265,20 @@
 .ironix-input-group{
     position:relative;
     width:100%;
-    height:44px;
-    margin:8px 0;
+    height:36px;
+    margin:6px 0;
 }
 
 .ironix-input-group input{
     width:100%;
     height:100%;
-    padding:0 48px;
-    border-radius:6px;
-    border:1px solid rgba(255,255,255,0.14);
+    padding:0 40px;
+    border-radius:5px;
+    border:1px solid rgba(255,255,255,0.12);
     background:rgba(2,8,16,0.88);
     color:#ffffff;
     outline:none;
-    font-size:14px;
+    font-size:12px;
     transition:0.25s ease;
 }
 
@@ -213,29 +288,29 @@
 
 .ironix-input-group input:focus{
     border-color:#00aaff;
-    background:rgba(4,14,28,0.96);
+    background:rgba(4,14,28,0.95);
     box-shadow:
-        0 0 0 3px rgba(0,153,255,0.18),
-        0 0 18px rgba(0,153,255,0.28);
+        0 0 0 2px rgba(0,153,255,0.14),
+        0 0 12px rgba(0,153,255,0.18);
 }
 
 .ironix-input-group > .material-symbols-outlined:first-child{
     position:absolute;
-    left:16px;
+    left:13px;
     top:50%;
     transform:translateY(-50%);
     color:#00aaff;
-    font-size:22px;
+    font-size:18px;
     z-index:2;
 }
 
 .ironix-eye-icon{
     position:absolute;
-    right:16px;
+    right:13px;
     top:50%;
     transform:translateY(-50%);
     color:#b8c6d8;
-    font-size:20px;
+    font-size:17px;
     cursor:pointer;
     z-index:2;
 }
@@ -245,26 +320,26 @@
 ================================ */
 
 .ironix-login-options{
-    margin:10px 0 14px;
+    margin:8px 0 10px;
     display:flex;
     justify-content:space-between;
     align-items:center;
-    gap:12px;
+    gap:10px;
 }
 
 .ironix-remember{
     display:flex;
     align-items:center;
-    gap:8px;
+    gap:7px;
     color:#c8d2df;
-    font-size:13px;
+    font-size:11px;
     cursor:pointer;
     user-select:none;
 }
 
 .ironix-remember input{
-    width:16px;
-    height:16px;
+    width:14px;
+    height:14px;
     margin:0;
     accent-color:#008cff;
 }
@@ -272,7 +347,7 @@
 .forgot{
     margin:0;
     color:#00aaff;
-    font-size:13px;
+    font-size:11px;
     cursor:pointer;
     transition:0.25s ease;
     user-select:none;
@@ -280,7 +355,7 @@
 
 .forgot:hover{
     color:#57ceff;
-    text-shadow:0 0 12px rgba(0,170,255,0.55);
+    text-shadow:0 0 10px rgba(0,170,255,0.45);
 }
 
 /* ===============================
@@ -290,12 +365,12 @@
 .ironix-btn-login,
 .ironix-btn-sso{
     width:100%;
-    height:46px;
-    border-radius:6px;
+    height:38px;
+    border-radius:5px;
     cursor:pointer;
-    font-size:14px;
+    font-size:12px;
     font-weight:800;
-    letter-spacing:1px;
+    letter-spacing:0.8px;
     transition:0.25s ease;
 }
 
@@ -304,44 +379,44 @@
     display:flex;
     align-items:center;
     justify-content:center;
-    gap:12px;
-    border:1px solid rgba(0,153,255,0.52);
+    gap:10px;
+    border:1px solid rgba(0,153,255,0.48);
     background:linear-gradient(135deg, #004ba8, #006ad8);
     color:#ffffff;
     box-shadow:
-        0 0 24px rgba(0,119,255,0.24),
-        inset 0 0 18px rgba(255,255,255,0.06);
+        0 0 18px rgba(0,119,255,0.18),
+        inset 0 0 14px rgba(255,255,255,0.05);
 }
 
 .ironix-btn-login .material-symbols-outlined{
     position:absolute;
-    right:26px;
+    right:18px;
     color:#48caff;
-    font-size:22px;
+    font-size:18px;
 }
 
 .ironix-btn-login:hover{
     background:linear-gradient(135deg, #0066d9, #008cff);
     box-shadow:
-        0 0 30px rgba(0,153,255,0.4),
-        inset 0 0 18px rgba(255,255,255,0.08);
-    transform:translateY(-2px);
+        0 0 24px rgba(0,153,255,0.28),
+        inset 0 0 14px rgba(255,255,255,0.07);
+    transform:translateY(-1px);
 }
 
 .ironix-btn-sso{
     display:flex;
     justify-content:center;
     align-items:center;
-    gap:10px;
-    border:1px solid rgba(255,255,255,0.16);
-    background:rgba(0,0,0,0.28);
+    gap:8px;
+    border:1px solid rgba(255,255,255,0.15);
+    background:rgba(0,0,0,0.25);
     color:#e4eaf4;
 }
 
 .ironix-btn-sso:hover{
-    background:rgba(0,153,255,0.12);
-    border-color:rgba(0,153,255,0.32);
-    transform:translateY(-2px);
+    background:rgba(0,153,255,0.10);
+    border-color:rgba(0,153,255,0.28);
+    transform:translateY(-1px);
 }
 
 /* ===============================
@@ -349,18 +424,18 @@
 ================================ */
 
 .login-error{
-    min-height:18px;
-    margin:12px 0 0;
+    min-height:14px;
+    margin:8px 0 0;
     color:#ff4d4d;
-    font-size:13px;
+    font-size:11px;
     font-weight:600;
 }
 
 .ironix-divider{
     display:flex;
     align-items:center;
-    gap:12px;
-    margin:16px 0 12px;
+    gap:10px;
+    margin:12px 0 9px;
     color:#919aaa;
 }
 
@@ -371,63 +446,13 @@
 }
 
 .ironix-divider small{
-    font-size:12px;
+    font-size:10px;
 }
 
 .ironix-login-footer{
-    margin-top:14px;
+    margin-top:10px;
     color:#7f8795;
-    font-size:11px;
-}
-
-/* ===============================
-   RESPONSIVE
-================================ */
-
-@media (max-width:900px){
-    .ironix-login-card{
-        width:90%;
-        max-height:92vh;
-        padding:30px 26px;
-    }
-
-    .ironix-login-logo{
-        width:300px;
-    }
-}
-
-@media (max-width:560px){
-    .login-final{
-        background-position:center center;
-    }
-
-    .ironix-login-card{
-        width:94%;
-        max-height:94vh;
-        padding:28px 20px;
-        clip-path:none;
-        border-radius:22px;
-    }
-
-    .ironix-login-form{
-        padding:20px 18px;
-        clip-path:none;
-        border-radius:16px;
-    }
-
-    .ironix-login-logo{
-        width:240px;
-    }
-
-    .ironix-login-brand p{
-        font-size:11px;
-        letter-spacing:2px;
-    }
-
-    .ironix-login-options{
-        flex-direction:column;
-        align-items:flex-start;
-    }
+    font-size:9px;
 }
 
 /* ===============================
@@ -458,4 +483,147 @@ body.usuario-logueado #contenido{
     visibility:visible !important;
     opacity:1 !important;
     min-height:100vh;
+}
+
+/* ===============================
+   RESPONSIVE
+================================ */
+
+@media (max-width:1200px){
+    .ironix-login-card{
+        width:clamp(400px, 42vw, 470px);
+        padding:18px 30px;
+    }
+
+    .ironix-login-logo{
+        width:280px;
+    }
+}
+
+@media (max-width:900px){
+    .ironix-login-card{
+        width:90%;
+        max-height:90vh;
+        padding:28px 24px;
+    }
+
+    .ironix-login-logo{
+        width:270px;
+    }
+}
+
+@media (max-width:560px){
+    .login-final{
+        background-position:center center;
+    }
+
+    .ironix-login-card{
+        width:94%;
+        max-height:94vh;
+        padding:26px 18px;
+        clip-path:none;
+        border-radius:22px;
+    }
+
+    .ironix-login-form{
+        padding:20px 18px;
+        clip-path:none;
+        border-radius:16px;
+    }
+
+    .ironix-login-logo{
+        width:230px;
+    }
+
+    .ironix-login-brand p{
+        font-size:10px;
+        letter-spacing:2px;
+    }
+
+    .ironix-login-options{
+        flex-direction:column;
+        align-items:flex-start;
+    }
+}
+
+/* ===============================
+   CONTROLES MANUALES LOGIN IRONIX
+   Ajustar solo estas variables
+================================ */
+
+:root{
+    /* Tamaño general del panel */
+    --login-card-width: 450px;
+    --login-card-height: 500px;
+
+    /* Posición del panel */
+    --login-card-move-y: -40px;
+
+    /* Espacio interno del panel */
+    --login-card-padding-y: 18px;
+    --login-card-padding-x: 28px;
+
+    /* Corte de las esquinas */
+    --login-corner-cut-x: 10%;
+    --login-corner-cut-y: 8%;
+
+    /* Tamaño del logo */
+    --login-logo-width: 310px;
+
+    /* Tamaño del formulario */
+    --login-form-padding-y: 16px;
+    --login-form-padding-x: 22px;
+
+    /* Borde azul */
+    --login-border-opacity: 0.65;
+    --login-glow-opacity: 0.26;
+}
+
+/* Panel central */
+.ironix-login-card{
+    width:var(--login-card-width);
+    min-height:var(--login-card-height);
+    max-height:90vh;
+    padding:var(--login-card-padding-y) var(--login-card-padding-x);
+    transform:translateY(var(--login-card-move-y));
+    border:1px solid rgba(69,197,255,var(--login-border-opacity));
+    box-shadow:
+        0 0 24px rgba(0,160,255,var(--login-glow-opacity)),
+        0 0 55px rgba(0,110,255,0.12),
+        inset 0 0 22px rgba(0,140,255,0.06);
+
+    clip-path:polygon(
+        var(--login-corner-cut-x) 0,
+        calc(100% - var(--login-corner-cut-x)) 0,
+        100% var(--login-corner-cut-y),
+        100% calc(100% - var(--login-corner-cut-y)),
+        calc(100% - var(--login-corner-cut-x)) 100%,
+        var(--login-corner-cut-x) 100%,
+        0 calc(100% - var(--login-corner-cut-y)),
+        0 var(--login-corner-cut-y)
+    );
+}
+
+/* Borde interno */
+.ironix-login-card::before{
+    clip-path:polygon(
+        var(--login-corner-cut-x) 0,
+        calc(100% - var(--login-corner-cut-x)) 0,
+        100% var(--login-corner-cut-y),
+        100% calc(100% - var(--login-corner-cut-y)),
+        calc(100% - var(--login-corner-cut-x)) 100%,
+        var(--login-corner-cut-x) 100%,
+        0 calc(100% - var(--login-corner-cut-y)),
+        0 var(--login-corner-cut-y)
+    );
+}
+
+/* Logo */
+.ironix-login-logo{
+    width:var(--login-logo-width);
+}
+
+/* Formulario */
+.ironix-login-form{
+    padding:var(--login-form-padding-y) var(--login-form-padding-x);
 }

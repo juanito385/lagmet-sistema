@@ -64,99 +64,9 @@
 
 <body>
 
-<!-- LOGIN IRONIX -->
-<div id="login" class="login login-final">
 
-    <section class="ironix-login-card">
-
-        <!-- LOGO -->
-        <div class="ironix-login-brand">
-            <div class="ironix-brand-glow"></div>
-
-            <img 
-                src="./assets/img/logo-ironix.png" 
-                alt="Logo IRONIX"
-                class="ironix-login-logo"
-            >
-
-            <p>
-                INDUSTRIAL MONITORING &<br>
-                PRODUCTION CONTROL SYSTEM
-            </p>
-        </div>
-
-        <!-- FORMULARIO -->
-        <div class="ironix-login-form">
-
-            <div class="ironix-form-header">
-                <h2>INICIAR SESIÓN</h2>
-                <p>Accede a tu sistema de control industrial</p>
-            </div>
-
-            <div class="ironix-input-group">
-                <span class="material-symbols-outlined">person</span>
-
-                <input 
-                    type="email" 
-                    id="email" 
-                    placeholder="Usuario"
-                    autocomplete="off"
-                >
-            </div>
-
-            <div class="ironix-input-group">
-                <span class="material-symbols-outlined">lock</span>
-
-                <input 
-                    type="password" 
-                    id="password" 
-                    placeholder="Contraseña"
-                    autocomplete="new-password"
-                >
-
-                <span class="material-symbols-outlined ironix-eye-icon">
-                    visibility
-                </span>
-            </div>
-
-            <div class="ironix-login-options">
-                <label class="ironix-remember">
-                    <input type="checkbox" id="recordarUsuario">
-                    <span>Recordar usuario</span>
-                </label>
-
-                <p class="forgot" onclick="mostrarRecuperar()">
-                    ¿Olvidaste tu contraseña?
-                </p>
-            </div>
-
-            <button type="button" class="ironix-btn-login" onclick="login()">
-                INICIAR SESIÓN
-                <span class="material-symbols-outlined">arrow_forward</span>
-            </button>
-
-            <p id="error" class="login-error"></p>
-
-            <div class="ironix-divider">
-                <span></span>
-                <small>o continuar con</small>
-                <span></span>
-            </div>
-
-            <button type="button" class="ironix-btn-sso">
-                <span class="material-symbols-outlined">shield</span>
-                SSO EMPRESARIAL
-            </button>
-
-            <footer class="ironix-login-footer">
-                IRONIX © 2026 Powered by LAGMET
-            </footer>
-
-        </div>
-
-    </section>
-
-</div>
+<!-- LOGIN DINÁMICO -->
+<div id="authContainer"></div>
 
 
 <!-- RECUPERAR -->
@@ -289,6 +199,8 @@
 <script src="js/core/auth.js"></script>
 <script src="js/core/recuperacion.js"></script>
 <script src="js/core/navigation.js"></script>
+<!-- LOGIN -->
+<script src="js/auth/login-loader.js"></script>
 <!-- PRODUCCIÓN -->
 <script src="js/produccion/produccion-config.js"></script>
 <script src="js/produccion/produccion-maquinas.js"></script>
