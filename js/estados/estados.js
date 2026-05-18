@@ -373,6 +373,25 @@ function mostrarAlertaAtraso(boton) {
 }
 
 /* =========================
+   MODAL DETALLE ESTADO
+========================= */
+function abrirModalEstado() {
+    const modal = document.getElementById("modalEstadoOverlay");
+
+    if (modal) {
+        modal.classList.add("active");
+    }
+}
+
+function cerrarModalEstado() {
+    const modal = document.getElementById("modalEstadoOverlay");
+
+    if (modal) {
+        modal.classList.remove("active");
+    }
+}
+
+/* =========================
    SELECCIONAR PRODUCCIÓN
    Carga detalle inferior + historial
 ========================= */
@@ -385,6 +404,8 @@ function seleccionarEstadoProduccion(id) {
     }
 
     estadoProduccionSeleccionada = item;
+
+    abrirModalEstado();
 
     cargarDetalleEstadoProduccion(item);
     cargarHistorialEstadoProduccion(item.id);
@@ -704,6 +725,21 @@ document.addEventListener("click", function (e) {
         return;
     }
 
+    const btnCerrarModalEstado = e.target.closest("#btnCerrarModalEstado");
+
+    if (btnCerrarModalEstado) {
+        cerrarModalEstado();
+        return;
+    }
+
+    const modalEstadoOverlay = e.target.closest("#modalEstadoOverlay");
+    const modalEstadoCard = e.target.closest("#modalEstadoCard");
+
+    if (modalEstadoOverlay && !modalEstadoCard) {
+        cerrarModalEstado();
+        return;
+    }
+
 });
 
 document.addEventListener("click", function (e) {
@@ -765,6 +801,12 @@ document.addEventListener("click", function (e) {
             "Trabajo marcado como entregado desde acciones rápidas"
         );
         return;
+    }
+});
+
+document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape") {
+        cerrarModalEstado();
     }
 });
 

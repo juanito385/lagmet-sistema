@@ -496,117 +496,138 @@
     </div>
 
 <!-- =========================================================
-     PANEL INFERIOR FIJO
-     Este bloque NO cambia al presionar Producción / Máquinas
+     MODAL DETALLE ESTADO
+     Se abre al presionar el botón azul de una OT
 ========================================================== -->
-<div class="estados-bottom">
+<div class="modal-estado-overlay" id="modalEstadoOverlay">
 
-    <!-- DETALLE -->
-    <div class="estado-detalle">
-        <h3>Detalle del Estado</h3>
+    <div class="modal-estado-card" id="modalEstadoCard">
 
-        <div class="detalle-head">
-            <span id="detalleEstadoIcono" class="detalle-check material-symbols-outlined icono-pendiente">
-                info
-            </span>
+        <!-- HEADER MODAL -->
+        <div class="modal-estado-header">
+            <div>
+                <h3>Detalle de Orden de Trabajo</h3>
+                <p>Estado, historial y acciones rápidas de producción</p>
+            </div>
 
-            <strong id="detalleOT">Seleccione una OT</strong>
-
-            <span id="detalleEstadoBadge" class="badge badge-pendiente">
-                Sin selección
-            </span>
+            <button class="modal-estado-cerrar" id="btnCerrarModalEstado" type="button">
+                <span class="material-symbols-outlined">close</span>
+            </button>
         </div>
 
-        <div class="detalle-grid">
-            <div>
-                <p>
-                    <span>Producto:</span><br>
-                    <strong id="detalleProducto">—</strong>
-                </p>
+        <!-- CONTENIDO MODAL -->
+        <div class="estados-bottom modal-estado-content">
 
-                <p>
-                    <span>Área / Máquina:</span><br>
-                    <strong id="detalleMaquina">—</strong>
-                </p>
+            <!-- DETALLE -->
+            <div class="estado-detalle">
+                <h3>Detalle del Estado</h3>
 
-                <p>
-                    <span>Inicio:</span><br>
-                    <strong id="detalleInicio">—</strong>
-                </p>
-            </div>
+                <div class="detalle-head">
+                    <span id="detalleEstadoIcono" class="detalle-check material-symbols-outlined icono-pendiente">
+                        info
+                    </span>
 
-            <div>
-                <p>
-                    <span>Fecha fin estimada:</span><br>
-                    <strong id="detalleFechaEstimada">—</strong>
-                </p>
+                    <strong id="detalleOT">Seleccione una OT</strong>
 
-                <p>
-                    <span>Fecha fin real:</span><br>
-                    <strong id="detalleFechaReal">—</strong>
-                </p>
+                    <span id="detalleEstadoBadge" class="badge badge-pendiente">
+                        Sin selección
+                    </span>
+                </div>
 
-                <p>
-                    <span>Operador:</span><br>
-                    <strong id="detalleOperador">—</strong>
-                </p>
-            </div>
-        </div>
+                <div class="detalle-grid">
+                    <div>
+                        <p>
+                            <span>Producto:</span><br>
+                            <strong id="detalleProducto">—</strong>
+                        </p>
 
-        <div class="detalle-progress">
-            <div>
-                <span>Progreso del flujo</span>
-                <strong id="detalleProgresoTexto">0%</strong>
-            </div>
+                        <p>
+                            <span>Área / Máquina:</span><br>
+                            <strong id="detalleMaquina">—</strong>
+                        </p>
 
-            <div class="barra-progreso">
-                <div id="detalleProgresoBarra" style="width:0%"></div>
-            </div>
-        </div>
-    </div>
+                        <p>
+                            <span>Inicio:</span><br>
+                            <strong id="detalleInicio">—</strong>
+                        </p>
+                    </div>
 
-    <!-- HISTORIAL -->
-    <div class="estado-historial">
-        <h3>Historial de Estados</h3>
+                    <div>
+                        <p>
+                            <span>Fecha fin estimada:</span><br>
+                            <strong id="detalleFechaEstimada">—</strong>
+                        </p>
 
-        <div class="timeline" id="detalleHistorial">
-            <div class="timeline-item blue">
-                <span></span>
-                <div>
-                    <strong>Sin selección</strong>
-                    <p>Seleccione una orden de trabajo para ver su historial.</p>
+                        <p>
+                            <span>Fecha fin real:</span><br>
+                            <strong id="detalleFechaReal">—</strong>
+                        </p>
+
+                        <p>
+                            <span>Operador:</span><br>
+                            <strong id="detalleOperador">—</strong>
+                        </p>
+                    </div>
+                </div>
+
+                <div class="detalle-progress">
+                    <div>
+                        <span>Progreso del flujo</span>
+                        <strong id="detalleProgresoTexto">0%</strong>
+                    </div>
+
+                    <div class="barra-progreso">
+                        <div id="detalleProgresoBarra" style="width:0%"></div>
+                    </div>
                 </div>
             </div>
+
+            <!-- HISTORIAL -->
+            <div class="estado-historial">
+                <h3>Historial de Estados</h3>
+
+                <div class="timeline" id="detalleHistorial">
+                    <div class="timeline-item blue">
+                        <span></span>
+                        <div>
+                            <strong>Sin selección</strong>
+                            <p>Seleccione una orden de trabajo para ver su historial.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="btn-historial" id="btnHistorialCompleto" type="button">
+                    Ver historial completo
+                </button>
+            </div>
+
+            <!-- ACCIONES -->
+            <div class="estado-acciones">
+                <h3>Acciones rápidas</h3>
+
+                <button class="accion terminar" id="btnEstadoTerminado" type="button">
+                    <span class="material-symbols-outlined">check_circle</span>
+                    Marcar como Terminado
+                </button>
+
+                <button class="accion pausar" id="btnEstadoPausado" type="button">
+                    <span class="material-symbols-outlined">pause</span>
+                    Pausar Trabajo
+                </button>
+
+                <button class="accion reanudar" id="btnEstadoProceso" type="button">
+                    <span class="material-symbols-outlined">play_arrow</span>
+                    Reanudar Trabajo
+                </button>
+
+                <button class="accion entregar" id="btnEstadoEntregado" type="button">
+                    <span class="material-symbols-outlined">local_shipping</span>
+                    Marcar como Entregado
+                </button>
+            </div>
+
         </div>
 
-        <button class="btn-historial" id="btnHistorialCompleto" type="button">
-            Ver historial completo
-        </button>
-    </div>
-
-    <!-- ACCIONES -->
-    <div class="estado-acciones">
-        <h3>Acciones rápidas</h3>
-
-        <button class="accion terminar" id="btnEstadoTerminado" type="button">
-            <span class="material-symbols-outlined">check_circle</span>
-            Marcar como Terminado
-        </button>
-
-        <button class="accion pausar" id="btnEstadoPausado" type="button">
-            <span class="material-symbols-outlined">pause</span>
-            Pausar Trabajo
-        </button>
-
-        <button class="accion reanudar" id="btnEstadoProceso" type="button">
-            <span class="material-symbols-outlined">play_arrow</span>
-            Reanudar Trabajo
-        </button>
-
-        <button class="accion entregar" id="btnEstadoEntregado" type="button">
-            <span class="material-symbols-outlined">local_shipping</span>
-            Marcar como Entregado
-        </button>
     </div>
 
 </div>
