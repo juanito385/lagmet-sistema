@@ -1,0 +1,133 @@
+<!-- ===============================
+     RECUPERAR CONTRASEÑA IRONIX
+================================ -->
+<div id="recuperar" class="login login-final" style="display:none;">
+
+    <section class="ironix-login-card ironix-recovery-card">
+
+        <!-- LOGO -->
+        <div class="ironix-login-brand">
+            <div class="ironix-brand-glow"></div>
+
+            <img 
+                src="./assets/img/logo-login.png" 
+                alt="Logo IRONIX"
+                class="ironix-login-logo"
+            >
+
+            <p>
+                INDUSTRIAL MONITORING &<br>
+                PRODUCTION CONTROL SYSTEM
+            </p>
+        </div>
+
+        <!-- FORMULARIO RECUPERACIÓN -->
+        <div class="ironix-login-form">
+
+            <div class="ironix-form-header">
+                <h2>RECUPERAR CONTRASEÑA</h2>
+                <p>Restablece el acceso a tu cuenta IRONIX</p>
+            </div>
+
+            <!-- PASO 1 -->
+            <div id="paso1">
+
+                <div class="ironix-input-group">
+                    <span class="material-symbols-outlined">mail</span>
+
+                    <input 
+                        type="email" 
+                        id="emailRec" 
+                        placeholder="Correo electrónico"
+                        autocomplete="off"
+                    >
+                </div>
+
+                <button 
+                    type="button" 
+                    id="btnEnviar" 
+                    class="ironix-btn-login"
+                    onclick="enviarCodigo()" 
+                    disabled
+                >
+                    ENVIAR CÓDIGO
+                    <span class="material-symbols-outlined">send</span>
+                </button>
+
+            </div>
+
+            <!-- PASO 2 -->
+            <div id="paso2" style="display:none;">
+
+                <div class="ironix-input-group">
+                    <span class="material-symbols-outlined">pin</span>
+
+                    <input 
+                        type="text" 
+                        id="codigo" 
+                        placeholder="Código de verificación"
+                        autocomplete="off"
+                    >
+                </div>
+
+                <button 
+                    type="button" 
+                    class="ironix-btn-login"
+                    onclick="verificarCodigo()"
+                >
+                    VERIFICAR CÓDIGO
+                    <span class="material-symbols-outlined">verified</span>
+                </button>
+
+            </div>
+
+            <!-- PASO 3 -->
+            <div id="paso3" style="display:none;">
+
+                <div class="ironix-input-group">
+                    <span class="material-symbols-outlined">lock_reset</span>
+
+                    <input 
+                        type="password" 
+                        id="nuevaPass" 
+                        placeholder="Nueva contraseña"
+                        autocomplete="new-password"
+                    >
+                </div>
+
+                <button 
+                    type="button" 
+                    class="ironix-btn-login"
+                    onclick="cambiarPasswordRecuperacion()"
+                >
+                    GUARDAR CONTRASEÑA
+                    <span class="material-symbols-outlined">save</span>
+                </button>
+
+            </div>
+
+            <!-- VOLVER -->
+            <div class="ironix-divider">
+                <span></span>
+                <small>volver al acceso principal</small>
+                <span></span>
+            </div>
+
+            <button 
+                type="button" 
+                class="ironix-btn-sso"
+                onclick="volverLogin()"
+            >
+                <span class="material-symbols-outlined">arrow_back</span>
+                VOLVER AL LOGIN
+            </button>
+
+            <footer class="ironix-login-footer">
+                IRONIX © 2026 Powered by LAGMET
+            </footer>
+
+        </div>
+
+    </section>
+
+</div>

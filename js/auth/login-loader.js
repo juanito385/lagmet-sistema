@@ -1,12 +1,12 @@
 /* ===============================
-   CARGAR LOGIN IRONIX
+   CARGAR AUTH IRONIX
 ================================ */
 
 document.addEventListener("DOMContentLoaded", () => {
-    cargarLoginIronix();
+    cargarAuthIronix();
 });
 
-async function cargarLoginIronix() {
+async function cargarAuthIronix() {
     const authContainer = document.getElementById("authContainer");
 
     if (!authContainer) {
@@ -15,16 +15,25 @@ async function cargarLoginIronix() {
     }
 
     try {
-        const response = await fetch("views/auth/login.html");
+        const [loginResponse, recuperarResponse] = await Promise.all([
+            fetch("views/auth/login.html"),
+            fetch("views/auth/recuperar.html")
+        ]);
 
-        if (!response.ok) {
+        if (!loginResponse.ok) {
             throw new Error("No se pudo cargar views/auth/login.html");
         }
 
-        const html = await response.text();
-        authContainer.innerHTML = html;
+        if (!recuperarResponse.ok) {
+            throw new Error("No se pudo cargar views/auth/recuperar.html");
+        }
 
-        console.log("Login IRONIX cargado correctamente");
+        const loginHTML = await loginResponse.text();
+        const recuperarHTML = await recuperarResponse.text();
+
+        authContainer.innerHTML = loginHTML + recuperarHTML;
+
+        console.log("Auth IRONIX cargado correctamente");
 
         const user = localStorage.getItem("user");
 
@@ -33,11 +42,11 @@ async function cargarLoginIronix() {
         }
 
     } catch (error) {
-        console.error("Error cargando login IRONIX:", error);
+        console.error("Error cargando Auth IRONIX:", error);
 
         authContainer.innerHTML = `
             <div style="color:white; padding:40px;">
-                Error cargando login IRONIX
+                Error cargando Auth IRONIX
             </div>
         `;
     }
