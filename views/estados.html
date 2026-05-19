@@ -360,132 +360,15 @@
                                 </tr>
                             </thead>
 
-                            <tbody id="tablaEstadosMaquinas">
-                                <tr>
-                                    <td>Torno Vertical CNC</td>
-                                    <td>Oriente</td>
-                                    <td><span class="badge badge-no-operativa">No operativa</span></td>
-                                    <td>
-                                        <span class="disponibilidad bloqueada">
-                                            <span class="material-symbols-outlined">lock</span>
-                                            Bloqueada en formulario
-                                        </span>
-                                    </td>
-                                    <td>Falla eléctrica en motor principal</td>
-                                    <td>
-                                        21/05/2025 09:15<br>
-                                        <small>J. Pérez</small>
-                                    </td>
-                                    <td>
-                                        <button class="btn-editar" type="button">
-                                            <span class="material-symbols-outlined">edit</span>
-                                        </button>
-                                    </td>
-                                </tr>
-
-                                <tr>
-                                    <td>Mandrinadora (1)</td>
-                                    <td>Oriente</td>
-                                    <td><span class="badge badge-operativa">Operativa</span></td>
-                                    <td>
-                                        <span class="disponibilidad disponible">
-                                            <span class="material-symbols-outlined">check_circle</span>
-                                            Disponible
-                                        </span>
-                                    </td>
-                                    <td>—</td>
-                                    <td>
-                                        21/05/2025 08:45<br>
-                                        <small>S. Torres</small>
-                                    </td>
-                                    <td>
-                                        <button class="btn-editar" type="button">
-                                            <span class="material-symbols-outlined">edit</span>
-                                        </button>
-                                    </td>
-                                </tr>
-
-                                <tr>
-                                    <td>Soldadora MIG-1</td>
-                                    <td>Poniente</td>
-                                    <td><span class="badge badge-mantencion">En mantención</span></td>
-                                    <td>
-                                        <span class="disponibilidad bloqueada">
-                                            <span class="material-symbols-outlined">lock</span>
-                                            Bloqueada en formulario
-                                        </span>
-                                    </td>
-                                    <td>Mantención preventiva programada</td>
-                                    <td>
-                                        21/05/2025 07:30<br>
-                                        <small>M. Rojas</small>
-                                    </td>
-                                    <td>
-                                        <button class="btn-editar" type="button">
-                                            <span class="material-symbols-outlined">edit</span>
-                                        </button>
-                                    </td>
-                                </tr>
-
-                                <tr>
-                                    <td>Torno Horizontal CNC</td>
-                                    <td>Poniente</td>
-                                    <td><span class="badge badge-operativa">Operativa</span></td>
-                                    <td>
-                                        <span class="disponibilidad disponible">
-                                            <span class="material-symbols-outlined">check_circle</span>
-                                            Disponible
-                                        </span>
-                                    </td>
-                                    <td>—</td>
-                                    <td>
-                                        21/05/2025 07:10<br>
-                                        <small>Admin</small>
-                                    </td>
-                                    <td>
-                                        <button class="btn-editar" type="button">
-                                            <span class="material-symbols-outlined">edit</span>
-                                        </button>
-                                    </td>
-                                </tr>
-
-                                <tr>
-                                    <td>Centro de Mecanizado 2</td>
-                                    <td>Poniente</td>
-                                    <td><span class="badge badge-operativa">Operativa</span></td>
-                                    <td>
-                                        <span class="disponibilidad disponible">
-                                            <span class="material-symbols-outlined">check_circle</span>
-                                            Disponible
-                                        </span>
-                                    </td>
-                                    <td>—</td>
-                                    <td>
-                                        21/05/2025 06:50<br>
-                                        <small>A. Gómez</small>
-                                    </td>
-                                    <td>
-                                        <button class="btn-editar" type="button">
-                                            <span class="material-symbols-outlined">edit</span>
-                                        </button>
-                                    </td>
-                                </tr>
-                            </tbody>
+                            <tbody id="tablaEstadosMaquinas"></tbody>
                         </table>
                     </div>
 
                     <!-- PAGINACIÓN MÁQUINAS -->
                     <div class="estados-pagination">
-                        <span id="resumenEstadosMaquinas">Mostrando 1 a 5 de 19 máquinas</span>
+                        <span id="resumenEstadosMaquinas">Cargando máquinas...</span>
 
-                        <div>
-                            <button type="button">‹</button>
-                            <button type="button" class="active">1</button>
-                            <button type="button">2</button>
-                            <button type="button">3</button>
-                            <button type="button">4</button>
-                            <button type="button">›</button>
-                        </div>
+                        <div id="paginacionEstadosMaquinas"></div>
                     </div>
 
                 </div>
@@ -630,6 +513,75 @@
 
     </div>
 
+</div>
+
+<!-- MODAL EDITAR ESTADO DE MÁQUINA -->
+<div class="modal-maquina-overlay" id="modalMaquinaOverlay" style="display: none;">
+    <div class="modal-maquina-card">
+
+        <div class="modal-maquina-header">
+            <div>
+                <h3>Editar estado de máquina</h3>
+                <p>Actualiza la disponibilidad operacional de la máquina.</p>
+            </div>
+
+            <button type="button" class="modal-maquina-close" onclick="cerrarModalEditarMaquina()">
+                ×
+            </button>
+        </div>
+
+        <input type="hidden" id="modalMaquinaId">
+
+        <div class="modal-maquina-body">
+
+            <div class="modal-maquina-grid">
+                <div class="modal-maquina-field">
+                    <label>Máquina</label>
+                    <input type="text" id="modalMaquinaNombre" readonly>
+                </div>
+
+                <div class="modal-maquina-field">
+                    <label>Zona</label>
+                    <input type="text" id="modalMaquinaZona" readonly>
+                </div>
+            </div>
+
+            <div class="modal-maquina-field">
+                <label>Estado</label>
+                <select id="modalMaquinaEstado">
+                    <option value="Si">Operativa</option>
+                    <option value="No">No operativa</option>
+                    <option value="Mantencion">En mantención</option>
+                </select>
+            </div>
+
+            <div class="modal-maquina-field">
+                <label>Motivo / Observación</label>
+                <textarea 
+                    id="modalMaquinaObservacion" 
+                    rows="4" 
+                    placeholder="Ej: Falla eléctrica, mantención preventiva, reparación pendiente..."
+                ></textarea>
+            </div>
+
+            <div class="modal-maquina-field">
+                <label>Actualizado por</label>
+                <input type="text" id="modalMaquinaActualizadoPor" value="Admin">
+            </div>
+
+        </div>
+
+        <div class="modal-maquina-footer">
+            <button type="button" class="btn-modal-cancelar" onclick="cerrarModalEditarMaquina()">
+                Cancelar
+            </button>
+
+            <button type="button" class="btn-modal-guardar" id="btnGuardarEstadoMaquina">
+                Guardar cambios
+            </button>
+        </div>
+
+    </div>
 </div>
 
 </section>
