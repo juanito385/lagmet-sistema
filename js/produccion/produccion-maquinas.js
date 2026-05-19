@@ -64,17 +64,31 @@ function crearTablaMaquinas(lista) {
     lista.forEach((maquina, index) => {
 
         const zona = (maquina.zona || "").toLowerCase();
+        const bloqueada = Number(maquina.bloqueada) === 1;
+        const estadoTexto = maquina.estado_texto || "Operativa";
 
         const fila = document.createElement("tr");
 
         fila.setAttribute("data-zona", zona);
         fila.setAttribute("data-maquina", maquina.nombre_maquina);
         fila.setAttribute("data-id-maquina", maquina.id);
+        fila.setAttribute("data-bloqueada", bloqueada ? "si" : "no");
 
         fila.innerHTML = `
             <td>${index + 1}</td>
 
-            <td>${maquina.nombre_maquina}</td>
+            <td>
+                <div class="maquina-nombre-monitor">
+                    ${bloqueada ? `<span class="maquina-lock">🔒</span>` : ""}
+                    <span>${maquina.nombre_maquina}</span>
+                </div>
+
+                ${
+                    bloqueada
+                        ? `<small class="maquina-bloqueada-texto">${estadoTexto} - Bloqueada</small>`
+                        : `<small class="maquina-disponible-texto">Operativa - Disponible</small>`
+                }
+            </td>
 
             <td>
                 <span class="badge-zona ${zona}">
@@ -85,49 +99,63 @@ function crearTablaMaquinas(lista) {
             <td>
                 <input type="hidden" class="uso" value="no">
 
-                <div class="custom-select-monitor custom-select-maquina" data-target-class="uso">
+                <div class="custom-select-monitor custom-select-maquina ${bloqueada ? "select-maquina-bloqueada" : ""}" data-target-class="uso">
 
-                    <button type="button" class="custom-select-selected">
-                        No
+                    <button 
+                        type="button" 
+                        class="custom-select-selected"
+                        ${bloqueada ? "disabled" : ""}
+                        title="${bloqueada ? estadoTexto + ' - No disponible en Monitoreo' : ''}">
+                        ${bloqueada ? "Bloqueada" : "No"}
                         <span></span>
                     </button>
 
                     <div class="custom-select-options">
                         <button type="button" data-value="no">No</button>
-                        <button type="button" data-value="si">Sí</button>
+                        ${
+                            bloqueada
+                                ? ""
+                                : `<button type="button" data-value="si">Sí</button>`
+                        }
                     </div>
 
                 </div>
             </td>
 
             <td>
-                <div class="tiempo-maquina">
+                <div class="tiempo-maquina ${bloqueada ? "tiempo-maquina-bloqueada" : ""}">
 
                     <input type="hidden" class="horas" value="0">
                     <input type="hidden" class="minutos" value="0">
 
                     <div class="custom-select-monitor custom-select-maquina custom-tiempo" data-target-class="horas">
 
-                        <button type="button" class="custom-select-selected">
+                        <button 
+                            type="button" 
+                            class="custom-select-selected"
+                            ${bloqueada ? "disabled" : ""}>
                             0h
                             <span></span>
                         </button>
 
                         <div class="custom-select-options custom-options-small">
-                            ${generarOpcionesHorasCustom()}
+                            ${bloqueada ? "" : generarOpcionesHorasCustom()}
                         </div>
 
                     </div>
 
                     <div class="custom-select-monitor custom-select-maquina custom-tiempo" data-target-class="minutos">
 
-                        <button type="button" class="custom-select-selected">
+                        <button 
+                            type="button" 
+                            class="custom-select-selected"
+                            ${bloqueada ? "disabled" : ""}>
                             0m
                             <span></span>
                         </button>
 
                         <div class="custom-select-options custom-options-small">
-                            ${generarOpcionesMinutosCustom()}
+                            ${bloqueada ? "" : generarOpcionesMinutosCustom()}
                         </div>
 
                     </div>
@@ -136,7 +164,11 @@ function crearTablaMaquinas(lista) {
             </td>
         `;
 
-        fila.classList.add("maquina-inactiva");
+        if (bloqueada) {
+            fila.classList.add("maquina-bloqueada");
+        } else {
+            fila.classList.add("maquina-inactiva");
+        }
 
         tbody.appendChild(fila);
     });

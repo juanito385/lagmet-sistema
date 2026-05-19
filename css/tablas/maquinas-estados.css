@@ -149,3 +149,54 @@ tr.no{
 #tablaMaquinas tbody tr.maquina-inactiva:hover td{
     background:rgba(255,77,90,0.22) !important;
 }
+
+/* =====================================================
+   MONITOREO - MÁQUINAS BLOQUEADAS
+===================================================== */
+
+.maquina-nombre-monitor {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 700;
+}
+
+.maquina-lock {
+    font-size: 1rem;
+    opacity: 0.95;
+}
+
+.maquina-bloqueada-texto {
+    display: block;
+    margin-top: 4px;
+    color: #ff6b73;
+    font-weight: 700;
+}
+
+.maquina-disponible-texto {
+    display: block;
+    margin-top: 4px;
+    color: #63ff7a;
+    font-weight: 700;
+}
+
+#tablaMaquinas tbody tr.maquina-bloqueada {
+    opacity: 0.72;
+    background: rgba(255, 80, 90, 0.08);
+}
+
+#tablaMaquinas tbody tr.maquina-bloqueada:hover {
+    background: rgba(255, 80, 90, 0.13);
+}
+
+.select-maquina-bloqueada .custom-select-selected,
+.tiempo-maquina-bloqueada .custom-select-selected {
+    cursor: not-allowed;
+    opacity: 0.65;
+    background: rgba(255, 255, 255, 0.06);
+}
+
+.select-maquina-bloqueada .custom-select-options,
+.tiempo-maquina-bloqueada .custom-select-options {
+    display: none !important;
+}
