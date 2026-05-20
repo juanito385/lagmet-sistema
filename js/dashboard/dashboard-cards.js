@@ -2,6 +2,9 @@
    CARDS SUPERIORES
 ========================= */
 function cargarCards(cards) {
+    /* =========================
+       PRODUCTOS
+    ========================= */
     actualizarTexto("dashTotalProductos", cards.total_productos ?? 0);
     actualizarTexto("dashTotalProductosTexto", cards.total_productos_texto ?? "Registrados en el sistema");
     actualizarTexto("dashTotalProductosDetalle", cards.total_productos_detalle ?? "");
@@ -10,19 +13,44 @@ function cargarCards(cards) {
     actualizarTexto("dashProductosProcesoTexto", cards.productos_proceso_texto ?? "Producción activa actualmente");
     actualizarTexto("dashProductosProcesoDetalle", cards.productos_proceso_detalle ?? "Según fecha estimada de término");
 
-    actualizarTexto("dashMaquinasOperativas", cards.maquinas_operativas ?? 0);
-    actualizarTexto("dashMaquinasDetenidas", cards.maquinas_detenidas ?? 0);
+    /* =========================
+       MÁQUINAS
+    ========================= */
+
+    const operativas = Number(cards.maquinas_operativas ?? 0);
+    const mantencion = Number(cards.maquinas_mantencion ?? 0);
+    const detenidas = Number(cards.maquinas_detenidas ?? 0);
+
+    const totalMaquinas = Number(
+        cards.total_maquinas ??
+        cards.maquinas_total ??
+        (operativas + mantencion + detenidas)
+    );
+
+    actualizarTexto("dashMaquinasTotal", totalMaquinas);
+
+    actualizarTexto("dashMaquinasOperativas", operativas);
+    actualizarTexto("dashMaquinasMantencion", mantencion);
+    actualizarTexto("dashMaquinasDetenidas", detenidas);
 
     actualizarTexto(
         "dashMaquinasOperativasDetalle",
-        `${cards.porcentaje_operativas ?? 0}% del total`
+        `${cards.porcentaje_operativas ?? calcularPorcentaje(operativas, totalMaquinas)}%`
+    );
+
+    actualizarTexto(
+        "dashMaquinasMantencionDetalle",
+        `${cards.porcentaje_mantencion ?? calcularPorcentaje(mantencion, totalMaquinas)}%`
     );
 
     actualizarTexto(
         "dashMaquinasDetenidasDetalle",
-        `${cards.porcentaje_detenidas ?? 0}% del total`
+        `${cards.porcentaje_detenidas ?? calcularPorcentaje(detenidas, totalMaquinas)}%`
     );
 
+    /* =========================
+       HORAS / EFICIENCIA
+    ========================= */
     actualizarTexto("dashHorasTrabajadas", cards.horas_trabajadas ?? "0h 00m");
     actualizarTexto("dashHorasTrabajadasTexto", cards.horas_trabajadas_texto ?? "Tiempo trabajado hoy");
     actualizarTexto("dashHorasTrabajadasDetalle", cards.horas_trabajadas_detalle ?? "Según máquinas utilizadas");
@@ -31,34 +59,68 @@ function cargarCards(cards) {
     actualizarTexto("dashEficienciaTexto", cards.eficiencia_texto ?? "Producción vs meta diaria");
     actualizarTexto("dashEficienciaDetalle", cards.eficiencia_detalle ?? "Meta diaria: 100 piezas");
 
-    renderListaMaquinasDashboard("operativas", cards.lista_maquinas_operativas ?? []);
-    renderListaMaquinasDashboard("detenidas", cards.lista_maquinas_detenidas ?? []);
+    /* =========================
+       RESUMEN RÁPIDO
+       Se actualiza si existen esos IDs
+    ========================= */
+    actualizarTexto("donutTotal", totalMaquinas);
+    actualizarTexto("resumenOperativas", operativas);
+
+    // Si luego cambias el HTML a resumenMantencion, lo toma.
+    // Si todavía tienes resumenProceso, también lo actualiza.
+    actualizarTexto("resumenMantencion", mantencion);
+    actualizarTexto("resumenProceso", mantencion);
+
+    actualizarTexto("resumenDetenidas", detenidas);
+
+    /* =========================
+       LISTAS PARA DROPDOWN
+    ========================= */
+    window.maquinasDashboardCache = {
+        operativas: cards.lista_maquinas_operativas ?? [],
+        mantencion: cards.lista_maquinas_mantencion ?? [],
+        detenidas: cards.lista_maquinas_detenidas ?? []
+    };
+
+    window.maquinasDashboardCache.todas = [
+        ...window.maquinasDashboardCache.operativas,
+        ...window.maquinasDashboardCache.mantencion,
+        ...window.maquinasDashboardCache.detenidas
+    ];
 }
 
 /* =========================
-   LISTAS DE MÁQUINAS EN CARDS
+   CALCULAR PORCENTAJE
+========================= */
+function calcularPorcentaje(valor, total) {
+    if (!total || total <= 0) return 0;
+    return Math.round((valor / total) * 100);
+}
+
+/* =========================
+   LISTAS DE MÁQUINAS EN CARD UNIFICADA
 ========================= */
 function renderListaMaquinasDashboard(tipo, maquinas) {
-    const esOperativa = tipo === "operativas";
-
-    const contenedor = document.getElementById(
-        esOperativa ? "listaMaquinasOperativas" : "listaMaquinasDetenidas"
-    );
-
-    const titulo = document.getElementById(
-        esOperativa ? "tituloMaquinasOperativas" : "tituloMaquinasDetenidas"
-    );
+    const contenedor = document.getElementById("listaEstadoMaquinas");
+    const titulo = document.getElementById("tituloEstadoMaquinas");
+    const dot = document.getElementById("dotEstadoMaquinas");
 
     if (!contenedor) return;
 
+    const config = obtenerConfigListaMaquinas(tipo);
+
     if (titulo) {
-        titulo.textContent = `(${maquinas.length})`;
+        titulo.textContent = `${config.titulo} (${maquinas.length})`;
+    }
+
+    if (dot) {
+        dot.className = `status-dot-card ${config.dotClass}`;
     }
 
     if (!maquinas.length) {
         contenedor.innerHTML = `
             <p class="maquinas-empty">
-                ${esOperativa ? "Sin máquinas operativas" : "Sin máquinas detenidas"}
+                ${config.mensajeVacio}
             </p>
         `;
         return;
@@ -67,15 +129,13 @@ function renderListaMaquinasDashboard(tipo, maquinas) {
     contenedor.innerHTML = maquinas.map(maquina => {
         const nombre = maquina.nombre_maquina || "Sin nombre";
         const zona = maquina.zona || "Sin zona";
-        const estado = esOperativa ? "Operativa" : "Detenida";
-        const claseEstado = esOperativa ? "estado-operativa" : "estado-detenida";
 
         return `
             <div class="maquina-row-card">
                 <strong>${nombre}</strong>
                 <span>${zona}</span>
-                <span class="estado-maquina-card ${claseEstado}">
-                    ${estado}
+                <span class="estado-maquina-card ${config.estadoClass}">
+                    ${config.estadoTexto}
                 </span>
             </div>
         `;
@@ -83,34 +143,80 @@ function renderListaMaquinasDashboard(tipo, maquinas) {
 }
 
 /* =========================
-   ABRIR / CERRAR DROPDOWN
+   CONFIGURACIÓN DE LISTAS
 ========================= */
-function toggleMaquinasDropdown(tipo) {
-    const cardOperativas = document.getElementById("cardMaquinasOperativas");
-    const cardDetenidas = document.getElementById("cardMaquinasDetenidas");
+function obtenerConfigListaMaquinas(tipo) {
+    const configs = {
+        operativas: {
+            titulo: "Máquinas operativas",
+            estadoTexto: "Operativa",
+            estadoClass: "estado-operativa",
+            dotClass: "green-dot-card",
+            mensajeVacio: "Sin máquinas operativas"
+        },
 
-    const cardActual = tipo === "operativas" ? cardOperativas : cardDetenidas;
-    const cardOtra = tipo === "operativas" ? cardDetenidas : cardOperativas;
+        mantencion: {
+            titulo: "Máquinas en mantención",
+            estadoTexto: "Mantención",
+            estadoClass: "estado-mantencion",
+            dotClass: "yellow-dot-card",
+            mensajeVacio: "Sin máquinas en mantención"
+        },
 
-    if (!cardActual) return;
+        detenidas: {
+            titulo: "Máquinas detenidas",
+            estadoTexto: "Detenida",
+            estadoClass: "estado-detenida",
+            dotClass: "red-dot-card",
+            mensajeVacio: "Sin máquinas detenidas"
+        },
 
-    if (cardOtra) {
-        cardOtra.classList.remove("active");
-    }
+        todas: {
+            titulo: "Todas las máquinas",
+            estadoTexto: "Registrada",
+            estadoClass: "estado-operativa",
+            dotClass: "blue-dot-card",
+            mensajeVacio: "Sin máquinas registradas"
+        }
+    };
 
-    cardActual.classList.toggle("active");
+    return configs[tipo] || configs.todas;
 }
 
+/* =========================
+   ABRIR / CERRAR DROPDOWN
+========================= */
+function toggleMaquinasDropdown(tipo = "todas") {
+    const cardEstadoMaquinas = document.getElementById("cardEstadoMaquinas");
+
+    if (!cardEstadoMaquinas) return;
+
+    const cache = window.maquinasDashboardCache || {
+        operativas: [],
+        mantencion: [],
+        detenidas: [],
+        todas: []
+    };
+
+    const maquinas = cache[tipo] ?? cache.todas ?? [];
+
+    renderListaMaquinasDashboard(tipo, maquinas);
+
+    cardEstadoMaquinas.classList.toggle("active");
+}
+
+/* =========================
+   CERRAR DROPDOWN AL HACER CLICK FUERA
+========================= */
 document.addEventListener("click", function(e) {
-    const cardOperativas = document.getElementById("cardMaquinasOperativas");
-    const cardDetenidas = document.getElementById("cardMaquinasDetenidas");
+    const cardEstadoMaquinas = document.getElementById("cardEstadoMaquinas");
 
-    const clickDentroOperativas = cardOperativas && cardOperativas.contains(e.target);
-    const clickDentroDetenidas = cardDetenidas && cardDetenidas.contains(e.target);
+    if (!cardEstadoMaquinas) return;
 
-    if (!clickDentroOperativas && !clickDentroDetenidas) {
-        if (cardOperativas) cardOperativas.classList.remove("active");
-        if (cardDetenidas) cardDetenidas.classList.remove("active");
+    const clickDentro = cardEstadoMaquinas.contains(e.target);
+
+    if (!clickDentro) {
+        cardEstadoMaquinas.classList.remove("active");
     }
 });
 

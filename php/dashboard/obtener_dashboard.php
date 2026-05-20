@@ -1,6 +1,11 @@
 <?php
-header('Content-Type: application/json');
+header('Content-Type: application/json; charset=utf-8');
+
 require_once __DIR__ . "/../conexion.php";
+
+/* =========================
+   FECHAS BASE
+========================= */
 
 $hoy = date("Y-m-d");
 $ayer = date("Y-m-d", strtotime("-1 day"));
@@ -14,6 +19,10 @@ $fechaConsulta = $hoy;
 if ($periodo === "fecha" && preg_match('/^\d{4}-\d{2}-\d{2}$/', $fechaFiltro)) {
     $fechaConsulta = $fechaFiltro;
 }
+
+/* =========================
+   WHERE SEGÚN PERÍODO
+========================= */
 
 $wherePeriodo = "fecha = '$hoy'";
 
@@ -37,6 +46,10 @@ $response = [
     "success" => true
 ];
 
+/* =========================
+   FUNCIONES AUXILIARES
+========================= */
+
 function formatearMinutos(int $minutos): string {
     $horas = floor($minutos / 60);
     $mins = $minutos % 60;
@@ -44,12 +57,18 @@ function formatearMinutos(int $minutos): string {
     return $horas . "h " . str_pad($mins, 2, "0", STR_PAD_LEFT) . "m";
 }
 
-/* TOTAL PRODUCTOS GENERAL */
+/* =========================
+   TOTAL PRODUCTOS GENERAL
+========================= */
+
 $sql = "SELECT COUNT(*) AS total FROM produccion";
 $res = $conn->query($sql);
 $totalProductosGeneral = ($res && $row = $res->fetch_assoc()) ? intval($row["total"]) : 0;
 
-/* TOTAL PRODUCTOS SEGÚN FILTRO */
+/* =========================
+   TOTAL PRODUCTOS SEGÚN FILTRO
+========================= */
+
 $totalProductos = $totalProductosGeneral;
 $totalProductosTexto = "Registrados en el sistema";
 $totalProductosDetalle = "Total general: " . $totalProductosGeneral;
@@ -92,7 +111,6 @@ if ($periodo === "fecha") {
 
 /* =========================
    PRODUCTOS EN PROCESO
-   En proceso = fecha_fin no vencida
 ========================= */
 
 $fechaReferencia = $hoy;
@@ -108,7 +126,6 @@ if ($periodo === "fecha") {
 $productosProcesoTexto = "Producción activa actualmente";
 $productosProcesoDetalle = "Según fecha estimada de término";
 
-/* Hoy: activos actualmente, sin limitar por fecha de ingreso */
 $sql = "SELECT COUNT(*) AS total 
         FROM produccion
         WHERE fecha_fin IS NOT NULL
@@ -166,7 +183,10 @@ if ($periodo === "fecha") {
 $res = $conn->query($sql);
 $productosProceso = ($res && $row = $res->fetch_assoc()) ? intval($row["total"]) : 0;
 
-/* PRODUCCIÓN HOY */
+/* =========================
+   PRODUCCIÓN HOY
+========================= */
+
 $sql = "SELECT SUM(cantidad) AS total 
         FROM produccion 
         WHERE fecha = '$hoy'";
@@ -174,8 +194,9 @@ $res = $conn->query($sql);
 $produccionHoy = ($res && $row = $res->fetch_assoc()) ? intval($row["total"] ?? 0) : 0;
 
 /* =========================
-   PRODUCCIÓN POR TURNO (REAL)
+   PRODUCCIÓN POR TURNO
 ========================= */
+
 $sql = "SELECT 
             turno,
             SUM(cantidad) AS total
@@ -193,12 +214,18 @@ $turnos = [
 
 if ($res) {
     while ($row = $res->fetch_assoc()) {
-        $turno = $row["turno"];
-        $turnos[$turno] = intval($row["total"]);
+        $turno = $row["turno"] ?? "";
+
+        if (isset($turnos[$turno])) {
+            $turnos[$turno] = intval($row["total"] ?? 0);
+        }
     }
 }
 
-/* PRODUCCIÓN AYER */
+/* =========================
+   PRODUCCIÓN AYER
+========================= */
+
 $sql = "SELECT SUM(cantidad) AS total 
         FROM produccion 
         WHERE fecha = '$ayer'";
@@ -210,6 +237,7 @@ $produccionAyer = ($res && $row = $res->fetch_assoc()) ? intval($row["total"] ??
 ========================= */
 
 $graficoProduccionTitulo = "Producción de hoy";
+$semana = [];
 
 if ($periodo === "ayer") {
     $graficoProduccionTitulo = "Producción de ayer";
@@ -246,8 +274,6 @@ if ($periodo === "hoy" || $periodo === "ayer" || $periodo === "fecha") {
 
     $res = $conn->query($sql);
 
-    $semana = [];
-
     if ($res) {
         while ($row = $res->fetch_assoc()) {
             $semana[] = [
@@ -280,8 +306,6 @@ if ($periodo === "semana") {
 
     $res = $conn->query($sql);
 
-    $semana = [];
-
     if ($res) {
         while ($row = $res->fetch_assoc()) {
             $semana[] = [
@@ -306,8 +330,6 @@ if ($periodo === "mes") {
 
     $res = $conn->query($sql);
 
-    $semana = [];
-
     if ($res) {
         while ($row = $res->fetch_assoc()) {
             $semana[] = [
@@ -319,27 +341,20 @@ if ($periodo === "mes") {
     }
 }
 
-$res = $conn->query($sql);
+/* =========================
+   PRODUCTOS ESTE MES
+========================= */
 
-$semana = [];
-
-if ($res) {
-    while ($row = $res->fetch_assoc()) {
-        $semana[] = [
-            "fecha" => $row["dia"],
-            "total" => intval($row["total"])
-        ];
-    }
-}
-
-/* PRODUCTOS ESTE MES */
 $sql = "SELECT COUNT(*) AS total 
         FROM produccion 
         WHERE fecha >= '$inicioMes'";
 $res = $conn->query($sql);
 $totalMes = ($res && $row = $res->fetch_assoc()) ? intval($row["total"] ?? 0) : 0;
 
-/* FALLAS */
+/* =========================
+   FALLAS
+========================= */
+
 $sql = "SELECT maquina_fallo, COUNT(*) AS total
         FROM produccion
         WHERE fallo_maquina = 'si'
@@ -351,6 +366,7 @@ $sql = "SELECT maquina_fallo, COUNT(*) AS total
 $res = $conn->query($sql);
 
 $fallas = [];
+
 if ($res) {
     while ($row = $res->fetch_assoc()) {
         $fallas[] = [
@@ -360,7 +376,10 @@ if ($res) {
     }
 }
 
-/* TOP MÁQUINAS */
+/* =========================
+   TOP MÁQUINAS
+========================= */
+
 $sql = "SELECT maquina, COUNT(*) AS usos
         FROM produccion_maquinas
         WHERE uso = 'si'
@@ -370,6 +389,7 @@ $sql = "SELECT maquina, COUNT(*) AS usos
 $res = $conn->query($sql);
 
 $topMaquinas = [];
+
 if ($res) {
     while ($row = $res->fetch_assoc()) {
         $topMaquinas[] = [
@@ -379,7 +399,10 @@ if ($res) {
     }
 }
 
-/* HORAS TRABAJADAS */
+/* =========================
+   HORAS TRABAJADAS
+========================= */
+
 $sql = "SELECT 
             SUM(pm.horas) AS horas,
             SUM(pm.minutos) AS minutos
@@ -387,6 +410,7 @@ $sql = "SELECT
         INNER JOIN produccion p ON pm.produccion_id = p.id
         WHERE pm.uso = 'si'
         AND p.$wherePeriodo";
+
 $res = $conn->query($sql);
 
 $horasTrabajadas = 0;
@@ -423,10 +447,17 @@ if ($periodo === "fecha") {
     $horasTrabajadasDetalle = "Fecha: " . date("d/m/Y", strtotime($fechaConsulta));
 }
 
-/* MÁQUINAS DESDE BD */
+/* =========================
+   MÁQUINAS DESDE BD
+   Si = Operativa
+   Mantencion = En mantención
+   No = Detenida
+========================= */
+
 $sql = "SELECT 
             COUNT(*) AS total,
             SUM(CASE WHEN estado = 'Si' THEN 1 ELSE 0 END) AS operativas,
+            SUM(CASE WHEN estado = 'Mantencion' THEN 1 ELSE 0 END) AS mantencion,
             SUM(CASE WHEN estado = 'No' THEN 1 ELSE 0 END) AS detenidas
         FROM maquinas";
 
@@ -434,11 +465,13 @@ $res = $conn->query($sql);
 
 $totalMaquinas = 0;
 $maquinasOperativas = 0;
+$maquinasMantencion = 0;
 $maquinasDetenidas = 0;
 
 if ($res && $row = $res->fetch_assoc()) {
     $totalMaquinas = intval($row["total"] ?? 0);
     $maquinasOperativas = intval($row["operativas"] ?? 0);
+    $maquinasMantencion = intval($row["mantencion"] ?? 0);
     $maquinasDetenidas = intval($row["detenidas"] ?? 0);
 }
 
@@ -446,11 +479,18 @@ $porcentajeOperativas = $totalMaquinas > 0
     ? round(($maquinasOperativas / $totalMaquinas) * 100) 
     : 0;
 
+$porcentajeMantencion = $totalMaquinas > 0 
+    ? round(($maquinasMantencion / $totalMaquinas) * 100) 
+    : 0;
+
 $porcentajeDetenidas = $totalMaquinas > 0 
     ? round(($maquinasDetenidas / $totalMaquinas) * 100) 
     : 0;
 
-/* LISTA MÁQUINAS OPERATIVAS */
+/* =========================
+   LISTA MÁQUINAS OPERATIVAS
+========================= */
+
 $sql = "SELECT 
             id,
             numero_maquina,
@@ -473,7 +513,36 @@ if ($res) {
     }
 }
 
-/* LISTA MÁQUINAS DETENIDAS */
+/* =========================
+   LISTA MÁQUINAS EN MANTENCIÓN
+========================= */
+
+$sql = "SELECT 
+            id,
+            numero_maquina,
+            nombre_maquina,
+            zona,
+            estado,
+            observacion,
+            fecha_actualizacion
+        FROM maquinas
+        WHERE estado = 'Mantencion'
+        ORDER BY zona ASC, numero_maquina ASC";
+
+$res = $conn->query($sql);
+
+$listaMaquinasMantencion = [];
+
+if ($res) {
+    while ($row = $res->fetch_assoc()) {
+        $listaMaquinasMantencion[] = $row;
+    }
+}
+
+/* =========================
+   LISTA MÁQUINAS DETENIDAS
+========================= */
+
 $sql = "SELECT 
             id,
             numero_maquina,
@@ -496,7 +565,10 @@ if ($res) {
     }
 }
 
-/* TIEMPO DETENIDAS */
+/* =========================
+   TIEMPO DETENIDAS
+========================= */
+
 $sql = "SELECT 
             SUM(TIMESTAMPDIFF(MINUTE, fecha_actualizacion, NOW())) AS total_minutos
         FROM maquinas
@@ -514,7 +586,10 @@ $promedioMinutosDetenidas = $maquinasDetenidas > 0
     ? round($totalMinutosDetenidas / $maquinasDetenidas) 
     : 0;
 
-/* ESTADO PRODUCCIÓN TEMPORAL */
+/* =========================
+   ESTADO PRODUCCIÓN TEMPORAL
+========================= */
+
 $fechaReferenciaEstado = $hoy;
 
 if ($periodo === "ayer") {
@@ -547,7 +622,10 @@ $atrasados = ($res && $row = $res->fetch_assoc()) ? intval($row["total"] ?? 0) :
 /* Completados temporal: total general - en proceso - atrasados */
 $completados = max(0, $totalProductosGeneral - $enProceso - $atrasados);
 
-/* ÚLTIMOS REGISTROS */
+/* =========================
+   ÚLTIMOS REGISTROS
+========================= */
+
 $sql = "SELECT 
             p.id,
             p.producto,
@@ -582,22 +660,23 @@ $sql = "SELECT
             u.nombre
         ORDER BY p.id DESC
         LIMIT 5";
+
 $res = $conn->query($sql);
 
 $ultimos = [];
+
 if ($res) {
     while ($row = $res->fetch_assoc()) {
         $ultimos[] = $row;
     }
 }
+
 /* =========================
    EFICIENCIA GENERAL
-   Producción del período / meta del período
 ========================= */
 
 $metaDiaria = 100;
 
-/* Producción según filtro activo */
 $sql = "SELECT SUM(cantidad) AS total 
         FROM produccion 
         WHERE $wherePeriodo";
@@ -605,7 +684,6 @@ $sql = "SELECT SUM(cantidad) AS total
 $res = $conn->query($sql);
 $produccionPeriodo = ($res && $row = $res->fetch_assoc()) ? intval($row["total"] ?? 0) : 0;
 
-/* Meta según período */
 $metaPeriodo = $metaDiaria;
 $eficienciaTexto = "Producción vs meta diaria";
 $eficienciaDetalle = "Meta diaria: " . $metaDiaria . " piezas";
@@ -638,7 +716,36 @@ if ($periodo === "fecha") {
 
 $eficiencia = $metaPeriodo > 0 ? round(($produccionPeriodo / $metaPeriodo) * 100) : 0;
 
-/* RESPUESTA FINAL */
+/* =========================
+   TOP USUARIOS
+========================= */
+
+$sql = "SELECT 
+            COALESCE(u.nombre, 'Admin') AS usuario,
+            SUM(p.cantidad) AS total
+        FROM produccion p
+        LEFT JOIN usuarios u ON p.usuario_id = u.id
+        GROUP BY usuario
+        ORDER BY total DESC
+        LIMIT 3";
+
+$res = $conn->query($sql);
+
+$topUsuarios = [];
+
+if ($res) {
+    while ($row = $res->fetch_assoc()) {
+        $topUsuarios[] = [
+            "usuario" => $row["usuario"],
+            "total" => intval($row["total"] ?? 0)
+        ];
+    }
+}
+
+/* =========================
+   RESPUESTA FINAL
+========================= */
+
 $response["cards"] = [
     "total_productos" => $totalProductos,
     "total_productos_general" => $totalProductosGeneral,
@@ -649,12 +756,20 @@ $response["cards"] = [
     "productos_proceso_texto" => $productosProcesoTexto,
     "productos_proceso_detalle" => $productosProcesoDetalle,
 
+    "total_maquinas" => $totalMaquinas,
+
     "maquinas_operativas" => $maquinasOperativas,
+    "maquinas_mantencion" => $maquinasMantencion,
     "maquinas_detenidas" => $maquinasDetenidas,
+
     "porcentaje_operativas" => $porcentajeOperativas,
+    "porcentaje_mantencion" => $porcentajeMantencion,
     "porcentaje_detenidas" => $porcentajeDetenidas,
+
     "lista_maquinas_operativas" => $listaMaquinasOperativas,
+    "lista_maquinas_mantencion" => $listaMaquinasMantencion,
     "lista_maquinas_detenidas" => $listaMaquinasDetenidas,
+
     "horas_trabajadas" => $horasTrabajadas . "h " . str_pad($minutosTrabajados, 2, "0", STR_PAD_LEFT) . "m",
     "horas_trabajadas_texto" => $horasTrabajadasTexto,
     "horas_trabajadas_detalle" => $horasTrabajadasDetalle,
@@ -666,7 +781,7 @@ $response["cards"] = [
     "meta_periodo" => $metaPeriodo,
 
     "total_mes" => $totalMes
-    ];
+];
 
 $response["turnos"] = [
     "manana" => $turnos["Mañana"],
@@ -691,37 +806,20 @@ $response["tiempo_detenido"] = [
 
 $response["resumen"] = [
     "operativas" => $maquinasOperativas,
-    "en_proceso" => $productosProceso,
+    "mantencion" => $maquinasMantencion,
+
+    /*
+       Se mantiene también "en_proceso" por compatibilidad
+       con JS antiguo que todavía use resumen.en_proceso.
+    */
+    "en_proceso" => $maquinasMantencion,
+
     "detenidas" => $maquinasDetenidas,
     "total" => $totalMaquinas
 ];
 
 $response["fallas"] = $fallas;
 $response["top_maquinas"] = $topMaquinas;
-
-/* TOP USUARIOS */
-$sql = "SELECT 
-            COALESCE(u.nombre, 'Admin') AS usuario,
-            SUM(p.cantidad) AS total
-        FROM produccion p
-        LEFT JOIN usuarios u ON p.usuario_id = u.id
-        GROUP BY usuario
-        ORDER BY total DESC
-        LIMIT 3";
-
-$res = $conn->query($sql);
-
-$topUsuarios = [];
-
-if ($res) {
-    while ($row = $res->fetch_assoc()) {
-        $topUsuarios[] = [
-            "usuario" => $row["usuario"],
-            "total" => intval($row["total"] ?? 0)
-        ];
-    }
-}
-
 $response["top_usuarios"] = $topUsuarios;
 
 $response["estado_produccion"] = [
@@ -730,13 +828,9 @@ $response["estado_produccion"] = [
     "atrasados" => $atrasados
 ];
 
-$response["tiempo_detenido"] = [
-    "total" => formatearMinutos($totalMinutosDetenidas),
-    "promedio" => formatearMinutos($promedioMinutosDetenidas)
-];
-
 $response["ultimos_registros"] = $ultimos;
 
-echo json_encode($response);
+echo json_encode($response, JSON_UNESCAPED_UNICODE);
+
 $conn->close();
 ?>
