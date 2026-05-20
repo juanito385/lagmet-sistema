@@ -53,59 +53,74 @@
             </div>
         </div>
 
-        <div class="dash-card card-green card-maquinas" id="cardMaquinasOperativas">
-    <div class="dash-icon green">✅</div>
+        <!-- CARD UNIFICADA: ESTADO DE MÁQUINAS -->
+        <div class="dash-card card-maquinas-estado" id="cardEstadoMaquinas">
 
-    <div>
-        <h3>Máquinas operativas</h3>
-        <strong id="dashMaquinasOperativas">0</strong>
-        <p class="green-text">Funcionando correctamente</p>
-        <small id="dashMaquinasOperativasDetalle">0% del total</small>
-    </div>
+            <h3 class="estado-maquinas-titulo">Estado de máquinas</h3>
 
-    <button class="card-action-btn green-action" type="button" onclick="toggleMaquinasDropdown('operativas')">
-        Ver máquinas
-        <span class="material-symbols-outlined">expand_more</span>
-    </button>
+            <div class="estado-maquinas-content">
 
-    <div class="maquinas-dropdown-card" id="dropdownMaquinasOperativas">
-        <div class="maquinas-dropdown-header">
-            <h4>Máquinas operativas <span id="tituloMaquinasOperativas">(0)</span></h4>
-            <span class="status-dot-card green-dot-card"></span>
-        </div>
+                <div class="estado-maquinas-total">
+                    <strong id="dashMaquinasTotal">0</strong>
+                    <span>Total maquinaria</span>
+                </div>
 
-        <div class="maquinas-dropdown-list" id="listaMaquinasOperativas">
-            <p class="maquinas-empty">Sin máquinas operativas</p>
-        </div>
-    </div>
-    </div>
+                <button 
+                    type="button" 
+                    class="estado-maquina-chip operativa"
+                    onclick="toggleMaquinasDropdown('operativas')"
+                >
+                    <div class="chip-icon green">✅</div>
+                    <span>Operativas</span>
+                    <strong id="dashMaquinasOperativas">0</strong>
+                    <small id="dashMaquinasOperativasDetalle">0%</small>
+                </button>
 
-    <div class="dash-card card-red card-maquinas" id="cardMaquinasDetenidas">
-        <div class="dash-icon red">❌</div>
+                <button 
+                    type="button" 
+                    class="estado-maquina-chip mantencion"
+                    onclick="toggleMaquinasDropdown('mantencion')"
+                >
+                    <div class="chip-icon yellow">🔧</div>
+                    <span>En mantención</span>
+                    <strong id="dashMaquinasMantencion">0</strong>
+                    <small id="dashMaquinasMantencionDetalle">0%</small>
+                </button>
 
-        <div>
-            <h3>Máquinas detenidas</h3>
-            <strong id="dashMaquinasDetenidas">0</strong>
-            <p class="red-text">Requieren revisión</p>
-            <small id="dashMaquinasDetenidasDetalle">0% del total</small>
-        </div>
+                <button 
+                    type="button" 
+                    class="estado-maquina-chip detenida"
+                    onclick="toggleMaquinasDropdown('detenidas')"
+                >
+                    <div class="chip-icon red">❌</div>
+                    <span>Detenidas</span>
+                    <strong id="dashMaquinasDetenidas">0</strong>
+                    <small id="dashMaquinasDetenidasDetalle">0%</small>
+                </button>
 
-        <button class="card-action-btn red-action" type="button" onclick="toggleMaquinasDropdown('detenidas')">
-            Ver máquinas
-            <span class="material-symbols-outlined">expand_more</span>
-        </button>
-
-        <div class="maquinas-dropdown-card" id="dropdownMaquinasDetenidas">
-            <div class="maquinas-dropdown-header">
-                <h4>Máquinas detenidas <span id="tituloMaquinasDetenidas">(0)</span></h4>
-                <span class="status-dot-card red-dot-card"></span>
             </div>
 
-            <div class="maquinas-dropdown-list" id="listaMaquinasDetenidas">
-                <p class="maquinas-empty">Sin máquinas detenidas</p>
+            <button 
+                class="card-action-btn maquinas-total-action" 
+                type="button" 
+                onclick="toggleMaquinasDropdown('todas')"
+            >
+                Ver máquinas
+                <span class="material-symbols-outlined">chevron_right</span>
+            </button>
+
+            <div class="maquinas-dropdown-card" id="dropdownEstadoMaquinas">
+                <div class="maquinas-dropdown-header">
+                    <h4 id="tituloEstadoMaquinas">Todas las máquinas</h4>
+                    <span class="status-dot-card blue-dot-card" id="dotEstadoMaquinas"></span>
+                </div>
+
+                <div class="maquinas-dropdown-list" id="listaEstadoMaquinas">
+                    <p class="maquinas-empty">Sin máquinas registradas</p>
+                </div>
             </div>
+
         </div>
-    </div>
 
 
         <div class="dash-card card-blue">
