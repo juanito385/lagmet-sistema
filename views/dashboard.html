@@ -212,24 +212,62 @@
             </div>
         </div>
 
-        <div class="dashboard-panel">
-            <div class="panel-title">
-                <h3>⚙️ Resumen rápido</h3>
-            </div>
-
-            <div class="donut-layout">
-                <div class="donut-chart">
-                    <div class="donut-center">
-                        <strong id="donutTotal">0</strong>
-                        <span>Total</span>
+        <div class="dashboard-panel panel-distribucion">
+                    <div class="panel-title distribucion-title">
+                        <h3>◔ Distribución operativa</h3>
+                        <span class="info-icon">i</span>
                     </div>
+
+                    <div class="distribucion-body" id="donutArea">
+
+    <!-- PORCENTAJE OPERATIVAS -->
+    <div class="donut-label label-operativas" id="labelOperativas">
+        <strong id="porcentajeOperativas">0%</strong>
+    </div>
+
+    <!-- GRÁFICO -->
+    <div class="donut-wrapper" id="donutWrapper">
+        <div class="donut-chart" id="donutChart">
+            <div class="donut-center">
+                <strong id="donutTotal">0</strong>
+                <span>Total</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- PORCENTAJE EN MANTENCIÓN -->
+    <div class="donut-label label-proceso" id="labelProceso">
+        <strong id="porcentajeProceso">0%</strong>
+    </div>
+
+    <!-- PORCENTAJE DETENIDAS -->
+    <div class="donut-label label-detenidas" id="labelDetenidas">
+        <strong id="porcentajeDetenidas">0%</strong>
+    </div>
+
+                    </div>
+
+            <!-- TARJETAS INFERIORES -->
+            <div class="distribucion-cards">
+
+                <div class="distribucion-card">
+                    <p><span class="dot green-dot"></span> Operativas</p>
+                    <strong id="resumenOperativas">0</strong>
+                    <span class="percent green-percent" id="cardOperativasPercent">0%</span>
                 </div>
 
-                <div class="status-list">
-                    <p><span class="dot green-dot"></span> Operativas <strong id="resumenOperativas">0</strong></p>
-                    <p><span class="dot yellow-dot"></span> En proceso <strong id="resumenProceso">0</strong></p>
-                    <p><span class="dot red-dot"></span> Detenidas <strong id="resumenDetenidas">0</strong></p>
+                <div class="distribucion-card">
+                    <p><span class="dot yellow-dot"></span> En mantención</p>
+                    <strong id="resumenProceso">0</strong>
+                    <span class="percent yellow-percent" id="cardProcesoPercent">0%</span>
                 </div>
+
+                <div class="distribucion-card">
+                    <p><span class="dot red-dot"></span> Detenidas</p>
+                    <strong id="resumenDetenidas">0</strong>
+                    <span class="percent red-percent" id="cardDetenidasPercent">0%</span>
+                </div>
+
             </div>
         </div>
 

@@ -1,31 +1,145 @@
+
 /* =========================
-   RESUMEN RÁPIDO
+   RESUMEN RÁPIDO / DISTRIBUCIÓN OPERATIVA
 ========================= */
 function cargarResumenRapido(resumen) {
-    const operativas = resumen.operativas ?? 0;
-    const proceso = resumen.en_proceso ?? 0;
-    const detenidas = resumen.detenidas ?? 0;
-    const total = resumen.total ?? 0;
+    const operativas = Number(resumen.operativas ?? 0);
+    const proceso = Number(resumen.en_proceso ?? 0);
+    const detenidas = Number(resumen.detenidas ?? 0);
+
+    const totalCalculado = operativas + proceso + detenidas;
+    const total = totalCalculado > 0 ? totalCalculado : Number(resumen.total ?? 0);
+
+    const porcentajeOperativas = total > 0 ? (operativas / total) * 100 : 0;
+    const porcentajeProceso = total > 0 ? (proceso / total) * 100 : 0;
+    const porcentajeDetenidas = total > 0 ? (detenidas / total) * 100 : 0;
 
     actualizarTexto("donutTotal", total);
+
     actualizarTexto("resumenOperativas", operativas);
     actualizarTexto("resumenProceso", proceso);
     actualizarTexto("resumenDetenidas", detenidas);
 
-    const porcentajeOperativas = total > 0 ? Math.round((operativas / total) * 100) : 0;
-    const porcentajeProceso = total > 0 ? Math.round((proceso / total) * 100) : 0;
+    actualizarTexto("porcentajeOperativas", `${porcentajeOperativas.toFixed(1)}%`);
+    actualizarTexto("porcentajeProceso", `${porcentajeProceso.toFixed(1)}%`);
+    actualizarTexto("porcentajeDetenidas", `${porcentajeDetenidas.toFixed(1)}%`);
 
-    const donut = document.querySelector(".donut-chart");
+    actualizarTexto("cardOperativasPercent", `${porcentajeOperativas.toFixed(1)}%`);
+    actualizarTexto("cardProcesoPercent", `${porcentajeProceso.toFixed(1)}%`);
+    actualizarTexto("cardDetenidasPercent", `${porcentajeDetenidas.toFixed(1)}%`);
+
+    const donut = document.getElementById("donutChart");
 
     if (donut) {
-        donut.style.background = `
-            conic-gradient(
-                #41c977 0% ${porcentajeOperativas}%,
-                #f2a516 ${porcentajeOperativas}% ${porcentajeOperativas + porcentajeProceso}%,
-                #ff4d5a ${porcentajeOperativas + porcentajeProceso}% 100%
-            )
-        `;
+        if (total > 0) {
+            const finOperativas = porcentajeOperativas;
+            const finProceso = porcentajeOperativas + porcentajeProceso;
+
+            donut.style.background = `
+                conic-gradient(
+                    from 70deg,
+                    #22c55e 0% ${finOperativas}%,
+                    #f59e0b ${finOperativas}% ${finProceso}%,
+                    #ef4444 ${finProceso}% 100%
+                )
+            `;
+        } else {
+            donut.style.background = `conic-gradient(rgba(255,255,255,.10) 0% 100%)`;
+        }
     }
+
+    requestAnimationFrame(() => {
+        posicionarPorcentajesDonut([
+            {
+                id: "labelOperativas",
+                valor: operativas,
+                offsetX: -6,
+                offsetY: -8
+            },
+            {
+                id: "labelProceso",
+                valor: proceso,
+                offsetX: 10,
+                offsetY: -10
+            },
+            {
+                id: "labelDetenidas",
+                valor: detenidas,
+                offsetX: 8,
+                offsetY: 4
+            }
+        ]);
+    });
+}
+
+/* =========================
+   PORCENTAJES DINÁMICOS DONUT
+   Sin líneas, solo porcentaje junto al segmento
+========================= */
+function posicionarPorcentajesDonut(segmentos) {
+    const area = document.getElementById("donutArea");
+    const donut = document.getElementById("donutChart");
+
+    if (!area || !donut) return;
+
+    const areaRect = area.getBoundingClientRect();
+    const donutRect = donut.getBoundingClientRect();
+
+    const centroX = donutRect.left - areaRect.left + donutRect.width / 2;
+    const centroY = donutRect.top - areaRect.top + donutRect.height / 2;
+    const radio = donutRect.width / 2;
+
+    const total = segmentos.reduce((acc, item) => acc + item.valor, 0);
+
+    if (total <= 0) {
+        segmentos.forEach(item => {
+            const label = document.getElementById(item.id);
+            if (label) label.style.display = "none";
+        });
+        return;
+    }
+
+    /*
+        Debe coincidir con:
+        conic-gradient(from 70deg, ...)
+    */
+    let anguloActual = 70;
+
+    segmentos.forEach(item => {
+        const label = document.getElementById(item.id);
+        if (!label) return;
+
+        if (item.valor <= 0) {
+            label.style.display = "none";
+            return;
+        }
+
+        label.style.display = "flex";
+
+        const gradosSegmento = (item.valor / total) * 360;
+        const anguloMedio = anguloActual + gradosSegmento / 2;
+        const radianes = (anguloMedio - 90) * Math.PI / 180;
+
+        /*
+            radio + 32 = porcentaje fuera del gráfico.
+            Si lo quieres más lejos, sube a 38 o 44.
+        */
+        let labelX = centroX + Math.cos(radianes) * (radio + 28) + (item.offsetX || 0);
+        let labelY = centroY + Math.sin(radianes) * (radio + 28) + (item.offsetY || 0);
+
+        labelX = limitar(labelX, 38, areaRect.width - 38);
+        labelY = limitar(labelY, 28, areaRect.height - 28);
+
+        label.style.left = `${labelX}px`;
+        label.style.top = `${labelY}px`;
+        label.style.transform = "translate(-50%, -50%)";
+
+        anguloActual += gradosSegmento;
+    });
+}
+
+function limitar(valor, minimo, maximo) {
+    return Math.min(Math.max(valor, minimo), maximo);
 }
 
 /* =========================

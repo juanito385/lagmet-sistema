@@ -130,64 +130,358 @@
     font-size:20px;
 }
 
-/* DONUT */
+/* =========================
+   DISTRIBUCIÓN OPERATIVA
+========================= */
 
-.donut-layout{
-    display:flex;
-    align-items:center;
-    justify-content:space-around;
-    gap:20px;
+.panel-distribucion{
+    min-height: 430px;
+    position: relative;
+    overflow: hidden;
 }
 
-.donut-chart{
-    width:170px;
-    height:170px;
+.distribucion-title{
+    margin-bottom: 14px;
+}
+
+.distribucion-title h3{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    font-size:18px;
+}
+
+.info-icon{
+    width:20px;
+    height:20px;
     border-radius:50%;
-    background:conic-gradient(#22c55e 0% 70%, #f59e0b 70% 84%, #ef4444 84% 100%);
+    background:rgba(255,255,255,.16);
+    color:#c7d2fe;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:13px;
+    font-weight:700;
+}
+
+/* CUERPO DEL GRÁFICO */
+
+.distribucion-body{
+    position:relative;
+    height:245px;
     display:flex;
     align-items:center;
     justify-content:center;
 }
 
-.donut-center{
-    width:88px;
-    height:88px;
+/* DONA */
+
+.donut-wrapper{
+    position:relative;
+    width:190px;
+    height:190px;
+    margin-top:8px;
+}
+
+.donut-chart{
+    width:190px;
+    height:190px;
     border-radius:50%;
-    background:#111827;
+    position:relative;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    background:
+        conic-gradient(
+            #22c55e 0% 89.5%,
+            #f59e0b 89.5% 94.8%,
+            #ef4444 94.8% 100%
+        );
+
+    box-shadow:
+        0 0 28px rgba(34,197,94,.20),
+        inset 0 0 16px rgba(0,0,0,.35);
+}
+
+.donut-chart::after{
+    content:"";
+    position:absolute;
+    inset:48px;
+    border-radius:50%;
+    background:#07111f;
+    box-shadow:inset 0 0 16px rgba(0,0,0,.65);
+}
+
+.donut-center{
+    position:absolute;
+    inset:0;
+    z-index:2;
     display:flex;
     flex-direction:column;
     align-items:center;
     justify-content:center;
+    text-align:center;
 }
 
 .donut-center strong{
-    font-size:26px;
+    font-size:32px;
+    line-height:1;
+    color:#fff;
 }
 
 .donut-center span{
+    margin-top:8px;
+    font-size:14px;
+    color:#cbd5e1;
+}
+
+/* PORCENTAJES EXTERNOS */
+
+.donut-label{
+    position:absolute;
+    z-index:3;
+    display:flex;
+    flex-direction:column;
+    gap:4px;
+    font-size:14px;
+    color:#cbd5e1;
+    white-space:nowrap;
+}
+
+.donut-label strong{
+    font-size:22px;
+    line-height:1;
+    font-weight:800;
+    letter-spacing:.3px;
+}
+
+.label-operativas{
+    left:8px;
+    top:92px;
+}
+
+.label-operativas strong{
+    color:#22c55e;
+}
+
+.label-proceso{
+    right:12px;
+    top:48px;
+    text-align:left;
+}
+
+.label-proceso strong{
+    color:#f59e0b;
+}
+
+.label-detenidas{
+    right:12px;
+    bottom:54px;
+    text-align:left;
+}
+
+.label-detenidas strong{
+    color:#ef4444;
+}
+
+/* LÍNEAS PUNTEADAS */
+
+.label-operativas::after,
+.label-proceso::after,
+.label-detenidas::after{
+    content:"";
+    position:absolute;
+    height:1px;
+    border-top:2px dotted rgba(226,232,240,.72);
+}
+
+.label-operativas::after{
+    width:46px;
+    left:102px;
+    top:17px;
+}
+
+.label-proceso::after{
+    width:44px;
+    right:82px;
+    top:16px;
+}
+
+.label-detenidas::after{
+    width:44px;
+    right:82px;
+    top:16px;
+}
+
+/* TARJETAS INFERIORES */
+
+.distribucion-cards{
+    display:grid;
+    grid-template-columns:repeat(3, minmax(0, 1fr));
+    gap:10px;
+    margin-top:8px;
+}
+
+.distribucion-card{
+    min-height:100px;
+    padding:12px 8px;
+    border-radius:14px;
+    background:rgba(255,255,255,.045);
+    border:1px solid rgba(255,255,255,.10);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:7px;
+    overflow:hidden;
+}
+
+.distribucion-card p{
+    margin:0;
+    color:#cbd5e1;
     font-size:12px;
-    color:#cbd5e1;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:6px;
+    text-align:center;
+    line-height:1.15;
 }
 
-.status-list p{
-    margin:13px 0;
-    color:#cbd5e1;
-    font-size:15px;
+.distribucion-card strong{
+    font-size:26px;
+    line-height:1;
+    color:#fff;
 }
 
-.status-list strong{
-    color:white;
-    margin-left:6px;
+.percent{
+    padding:4px 12px;
+    border-radius:999px;
+    font-size:13px;
+    font-weight:800;
 }
+
+.green-percent{
+    color:#4ade80;
+    background:rgba(34,197,94,.12);
+    border:1px solid rgba(34,197,94,.28);
+}
+
+.yellow-percent{
+    color:#f59e0b;
+    background:rgba(245,158,11,.12);
+    border:1px solid rgba(245,158,11,.28);
+}
+
+.red-percent{
+    color:#ef4444;
+    background:rgba(239,68,68,.12);
+    border:1px solid rgba(239,68,68,.28);
+}
+
+/* DOTS */
 
 .dot{
     display:inline-block;
+    flex-shrink:0;
     width:12px;
     height:12px;
     border-radius:50%;
-    margin-right:8px;
 }
 
-.green-dot{background:#22c55e;}
-.yellow-dot{background:#f59e0b;}
-.red-dot{background:#ef4444;}
+.green-dot{
+    background:#22c55e;
+    box-shadow:0 0 10px rgba(34,197,94,.75);
+}
+
+.yellow-dot{
+    background:#f59e0b;
+    box-shadow:0 0 10px rgba(245,158,11,.75);
+}
+
+.red-dot{
+    background:#ef4444;
+    box-shadow:0 0 10px rgba(239,68,68,.75);
+}
+
+/* =========================
+   DONUT PORCENTAJES DINÁMICOS SIN LÍNEAS
+========================= */
+
+.distribucion-body{
+    position: relative;
+    height: 245px;
+    overflow: visible;
+}
+
+/* Contenedor de la dona */
+.donut-wrapper{
+    position: relative;
+    z-index: 1;
+}
+
+/* Etiquetas de porcentaje */
+.donut-label{
+    position: absolute;
+    z-index: 4;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    transform: translate(-50%, -50%);
+    transition: left .35s ease, top .35s ease;
+
+    pointer-events: none;
+    white-space: nowrap;
+}
+
+/* Solo el número del porcentaje */
+.donut-label strong{
+    font-size: 17px;
+    line-height: 1;
+    font-weight: 800;
+    letter-spacing: .2px;
+
+    padding: 4px 8px;
+    border-radius: 999px;
+    background: rgba(7, 17, 31, .82);
+    border: 1px solid rgba(255,255,255,.08);
+    box-shadow: 0 6px 16px rgba(0,0,0,.25);
+}
+
+/* Colores por porcentaje */
+.label-operativas strong{
+    color: #22c55e;
+}
+
+.label-proceso strong{
+    color: #f59e0b;
+}
+
+.label-detenidas strong{
+    color: #ef4444;
+}
+
+/* Eliminar líneas antiguas si quedaron declaradas */
+.label-operativas::after,
+.label-proceso::after,
+.label-detenidas::after{
+    display: none !important;
+}
+
+/* Posiciones temporales hasta conectar el JS */
+.label-operativas{
+    left: 18%;
+    top: 62%;
+}
+
+.label-proceso{
+    left: 78%;
+    top: 24%;
+}
+
+.label-detenidas{
+    left: 82%;
+    top: 42%;
+}
