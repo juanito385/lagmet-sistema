@@ -124,8 +124,8 @@ function posicionarPorcentajesDonut(segmentos) {
             radio + 32 = porcentaje fuera del gráfico.
             Si lo quieres más lejos, sube a 38 o 44.
         */
-        let labelX = centroX + Math.cos(radianes) * (radio + 28) + (item.offsetX || 0);
-        let labelY = centroY + Math.sin(radianes) * (radio + 28) + (item.offsetY || 0);
+        let labelX = centroX + Math.cos(radianes) * (radio + 32) + (item.offsetX || 0);
+        let labelY = centroY + Math.sin(radianes) * (radio + 32) + (item.offsetY || 0);
 
         labelX = limitar(labelX, 38, areaRect.width - 38);
         labelY = limitar(labelY, 28, areaRect.height - 28);
