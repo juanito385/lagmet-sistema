@@ -54,15 +54,19 @@ function cargarProduccionSemanal(semana) {
     const canvas = document.getElementById("graficoProduccionSemanal");
     if (!canvas) return;
 
-    if (!semana || !semana.length) {
-        semana = [
-            { fecha: "Sin datos", total: 0, tipo: "turno" }
+        let datosFecha = Array.isArray(semana)
+        ? semana.filter(item => item && item.tipo !== "turno" && item.fecha)
+        : [];
+
+    if (!datosFecha.length) {
+        datosFecha = [
+            { fecha: "Sin datos", total: 0 }
         ];
     }
 
-    const dias = semana.map(item => {
-        if (item.tipo === "turno") {
-            return item.fecha;
+    const dias = datosFecha.map(item => {
+        if (item.fecha === "Sin datos") {
+            return "Sin datos";
         }
 
         const fecha = new Date(item.fecha + "T00:00:00");
@@ -73,7 +77,7 @@ function cargarProduccionSemanal(semana) {
         });
     });
 
-    const cantidades = semana.map(item => item.total);
+const cantidades = datosFecha.map(item => item.total ?? 0);
 
     if (graficoProduccionSemanal) {
         graficoProduccionSemanal.destroy();

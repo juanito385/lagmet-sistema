@@ -71,7 +71,7 @@ async function cargarDatosDashboard(periodo = "hoy", fecha = null) {
 
         actualizarTexto(
             "tituloGraficoProduccion",
-            `📈 ${data.grafico_produccion_titulo ?? "Producción últimos 7 días"}`
+            "📈 Producción últimos 7 días"
         );
 
         cargarResumenRapido(data.resumen);
