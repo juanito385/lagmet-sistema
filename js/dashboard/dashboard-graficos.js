@@ -2,22 +2,119 @@
    PRODUCCIÓN POR TURNO
 ========================= */
 function cargarTurnos(turnos) {
-    const manana = turnos.manana ?? 0;
-    const tarde = turnos.tarde ?? 0;
-    const noche = turnos.noche ?? 0;
+    const manana = Number(turnos.manana ?? 0);
+    const tarde = Number(turnos.tarde ?? 0);
+    const noche = Number(turnos.noche ?? 0);
+
+    const total = Number(turnos.total_hoy ?? 0);
+    const meta = Number(turnos.meta ?? 0);
 
     const max = Math.max(manana, tarde, noche, 1);
 
-    actualizarTexto("turnoMananaNumero", manana);
-    actualizarTexto("turnoTardeNumero", tarde);
-    actualizarTexto("turnoNocheNumero", noche);
+    actualizarTexto("turnoMananaNumero", `${manana} piezas`);
+    actualizarTexto("turnoTardeNumero", `${tarde} piezas`);
+    actualizarTexto("turnoNocheNumero", `${noche} piezas`);
 
-    actualizarAltura("turnoMananaBarra", (manana / max) * 100);
-    actualizarAltura("turnoTardeBarra", (tarde / max) * 100);
-    actualizarAltura("turnoNocheBarra", (noche / max) * 100);
+    actualizarBarraTurno("turnoMananaBarra", (manana / max) * 100, manana);
+    actualizarBarraTurno("turnoTardeBarra", (tarde / max) * 100, tarde);
+    actualizarBarraTurno("turnoNocheBarra", (noche / max) * 100, noche);
 
-    actualizarTexto("totalProducidoHoy", `${turnos.total_hoy ?? 0} piezas`);
-    actualizarTexto("metaDiaria", `${turnos.meta ?? 0}%`);
+    actualizarTexto("totalProducidoHoy", `${total} piezas`);
+    actualizarTexto("metaDiaria", `${meta}%`);
+
+    actualizarResumenTurnos({
+        manana,
+        tarde,
+        noche,
+        total
+    });
+}
+
+function actualizarResumenTurnos(datos) {
+    const manana = datos.manana;
+    const tarde = datos.tarde;
+    const noche = datos.noche;
+    const total = datos.total;
+
+    const filtroActual = document.getElementById("textoFiltroTurno")?.textContent?.trim() || "Hoy";
+
+    const titulo = document.getElementById("tituloResumenTurnos");
+    const descripcion = document.getElementById("descripcionResumenTurnos");
+    const icono = document.getElementById("iconoTextoTurnos");
+
+    if (!titulo || !descripcion || !icono) return;
+
+    const periodoTexto = obtenerTextoPeriodoTurno(filtroActual);
+
+    if (total <= 0) {
+        titulo.textContent = `Sin producción registrada ${periodoTexto.vacio}`;
+        descripcion.textContent = `Aún no hay registros en los turnos. Cuando se registren, verás el resumen aquí.`;
+        icono.textContent = "assignment";
+        return;
+    }
+
+    const turnosOrdenados = [
+        { nombre: "Mañana", valor: manana },
+        { nombre: "Tarde", valor: tarde },
+        { nombre: "Noche", valor: noche }
+    ].sort((a, b) => b.valor - a.valor);
+
+    const lider = turnosOrdenados[0];
+    const segundo = turnosOrdenados[1];
+
+    titulo.textContent = `Resumen ${periodoTexto.resumen}`;
+
+    if (lider.valor > 0 && segundo.valor > 0) {
+        descripcion.textContent = `Se registraron ${total} piezas ${periodoTexto.registro}. El turno ${lider.nombre} lidera la producción, seguido por ${segundo.nombre}.`;
+    } else if (lider.valor > 0) {
+        descripcion.textContent = `Se registraron ${total} piezas ${periodoTexto.registro}. El turno ${lider.nombre} concentra toda la producción registrada.`;
+    } else {
+        descripcion.textContent = `Se registraron ${total} piezas ${periodoTexto.registro}.`;
+    }
+
+    icono.textContent = "event_note";
+}
+
+function obtenerTextoPeriodoTurno(filtro) {
+    const valor = filtro.toLowerCase();
+
+    if (valor.includes("semana")) {
+        return {
+            resumen: "de la semana",
+            registro: "esta semana",
+            vacio: "esta semana"
+        };
+    }
+
+    if (valor.includes("mes")) {
+        return {
+            resumen: "del mes",
+            registro: "en el mes actual",
+            vacio: "este mes"
+        };
+    }
+
+    return {
+        resumen: "de hoy",
+        registro: "durante el día",
+        vacio: "hoy"
+    };
+}
+
+function actualizarBarraTurno(id, porcentaje, valor) {
+    const barra = document.getElementById(id);
+    if (!barra) return;
+
+    const porcentajeFinal = Math.max(0, Math.min(porcentaje, 100));
+
+    barra.style.width = `${porcentajeFinal}%`;
+    barra.style.height = "100%";
+
+    if (Number(valor) <= 0) {
+        barra.style.opacity = "0";
+    } else {
+        barra.style.opacity = "1";
+    }
 }
 
 /* =========================
@@ -63,6 +160,10 @@ function cargarProduccionSemanal(semana) {
             { fecha: "Sin datos", total: 0 }
         ];
     }
+
+    const hayDatosReales = datosFecha.some(item => item.fecha !== "Sin datos" && Number(item.total) > 0);
+
+    actualizarEstadoVacioProduccion(hayDatosReales);
 
     const dias = datosFecha.map(item => {
         if (item.fecha === "Sin datos") {
@@ -150,4 +251,19 @@ const cantidades = datosFecha.map(item => item.total ?? 0);
             }
         }
     });
+}
+
+/* =========================
+   ESTADO VACÍO GRÁFICO SEMANAL
+========================= */
+function actualizarEstadoVacioProduccion(hayDatos) {
+    const estadoVacio = document.getElementById("estadoVacioProduccion");
+
+    if (!estadoVacio) return;
+
+    if (hayDatos) {
+        estadoVacio.classList.remove("active");
+    } else {
+        estadoVacio.classList.add("active");
+    }
 }

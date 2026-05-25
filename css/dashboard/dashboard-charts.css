@@ -2,6 +2,10 @@
    DASHBOARD CHARTS
 ========================= */
 
+/* =========================
+   PRODUCCIÓN POR TURNO
+========================= */
+
 .bar-chart,
 .pro-chart{
     height:245px;
@@ -40,9 +44,17 @@
     transition:.35s ease;
 }
 
-.blue-bar{background:linear-gradient(#60a5fa,#2563eb);}
-.green-bar{background:linear-gradient(#4ade80,#16a34a);}
-.purple-bar{background:linear-gradient(#a855f7,#6d28d9);}
+.blue-bar{
+    background:linear-gradient(#60a5fa,#2563eb);
+}
+
+.green-bar{
+    background:linear-gradient(#4ade80,#16a34a);
+}
+
+.purple-bar{
+    background:linear-gradient(#a855f7,#6d28d9);
+}
 
 .bar-item p{
     margin:0;
@@ -63,71 +75,170 @@
     color:#4ade80;
 }
 
-/* LINE CHART */
+/* =========================
+   PANEL PRODUCCIÓN ÚLTIMOS 7 DÍAS
+========================= */
 
-.line-chart-fake{
-    height:255px;
+.panel-produccion-semanal{
     position:relative;
-    border-left:1px solid rgba(255,255,255,.12);
-    border-bottom:1px solid rgba(255,255,255,.12);
+    min-height:430px;
     overflow:hidden;
 }
 
-.line-grid{
-    position:absolute;
-    inset:0;
-    background:linear-gradient(rgba(255,255,255,.055) 1px, transparent 1px);
-    background-size:100% 42px;
+.panel-produccion-semanal .panel-title{
+    margin-bottom:24px;
 }
 
-.line{
-    position:absolute;
-    left:20px;
-    right:20px;
-    height:4px;
-    border-radius:20px;
-    transform:rotate(-9deg);
+.panel-produccion-semanal .panel-title h3{
+    font-size:18px;
+    font-weight:800;
+    color:#ffffff;
 }
 
-.line-today{
-    bottom:80px;
-    background:linear-gradient(90deg,#8b5cf6,#a855f7);
-    box-shadow:0 0 16px rgba(168,85,247,.5);
+/* Contenedor del gráfico */
+.line-chart-fake,
+.panel-produccion-semanal .chart-empty-wrapper{
+    height:255px;
+    position:relative;
+    overflow:visible;
+
+    border-left:1px solid rgba(203,213,225,.18);
+    border-bottom:1px solid rgba(203,213,225,.18);
+
+    background:
+        linear-gradient(rgba(255,255,255,.045) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.035) 1px, transparent 1px);
+
+    background-size:100% 68px, 120px 100%;
 }
 
-.line-yesterday{
-    bottom:55px;
-    background:linear-gradient(90deg,#64748b,#94a3b8);
-    opacity:.8;
-}
-
+/* Canvas */
 #graficoProduccionSemanal{
     width:100% !important;
     height:100% !important;
+    position:relative;
+    z-index:1;
 }
 
+/* Títulos de ejes */
+.chart-axis-title{
+    position:absolute;
+    z-index:4;
+    font-size:11px;
+    font-weight:800;
+    color:#aeb7cc;
+    letter-spacing:.5px;
+    text-transform:uppercase;
+    pointer-events:none;
+    opacity:.9;
+}
+
+.chart-axis-title.axis-y{
+    top:-22px;
+    left:0;
+}
+
+.chart-axis-title.axis-x{
+    right:0;
+    bottom:-22px;
+}
+
+/* Estado vacío */
+.chart-empty-state{
+    position:absolute;
+    inset:0;
+    z-index:3;
+
+    display:none;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+
+    text-align:center;
+    pointer-events:none;
+}
+
+.chart-empty-state.active{
+    display:flex;
+}
+
+.empty-icon{
+    width:78px;
+    height:78px;
+    border-radius:50%;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    margin-bottom:14px;
+
+    background:
+        radial-gradient(circle at 50% 35%, rgba(255,255,255,.10), rgba(139,92,246,.10));
+
+    border:1px dashed rgba(167,139,250,.45);
+
+    box-shadow:
+        0 0 34px rgba(139,92,246,.20),
+        inset 0 0 20px rgba(255,255,255,.04);
+}
+
+.empty-icon .material-symbols-outlined{
+    font-size:38px;
+    color:#cbd5e1;
+}
+
+.chart-empty-state strong{
+    font-size:17px;
+    font-weight:800;
+    color:#ffffff;
+    margin-bottom:7px;
+}
+
+.chart-empty-state p{
+    margin:0;
+    max-width:245px;
+    font-size:13px;
+    line-height:1.35;
+    color:#b7bfd3;
+}
+
+/* Tarjetas Hoy / Ayer */
 .compare-boxes{
     display:grid;
     grid-template-columns:1fr 1fr;
-    gap:12px;
-    margin-top:14px;
+    gap:14px;
+    margin-top:28px;
 }
 
-.compare-boxes div{
-    padding:12px;
-    border-radius:12px;
-    background:rgba(255,255,255,.05);
-    border:1px solid rgba(255,255,255,.08);
+.compare-boxes-semanal .compare-card{
+    min-height:76px;
+    padding:15px 16px;
+    border-radius:15px;
+
+    background:
+        linear-gradient(145deg, rgba(255,255,255,.075), rgba(255,255,255,.035));
+
+    border:1px solid rgba(255,255,255,.10);
+
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.035),
+        0 12px 24px rgba(0,0,0,.14);
 }
 
-.compare-boxes span{
+.compare-boxes-semanal .compare-card span{
     display:block;
-    color:#cbd5e1;
-    font-size:13px;
+    color:#b9c2d6;
+    font-size:14px;
+    margin-bottom:5px;
 }
 
-.compare-boxes strong{
-    font-size:20px;
+.compare-boxes-semanal .compare-card strong{
+    display:block;
+    color:#ffffff;
+    font-size:24px;
+    line-height:1.1;
+    font-weight:850;
 }
 
 /* =========================
@@ -135,13 +246,13 @@
 ========================= */
 
 .panel-distribucion{
-    min-height: 430px;
-    position: relative;
-    overflow: hidden;
+    min-height:430px;
+    position:relative;
+    overflow:hidden;
 }
 
 .distribucion-title{
-    margin-bottom: 14px;
+    margin-bottom:14px;
 }
 
 .distribucion-title h3{
@@ -164,23 +275,23 @@
     font-weight:700;
 }
 
-/* CUERPO DEL GRÁFICO */
-
+/* Cuerpo dona */
 .distribucion-body{
     position:relative;
     height:245px;
     display:flex;
     align-items:center;
     justify-content:center;
+    overflow:visible;
 }
 
-/* DONA */
-
+/* Dona */
 .donut-wrapper{
     position:relative;
     width:190px;
     height:190px;
     margin-top:8px;
+    z-index:1;
 }
 
 .donut-chart{
@@ -194,6 +305,7 @@
 
     background:
         conic-gradient(
+            from 70deg,
             #22c55e 0% 89.5%,
             #f59e0b 89.5% 94.8%,
             #ef4444 94.8% 100%
@@ -227,7 +339,7 @@
 .donut-center strong{
     font-size:32px;
     line-height:1;
-    color:#fff;
+    color:#ffffff;
 }
 
 .donut-center span{
@@ -236,86 +348,70 @@
     color:#cbd5e1;
 }
 
-/* PORCENTAJES EXTERNOS */
-
+/* Porcentajes externos dinámicos */
 .donut-label{
     position:absolute;
-    z-index:3;
+    z-index:4;
     display:flex;
-    flex-direction:column;
-    gap:4px;
-    font-size:14px;
-    color:#cbd5e1;
+    align-items:center;
+    justify-content:center;
+
+    transform:translate(-50%, -50%);
+    transition:left .35s ease, top .35s ease;
+
+    pointer-events:none;
     white-space:nowrap;
 }
 
 .donut-label strong{
-    font-size:22px;
+    font-size:17px;
     line-height:1;
     font-weight:800;
-    letter-spacing:.3px;
-}
+    letter-spacing:.2px;
 
-.label-operativas{
-    left:8px;
-    top:92px;
+    padding:4px 8px;
+    border-radius:999px;
+    background:rgba(7,17,31,.82);
+    border:1px solid rgba(255,255,255,.08);
+    box-shadow:0 6px 16px rgba(0,0,0,.25);
 }
 
 .label-operativas strong{
     color:#22c55e;
 }
 
-.label-proceso{
-    right:12px;
-    top:48px;
-    text-align:left;
-}
-
 .label-proceso strong{
     color:#f59e0b;
-}
-
-.label-detenidas{
-    right:12px;
-    bottom:54px;
-    text-align:left;
 }
 
 .label-detenidas strong{
     color:#ef4444;
 }
 
-/* LÍNEAS PUNTEADAS */
-
+/* Evita que vuelvan líneas antiguas */
 .label-operativas::after,
 .label-proceso::after,
 .label-detenidas::after{
-    content:"";
-    position:absolute;
-    height:1px;
-    border-top:2px dotted rgba(226,232,240,.72);
+    display:none !important;
 }
 
-.label-operativas::after{
-    width:46px;
-    left:102px;
-    top:17px;
+/* Posiciones base temporales; JS las recalcula */
+.label-operativas{
+    left:18%;
+    top:62%;
 }
 
-.label-proceso::after{
-    width:44px;
-    right:82px;
-    top:16px;
+.label-proceso{
+    left:78%;
+    top:24%;
 }
 
-.label-detenidas::after{
-    width:44px;
-    right:82px;
-    top:16px;
+.label-detenidas{
+    left:82%;
+    top:42%;
 }
 
-/* TARJETAS INFERIORES */
-
+/* Tarjetas inferiores distribución */
 .distribucion-cards{
     display:grid;
     grid-template-columns:repeat(3, minmax(0, 1fr));
@@ -352,7 +448,7 @@
 .distribucion-card strong{
     font-size:26px;
     line-height:1;
-    color:#fff;
+    color:#ffffff;
 }
 
 .percent{
@@ -380,8 +476,7 @@
     border:1px solid rgba(239,68,68,.28);
 }
 
-/* DOTS */
-
+/* Puntos */
 .dot{
     display:inline-block;
     flex-shrink:0;
@@ -403,85 +498,4 @@
 .red-dot{
     background:#ef4444;
     box-shadow:0 0 10px rgba(239,68,68,.75);
-}
-
-/* =========================
-   DONUT PORCENTAJES DINÁMICOS SIN LÍNEAS
-========================= */
-
-.distribucion-body{
-    position: relative;
-    height: 245px;
-    overflow: visible;
-}
-
-/* Contenedor de la dona */
-.donut-wrapper{
-    position: relative;
-    z-index: 1;
-}
-
-/* Etiquetas de porcentaje */
-.donut-label{
-    position: absolute;
-    z-index: 4;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    transform: translate(-50%, -50%);
-    transition: left .35s ease, top .35s ease;
-
-    pointer-events: none;
-    white-space: nowrap;
-}
-
-/* Solo el número del porcentaje */
-.donut-label strong{
-    font-size: 17px;
-    line-height: 1;
-    font-weight: 800;
-    letter-spacing: .2px;
-
-    padding: 4px 8px;
-    border-radius: 999px;
-    background: rgba(7, 17, 31, .82);
-    border: 1px solid rgba(255,255,255,.08);
-    box-shadow: 0 6px 16px rgba(0,0,0,.25);
-}
-
-/* Colores por porcentaje */
-.label-operativas strong{
-    color: #22c55e;
-}
-
-.label-proceso strong{
-    color: #f59e0b;
-}
-
-.label-detenidas strong{
-    color: #ef4444;
-}
-
-/* Eliminar líneas antiguas si quedaron declaradas */
-.label-operativas::after,
-.label-proceso::after,
-.label-detenidas::after{
-    display: none !important;
-}
-
-/* Posiciones temporales hasta conectar el JS */
-.label-operativas{
-    left: 18%;
-    top: 62%;
-}
-
-.label-proceso{
-    left: 78%;
-    top: 24%;
-}
-
-.label-detenidas{
-    left: 82%;
-    top: 42%;
 }

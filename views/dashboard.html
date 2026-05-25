@@ -147,9 +147,19 @@
 
     <div class="dashboard-main-grid">
 
-        <div class="dashboard-panel panel-large">
-            <div class="panel-title">
-                <h3>📊 Producción por turno</h3>
+        <div class="dashboard-panel panel-large panel-turnos-compact">
+
+            <div class="turnos-compact-header">
+                <div class="turnos-compact-title">
+                    <div class="turnos-compact-icon">
+                        <span class="material-symbols-outlined">bar_chart</span>
+                    </div>
+
+                    <div>
+                        <h3>Producción por turno</h3>
+                        <p>Resumen de producción por turno</p>
+                    </div>
+                </div>
 
                 <div class="custom-select" id="dropdownTurno">
                     <button class="custom-select-btn" type="button" onclick="toggleDropdownTurno()">
@@ -165,52 +175,147 @@
                 </div>
             </div>
 
-            <div class="bar-chart pro-chart">
-                <div class="bar-item">
-                    <span class="bar-number" id="turnoMananaNumero">0</span>
-                    <div class="bar blue-bar" id="turnoMananaBarra" style="height:0%;"></div>
-                    <p>🌤️ Mañana</p>
+            <div class="turnos-compact-empty" id="estadoVacioTurnos">
+                <div class="turnos-empty-icon" id="iconoResumenTurnos">
+                    <span class="material-symbols-outlined" id="iconoTextoTurnos">assignment</span>
                 </div>
 
-                <div class="bar-item">
-                    <span class="bar-number" id="turnoTardeNumero">0</span>
-                    <div class="bar green-bar" id="turnoTardeBarra" style="height:0%;"></div>
-                    <p>☀️ Tarde</p>
-                </div>
-
-                <div class="bar-item">
-                    <span class="bar-number" id="turnoNocheNumero">0</span>
-                    <div class="bar purple-bar" id="turnoNocheBarra" style="height:0%;"></div>
-                    <p>🌙 Noche</p>
-                </div>
+                <strong id="tituloResumenTurnos">Sin producción registrada hoy</strong>
+                <p id="descripcionResumenTurnos">
+                    Aún no hay registros en los turnos. Cuando se registren, verás el resumen aquí.
+                </p>
             </div>
 
-            <div class="chart-footer">
-                <span>Total producido hoy: <strong id="totalProducidoHoy">0 piezas</strong></span>
-                <span>Meta diaria: <strong id="metaDiaria">0%</strong></span>
+            <div class="turnos-compact-list">
+
+                <div class="turno-row">
+                    <div class="turno-row-label">
+                        <span class="turno-emoji">🌤️</span>
+                        <strong>Mañana</strong>
+                    </div>
+
+                    <div class="turno-row-center">
+                        <div class="turno-row-progress">
+                            <div class="turno-row-fill blue-bar" id="turnoMananaBarra" style="width:0%;"></div>
+                        </div>
+                    </div>
+
+                    <div class="turno-row-value">
+                        <span id="turnoMananaNumero">0 piezas</span>
+                        <small>0%</small>
+                    </div>
+                </div>
+
+                <div class="turno-row">
+                    <div class="turno-row-label">
+                        <span class="turno-emoji">☀️</span>
+                        <strong>Tarde</strong>
+                    </div>
+
+                    <div class="turno-row-center">
+                        <div class="turno-row-progress">
+                            <div class="turno-row-fill green-bar" id="turnoTardeBarra" style="width:0%;"></div>
+                        </div>
+                    </div>
+
+                    <div class="turno-row-value">
+                        <span id="turnoTardeNumero">0 piezas</span>
+                        <small>0%</small>
+                    </div>
+                </div>
+
+                <div class="turno-row">
+                    <div class="turno-row-label">
+                        <span class="turno-emoji">🌙</span>
+                        <strong>Noche</strong>
+                    </div>
+
+                    <div class="turno-row-center">
+                        <div class="turno-row-progress">
+                            <div class="turno-row-fill purple-bar" id="turnoNocheBarra" style="width:0%;"></div>
+                        </div>
+                    </div>
+
+                    <div class="turno-row-value">
+                        <span id="turnoNocheNumero">0 piezas</span>
+                        <small>0%</small>
+                    </div>
+                </div>
+
             </div>
+
+            <div class="turnos-compact-footer">
+
+                <div class="turnos-footer-item">
+                    <div class="turnos-footer-icon blue-footer-icon">
+                        <span class="material-symbols-outlined">inventory_2</span>
+                    </div>
+
+                    <div>
+                        <span>Total producido hoy</span>
+                        <strong id="totalProducidoHoy">0 piezas</strong>
+                    </div>
+                </div>
+
+                <div class="turnos-footer-item">
+                    <div class="turnos-footer-icon purple-footer-icon">
+                        <span class="material-symbols-outlined">target</span>
+                    </div>
+
+                    <div>
+                        <span>Meta diaria</span>
+                        <strong id="metaDiaria">0%</strong>
+                    </div>
+                </div>
+
+            </div>
+
         </div>
 
-        <div class="dashboard-panel">
+                <div class="dashboard-panel panel-produccion-semanal">
+
             <div class="panel-title">
                 <h3 id="tituloGraficoProduccion">📈 Producción últimos 7 días</h3>
+                <span class="info-icon">i</span>
             </div>
 
-            <div class="line-chart-fake">
+            <div class="line-chart-fake chart-empty-wrapper">
+
+                <!-- TÍTULOS DE EJES -->
+                <span class="chart-axis-title axis-y">PIEZAS</span>
+                <span class="chart-axis-title axis-x">DÍAS</span>
+
+                <!-- GRÁFICO -->
                 <canvas id="graficoProduccionSemanal"></canvas>
+
+                <!-- ESTADO VACÍO -->
+                <div class="chart-empty-state" id="estadoVacioProduccion">
+                    <div class="empty-icon">
+                        <span class="material-symbols-outlined">monitoring</span>
+                    </div>
+
+                    <strong>Sin datos disponibles</strong>
+                    <p>Aún no hay producción registrada en los últimos 7 días.</p>
+                </div>
+
             </div>
 
-            <div class="compare-boxes">
-                <div>
+            <!-- COMPARACIÓN HOY / AYER -->
+            <div class="compare-boxes compare-boxes-semanal">
+
+                <div class="compare-card">
                     <span>Hoy</span>
                     <strong id="produccionHoy">0 piezas</strong>
                 </div>
-                <div>
+
+                <div class="compare-card">
                     <span>Ayer</span>
                     <strong id="produccionAyer">0 piezas</strong>
                 </div>
+
             </div>
-        </div>
+
+                </div>
 
         <div class="dashboard-panel panel-distribucion">
                     <div class="panel-title distribucion-title">
