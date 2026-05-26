@@ -4,8 +4,12 @@
 ========================= */
 
 let estadosProduccionData = [];
+let estadosProduccionVista = [];
 let estadoProduccionSeleccionada = null;
 let maquinasEstadosActuales = [];
+
+let paginaActualEstadosProduccion = 1;
+const limiteEstadosProduccion = 6;
 
 /* =========================
    CAMBIAR PANEL
@@ -93,9 +97,11 @@ function renderTablaEstadosProduccion(registros) {
 
     if (!tbody) return;
 
+    estadosProduccionVista = Array.isArray(registros) ? registros : [];
+
     tbody.innerHTML = "";
 
-    if (!registros || registros.length === 0) {
+    if (!estadosProduccionVista || estadosProduccionVista.length === 0) {
         tbody.innerHTML = `
             <tr>
                 <td colspan="8">No hay registros de producción disponibles.</td>
@@ -106,12 +112,29 @@ function renderTablaEstadosProduccion(registros) {
             resumen.textContent = "Mostrando 0 registros";
         }
 
+        renderPaginacionEstadosProduccion(0);
         return;
     }
 
-    registros.forEach(item => {
+    const totalRegistros = estadosProduccionVista.length;
+    const totalPaginas = Math.ceil(totalRegistros / limiteEstadosProduccion);
+
+    if (paginaActualEstadosProduccion > totalPaginas) {
+        paginaActualEstadosProduccion = totalPaginas;
+    }
+
+    if (paginaActualEstadosProduccion < 1) {
+        paginaActualEstadosProduccion = 1;
+    }
+
+    const inicio = (paginaActualEstadosProduccion - 1) * limiteEstadosProduccion;
+    const fin = inicio + limiteEstadosProduccion;
+
+    const registrosPagina = estadosProduccionVista.slice(inicio, fin);
+
+    registrosPagina.forEach(item => {
         const estado = item.estado_actual || "pendiente";
-        const mostrarAlertaAtraso = item.esta_atrasado === true;
+        const mostrarAlertaAtraso = debeMostrarAlertaAtraso(item);
 
         const progreso = calcularProgresoEstado(
             estado,
@@ -164,10 +187,82 @@ function renderTablaEstadosProduccion(registros) {
     });
 
     if (resumen) {
-        resumen.textContent = `Mostrando 1 a ${registros.length} de ${registros.length} resultados`;
+        const desde = totalRegistros === 0 ? 0 : inicio + 1;
+        const hasta = Math.min(fin, totalRegistros);
+
+        resumen.textContent = `Mostrando ${desde} a ${hasta} de ${totalRegistros} resultados`;
     }
+
+    renderPaginacionEstadosProduccion(totalRegistros);
 }
 
+function renderPaginacionEstadosProduccion(totalRegistros) {
+    const contenedor = document.getElementById("paginacionEstadosProduccion");
+
+    if (!contenedor) return;
+
+    const totalPaginas = Math.ceil(totalRegistros / limiteEstadosProduccion);
+
+    if (totalPaginas <= 0) {
+        contenedor.innerHTML = "";
+        return;
+    }
+
+    if (paginaActualEstadosProduccion > totalPaginas) {
+        paginaActualEstadosProduccion = totalPaginas;
+    }
+
+    if (paginaActualEstadosProduccion < 1) {
+        paginaActualEstadosProduccion = 1;
+    }
+
+    let html = "";
+
+    html += `
+        <button 
+            type="button"
+            class="btn-pagina-estado"
+            data-pagina="${paginaActualEstadosProduccion - 1}"
+            ${paginaActualEstadosProduccion <= 1 ? "disabled" : ""}>
+            ‹
+        </button>
+    `;
+
+    for (let i = 1; i <= totalPaginas; i++) {
+        html += `
+            <button 
+                type="button"
+                class="btn-pagina-estado ${i === paginaActualEstadosProduccion ? "active" : ""}"
+                data-pagina="${i}">
+                ${i}
+            </button>
+        `;
+    }
+
+    html += `
+        <button 
+            type="button"
+            class="btn-pagina-estado"
+            data-pagina="${paginaActualEstadosProduccion + 1}"
+            ${paginaActualEstadosProduccion >= totalPaginas ? "disabled" : ""}>
+            ›
+        </button>
+    `;
+
+    contenedor.innerHTML = html;
+}
+
+function cambiarPaginaEstadosProduccion(pagina) {
+    const totalPaginas = Math.ceil(estadosProduccionVista.length / limiteEstadosProduccion);
+    const nuevaPagina = Number(pagina);
+
+    if (!Number.isFinite(nuevaPagina)) return;
+    if (nuevaPagina < 1) return;
+    if (nuevaPagina > totalPaginas) return;
+
+    paginaActualEstadosProduccion = nuevaPagina;
+    renderTablaEstadosProduccion(estadosProduccionVista);
+}
 /* =========================
    FILTRAR TABLA PRODUCCIÓN
 ========================= */
@@ -205,10 +300,10 @@ function filtrarEstadosProduccion() {
         filtrados = filtrados.filter(item => {
 
             if (estado === "atrasado") {
-                return item.esta_atrasado === true;
+                return estaAtrasadoReal(item);
             }
 
-            return (item.estado_actual || "").toLowerCase() === estado;
+            return normalizarEstadoProduccion(item.estado_actual) === estado;
         });
     }
 
@@ -235,6 +330,7 @@ function filtrarEstadosProduccion() {
 
     console.log("RESULTADO FILTRO:", filtrados.length);
 
+    paginaActualEstadosProduccion = 1;
     renderTablaEstadosProduccion(filtrados);
 }
 
@@ -254,6 +350,7 @@ function limpiarFiltrosEstadosProduccion() {
     if (fechaDesde) fechaDesde.value = "";
     if (fechaHasta) fechaHasta.value = "";
 
+    paginaActualEstadosProduccion = 1;
     renderTablaEstadosProduccion(estadosProduccionData);
 }
 
@@ -263,6 +360,96 @@ function obtenerFechaISOEstado(fecha) {
     return fecha.split(" ")[0];
 }
 
+function normalizarEstadoProduccion(estado) {
+    return String(estado || "pendiente").trim().toLowerCase();
+}
+
+function esEstadoFinalizadoProduccion(estado) {
+    const estadoNormalizado = normalizarEstadoProduccion(estado);
+
+    return estadoNormalizado === "terminado" ||
+           estadoNormalizado === "entregado";
+}
+
+function estaAtrasadoReal(item) {
+    const estado = normalizarEstadoProduccion(item.estado_actual);
+
+    if (esEstadoFinalizadoProduccion(estado)) {
+        return false;
+    }
+
+    return item.esta_atrasado === true ||
+           item.esta_atrasado === 1 ||
+           item.esta_atrasado === "1" ||
+           item.esta_atrasado === "true";
+}
+
+function normalizarEstadoProduccion(estado) {
+    return String(estado || "pendiente").trim().toLowerCase();
+}
+
+function fechaISOEstado(fecha) {
+    if (!fecha) return "";
+
+    return String(fecha).split(" ")[0];
+}
+
+function parseFechaEstado(fecha) {
+    const fechaBase = fechaISOEstado(fecha);
+
+    if (!fechaBase) return null;
+
+    const partes = fechaBase.split("-");
+
+    if (partes.length !== 3) return null;
+
+    const anio = Number(partes[0]);
+    const mes = Number(partes[1]) - 1;
+    const dia = Number(partes[2]);
+
+    const fechaObjeto = new Date(anio, mes, dia);
+
+    if (isNaN(fechaObjeto.getTime())) return null;
+
+    return fechaObjeto;
+}
+
+function fechaMayorQue(fechaA, fechaB) {
+    const a = parseFechaEstado(fechaA);
+    const b = parseFechaEstado(fechaB);
+
+    if (!a || !b) return false;
+
+    return a.getTime() > b.getTime();
+}
+
+function debeMostrarAlertaAtraso(item) {
+    const estado = normalizarEstadoProduccion(item.estado_actual);
+
+    const fechaEstimada = item.fecha_fin_estimada;
+    const fechaReal = item.fecha_fin_real;
+
+    const estadosFinales = ["terminado", "entregado"];
+
+    /*
+       Caso 1:
+       Si está terminado o entregado,
+       solo se muestra alerta si la fecha real fue posterior a la estimada.
+    */
+    if (estadosFinales.includes(estado)) {
+        return fechaMayorQue(fechaReal, fechaEstimada);
+    }
+
+    /*
+       Caso 2:
+       Si todavía no está terminado/entregado,
+       se muestra alerta si el backend ya lo marcó como atrasado.
+    */
+    return item.esta_atrasado === true ||
+           item.esta_atrasado === 1 ||
+           item.esta_atrasado === "1" ||
+           item.esta_atrasado === "true";
+}
 /* =========================
    HELPERS ESTADOS
 ========================= */
@@ -699,6 +886,14 @@ document.addEventListener("click", function (e) {
 
     if (btnLimpiarProduccion) {
         limpiarFiltrosEstadosProduccion();
+        return;
+    }
+
+    const btnPaginaProduccion = e.target.closest("#paginacionEstadosProduccion .btn-pagina-estado");
+
+    if (btnPaginaProduccion) {
+        const pagina = btnPaginaProduccion.dataset.pagina;
+        cambiarPaginaEstadosProduccion(pagina);
         return;
     }
 
