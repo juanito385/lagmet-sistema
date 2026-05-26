@@ -11,3 +11,5 @@ const limiteEstadosProduccion = 6;
 
 let paginaActualEstadosMaquinas = 1;
 const limiteEstadosMaquinas = 5;
+
+let estadosProduccionNecesitaRefresco = false;

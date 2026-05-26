@@ -432,6 +432,25 @@ function limpiarFiltrosEstadosProduccion() {
     renderTablaEstadosProduccion(estadosProduccionData);
 }
 
+function bloquearAccionesEstado(bloquear = true) {
+    const botones = document.querySelectorAll(
+        "#modalEstadoOverlay .btn-accion-estado, #modalEstadoOverlay .estado-acciones button"
+    );
+
+    botones.forEach(boton => {
+        boton.disabled = bloquear;
+        boton.classList.toggle("guardando", bloquear);
+    });
+}
+
+function mostrarEstadoGuardandoAccion(mostrar = true) {
+    const accionesCard = document.querySelector("#modalEstadoOverlay .estado-acciones");
+
+    if (!accionesCard) return;
+
+    accionesCard.classList.toggle("estado-guardando", mostrar);
+}
+
 /* =========================
    CAMBIAR ESTADO DESDE ACCIONES RÁPIDAS
 ========================= */
@@ -463,17 +482,30 @@ async function cambiarEstadoProduccion(nuevoEstado, observacion = "") {
             return;
         }
 
-        await cargarCardsEstadosProduccion();
+                /*
+        Actualización localizada:
+        no recargamos toda la tabla/cards mientras el modal está abierto,
+        para evitar parpadeos o vibración visual.
+        */
+        estadoProduccionSeleccionada.estado_actual = nuevoEstado;
+        estadoProduccionSeleccionada.fecha_fin_real = data.fecha_fin_real || estadoProduccionSeleccionada.fecha_fin_real;
 
-        const actualizado = estadosProduccionData.find(
+        const index = estadosProduccionData.findIndex(
             item => String(item.id) === String(produccionId)
         );
 
-        if (actualizado) {
-            estadoProduccionSeleccionada = actualizado;
-            cargarDetalleEstadoProduccion(actualizado);
-            await cargarHistorialEstadoProduccion(produccionId);
+        if (index !== -1) {
+            estadosProduccionData[index] = {
+                ...estadosProduccionData[index],
+                estado_actual: nuevoEstado,
+                fecha_fin_real: data.fecha_fin_real || estadosProduccionData[index].fecha_fin_real
+            };
         }
+
+        cargarDetalleEstadoProduccion(estadoProduccionSeleccionada);
+        await cargarHistorialEstadoProduccion(produccionId, false);
+
+        estadosProduccionNecesitaRefresco = true;
 
     } catch (error) {
         console.error("Error cambiando estado:", error);

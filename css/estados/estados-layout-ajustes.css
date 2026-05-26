@@ -289,3 +289,21 @@
 #modalEstadoOverlay .acciones-rapidas{
     gap:14px !important;
 }
+
+/* =========================
+   ACCIONES RÁPIDAS - ESTADO GUARDANDO
+========================= */
+
+#modalEstadoOverlay .estado-acciones.estado-guardando{
+    opacity:0.82;
+}
+
+#modalEstadoOverlay .estado-acciones button:disabled{
+    cursor:not-allowed;
+    opacity:0.55;
+    filter:saturate(0.75);
+}
+
+#modalEstadoOverlay .estado-acciones button.guardando{
+    pointer-events:none;
+}

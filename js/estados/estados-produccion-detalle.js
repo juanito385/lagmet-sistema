@@ -44,6 +44,18 @@ function cerrarModalEstado() {
     if (modal) {
         modal.classList.remove("active");
     }
+
+    /*
+       Si hubo cambios dentro del modal, refrescamos la tabla/cards
+       después de cerrar para evitar parpadeos o vibración visual.
+    */
+    if (estadosProduccionNecesitaRefresco) {
+        estadosProduccionNecesitaRefresco = false;
+
+        setTimeout(() => {
+            cargarCardsEstadosProduccion();
+        }, 180);
+    }
 }
 
 /* =========================
@@ -111,17 +123,24 @@ function cargarDetalleEstadoProduccion(item) {
 /* =========================
    CARGAR HISTORIAL REAL
 ========================= */
-async function cargarHistorialEstadoProduccion(produccionId) {
+async function cargarHistorialEstadoProduccion(produccionId, mostrarCargando = true) {
     const contenedor = document.getElementById("detalleHistorial");
 
     if (!contenedor) return;
 
-    contenedor.innerHTML = `
-        <div class="historial-vacio">
-            <strong>Cargando historial...</strong>
-            <p>Consultando cambios registrados.</p>
-        </div>
-    `;
+    /*
+       Solo mostramos "Cargando historial..." cuando se abre el modal por primera vez.
+       Cuando se actualiza desde acciones rápidas, se mantiene el historial actual
+       para evitar parpadeos o vibración visual.
+    */
+    if (mostrarCargando) {
+        contenedor.innerHTML = `
+            <div class="historial-vacio">
+                <strong>Cargando historial...</strong>
+                <p>Consultando cambios registrados.</p>
+            </div>
+        `;
+    }
 
     try {
         const response = await fetch(`php/estados/obtener_historial_estado.php?produccion_id=${produccionId}`);
@@ -337,7 +356,7 @@ function renderHistorialEstadoProduccion(historial) {
        La card del modal solo muestra un resumen.
        El historial completo se dejará para el botón "Ver historial completo".
     */
-    const historialPreview = historial.slice(0, 5);
+    const historialPreview = historial.slice(0, 3);
 
     const grupos = {};
 
