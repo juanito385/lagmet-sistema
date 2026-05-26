@@ -1,0 +1,61 @@
+<!-- =========================
+     MODAL HISTORIAL COMPLETO DE ESTADOS
+     Vista compacta flotante
+========================= -->
+<div id="modalHistorialCompletoOverlay" class="modal-historial-completo-overlay">
+
+    <div id="modalHistorialCompleto" class="modal-historial-completo">
+
+        <!-- HEADER -->
+        <div class="historial-completo-header">
+
+            <div class="historial-completo-titulo">
+                <h2>Historial completo de Estados</h2>
+                <p id="historialCompletoSubtitulo">
+                    Todos los cambios de estado de la orden de trabajo
+                </p>
+            </div>
+
+        </div>
+
+        <!-- TABLA COMPACTA -->
+        <div class="historial-completo-tabla">
+
+            <div class="historial-completo-head">
+                <div>Fecha</div>
+                <div>Estado</div>
+                <div>Hora</div>
+                <div>Operador</div>
+                <div>Detalle</div>
+            </div>
+
+            <div id="historialCompletoContenido" class="historial-completo-contenido">
+
+                <div class="historial-completo-vacio">
+                    <span class="material-symbols-outlined">info</span>
+                    <p>Selecciona una orden para ver su historial completo.</p>
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- FOOTER -->
+        <div class="historial-completo-footer">
+
+            <span id="historialCompletoResumenTexto">
+                Mostrando 0 movimientos
+            </span>
+
+            <button 
+                type="button"
+                id="btnCerrarHistorialCompletoFooter"
+                class="btn-footer-cerrar-historial">
+                Cerrar
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
