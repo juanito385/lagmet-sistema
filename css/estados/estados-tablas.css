@@ -1,0 +1,247 @@
+/* =========================
+   TABLAS
+========================= */
+
+.estados-section .estados-table-wrap {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.estados-section .estados-table {
+    width: 100%;
+    border-collapse: collapse;
+    color: #fff;
+    min-width: 980px;
+}
+
+.estados-section .maquinas-table {
+    min-width: 1050px;
+}
+
+.estados-section .estados-table th {
+    text-align: left;
+    padding: 14px 18px;
+    font-size: 13px;
+    color: #fff;
+    background: rgba(255,255,255,0.04);
+    border-top: 1px solid rgba(255,255,255,0.08);
+    border-bottom: 1px solid rgba(255,255,255,0.12);
+    white-space: nowrap;
+}
+
+.estados-section .estados-table td {
+    padding: 13px 18px;
+    font-size: 13px;
+    color: #eef3ff;
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+    vertical-align: middle;
+}
+
+.estados-section .estados-table tr:nth-child(even) td {
+    background: rgba(255,255,255,0.025);
+}
+
+.estados-section .estados-table tr:hover td {
+    background: rgba(61,140,255,0.06);
+}
+
+/* =========================
+   BADGES
+========================= */
+
+.estados-section .badge {
+    padding: 5px 9px;
+    border-radius: 5px;
+    font-size: 12px;
+    font-weight: 800;
+    display: inline-block;
+    white-space: nowrap;
+}
+
+.estados-section .badge-pendiente {
+    background: var(--estado-pendiente-bg);
+    color: #d5e7ff;
+    border: 1px solid var(--estado-pendiente);
+}
+
+.estados-section .badge-proceso {
+    background: var(--estado-proceso-bg);
+    color: #fff1a8;
+    border: 1px solid var(--estado-proceso);
+}
+
+.estados-section .badge-pausado {
+    background: var(--estado-pausado-bg);
+    color: #ffd3a3;
+    border: 1px solid var(--estado-pausado);
+}
+
+.estados-section .badge-terminado {
+    background: var(--estado-terminado-bg);
+    color: #dfffdf;
+    border: 1px solid var(--estado-terminado);
+}
+
+.estados-section .badge-entregado {
+    background: var(--estado-entregado-bg);
+    color: #dec7ff;
+    border: 1px solid var(--estado-entregado);
+}
+
+.estados-section .badge-atrasado {
+    background: var(--estado-atrasado-bg);
+    color: #ffd1d1;
+    border: 1px solid var(--estado-atrasado);
+}
+
+/* Badges máquinas */
+.estados-section .badge-operativa {
+    background: var(--maquina-operativa-bg);
+    color: #dfffdf;
+    border: 1px solid var(--maquina-operativa);
+}
+
+.estados-section .badge-no-operativa {
+    background: var(--maquina-no-operativa-bg);
+    color: #ffd1d1;
+    border: 1px solid var(--maquina-no-operativa);
+}
+
+.estados-section .badge-mantencion {
+    background: var(--maquina-mantencion-bg);
+    color: #ffd8ad;
+    border: 1px solid var(--maquina-mantencion);
+}
+
+/* =========================
+   DISPONIBILIDAD MÁQUINAS
+========================= */
+
+.estados-section .disponibilidad {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 800;
+    font-size: 12px;
+    white-space: nowrap;
+}
+
+.estados-section .disponibilidad .material-symbols-outlined {
+    font-size: 18px;
+}
+
+.estados-section .disponibilidad.disponible {
+    color: #5cff70;
+}
+
+.estados-section .disponibilidad.bloqueada {
+    color: #ff5b5b;
+}
+
+/* =========================
+   PROGRESO
+========================= */
+
+.estados-section .progreso-cell {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.estados-section .progreso-cell span {
+    min-width: 38px;
+}
+
+.estados-section .barra-progreso {
+    width: 105px;
+    height: 7px;
+    background: rgba(255,255,255,0.10);
+    border-radius: 20px;
+    overflow: hidden;
+}
+
+.estados-section .barra-progreso div {
+    height: 100%;
+    background: var(--estado-terminado);
+    border-radius: 20px;
+}
+
+.estados-section .barra-progreso.yellow div {
+    background: var(--estado-proceso);
+}
+
+.estados-section .barra-progreso.orange div {
+    background: var(--estado-pausado);
+}
+
+.estados-section .barra-progreso.red div {
+    background: var(--estado-atrasado);
+}
+
+.estados-section .barra-progreso.empty div {
+    background: transparent;
+}
+
+/* =========================
+   BOTONES TABLA
+========================= */
+
+.estados-section .btn-editar {
+    width: 30px;
+    height: 30px;
+    background: linear-gradient(135deg, #246ddf, #094eb9);
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: 0.2s ease;
+}
+
+.estados-section .btn-editar:hover {
+    filter: brightness(1.15);
+    transform: translateY(-1px);
+}
+
+.estados-section .btn-editar .material-symbols-outlined {
+    font-size: 18px;
+}
+
+/* =========================
+   PAGINACIÓN
+========================= */
+
+.estados-section .estados-pagination {
+    padding: 14px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: #dbe4f4;
+    font-size: 13px;
+}
+
+.estados-section .estados-pagination div {
+    display: flex;
+    gap: 8px;
+}
+
+.estados-section .estados-pagination button {
+    min-width: 28px;
+    height: 28px;
+    background: rgba(255,255,255,0.06);
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.estados-section .estados-pagination button.active {
+    background: #2f83ff;
+}
+
+.estados-section .estados-pagination button:hover {
+    background: rgba(47,131,255,0.35);
+}
+

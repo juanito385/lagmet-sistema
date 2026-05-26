@@ -1771,3 +1771,293 @@
         max-width: 100%;
     }
 }
+
+/* =========================
+   HISTORIAL DE ESTADOS COMPACTO
+========================= */
+
+#detalleHistorial{
+    width:100%;
+}
+
+/* Contenedor general */
+#detalleHistorial .historial-compacto{
+    width:100%;
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+}
+
+/* Cabecera de columnas */
+#detalleHistorial .historial-header-columnas{
+    display:grid;
+    grid-template-columns: 130px 115px 1fr;
+    align-items:center;
+    gap:14px;
+    padding:0 10px 10px;
+    color:rgba(255,255,255,0.72);
+    font-size:13px;
+    font-weight:700;
+    border-bottom:1px solid rgba(255,255,255,0.12);
+}
+
+/* Bloques por día: Hoy, Ayer, etc */
+#detalleHistorial .historial-bloque-dia{
+    display:flex;
+    flex-direction:column;
+    gap:0;
+}
+
+/* Título del día */
+#detalleHistorial .historial-dia{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    padding:7px 10px;
+    margin:4px 0 0;
+    border:1px solid rgba(255,255,255,0.08);
+    border-radius:8px;
+    background:rgba(255,255,255,0.055);
+    color:rgba(255,255,255,0.78);
+    font-size:13px;
+    font-weight:800;
+}
+
+#detalleHistorial .historial-dia .material-symbols-outlined{
+    font-size:18px;
+    color:#9fb6d9;
+}
+
+/* Fila de historial */
+#detalleHistorial .historial-fila{
+    display:grid;
+    grid-template-columns: 130px 115px 1fr;
+    align-items:center;
+    gap:14px;
+    min-height:58px;
+    padding:10px;
+    border-bottom:1px solid rgba(255,255,255,0.08);
+    transition:background .2s ease, transform .2s ease;
+}
+
+#detalleHistorial .historial-fila:hover{
+    background:rgba(255,255,255,0.045);
+}
+
+/* Columnas */
+#detalleHistorial .historial-col{
+    min-width:0;
+}
+
+/* Estado + icono */
+#detalleHistorial .historial-estado-info{
+    display:flex;
+    align-items:center;
+    gap:9px;
+    min-width:0;
+}
+
+/* Icono circular */
+#detalleHistorial .historial-icono{
+    width:28px;
+    height:28px;
+    min-width:28px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    border-radius:50%;
+    font-size:18px;
+    color:#fff;
+    box-shadow:0 0 14px rgba(0,0,0,0.25);
+}
+
+/* Badge de estado */
+#detalleHistorial .historial-badge{
+    max-width:88px;
+    padding:5px 8px;
+    border-radius:7px;
+    font-size:12px;
+    font-weight:800;
+    white-space:normal;
+    line-height:1.15;
+    text-align:center;
+    border:1px solid transparent;
+}
+
+/* Fecha */
+#detalleHistorial .historial-fecha-wrap{
+    display:flex;
+    flex-direction:column;
+    gap:2px;
+    color:rgba(255,255,255,0.78);
+    font-size:12px;
+    line-height:1.2;
+}
+
+#detalleHistorial .historial-fecha-wrap strong{
+    color:#fff;
+    font-size:13px;
+}
+
+/* Detalle */
+#detalleHistorial .historial-detalle-wrap{
+    display:flex;
+    flex-direction:column;
+    gap:4px;
+    min-width:0;
+}
+
+#detalleHistorial .historial-detalle-wrap span{
+    color:rgba(255,255,255,0.86);
+    font-size:12.5px;
+    line-height:1.25;
+}
+
+#detalleHistorial .historial-detalle-wrap small{
+    color:rgba(255,255,255,0.58);
+    font-size:11.5px;
+    font-weight:700;
+}
+
+/* Botón inferior */
+#detalleHistorial .historial-footer{
+    margin-top:12px;
+}
+
+#detalleHistorial .btn-historial-completo{
+    width:100%;
+    height:42px;
+    border-radius:8px;
+    border:1px solid rgba(52,141,255,0.8);
+    background:rgba(52,141,255,0.10);
+    color:#7db7ff;
+    font-weight:800;
+    cursor:pointer;
+    transition:background .2s ease, border-color .2s ease, transform .2s ease;
+}
+
+#detalleHistorial .btn-historial-completo:hover{
+    background:rgba(52,141,255,0.18);
+    border-color:#348dff;
+    transform:translateY(-1px);
+}
+
+/* Estado vacío */
+#detalleHistorial .historial-vacio{
+    padding:18px;
+    border-radius:10px;
+    border:1px solid rgba(255,255,255,0.10);
+    background:rgba(255,255,255,0.04);
+}
+
+#detalleHistorial .historial-vacio strong{
+    display:block;
+    color:#fff;
+    margin-bottom:6px;
+}
+
+#detalleHistorial .historial-vacio p{
+    margin:0;
+    color:rgba(255,255,255,0.70);
+}
+
+/* =========================
+   COLORES POR ESTADO
+   Compatible con clases existentes:
+   blue, yellow, orange, green, purple, red, gray
+========================= */
+
+/* Azul / pendiente */
+#detalleHistorial .historial-icono.blue,
+#detalleHistorial .historial-icono.pendiente{
+    background:#2f86ff;
+}
+
+#detalleHistorial .historial-badge.blue,
+#detalleHistorial .historial-badge.pendiente{
+    background:rgba(47,134,255,0.18);
+    border-color:#2f86ff;
+    color:#9dc8ff;
+}
+
+/* Amarillo / en proceso */
+#detalleHistorial .historial-icono.yellow,
+#detalleHistorial .historial-icono.proceso,
+#detalleHistorial .historial-icono.en-proceso{
+    background:#f1c40f;
+    color:#1d1d1d;
+}
+
+#detalleHistorial .historial-badge.yellow,
+#detalleHistorial .historial-badge.proceso,
+#detalleHistorial .historial-badge.en-proceso{
+    background:rgba(241,196,15,0.18);
+    border-color:#f1c40f;
+    color:#ffe36d;
+}
+
+/* Naranjo / pausado */
+#detalleHistorial .historial-icono.orange,
+#detalleHistorial .historial-icono.pausado{
+    background:#ff8a00;
+}
+
+#detalleHistorial .historial-badge.orange,
+#detalleHistorial .historial-badge.pausado{
+    background:rgba(255,138,0,0.18);
+    border-color:#ff8a00;
+    color:#ffb45c;
+}
+
+/* Verde / terminado */
+#detalleHistorial .historial-icono.green,
+#detalleHistorial .historial-icono.terminado{
+    background:#45d96b;
+    color:#102415;
+}
+
+#detalleHistorial .historial-badge.green,
+#detalleHistorial .historial-badge.terminado{
+    background:rgba(69,217,107,0.18);
+    border-color:#45d96b;
+    color:#8dffa7;
+}
+
+/* Morado / entregado */
+#detalleHistorial .historial-icono.purple,
+#detalleHistorial .historial-icono.entregado{
+    background:#9b4dff;
+}
+
+#detalleHistorial .historial-badge.purple,
+#detalleHistorial .historial-badge.entregado{
+    background:rgba(155,77,255,0.18);
+    border-color:#9b4dff;
+    color:#c391ff;
+}
+
+/* Rojo / atrasado */
+#detalleHistorial .historial-icono.red,
+#detalleHistorial .historial-icono.atrasado{
+    background:#ff4d4d;
+}
+
+#detalleHistorial .historial-badge.red,
+#detalleHistorial .historial-badge.atrasado{
+    background:rgba(255,77,77,0.18);
+    border-color:#ff4d4d;
+    color:#ff9b9b;
+}
+
+/* Gris / espera / sin estado */
+#detalleHistorial .historial-icono.gray,
+#detalleHistorial .historial-icono.default{
+    background:#7b8497;
+}
+
+#detalleHistorial .historial-badge.gray,
+#detalleHistorial .historial-badge.default{
+    background:rgba(123,132,151,0.18);
+    border-color:#7b8497;
+    color:#c8d0df;
+}

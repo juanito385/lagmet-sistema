@@ -1,0 +1,137 @@
+/* =========================
+   ESTADOS
+   CSS encapsulado para NO afectar Dashboard
+========================= */
+
+.estados-section {
+    padding: 14px;
+    color: #fff;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* =========================
+   BASE DE PANELES
+========================= */
+
+.estados-section .estados-header,
+.estados-section .estados-panel,
+.estados-section .estado-detalle,
+.estados-section .estado-historial,
+.estados-section .estado-acciones,
+.estados-section .maquinas-regla {
+    background: rgba(255,255,255,0.055);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 12px;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.22);
+}
+
+/* =========================
+   HEADER
+========================= */
+
+.estados-section .estados-header {
+    padding: 22px 26px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.estados-section .estados-title-box {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.estados-section .estados-icon .material-symbols-outlined {
+    font-size: 44px;
+    color: #3d8cff;
+    font-variation-settings:
+    'FILL' 0,
+    'wght' 300,
+    'GRAD' 0,
+    'opsz' 48;
+}
+
+.estados-section .estados-title-box h2 {
+    margin: 0;
+    font-size: 34px;
+    font-weight: 900;
+    color: #fff;
+    letter-spacing: 0.3px;
+}
+
+.estados-section .estados-title-box p {
+    margin: 4px 0 0;
+    color: #cfd6e6;
+    font-size: 15px;
+}
+
+
+/* =========================
+   TABS PRODUCCIÓN / MÁQUINAS
+========================= */
+
+.estados-section .estados-tabs {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    width: min(720px, 100%);
+    background: rgba(255,255,255,0.045);
+    border: 1px solid rgba(255,255,255,0.10);
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 14px;
+}
+
+.estados-section .estado-tab {
+    height: 42px;
+    border: none;
+    background: transparent;
+    color: #cfd6e6;
+    font-weight: 800;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    position: relative;
+    transition: 0.2s ease;
+}
+
+.estados-section .estado-tab .material-symbols-outlined {
+    font-size: 22px;
+}
+
+.estados-section .estado-tab:hover {
+    background: rgba(61,140,255,0.12);
+    color: #fff;
+}
+
+.estados-section .estado-tab.active {
+    background: linear-gradient(135deg, rgba(47,131,255,0.32), rgba(47,131,255,0.16));
+    color: #fff;
+}
+
+.estados-section .estado-tab.active::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 2px;
+    background: #3d8cff;
+}
+
+/* =========================
+   VISTAS
+========================= */
+
+.estados-section .estado-vista {
+    display: none;
+}
+
+.estados-section .estado-vista.active {
+    display: block;
+}
+

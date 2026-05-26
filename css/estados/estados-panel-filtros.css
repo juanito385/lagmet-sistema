@@ -1,0 +1,99 @@
+/* =========================
+   PANEL / FILTROS
+========================= */
+
+.estados-section .estados-panel {
+    overflow: hidden;
+    margin-bottom: 14px;
+}
+
+.estados-section .estados-filtros {
+    padding: 20px 22px;
+    display: grid;
+    grid-template-columns: 1.4fr 1.1fr 1.1fr 1fr 1fr auto auto;
+    gap: 18px;
+    align-items: end;
+}
+
+.estados-section .maquinas-filtros {
+    grid-template-columns: 1.6fr 1fr 1fr auto;
+}
+
+.estados-section .estado-field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.estados-section .estado-field label {
+    color: #fff;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.estados-section .estado-field input,
+.estados-section .estado-field select,
+.estados-section .estado-search {
+    height: 42px;
+    background: rgba(10,18,30,0.35);
+    border: 1px solid rgba(255,255,255,0.16);
+    border-radius: 6px;
+    color: #fff;
+    box-sizing: border-box;
+}
+
+.estados-section .estado-field input,
+.estados-section .estado-field select {
+    padding: 0 14px;
+}
+
+.estados-section .estado-field select {
+    cursor: pointer;
+}
+
+.estados-section .estado-field input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(1);
+    opacity: 0.75;
+}
+
+.estados-section .estado-search {
+    display: flex;
+    align-items: center;
+    padding: 0 12px;
+}
+
+.estados-section .estado-search input {
+    flex: 1;
+    height: auto;
+    background: transparent;
+    border: none;
+    padding: 0;
+    outline: none;
+}
+
+.estados-section .estado-search .material-symbols-outlined {
+    color: #cfd6e6;
+    font-size: 22px;
+}
+
+.estados-section .btn-filtrar-estados {
+    height: 42px;
+    min-width: 130px;
+    background: linear-gradient(135deg, #2e8cff, #0757cb);
+    border: none;
+    border-radius: 6px;
+    color: #fff;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+.estados-section .btn-filtrar-estados:hover {
+    filter: brightness(1.12);
+    transform: translateY(-1px);
+}
+

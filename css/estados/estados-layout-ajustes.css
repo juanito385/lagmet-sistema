@@ -1,0 +1,291 @@
+/* =========================================================
+   AJUSTE NUEVO LAYOUT ESTADOS
+   Tabla producción + paneles compactos laterales
+========================================================= */
+
+/* GRID CENTRAL: TABLA IZQUIERDA + PANELES DERECHA */
+.estados-section .estados-main-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(360px, 420px);
+    gap: 14px;
+    margin-bottom: 14px;
+    align-items: start;
+}
+
+/* PANEL DE TABLA */
+.estados-section .estados-panel-tabla {
+    min-width: 0;
+    margin-bottom: 0;
+}
+
+/* FILTROS MÁS COMPACTOS DENTRO DEL PANEL PRINCIPAL */
+.estados-section .estados-panel-tabla .estados-filtros {
+    padding: 18px 20px;
+    grid-template-columns: 1.35fr 0.85fr 0.95fr 0.85fr 0.85fr auto;
+    gap: 12px;
+}
+
+.estados-section .estados-panel-tabla .estado-field label {
+    font-size: 13px;
+}
+
+.estados-section .estados-panel-tabla .estado-field input,
+.estados-section .estados-panel-tabla .estado-field select,
+.estados-section .estados-panel-tabla .estado-search {
+    height: 40px;
+}
+
+/* TABLA UN POCO MÁS COMPACTA PARA QUE SE PAREZCA A LA IMAGEN */
+.estados-section .estados-panel-tabla .estados-table {
+    min-width: 1060px;
+}
+
+.estados-section .estados-panel-tabla .estados-table th {
+    padding: 13px 14px;
+    font-size: 12px;
+}
+
+.estados-section .estados-panel-tabla .estados-table td {
+    padding: 12px 14px;
+    font-size: 12.5px;
+}
+
+/* PANELES COMPACTOS DERECHA */
+.estados-section .estados-side-panels {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 14px;
+    min-width: 0;
+}
+
+/* MINI CARDS */
+.estados-section .estado-mini-card {
+    background: rgba(255,255,255,0.055);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 12px;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.22);
+    padding: 16px 18px;
+    min-width: 0;
+}
+
+.estados-section .estado-mini-card h3 {
+    margin: 0 0 14px;
+    color: #3d8cff;
+    font-size: 18px;
+    font-weight: 800;
+}
+
+/* DETALLE COMPACTO */
+.estados-section .detalle-head.mini {
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 12px;
+}
+
+.estados-section .detalle-head.mini .detalle-check {
+    font-size: 30px;
+}
+
+.estados-section .detalle-head.mini strong {
+    padding: 7px 12px;
+    font-size: 13px;
+}
+
+.estados-section .mini-detalle-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+}
+
+.estados-section .mini-detalle-grid p {
+    margin: 0 0 10px;
+    color: #fff;
+    font-size: 12.5px;
+    line-height: 1.45;
+}
+
+.estados-section .mini-detalle-grid span {
+    color: #cfd6e6;
+    font-size: 12px;
+}
+
+/* PROGRESO COMPACTO */
+.estados-section .detalle-progress.mini {
+    margin-top: 4px;
+    padding: 11px;
+}
+
+.estados-section .detalle-progress.mini > div:first-child {
+    font-size: 13px;
+}
+
+.estados-section .detalle-progress.mini .barra-progreso {
+    width: 100%;
+}
+
+/* HISTORIAL COMPACTO */
+.estados-section .timeline.mini {
+    padding-left: 18px;
+}
+
+.estados-section .timeline.mini::before {
+    left: 7px;
+    height: calc(100% - 18px);
+}
+
+.estados-section .timeline.mini .timeline-item {
+    margin-bottom: 15px;
+}
+
+.estados-section .timeline.mini .timeline-item > span {
+    width: 14px;
+    height: 14px;
+    left: -18px;
+}
+
+.estados-section .timeline.mini .timeline-item strong {
+    font-size: 13.5px;
+}
+
+.estados-section .timeline.mini .timeline-item p {
+    font-size: 11.8px;
+    line-height: 1.45;
+}
+
+/* BOTÓN HISTORIAL COMPACTO */
+.estados-section .estado-mini-card .btn-historial {
+    width: 100%;
+    margin-top: 4px;
+}
+
+/* AJUSTE ZONA INFERIOR PARA QUE QUEDE MÁS PARECIDA A LA IMAGEN */
+.estados-section .estados-bottom {
+    grid-template-columns: 1.15fr 1fr 0.72fr;
+    align-items: stretch;
+}
+
+.estados-section .estado-detalle,
+.estados-section .estado-historial,
+.estados-section .estado-acciones {
+    min-height: 260px;
+}
+
+/* ACCIONES MÁS ORDENADAS */
+.estados-section .estado-acciones .accion {
+    justify-content: flex-start;
+    min-height: 46px;
+}
+
+/* =========================================================
+   RESPONSIVE NUEVO LAYOUT
+========================================================= */
+
+@media (max-width: 1500px) {
+    .estados-section .estados-main-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .estados-section .estados-side-panels {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .estados-section .estados-panel-tabla .estados-filtros {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    .estados-section .btn-filtrar-estados {
+        width: 100%;
+    }
+}
+
+@media (max-width: 1100px) {
+    .estados-section .estados-side-panels {
+        grid-template-columns: 1fr;
+    }
+
+    .estados-section .mini-detalle-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .estados-section .estados-bottom {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 900px) {
+    .estados-section .estados-main-grid {
+        gap: 12px;
+    }
+
+    .estados-section .estados-panel-tabla .estados-filtros {
+        grid-template-columns: 1fr;
+    }
+
+    .estados-section .estado-mini-card {
+        padding: 15px;
+    }
+}
+
+/* CONTENEDOR SUPERIOR QUE CAMBIA ENTRE PRODUCCIÓN Y MÁQUINAS */
+.estados-section .estados-switch-container {
+    margin-bottom: 14px;
+}
+
+/* =========================
+   FIX - MODAL ESTADOS DISTRIBUCIÓN FINAL
+   Detalle e historial más amplios / acciones más compacto
+========================= */
+
+#modalEstadoOverlay .modal-estado-content{
+    display:grid !important;
+    grid-template-columns:1fr 1.08fr 0.72fr !important;
+    gap:20px !important;
+    align-items:stretch !important;
+}
+
+/* Cards internas */
+#modalEstadoOverlay .estado-detalle,
+#modalEstadoOverlay .estado-historial,
+#modalEstadoOverlay .estado-acciones{
+    width:100% !important;
+    min-width:0 !important;
+    max-width:none !important;
+    height:100% !important;
+    box-sizing:border-box !important;
+}
+
+/* Card acciones más compacta */
+#modalEstadoOverlay .estado-acciones{
+    padding:24px 26px !important;
+}
+
+/* Botones acciones rápidas más pequeños */
+#modalEstadoOverlay .estado-acciones button,
+#modalEstadoOverlay .acciones-rapidas button,
+#modalEstadoOverlay .btn-accion-estado{
+    min-height:48px !important;
+    height:48px !important;
+    padding:8px 14px !important;
+    font-size:15px !important;
+    border-radius:9px !important;
+}
+
+/* Iconos dentro de acciones rápidas */
+#modalEstadoOverlay .estado-acciones button .material-symbols-outlined,
+#modalEstadoOverlay .acciones-rapidas button .material-symbols-outlined,
+#modalEstadoOverlay .btn-accion-estado .material-symbols-outlined{
+    font-size:23px !important;
+}
+
+/* Texto de botones más controlado */
+#modalEstadoOverlay .estado-acciones button span,
+#modalEstadoOverlay .acciones-rapidas button span,
+#modalEstadoOverlay .btn-accion-estado span{
+    line-height:1.15 !important;
+}
+
+/* Separación entre botones */
+#modalEstadoOverlay .estado-acciones .acciones-lista,
+#modalEstadoOverlay .acciones-rapidas{
+    gap:14px !important;
+}

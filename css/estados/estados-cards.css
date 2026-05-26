@@ -1,0 +1,163 @@
+/* =========================
+   CARDS
+========================= */
+
+.estados-section .estados-cards {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 12px;
+    margin-bottom: 14px;
+}
+
+.estados-section .estado-card {
+    min-height: 95px;
+    background: rgba(255,255,255,0.055);
+    border: 1px solid rgba(255,255,255,0.10);
+    border-radius: 10px;
+    padding: 18px 22px;
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 12px 28px rgba(0,0,0,0.18);
+}
+
+.estados-section .estado-card::after {
+    content: "";
+    position: absolute;
+    left: 18px;
+    right: 18px;
+    bottom: 10px;
+    height: 3px;
+    border-radius: 20px;
+}
+
+.estados-section .estado-card-icon {
+    width: 56px;
+    height: 56px;
+    min-width: 56px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.estados-section .estado-card-icon .material-symbols-outlined {
+    font-size: 32px;
+    color: #fff;
+}
+
+.estados-section .estado-card h3 {
+    margin: 0;
+    font-size: 30px;
+    color: #fff;
+    line-height: 1;
+}
+
+.estados-section .estado-card p {
+    margin: 5px 0 0;
+    color: #fff;
+    font-size: 14px;
+}
+
+.estados-section .estado-card small {
+    display: block;
+    margin-top: 4px;
+    color: #cfd6e6;
+    font-size: 12px;
+}
+
+/* Cards producción */
+.estados-section .estado-pendiente .estado-card-icon {
+    background: var(--estado-pendiente-bg);
+}
+
+.estados-section .estado-pendiente::after {
+    background: var(--estado-pendiente);
+}
+
+.estados-section .estado-proceso .estado-card-icon {
+    background: var(--estado-proceso-bg);
+}
+
+.estados-section .estado-proceso::after {
+    background: var(--estado-proceso);
+}
+
+.estados-section .estado-pausado .estado-card-icon {
+    background: var(--estado-pausado-bg);
+}
+
+.estados-section .estado-pausado::after {
+    background: var(--estado-pausado);
+}
+
+.estados-section .estado-terminado .estado-card-icon {
+    background: var(--estado-terminado-bg);
+}
+
+.estados-section .estado-terminado::after {
+    background: var(--estado-terminado);
+}
+
+.estados-section .estado-entregado .estado-card-icon {
+    background: var(--estado-entregado-bg);
+}
+
+.estados-section .estado-entregado::after {
+    background: var(--estado-entregado);
+}
+
+.estados-section .estado-atrasado .estado-card-icon {
+    background: var(--estado-atrasado-bg);
+}
+
+.estados-section .estado-atrasado::after {
+    background: var(--estado-atrasado);
+}
+
+/* Cards máquinas */
+.estados-section .maquinas-cards {
+    grid-template-columns: repeat(3, minmax(220px, 1fr));
+}
+
+.estados-section .maquina-operativa {
+    border-color: var(--maquina-operativa);
+    background: linear-gradient(135deg, var(--maquina-operativa-bg), rgba(255,255,255,0.045));
+}
+
+.estados-section .maquina-operativa .estado-card-icon {
+    background: var(--maquina-operativa-bg);
+}
+
+.estados-section .maquina-operativa::after {
+    background: var(--maquina-operativa);
+}
+
+.estados-section .maquina-no-operativa {
+    border-color: var(--maquina-no-operativa);
+    background: linear-gradient(135deg, var(--maquina-no-operativa-bg), rgba(255,255,255,0.045));
+}
+
+.estados-section .maquina-no-operativa .estado-card-icon {
+    background: var(--maquina-no-operativa-bg);
+}
+
+.estados-section .maquina-no-operativa::after {
+    background: var(--maquina-no-operativa);
+}
+
+.estados-section .maquina-mantencion {
+    border-color: var(--maquina-mantencion);
+    background: linear-gradient(135deg, var(--maquina-mantencion-bg), rgba(255,255,255,0.045));
+}
+
+.estados-section .maquina-mantencion .estado-card-icon {
+    background: var(--maquina-mantencion-bg);
+}
+
+.estados-section .maquina-mantencion::after {
+    background: var(--maquina-mantencion);
+}
+

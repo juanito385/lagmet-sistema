@@ -1,0 +1,191 @@
+/* =========================
+   INFERIOR PRODUCCIÓN
+========================= */
+
+.estados-section .estados-bottom {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr 0.65fr;
+    gap: 14px;
+}
+
+.estados-section .estado-detalle,
+.estados-section .estado-historial,
+.estados-section .estado-acciones {
+    padding: 16px 20px;
+}
+
+.estados-section .estado-detalle h3,
+.estados-section .estado-historial h3,
+.estados-section .estado-acciones h3 {
+    margin: 0 0 14px;
+    color: #3d8cff;
+    font-size: 20px;
+}
+
+.estados-section .detalle-head {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 14px;
+}
+
+.estados-section .detalle-check {
+    color: var(--estado-terminado);
+    font-size: 34px;
+}
+
+.estados-section .detalle-head strong {
+    background: rgba(255,255,255,0.06);
+    border-radius: 5px;
+    padding: 8px 18px;
+}
+
+.estados-section .detalle-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+}
+
+.estados-section .detalle-grid p {
+    color: #fff;
+    font-size: 14px;
+    line-height: 1.55;
+}
+
+.estados-section .detalle-grid span {
+    color: #cfd6e6;
+}
+
+.estados-section .detalle-progress {
+    margin-top: 8px;
+    background: rgba(255,255,255,0.06);
+    border-radius: 8px;
+    padding: 12px;
+}
+
+.estados-section .detalle-progress > div:first-child {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+}
+
+.estados-section .detalle-progress .barra-progreso {
+    width: 100%;
+}
+
+/* =========================
+   TIMELINE
+========================= */
+
+.estados-section .timeline {
+    position: relative;
+    padding-left: 20px;
+}
+
+.estados-section .timeline::before {
+    content: "";
+    position: absolute;
+    top: 10px;
+    left: 7px;
+    width: 2px;
+    height: 120px;
+    background: rgba(255,255,255,0.12);
+}
+
+.estados-section .timeline-item {
+    position: relative;
+    margin-bottom: 18px;
+}
+
+.estados-section .timeline-item > span {
+    position: absolute;
+    left: -20px;
+    top: 3px;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+}
+
+.estados-section .timeline-item.green > span {
+    background: var(--estado-terminado);
+    box-shadow: 0 0 0 4px var(--estado-terminado-bg);
+}
+
+.estados-section .timeline-item.yellow > span {
+    background: var(--estado-proceso);
+    box-shadow: 0 0 0 4px var(--estado-proceso-bg);
+}
+
+.estados-section .timeline-item.blue > span {
+    background: var(--estado-pendiente);
+    box-shadow: 0 0 0 4px var(--estado-pendiente-bg);
+}
+
+.estados-section .timeline-item strong {
+    color: #fff;
+    font-size: 15px;
+}
+
+.estados-section .timeline-item p {
+    margin: 4px 0 0;
+    color: #cfd6e6;
+    font-size: 12px;
+}
+
+.estados-section .btn-historial {
+    margin-top: 8px;
+    background: var(--estado-pendiente-bg);
+    border: 1px solid var(--estado-pendiente);
+    color: #d5e7ff;
+    padding: 10px 18px;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+/* =========================
+   ACCIONES
+========================= */
+
+.estados-section .estado-acciones {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.estados-section .accion {
+    height: 45px;
+    border-radius: 6px;
+    font-weight: 800;
+    background: rgba(255,255,255,0.06);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 0 14px;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+.estados-section .accion:hover {
+    transform: translateY(-1px);
+    filter: brightness(1.1);
+}
+
+.estados-section .accion.terminar {
+    border: 1px solid var(--estado-terminado);
+    color: var(--estado-terminado);
+}
+
+.estados-section .accion.pausar {
+    border: 1px solid var(--estado-pausado);
+    color: var(--estado-pausado);
+}
+
+.estados-section .accion.reanudar {
+    border: 1px solid var(--estado-proceso);
+    color: var(--estado-proceso);
+}
+
+.estados-section .accion.entregar {
+    border: 1px solid var(--estado-entregado);
+    color: var(--estado-entregado);
+}

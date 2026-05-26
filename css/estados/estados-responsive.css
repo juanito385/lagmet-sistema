@@ -1,0 +1,62 @@
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media (max-width: 1400px) {
+    .estados-section .estados-cards {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    .estados-section .estados-filtros {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    .estados-section .btn-filtrar-estados {
+        width: 100%;
+    }
+
+    .estados-section .estados-bottom {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 900px) {
+    .estados-section {
+        padding: 10px;
+    }
+
+    .estados-section .estados-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+    }
+
+    .estados-section .btn-nuevo-estado {
+        width: 100%;
+    }
+
+    .estados-section .estados-tabs {
+        grid-template-columns: 1fr;
+    }
+
+    .estados-section .estados-cards,
+    .estados-section .maquinas-cards {
+        grid-template-columns: 1fr;
+    }
+
+    .estados-section .estados-filtros,
+    .estados-section .maquinas-filtros {
+        grid-template-columns: 1fr;
+    }
+
+    .estados-section .detalle-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .estados-section .estados-pagination {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+}
+

@@ -1,0 +1,495 @@
+/* =========================
+   HISTORIAL DE ESTADOS COMPACTO
+   Diseño final: icono + hora + detalle
+========================= */
+
+#detalleHistorial{
+    width:100%;
+    min-width:0;
+    max-height:100%;
+    overflow:hidden;
+}
+
+/* Elimina restos visuales del timeline antiguo */
+#detalleHistorial::before,
+#detalleHistorial::after{
+    display:none !important;
+    content:none !important;
+}
+
+/* Contenedor general */
+#detalleHistorial .historial-compacto{
+    width:100%;
+    min-width:0;
+    height:100%;
+    max-height:100%;
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+    overflow:hidden;
+}
+
+/* =========================
+   CABECERA DE COLUMNAS
+========================= */
+
+#detalleHistorial .historial-header-columnas{
+    flex:0 0 auto;
+    display:grid;
+    grid-template-columns:70px 105px minmax(0, 1fr);
+    align-items:center;
+    gap:14px;
+    padding:0 12px 10px;
+    color:rgba(255,255,255,0.76);
+    font-size:13px;
+    font-weight:900;
+    border-bottom:1px solid rgba(255,255,255,0.14);
+}
+
+#detalleHistorial .historial-header-columnas .col-estado,
+#detalleHistorial .historial-header-columnas .col-fecha{
+    text-align:center;
+}
+
+#detalleHistorial .historial-header-columnas .col-detalle{
+    text-align:left;
+}
+
+/* =========================
+   BLOQUES POR FECHA
+========================= */
+
+#detalleHistorial .historial-bloque-dia{
+    width:100%;
+    min-width:0;
+    display:flex;
+    flex-direction:column;
+    flex:0 0 auto;
+}
+
+/* Separador: 26/05/2026 - Hoy / 25/05/2026 - Ayer / 24/05/2026 */
+#detalleHistorial .historial-dia{
+    height:38px;
+    padding:0 14px;
+    margin:8px 0 4px;
+    display:flex;
+    align-items:center;
+    gap:8px;
+    border-radius:9px;
+    border:1px solid rgba(255,255,255,0.10);
+    background:rgba(255,255,255,0.065);
+    color:rgba(255,255,255,0.88);
+    font-size:14px;
+    font-weight:900;
+}
+
+#detalleHistorial .historial-dia .material-symbols-outlined{
+    font-size:19px;
+    color:#9fb6d9;
+}
+
+/* =========================
+   FILAS DEL HISTORIAL
+========================= */
+
+#detalleHistorial .historial-fila{
+    display:grid;
+    grid-template-columns:70px 105px minmax(0, 1fr);
+    align-items:center;
+    gap:14px;
+    min-height:62px;
+    max-height:72px;
+    padding:10px 12px;
+    border-bottom:1px solid rgba(255,255,255,0.09);
+    background:transparent;
+    overflow:hidden;
+    transition:background .2s ease;
+}
+
+#detalleHistorial .historial-fila:hover{
+    background:rgba(255,255,255,0.045);
+}
+
+#detalleHistorial .historial-col,
+#detalleHistorial .historial-col-estado,
+#detalleHistorial .historial-col-fecha,
+#detalleHistorial .historial-col-detalle{
+    min-width:0;
+}
+
+/* =========================
+   COLUMNA ESTADO: SOLO ICONO
+========================= */
+
+#detalleHistorial .historial-col-estado{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+}
+
+#detalleHistorial .historial-estado-info{
+    width:100%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:0;
+    min-width:0;
+}
+
+/* Por seguridad: oculta cualquier badge antiguo */
+#detalleHistorial .historial-badge{
+    display:none !important;
+}
+
+/* Icono circular */
+#detalleHistorial .historial-icono{
+    position:relative;
+    width:34px;
+    height:34px;
+    min-width:34px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    border-radius:50%;
+    font-size:22px;
+    color:#fff;
+    cursor:help;
+    flex-shrink:0;
+    box-shadow:0 0 14px rgba(0,0,0,0.28);
+}
+
+/* Tooltip visual usando data-tooltip */
+#detalleHistorial .historial-icono[data-tooltip]::after{
+    content:attr(data-tooltip);
+    position:absolute;
+    left:50%;
+    bottom:calc(100% + 10px);
+    transform:translateX(-50%);
+    padding:6px 9px;
+    border-radius:7px;
+    background:rgba(10,15,25,0.96);
+    border:1px solid rgba(255,255,255,0.14);
+    color:#fff;
+    font-size:11.5px;
+    font-family:Arial, sans-serif;
+    font-weight:800;
+    line-height:1;
+    white-space:nowrap;
+    opacity:0;
+    pointer-events:none;
+    transition:opacity .18s ease, transform .18s ease;
+    z-index:20;
+}
+
+#detalleHistorial .historial-icono[data-tooltip]::before{
+    content:"";
+    position:absolute;
+    left:50%;
+    bottom:calc(100% + 4px);
+    transform:translateX(-50%);
+    border-width:6px 6px 0 6px;
+    border-style:solid;
+    border-color:rgba(10,15,25,0.96) transparent transparent transparent;
+    opacity:0;
+    pointer-events:none;
+    transition:opacity .18s ease;
+    z-index:21;
+}
+
+#detalleHistorial .historial-icono[data-tooltip]:hover::after{
+    opacity:1;
+    transform:translateX(-50%) translateY(-2px);
+}
+
+#detalleHistorial .historial-icono[data-tooltip]:hover::before{
+    opacity:1;
+}
+
+/* =========================
+   COLUMNA HORA
+========================= */
+
+#detalleHistorial .historial-col-fecha{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+}
+
+#detalleHistorial .historial-fecha-wrap{
+    width:100%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:rgba(255,255,255,0.82);
+}
+
+/* Oculta fecha interna antigua si existiera */
+#detalleHistorial .historial-fecha-wrap span{
+    display:none;
+}
+
+#detalleHistorial .historial-fecha-wrap strong{
+    color:#fff;
+    font-size:14px;
+    font-weight:900;
+    line-height:1.2;
+}
+
+/* =========================
+   COLUMNA DETALLE
+========================= */
+
+#detalleHistorial .historial-col-detalle{
+    min-width:0;
+}
+
+#detalleHistorial .historial-detalle-wrap{
+    width:100%;
+    min-width:0;
+    display:flex;
+    flex-direction:column;
+    gap:4px;
+}
+
+#detalleHistorial .historial-detalle-wrap span{
+    display:block;
+    width:100%;
+    color:rgba(255,255,255,0.88);
+    font-size:13.5px;
+    line-height:1.25;
+    white-space:normal;
+    word-break:normal;
+    overflow-wrap:break-word;
+}
+
+#detalleHistorial .historial-detalle-wrap small{
+    display:block;
+    margin-top:2px;
+    color:rgba(255,255,255,0.58);
+    font-size:12px;
+    font-weight:800;
+    white-space:normal;
+    word-break:normal;
+}
+
+/* =========================
+   FOOTER
+========================= */
+
+#detalleHistorial .historial-footer{
+    flex:0 0 auto;
+    margin-top:auto;
+    padding-top:12px;
+}
+
+#detalleHistorial .btn-historial-completo{
+    width:100%;
+    height:44px;
+    border-radius:9px;
+    border:1px solid rgba(52,141,255,0.85);
+    background:rgba(52,141,255,0.11);
+    color:#83bbff;
+    font-size:14px;
+    font-weight:900;
+    cursor:pointer;
+    transition:background .2s ease, border-color .2s ease, transform .2s ease;
+}
+
+#detalleHistorial .btn-historial-completo:hover{
+    background:rgba(52,141,255,0.18);
+    border-color:#348dff;
+    transform:translateY(-1px);
+}
+
+/* =========================
+   ESTADO VACÍO / CARGANDO / ERROR
+========================= */
+
+#detalleHistorial .historial-vacio{
+    padding:18px;
+    border-radius:10px;
+    border:1px solid rgba(255,255,255,0.10);
+    background:rgba(255,255,255,0.04);
+}
+
+#detalleHistorial .historial-vacio strong{
+    display:block;
+    color:#fff;
+    margin-bottom:6px;
+}
+
+#detalleHistorial .historial-vacio p{
+    margin:0;
+    color:rgba(255,255,255,0.70);
+}
+
+/* =========================
+   CARD HISTORIAL
+========================= */
+
+.historial-card{
+    overflow:hidden;
+}
+
+/* =========================
+   COLORES POR ESTADO
+   Compatible con:
+   blue, yellow, orange, green, purple, red, gray
+   pendiente, proceso, en_proceso, pausado, terminado, entregado, atrasado
+========================= */
+
+/* Azul: pendiente / creado / programado */
+#detalleHistorial .historial-icono.blue,
+#detalleHistorial .historial-icono.pendiente,
+#detalleHistorial .historial-icono.creado,
+#detalleHistorial .historial-icono.programado{
+    background:#2f86ff;
+}
+
+/* Amarillo: en proceso / reanudado */
+#detalleHistorial .historial-icono.yellow,
+#detalleHistorial .historial-icono.proceso,
+#detalleHistorial .historial-icono.en-proceso,
+#detalleHistorial .historial-icono.en_proceso,
+#detalleHistorial .historial-icono.reanudado{
+    background:#f1c40f;
+    color:#1d1d1d;
+}
+
+/* Naranjo: pausado */
+#detalleHistorial .historial-icono.orange,
+#detalleHistorial .historial-icono.pausado{
+    background:#ff8a00;
+}
+
+/* Verde: terminado / completado */
+#detalleHistorial .historial-icono.green,
+#detalleHistorial .historial-icono.terminado,
+#detalleHistorial .historial-icono.completado{
+    background:#45d96b;
+    color:#102415;
+}
+
+/* Morado: entregado */
+#detalleHistorial .historial-icono.purple,
+#detalleHistorial .historial-icono.entregado,
+#detalleHistorial .historial-icono.marcado-como-entregado,
+#detalleHistorial .historial-icono.marcado_como_entregado{
+    background:#9b4dff;
+}
+
+/* Rojo: atrasado */
+#detalleHistorial .historial-icono.red,
+#detalleHistorial .historial-icono.atrasado{
+    background:#ff4d4d;
+}
+
+/* Gris: espera / default */
+#detalleHistorial .historial-icono.gray,
+#detalleHistorial .historial-icono.default,
+#detalleHistorial .historial-icono.espera,
+#detalleHistorial .historial-icono.en-espera,
+#detalleHistorial .historial-icono.en_espera{
+    background:#7b8497;
+}
+
+/* =========================
+   FIX - HISTORIAL PREVIEW MÁS LIMPIO
+   Menos apretado y mejor centrado visual
+========================= */
+
+/* Baja un poco la altura general de cada fila */
+#detalleHistorial .historial-fila{
+    min-height:58px;
+    max-height:64px;
+    padding:8px 12px;
+    align-items:center;
+}
+
+/* Centra mejor icono y hora */
+#detalleHistorial .historial-col-estado,
+#detalleHistorial .historial-col-fecha{
+    height:58px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+}
+
+/* Icono más centrado visualmente */
+#detalleHistorial .historial-icono{
+    width:34px;
+    height:34px;
+    min-width:34px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    line-height:1;
+    transform:translateY(-1px);
+}
+
+/* Hora levemente más arriba para alinearse con el icono */
+#detalleHistorial .historial-fecha-wrap strong{
+    line-height:1;
+    transform:translateY(-1px);
+}
+
+/* Detalle más compacto */
+#detalleHistorial .historial-detalle-wrap{
+    justify-content:center;
+    gap:0;
+}
+
+/* Limita el detalle a 2 líneas para que no rompa la fila */
+#detalleHistorial .historial-detalle-wrap span{
+    font-size:13px;
+    line-height:1.22;
+    display:-webkit-box;
+    -webkit-line-clamp:2;
+    line-clamp:2;
+    -webkit-box-orient:vertical;
+    overflow:hidden;
+}
+
+/* En la vista resumen ocultamos el usuario para ganar espacio */
+#detalleHistorial .historial-detalle-wrap small{
+    display:none;
+}
+
+/* Separador de fecha más compacto */
+#detalleHistorial .historial-dia{
+    height:34px;
+    margin:6px 0 4px;
+    padding:0 14px;
+}
+
+/* Botón un poco más compacto */
+#detalleHistorial .historial-footer{
+    padding-top:10px;
+}
+
+#detalleHistorial .btn-historial-completo{
+    height:40px;
+    font-size:13.5px;
+}
+
+/* =========================
+   FIX - OCULTAR OPERADOR EN HISTORIAL RESUMIDO
+========================= */
+
+#detalleHistorial .historial-detalle-wrap small{
+    display:none !important;
+}
+/* =========================
+   FIX - DETALLE HISTORIAL EN 2 LÍNEAS
+========================= */
+
+#detalleHistorial .historial-detalle-wrap span{
+    display:-webkit-box !important;
+    -webkit-line-clamp:2;
+    line-clamp:2;
+    -webkit-box-orient:vertical;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:normal;
+    line-height:1.25;
+}
