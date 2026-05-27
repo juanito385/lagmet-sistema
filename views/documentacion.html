@@ -61,68 +61,75 @@
 
     </div>
 
-    <!-- GANTT (SEPARADO) -->
-<div class="doc-viewer-card gantt-panel">
+    <!-- GANTT -->
+    <div class="doc-viewer-card gantt-panel">
 
-    <div class="gantt-header">
-        <h3>📅 Carta Gantt de Producción</h3>
+        <div class="gantt-header">
+            <h3>📅 Carta Gantt de Producción</h3>
 
-        <div class="gantt-controls">
-            <button onclick="mostrarGanttPorMaquina()">Actualizar</button>
-            <button onclick="mostrarGanttPorMaquina()">Hoy</button>
-        </div>
-    </div>
-
-    <div class="gantt-leyenda">
-        <span><b class="estado-verde"></b> En Proceso</span>
-        <span><b class="estado-azul"></b> Pendiente</span>
-        <span><b class="estado-rojo"></b> Retraso</span>
-        <span><b class="estado-naranja"></b> Tiempo Muerto</span>
-        <span><b class="estado-gris"></b> Terminado</span>
-    </div>
-
-    <div class="gantt-wrapper">
-        <div id="gantt-sidebar"></div>
-        <div id="gantt"></div>
-    </div>
-
-    <!-- MODAL DETALLE GANTT -->
-<div id="modalDetalleGantt" class="modal-gantt-detalle">
-    <div class="modal-gantt-card">
-
-        <button class="modal-gantt-cerrar" onclick="cerrarDetalleGantt()">×</button>
-
-        <div class="modal-gantt-header">
-            <span id="detalleGanttEstado" class="modal-gantt-badge">Estado</span>
-            <h3 id="detalleGanttProducto">Producto</h3>
-            <p id="detalleGanttPedido">Pedido</p>
-        </div>
-
-        <div class="modal-gantt-info">
-            <div>
-                <small>Fecha inicio</small>
-                <strong id="detalleGanttInicio">--</strong>
-            </div>
-
-            <div>
-                <small>Fecha fin</small>
-                <strong id="detalleGanttFin">--</strong>
-            </div>
-
-            <div>
-                <small>Máquina</small>
-                <strong id="detalleGanttMaquina">--</strong>
-            </div>
-
-            <div>
-                <small>Operador</small>
-                <strong id="detalleGanttOperador">Admin</strong>
+            <div class="gantt-controls">
+                <button onclick="mostrarGanttPorMaquina()">Actualizar</button>
+                <button onclick="mostrarGanttPorMaquina()">Hoy</button>
             </div>
         </div>
 
-    </div>
-</div>
+        <div class="gantt-leyenda">
+            <span><b class="estado-verde"></b> En Proceso</span>
+            <span><b class="estado-azul"></b> Pendiente</span>
+            <span><b class="estado-rojo"></b> Retraso</span>
+            <span><b class="estado-naranja"></b> Tiempo Muerto</span>
+            <span><b class="estado-gris"></b> Terminado</span>
+        </div>
 
-</div>
+        <div class="gantt-wrapper">
+            <div id="gantt-sidebar"></div>
+            <div id="gantt"></div>
+        </div>
+
+        <!-- MODAL DETALLE GANTT -->
+        <div id="modalDetalleGantt" class="modal-gantt-detalle">
+            <div class="modal-gantt-card">
+
+                <button class="modal-gantt-cerrar" onclick="cerrarDetalleGantt()">×</button>
+
+                <div class="modal-gantt-header">
+                    <span id="detalleGanttEstado" class="modal-gantt-badge">Estado</span>
+                    <h3 id="detalleGanttProducto">Producto</h3>
+                    <p id="detalleGanttPedido">Pedido</p>
+                </div>
+
+                <div class="modal-gantt-info">
+
+                    <div>
+                        <small>Fecha inicio</small>
+                        <strong id="detalleGanttInicio">--</strong>
+                    </div>
+
+                    <div>
+                        <small>Fecha fin</small>
+                        <strong id="detalleGanttFin">--</strong>
+                    </div>
+
+                    <div>
+                        <small>Máquina actual</small>
+                        <strong id="detalleGanttMaquina">--</strong>
+                    </div>
+
+                    <div>
+                        <small>Operador</small>
+                        <strong id="detalleGanttOperador">Admin</strong>
+                    </div>
+
+                    <div class="modal-gantt-maquinas-todas">
+                        <small>Máquinas utilizadas</small>
+                        <strong id="detalleGanttMaquinasTodas">--</strong>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+
+    </div>
 
 </div>

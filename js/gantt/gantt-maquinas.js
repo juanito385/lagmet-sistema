@@ -77,6 +77,7 @@ window.mostrarGanttPorMaquina = async function(){
                     producto: item.producto || "Sin nombre",
                     pedido: item.numero_pedido || "-",
                     maquina: maquina,
+                    maquinasUtilizadas: maquinas.join(", "),
                     operador: item.usuario || "Admin",
                     inicio,
                     fin,
@@ -196,7 +197,7 @@ window.mostrarGanttPorMaquina = async function(){
                 barrasHtml += `
                     <div
                         class="gantt-machine-bar ${tarea.claseEstado}"
-                        onclick="abrirDetalleGantt('${tarea.producto}', '${tarea.pedido}', '${tarea.inicio}', '${tarea.fin}', '${tarea.maquina}', '${tarea.claseEstado}', '${grupo.operador}')"
+                        onclick="abrirDetalleGantt('${tarea.producto}', '${tarea.pedido}', '${tarea.inicio}', '${tarea.fin}', '${tarea.maquina}', '${tarea.claseEstado}', '${grupo.operador}', '${tarea.maquinasUtilizadas}')"
                         style="
                             left:${offsetDias * anchoDia}px;
                             width:${duracionDias * anchoDia}px;

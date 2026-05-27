@@ -1,7 +1,7 @@
 /* =========================
    MODAL DETALLE GANTT
 ========================= */
-function abrirDetalleGantt(producto, pedido, inicio, fin, maquina, estado, operador = "Admin"){
+function abrirDetalleGantt(producto, pedido, inicio, fin, maquina, estado, operador = "Admin", maquinasUtilizadas = "--"){
 
     const modal = document.getElementById("modalDetalleGantt");
 
@@ -16,8 +16,15 @@ function abrirDetalleGantt(producto, pedido, inicio, fin, maquina, estado, opera
     document.getElementById("detalleGanttPedido").textContent = `Nota de venta: ${pedido}`;
     document.getElementById("detalleGanttInicio").textContent = inicio;
     document.getElementById("detalleGanttFin").textContent = fin;
+
     document.getElementById("detalleGanttMaquina").textContent = maquina;
     document.getElementById("detalleGanttOperador").textContent = operador;
+
+    const detalleMaquinasTodas = document.getElementById("detalleGanttMaquinasTodas");
+
+    if (detalleMaquinasTodas) {
+        detalleMaquinasTodas.textContent = maquinasUtilizadas || "--";
+    }
 
     const badge = document.getElementById("detalleGanttEstado");
     badge.textContent = estadoTexto;
