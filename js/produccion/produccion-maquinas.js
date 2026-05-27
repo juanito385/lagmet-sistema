@@ -296,6 +296,40 @@ function aplicarFiltrosMaquinas() {
 }
 
 /* =========================
+   ORDEN PROCESO MAQUINAS
+========================= */
+function obtenerSiguienteOrdenProceso() {
+
+    const ordenes = Array
+        .from(document.querySelectorAll("#tablaMaquinas tbody tr"))
+        .map(fila => parseInt(fila.dataset.ordenProceso || "0"))
+        .filter(orden => !isNaN(orden) && orden > 0);
+
+    if (!ordenes.length) {
+        return 1;
+    }
+
+    return Math.max(...ordenes) + 1;
+}
+
+function normalizarOrdenProcesoMaquinas() {
+
+    const filasActivas = Array
+        .from(document.querySelectorAll("#tablaMaquinas tbody tr"))
+        .filter(fila => fila.querySelector(".uso")?.value === "si")
+        .sort((a, b) => {
+            const ordenA = parseInt(a.dataset.ordenProceso || "0");
+            const ordenB = parseInt(b.dataset.ordenProceso || "0");
+
+            return ordenA - ordenB;
+        });
+
+    filasActivas.forEach((fila, index) => {
+        fila.dataset.ordenProceso = index + 1;
+    });
+}
+
+/* =========================
    COLOR FILAS
 ========================= */
 function actualizarColorFila(fila) {
@@ -312,9 +346,21 @@ function actualizarColorFila(fila) {
     );
 
     if (uso.value === "si") {
+
         fila.classList.add("maquina-activa");
+
+        if (!fila.dataset.ordenProceso) {
+            fila.dataset.ordenProceso = obtenerSiguienteOrdenProceso();
+        }
+
     } else {
+
         fila.classList.add("maquina-inactiva");
+
+        if (fila.dataset.ordenProceso) {
+            delete fila.dataset.ordenProceso;
+            normalizarOrdenProcesoMaquinas();
+        }
     }
 }
 

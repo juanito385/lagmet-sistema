@@ -32,15 +32,29 @@ $sql = "SELECT
                     FROM produccion_maquinas pm
                     WHERE pm.produccion_id = p.id
                     AND pm.uso = 'si'
-                    ORDER BY pm.horas DESC, pm.minutos DESC
+                    ORDER BY 
+                        CASE 
+                            WHEN pm.orden_proceso IS NULL THEN 999 
+                            ELSE pm.orden_proceso 
+                        END ASC,
+                        pm.id ASC
                     LIMIT 1
                 ),
                 'Sin máquina'
             ) AS maquina,
 
-            COALESCE(
+           COALESCE(
                 (
-                    SELECT GROUP_CONCAT(pm.maquina ORDER BY pm.horas DESC, pm.minutos DESC SEPARATOR '||')
+                    SELECT GROUP_CONCAT(
+                        pm.maquina 
+                        ORDER BY 
+                            CASE 
+                                WHEN pm.orden_proceso IS NULL THEN 999 
+                                ELSE pm.orden_proceso 
+                            END ASC,
+                            pm.id ASC
+                        SEPARATOR '||'
+                    )
                     FROM produccion_maquinas pm
                     WHERE pm.produccion_id = p.id
                     AND pm.uso = 'si'

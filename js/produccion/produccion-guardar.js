@@ -89,6 +89,7 @@ async function guardarDatos() {
             zona: f.getAttribute("data-zona"),
             maquina: f.getAttribute("data-maquina"),
             uso: f.querySelector(".uso").value,
+            orden_proceso: parseInt(f.dataset.ordenProceso || "0") || null,
             horas: parseInt(f.querySelector(".horas").value) || 0,
             minutos: parseInt(f.querySelector(".minutos").value) || 0
         });

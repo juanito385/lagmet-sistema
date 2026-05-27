@@ -138,8 +138,8 @@ try {
     /* INSERTAR MAQUINAS NUEVAS */
     $stmtMaquina = $conn->prepare("
         INSERT INTO produccion_maquinas
-        (produccion_id, id_maquina, zona, maquina, uso, horas, minutos)
-        VALUES (?, ?, ?, ?, ?, ?, ?)
+        (produccion_id, id_maquina, zona, maquina, uso, orden_proceso, horas, minutos)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     ");
 
     if (!$stmtMaquina) {
@@ -151,6 +151,18 @@ try {
         $zona = trim($m["zona"] ?? "");
         $maquina = trim($m["maquina"] ?? "");
         $uso = trim($m["uso"] ?? "no");
+
+        $orden_proceso = null;
+
+        if (
+            $uso === "si" &&
+            isset($m["orden_proceso"]) &&
+            $m["orden_proceso"] !== null &&
+            $m["orden_proceso"] !== ""
+        ) {
+            $orden_proceso = intval($m["orden_proceso"]);
+        }
+
         $horas = intval($m["horas"] ?? 0);
         $minutos = intval($m["minutos"] ?? 0);
 
@@ -159,12 +171,13 @@ try {
         }
 
         $stmtMaquina->bind_param(
-            "iisssii",
+            "iisssiii",
             $id,
             $id_maquina,
             $zona,
             $maquina,
             $uso,
+            $orden_proceso,
             $horas,
             $minutos
         );
