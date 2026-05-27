@@ -62,31 +62,6 @@
     font-weight:700;
 }
 
-/* Botón cerrar superior */
-.btn-cerrar-historial-completo{
-    width:38px;
-    height:38px;
-    min-width:38px;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    border:none;
-    border-radius:11px;
-    background:rgba(255,255,255,0.075);
-    color:#fff;
-    cursor:pointer;
-    transition:background .2s ease, transform .2s ease;
-}
-
-.btn-cerrar-historial-completo:hover{
-    background:rgba(255,80,80,0.22);
-    transform:translateY(-1px);
-}
-
-.btn-cerrar-historial-completo .material-symbols-outlined{
-    font-size:25px;
-}
-
 /* =========================
    TABLA COMPACTA
 ========================= */

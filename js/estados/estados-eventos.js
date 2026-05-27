@@ -74,6 +74,17 @@ document.addEventListener("click", function (e) {
 
 });
 
+/* =========================
+   CERRAR TOOLTIP DE ATRASO
+========================= */
+function cerrarTooltipAtraso() {
+    const tooltip = document.querySelector(".tooltip-atraso");
+
+    if (tooltip) {
+        tooltip.remove();
+    }
+}
+
 document.addEventListener("click", function (e) {
     const tooltip = document.querySelector(".tooltip-atraso");
 
@@ -83,9 +94,16 @@ document.addEventListener("click", function (e) {
     const clickBotonAlerta = e.target.closest(".btn-alerta-atraso");
 
     if (!clickDentroTooltip && !clickBotonAlerta) {
-        tooltip.remove();
+        cerrarTooltipAtraso();
     }
 });
+
+/* =========================
+   CERRAR TOOLTIP AL HACER SCROLL
+========================= */
+document.addEventListener("scroll", function () {
+    cerrarTooltipAtraso();
+}, true);
 
 document.addEventListener("click", function (e) {
     const ayudaWrap = e.target.closest(".estado-ayuda-wrap");
@@ -139,6 +157,7 @@ document.addEventListener("click", function (e) {
 document.addEventListener("keydown", function (e) {
     if (e.key === "Escape") {
         cerrarModalEstado();
+        cerrarTooltipAtraso();
     }
 });
 

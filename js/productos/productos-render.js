@@ -35,7 +35,12 @@ async function renderProductos() {
             const fechaInicio = item.fecha || "-";
             const fechaFin = item.fecha_fin || "-";
             const dias = item.dias || "-";
-            const estado = obtenerEstadoProducto(fechaFin);
+
+            const estado = obtenerEstadoRealProducto(
+                item.estado_actual || item.estado_real || item.estado_bd
+            );
+
+            const tieneAlertaAtraso = productoTieneAlertaAtraso(item);
 
             fila.innerHTML = `
                 <td>${item.producto ?? ""}</td>
@@ -46,9 +51,21 @@ async function renderProductos() {
                 <td data-fecha="${fechaFin}">${formatearFechaVisual(fechaFin)}</td>
                 <td>${dias}</td>
                 <td>
-                    <span class="badge-estado ${estado.clase}">
-                        ${estado.texto}
-                    </span>
+                    <div class="estado-producto-wrapper">
+                        <span class="badge-estado ${estado.clase}">
+                            ${estado.texto}
+                        </span>
+
+                        ${tieneAlertaAtraso ? `
+                            <span 
+                                class="material-icons estado-alerta-atraso"
+                                data-tooltip="Fecha vencida o término fuera de plazo"
+                                aria-label="Fecha vencida o término fuera de plazo"
+                            >
+                                warning_amber
+                            </span>
+                        ` : ""}
+                    </div>
                 </td>
                 <td>
                     <div class="acciones-producto">

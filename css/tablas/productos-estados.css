@@ -11,6 +11,26 @@
     font-size:13px;
     font-weight:700;
     white-space:nowrap;
+    min-width:95px;
+}
+
+/* Contenedor del badge + alerta */
+.estado-producto-wrapper{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+    width:100%;
+}
+
+/* =========================
+   PENDIENTE
+========================= */
+
+.estado-pendiente{
+    background:rgba(59, 130, 246, 0.18);
+    color:#60a5fa;
+    border:1px solid rgba(59, 130, 246, 0.45);
 }
 
 /* =========================
@@ -18,13 +38,45 @@
 ========================= */
 
 .estado-proceso{
-    background:rgba(46, 204, 113, 0.18);
-    color:#2ecc71;
-    border:1px solid rgba(46, 204, 113, 0.45);
+    background:rgba(234, 179, 8, 0.18);
+    color:#facc15;
+    border:1px solid rgba(234, 179, 8, 0.55);
+}
+
+/* =========================
+   PAUSADO
+========================= */
+
+.estado-pausado{
+    background:rgba(249, 115, 22, 0.18);
+    color:#fb923c;
+    border:1px solid rgba(249, 115, 22, 0.5);
+}
+
+/* =========================
+   TERMINADO
+========================= */
+
+.estado-terminado{
+    background:rgba(34, 197, 94, 0.18);
+    color:#4ade80;
+    border:1px solid rgba(34, 197, 94, 0.5);
+}
+
+/* =========================
+   ENTREGADO
+========================= */
+
+.estado-entregado{
+    background:rgba(168, 85, 247, 0.18);
+    color:#c084fc;
+    border:1px solid rgba(168, 85, 247, 0.5);
 }
 
 /* =========================
    ATRASADO
+   Solo queda como respaldo visual,
+   ya no debería reemplazar el estado real.
 ========================= */
 
 .estado-atrasado{
@@ -51,4 +103,60 @@
     background:rgba(52, 152, 219, 0.18);
     color:#3498db;
     border:1px solid rgba(52, 152, 219, 0.45);
+}
+
+/* =========================
+   ALERTA DE ATRASO
+========================= */
+
+.estado-alerta-atraso{
+    color:#ff4d5a;
+    font-size:22px;
+    line-height:1;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    cursor:help;
+    filter:drop-shadow(0 0 6px rgba(255, 77, 90, 0.35));
+}
+
+/* =========================
+   TOOLTIP ALERTA ATRASO
+========================= */
+
+.estado-alerta-atraso{
+    position:relative;
+}
+
+.estado-alerta-atraso::after{
+    content:attr(data-tooltip);
+    position:absolute;
+    bottom:130%;
+    left:50%;
+    transform:translateX(-50%);
+
+    background:rgba(20, 18, 42, 0.96);
+    color:#f1e9ff;
+    border:1px solid rgba(255,255,255,0.12);
+    box-shadow:0 8px 24px rgba(0,0,0,0.35);
+
+    padding:8px 12px;
+    border-radius:8px;
+    font-size:12px;
+    font-family:"Segoe UI", Arial, sans-serif !important;
+    font-weight:500;
+    line-height:1.2;
+    white-space:nowrap;
+
+    opacity:0;
+    visibility:hidden;
+    pointer-events:none;
+    z-index:999;
+    transition:opacity .18s ease, transform .18s ease;
+}
+
+.estado-alerta-atraso:hover::after{
+    opacity:1;
+    visibility:visible;
+    transform:translateX(-50%) translateY(-4px);
 }

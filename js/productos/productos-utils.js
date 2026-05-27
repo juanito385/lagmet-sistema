@@ -35,6 +35,63 @@ function obtenerEstadoProducto(fechaFinStr) {
 }
 
 /* =========================
+   ESTADO REAL PRODUCTO
+========================= */
+function obtenerEstadoRealProducto(estadoBD) {
+    const estado = normalizarTexto(estadoBD || "pendiente");
+
+    if (estado === "pendiente") {
+        return {
+            texto: "Pendiente",
+            clase: "estado-pendiente"
+        };
+    }
+
+    if (estado === "en_proceso" || estado === "en proceso") {
+        return {
+            texto: "En proceso",
+            clase: "estado-proceso"
+        };
+    }
+
+    if (estado === "pausado") {
+        return {
+            texto: "Pausado",
+            clase: "estado-pausado"
+        };
+    }
+
+    if (estado === "terminado") {
+        return {
+            texto: "Terminado",
+            clase: "estado-terminado"
+        };
+    }
+
+    if (estado === "entregado") {
+        return {
+            texto: "Entregado",
+            clase: "estado-entregado"
+        };
+    }
+
+    return {
+        texto: "Pendiente",
+        clase: "estado-pendiente"
+    };
+}
+
+/* =========================
+   ALERTA DE ATRASO PRODUCTO
+========================= */
+function productoTieneAlertaAtraso(item) {
+    return item.esta_atrasado === true ||
+           item.esta_atrasado === 1 ||
+           item.esta_atrasado === "1" ||
+           item.esta_atrasado === "true";
+}
+
+/* =========================
    FORMATEAR FECHA VISUAL
 ========================= */
 function formatearFechaVisual(fechaStr) {
