@@ -138,7 +138,7 @@ window.mostrarGanttPorMaquina = async function(){
 
                 fila.innerHTML = `
                     <div class="gantt-side-producto">
-                        <span class="gantt-color-dot" style="background:#28a745"></span>
+                        <span class="gantt-color-dot machine-dot"></span>
                         <div>
                             <strong>${grupo.maquina}</strong>
                             <small>(${grupo.tareas.length} productos)</small>

@@ -74,6 +74,18 @@
 }
 
 /* =========================
+   COLORES GLOBALES ESTADOS
+========================= */
+
+:root{
+    --estado-pendiente:#5dade2;
+    --estado-proceso:#f1c40f;
+    --estado-atrasado:#e74c3c;
+    --estado-tiempo-muerto:#f39c12;
+    --estado-terminado:#2ecc71;
+}
+
+/* =========================
    LEYENDA
 ========================= */
 
@@ -85,6 +97,7 @@
     display:flex;
     gap:12px;
     flex-wrap:wrap;
+    align-items:center;
 }
 
 .gantt-leyenda span{
@@ -93,34 +106,37 @@
     padding:8px 12px;
     border-radius:10px;
     font-size:14px;
+    display:flex;
+    align-items:center;
+    gap:7px;
 }
 
 .gantt-leyenda b{
     display:inline-block;
     width:13px;
     height:13px;
+    min-width:13px;
     border-radius:50%;
-    margin-right:7px;
 }
 
 .estado-verde{
-    background:#28a745;
+    background:var(--estado-proceso);
 }
 
 .estado-azul{
-    background:#5dade2;
+    background:var(--estado-pendiente);
 }
 
 .estado-rojo{
-    background:#e74c3c;
+    background:var(--estado-atrasado);
 }
 
 .estado-naranja{
-    background:#f39c12;
+    background:var(--estado-tiempo-muerto);
 }
 
 .estado-gris{
-    background:#9aa0a6;
+    background:var(--estado-terminado);
 }
 
 /* =========================
@@ -268,44 +284,48 @@
    COLORES ESTADOS
 ========================= */
 
-#gantt .gantt-pendiente .bar{
-    fill:#b0b0b0 !important;
-}
-
-#gantt .gantt-pendiente .bar-progress{
-    fill:#8a8a8a !important;
-}
+/* =========================
+   COLORES ESTADOS
+========================= */
 
 #gantt .gantt-proceso .bar{
-    fill:#4facfe !important;
+    fill:var(--estado-proceso) !important;
 }
 
 #gantt .gantt-proceso .bar-progress{
-    fill:#1976d2 !important;
+    fill:var(--estado-proceso) !important;
 }
 
-#gantt .gantt-terminado .bar{
-    fill:#43e97b !important;
+#gantt .gantt-pendiente .bar{
+    fill:var(--estado-pendiente) !important;
 }
 
-#gantt .gantt-terminado .bar-progress{
-    fill:#1b9b50 !important;
-}
-
-#gantt .gantt-tiempo-muerto .bar{
-    fill:#ff9800 !important;
-}
-
-#gantt .gantt-tiempo-muerto .bar-progress{
-    fill:#e65100 !important;
+#gantt .gantt-pendiente .bar-progress{
+    fill:var(--estado-pendiente) !important;
 }
 
 #gantt .gantt-atrasado .bar{
-    fill:#e53935 !important;
+    fill:var(--estado-atrasado) !important;
 }
 
 #gantt .gantt-atrasado .bar-progress{
-    fill:#b71c1c !important;
+    fill:var(--estado-atrasado) !important;
+}
+
+#gantt .gantt-tiempo-muerto .bar{
+    fill:var(--estado-tiempo-muerto) !important;
+}
+
+#gantt .gantt-tiempo-muerto .bar-progress{
+    fill:var(--estado-tiempo-muerto) !important;
+}
+
+#gantt .gantt-terminado .bar{
+    fill:var(--estado-terminado) !important;
+}
+
+#gantt .gantt-terminado .bar-progress{
+    fill:var(--estado-terminado) !important;
 }
 
 /* =========================

@@ -104,39 +104,72 @@ function calcularProgreso(inicio, fin){
 }
 
 /* =========================
-   CLASE POR ESTADO
+   CLASE POR ESTADO REAL
 ========================= */
 function obtenerClaseEstado(progress, item, fin){
+
     const tiempoMuerto = parseFloat(item.tiempo_muerto || 0);
 
-    const hoy = new Date();
-    hoy.setHours(0, 0, 0, 0);
+    const estado = String(
+        item.estado_real ||
+        item.estado_actual ||
+        item.estado_bd ||
+        "pendiente"
+    )
+        .trim()
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/\s+/g, "_")
+        .replace(/-/g, "_");
 
-    const fechaInicio = fechaLocal(item.fecha);
-    const fechaFin = fechaLocal(fin);
+    /*
+        COLOR PRINCIPAL = ESTADO REAL
+        El atraso se manejará después como alerta visual aparte.
+    */
 
-    if (!fechaInicio || !fechaFin) {
-        return "gantt-pendiente";
-    }
-
-    fechaInicio.setHours(0, 0, 0, 0);
-    fechaFin.setHours(0, 0, 0, 0);
-
-    if (tiempoMuerto > 0) {
-        return "gantt-tiempo-muerto";
-    }
-
-    if (hoy < fechaInicio) {
-        return "gantt-pendiente";
-    }
-
-    if (hoy > fechaFin) {
+    if (
+        estado === "atrasado" ||
+        estado === "retraso" ||
+        estado === "con_retraso"
+    ) {
         return "gantt-atrasado";
     }
 
-    return "gantt-proceso";
-}
+    if (
+        estado === "terminado" ||
+        estado === "entregado"
+    ) {
+        return "gantt-terminado";
+    }
 
+    if (
+        tiempoMuerto > 0 ||
+        estado === "pausado" ||
+        estado === "tiempo_muerto"
+    ) {
+        return "gantt-tiempo-muerto";
+    }
+
+    if (
+        estado === "en_proceso" ||
+        estado === "proceso"
+    ) {
+        return "gantt-proceso";
+    }
+
+    if (
+        estado === "pendiente" ||
+        estado === "" ||
+        estado === "null"
+    ) {
+        return "gantt-pendiente";
+    }
+
+    console.warn("Estado Gantt no reconocido:", estado, item);
+
+    return "gantt-pendiente";
+}
 /* =========================
    COLOR
 ========================= */

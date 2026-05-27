@@ -170,26 +170,45 @@
     filter:brightness(1.05);
 }
 
+
 /* =========================
    ESTADOS
 ========================= */
 
 .gantt-machine-bar.gantt-proceso{
-    background:#28a745;
+    background:var(--estado-proceso);
 }
 
 .gantt-machine-bar.gantt-pendiente{
-    background:#5dade2;
+    background:var(--estado-pendiente);
 }
 
 .gantt-machine-bar.gantt-atrasado{
-    background:#e74c3c;
+    background:var(--estado-atrasado);
 }
 
 .gantt-machine-bar.gantt-tiempo-muerto{
-    background:#f39c12;
+    background:var(--estado-tiempo-muerto);
 }
 
 .gantt-machine-bar.gantt-terminado{
-    background:#9aa0a6;
+    background:var(--estado-terminado);
+}
+
+.gantt-machine-bar.gantt-terminado{
+    background:var(--estado-terminado);
+}
+
+/* =========================
+   INDICADOR LATERAL MÁQUINA
+========================= */
+
+.gantt-side-row.machine-mode .gantt-color-dot.machine-dot{
+    width:12px;
+    height:38px;
+    min-width:12px;
+    display:inline-block;
+    flex-shrink:0;
+    border-radius:8px;
+    background:#3b82f6 !important;
 }
