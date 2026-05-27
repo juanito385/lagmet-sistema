@@ -25,7 +25,7 @@ window.mostrarGanttPorMaquina = async function(){
             return;
         }
 
-        const registros = data.data.map(item => {
+        const registros = data.data.flatMap(item => {
             let inicio = fechaParaGantt(item.fecha);
             let fin = fechaParaGantt(item.fecha_fin);
 
@@ -54,16 +54,35 @@ window.mostrarGanttPorMaquina = async function(){
             const progress = calcularProgreso(inicio, fin);
             const claseEstado = obtenerClaseEstado(progress, item, fin);
 
-            return {
-                id: item.id,
-                producto: item.producto || "Sin nombre",
-                pedido: item.numero_pedido || "-",
-                maquina: item.maquina || "Sin máquina",
-                operador: item.usuario || "Admin",
-                inicio,
-                fin,
-                claseEstado
-            };
+            let maquinas = [];
+
+            if (item.maquinas_utilizadas && item.maquinas_utilizadas !== "Sin máquina") {
+                maquinas = item.maquinas_utilizadas
+                    .split("||")
+                    .map(maquina => maquina.trim())
+                    .filter(maquina => maquina !== "");
+            }
+
+            if (!maquinas.length && item.maquina) {
+                maquinas = [item.maquina];
+            }
+
+            if (!maquinas.length) {
+                maquinas = ["Sin máquina"];
+            }
+
+            return maquinas.map(maquina => {
+                return {
+                    id: item.id,
+                    producto: item.producto || "Sin nombre",
+                    pedido: item.numero_pedido || "-",
+                    maquina: maquina,
+                    operador: item.usuario || "Admin",
+                    inicio,
+                    fin,
+                    claseEstado
+                };
+            });
         });
 
         const fechas = registros

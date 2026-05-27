@@ -31,12 +31,22 @@ $sql = "SELECT
                     SELECT pm.maquina
                     FROM produccion_maquinas pm
                     WHERE pm.produccion_id = p.id
-                      AND pm.uso = 'si'
+                    AND pm.uso = 'si'
                     ORDER BY pm.horas DESC, pm.minutos DESC
                     LIMIT 1
                 ),
                 'Sin máquina'
             ) AS maquina,
+
+            COALESCE(
+                (
+                    SELECT GROUP_CONCAT(pm.maquina ORDER BY pm.horas DESC, pm.minutos DESC SEPARATOR '||')
+                    FROM produccion_maquinas pm
+                    WHERE pm.produccion_id = p.id
+                    AND pm.uso = 'si'
+                ),
+                'Sin máquina'
+            ) AS maquinas_utilizadas,
 
             CASE
                 /* Si todavía NO está terminado/entregado y la fecha estimada venció */
