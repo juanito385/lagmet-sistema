@@ -212,3 +212,33 @@
     border-radius:8px;
     background:#3b82f6 !important;
 }
+
+/* =========================
+   TEXTO ESPECIAL SIN TRABAJOS
+========================= */
+
+.gantt-side-empty{
+    align-items:center;
+}
+
+.gantt-side-empty-texto{
+    display:flex;
+    flex-direction:column;
+    align-items:flex-start;
+    justify-content:center;
+    line-height:1.15;
+    gap:3px;
+}
+
+.gantt-side-empty-texto strong{
+    display:block;
+    margin:0;
+}
+
+.gantt-side-empty-texto small{
+    display:block;
+    margin:0;
+    color:#666;
+    font-size:13px;
+    white-space:normal;
+}

@@ -101,7 +101,28 @@ async function confirmarExportacionGantt(){
     }
 
     if (tipo === "mensual") {
-        alert("Exportación por mes pendiente de implementar.");
+
+        const selectMes = document.getElementById("selectMesExportarGantt");
+        const inputAnio = document.getElementById("selectAnioExportarGantt");
+
+        const mes = parseInt(selectMes?.value ?? "");
+        const anio = parseInt(inputAnio?.value ?? "");
+
+        if (isNaN(mes) || mes < 0 || mes > 11) {
+            alert("Selecciona un mes válido");
+            return;
+        }
+
+        if (isNaN(anio) || anio < 2020 || anio > 2100) {
+            alert("Ingresa un año válido");
+            return;
+        }
+
+        if (typeof exportarGanttPorMes === "function") {
+            await exportarGanttPorMes(mes, anio);
+        } else {
+            alert("La exportación mensual aún no está disponible");
+        }
     }
 }
 
