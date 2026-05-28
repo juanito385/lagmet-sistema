@@ -2,6 +2,8 @@
 header('Content-Type: application/json; charset=utf-8');
 require_once __DIR__ . "/../conexion.php";
 
+$conn->set_charset("utf8mb4");
+
 $sql = "SELECT 
             p.id, 
             p.producto, 
@@ -43,7 +45,7 @@ $sql = "SELECT
                 'Sin máquina'
             ) AS maquina,
 
-           COALESCE(
+            COALESCE(
                 (
                     SELECT GROUP_CONCAT(
                         pm.maquina 
@@ -62,15 +64,41 @@ $sql = "SELECT
                 'Sin máquina'
             ) AS maquinas_utilizadas,
 
+            COALESCE(
+                (
+                    SELECT GROUP_CONCAT(
+                        CONCAT_WS(
+                            '::',
+                            pm.id,
+                            pm.id_maquina,
+                            REPLACE(REPLACE(pm.maquina, '||', ' '), '::', ' '),
+                            REPLACE(REPLACE(pm.zona, '||', ' '), '::', ' '),
+                            COALESCE(pm.orden_proceso, 0),
+                            COALESCE(pm.horas, 0),
+                            COALESCE(pm.minutos, 0)
+                        )
+                        ORDER BY 
+                            CASE 
+                                WHEN pm.orden_proceso IS NULL THEN 999 
+                                ELSE pm.orden_proceso 
+                            END ASC,
+                            pm.id ASC
+                        SEPARATOR '||'
+                    )
+                    FROM produccion_maquinas pm
+                    WHERE pm.produccion_id = p.id
+                    AND pm.uso = 'si'
+                ),
+                ''
+            ) AS maquinas_detalle,
+
             CASE
-                /* Si todavía NO está terminado/entregado y la fecha estimada venció */
                 WHEN p.estado_actual NOT IN ('terminado', 'entregado')
                     AND p.fecha_fin IS NOT NULL
                     AND p.fecha_fin != ''
                     AND p.fecha_fin < CURDATE()
                 THEN 1
 
-                /* Si ya está terminado/entregado, pero terminó después de la fecha estimada */
                 WHEN p.estado_actual IN ('terminado', 'entregado')
                     AND p.fecha_fin IS NOT NULL
                     AND p.fecha_fin != ''
@@ -112,12 +140,13 @@ if ($result) {
     echo json_encode([
         "success" => true,
         "data" => $datos
-    ]);
+    ], JSON_UNESCAPED_UNICODE);
+
 } else {
     echo json_encode([
         "success" => false,
         "message" => "Error al obtener producción: " . $conn->error
-    ]);
+    ], JSON_UNESCAPED_UNICODE);
 }
 
 $conn->close();

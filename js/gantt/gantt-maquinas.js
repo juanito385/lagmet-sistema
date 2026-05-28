@@ -1,6 +1,208 @@
 /* =========================
    GANTT POR MÁQUINA AVANZADO
 ========================= */
+
+
+/* =========================
+   PARSEAR DETALLE DE MÁQUINAS
+========================= */
+function parsearMaquinasDetalleGantt(item){
+
+    if (item.maquinas_detalle && item.maquinas_detalle.trim() !== "") {
+
+        return item.maquinas_detalle
+            .split("||")
+            .map((detalle, index) => {
+
+                const partes = detalle.split("::");
+
+                return {
+                    idProduccionMaquina: Number(partes[0] || 0),
+                    idMaquina: Number(partes[1] || 0),
+                    maquina: partes[2] || "Sin máquina",
+                    zona: partes[3] || "",
+                    ordenProceso: Number(partes[4] || index + 1),
+                    horas: Number(partes[5] || 0),
+                    minutos: Number(partes[6] || 0)
+                };
+            })
+            .filter(m => m.maquina && m.maquina !== "Sin máquina");
+    }
+
+    /*
+        Fallback por seguridad:
+        si maquinas_detalle no existe, usamos maquinas_utilizadas
+        para no romper el Gantt actual.
+    */
+    if (item.maquinas_utilizadas && item.maquinas_utilizadas !== "Sin máquina") {
+        return item.maquinas_utilizadas
+            .split("||")
+            .map((maquina, index) => {
+                return {
+                    idProduccionMaquina: 0,
+                    idMaquina: 0,
+                    maquina: maquina.trim(),
+                    zona: "",
+                    ordenProceso: index + 1,
+                    horas: 0,
+                    minutos: 0
+                };
+            })
+            .filter(m => m.maquina !== "");
+    }
+
+    if (item.maquina) {
+        return [{
+            idProduccionMaquina: 0,
+            idMaquina: 0,
+            maquina: item.maquina,
+            zona: "",
+            ordenProceso: 1,
+            horas: 0,
+            minutos: 0
+        }];
+    }
+
+    return [{
+        idProduccionMaquina: 0,
+        idMaquina: 0,
+        maquina: "Sin máquina",
+        zona: "",
+        ordenProceso: 1,
+        horas: 0,
+        minutos: 0
+    }];
+}
+
+/* =========================
+   COLA VISUAL POR MÁQUINA
+========================= */
+function diasEntreFechasGantt(inicioTexto, finTexto){
+
+    const inicio = fechaLocal(inicioTexto);
+    const fin = fechaLocal(finTexto);
+
+    if (!inicio || !fin) return 1;
+
+    inicio.setHours(0, 0, 0, 0);
+    fin.setHours(0, 0, 0, 0);
+
+    const MS_DIA = 1000 * 60 * 60 * 24;
+
+    return Math.max(
+        1,
+        Math.floor((fin - inicio) / MS_DIA) + 1
+    );
+}
+
+function sumarDiasFechaGantt(fechaTexto, dias){
+
+    const fecha = fechaLocal(fechaTexto);
+
+    if (!fecha) return fechaTexto;
+
+    fecha.setDate(fecha.getDate() + dias);
+
+    return fechaParaGantt(fecha);
+}
+
+function aplicarColaPorMaquinaGantt(registros){
+
+    const ocupacionPorMaquina = {};
+
+    registros.forEach(tarea => {
+
+        const maquina = tarea.maquina || "Sin máquina";
+
+        if (!ocupacionPorMaquina[maquina]) {
+            ocupacionPorMaquina[maquina] = [];
+        }
+
+        ocupacionPorMaquina[maquina].push(tarea);
+    });
+
+    Object.values(ocupacionPorMaquina).forEach(tareasMaquina => {
+
+        tareasMaquina.sort((a, b) => {
+
+    /*
+        Cola por máquina:
+        primero se respeta lo que ya estaba registrado antes.
+        Esto evita que un producto nuevo/modificado se ponga delante
+        de trabajos que ya estaban programados en esa máquina.
+    */
+    const diferenciaRegistro =
+        (a.idProduccionMaquina || 999999) - (b.idProduccionMaquina || 999999);
+
+        if (diferenciaRegistro !== 0) {
+            return diferenciaRegistro;
+        }
+
+        const fechaA = fechaLocal(a.inicio);
+        const fechaB = fechaLocal(b.inicio);
+
+        const diferenciaFecha = fechaA - fechaB;
+
+        if (diferenciaFecha !== 0) {
+            return diferenciaFecha;
+        }
+
+        const diferenciaOrden =
+            (a.ordenProceso || 999) - (b.ordenProceso || 999);
+
+        if (diferenciaOrden !== 0) {
+            return diferenciaOrden;
+        }
+
+        return (a.id || 0) - (b.id || 0);
+    });
+        let ultimaFechaFin = null;
+
+        tareasMaquina.forEach(tarea => {
+
+            const inicioActual = fechaLocal(tarea.inicio);
+            const finActual = fechaLocal(tarea.fin);
+
+            if (!inicioActual || !finActual) return;
+
+            inicioActual.setHours(0, 0, 0, 0);
+            finActual.setHours(0, 0, 0, 0);
+
+            const duracionDias = diasEntreFechasGantt(tarea.inicio, tarea.fin);
+
+            if (ultimaFechaFin && inicioActual <= ultimaFechaFin) {
+
+                const inicioOriginal = tarea.inicio;
+                const finOriginal = tarea.fin;
+
+                const nuevoInicioFecha = new Date(ultimaFechaFin);
+                nuevoInicioFecha.setDate(nuevoInicioFecha.getDate() + 1);
+
+                const nuevoInicio = fechaParaGantt(nuevoInicioFecha);
+                const nuevoFin = sumarDiasFechaGantt(nuevoInicio, duracionDias - 1);
+
+                tarea.inicio = nuevoInicio;
+                tarea.fin = nuevoFin;
+
+                tarea.reprogramado = true;
+                tarea.motivoReprogramacion =
+                    `Reprogramado por cruce en ${tarea.maquina}. ` +
+                    `Inicio original: ${inicioOriginal}. ` +
+                    `Nuevo inicio: ${nuevoInicio}.`;
+
+                ultimaFechaFin = fechaLocal(nuevoFin);
+                ultimaFechaFin.setHours(0, 0, 0, 0);
+
+                return;
+            }
+
+            ultimaFechaFin = finActual;
+        });
+    });
+
+    return registros;
+}
+
 window.mostrarGanttPorMaquina = async function(){
 
     console.log("🔥 GANTT POR MÁQUINA AVANZADO");
@@ -54,37 +256,40 @@ window.mostrarGanttPorMaquina = async function(){
             const progress = calcularProgreso(inicio, fin);
             const claseEstado = obtenerClaseEstado(progress, item, fin);
 
-            let maquinas = [];
+            const maquinasDetalle = parsearMaquinasDetalleGantt(item);
 
-            if (item.maquinas_utilizadas && item.maquinas_utilizadas !== "Sin máquina") {
-                maquinas = item.maquinas_utilizadas
-                    .split("||")
-                    .map(maquina => maquina.trim())
-                    .filter(maquina => maquina !== "");
-            }
-
-            if (!maquinas.length && item.maquina) {
-                maquinas = [item.maquina];
-            }
-
-            if (!maquinas.length) {
-                maquinas = ["Sin máquina"];
-            }
-
-            return maquinas.map(maquina => {
+            return maquinasDetalle.map(detalle => {
                 return {
                     id: item.id,
                     producto: item.producto || "Sin nombre",
                     pedido: item.numero_pedido || "-",
-                    maquina: maquina,
-                    maquinasUtilizadas: maquinas.join(", "),
+
+                    maquina: detalle.maquina,
+                    maquinasUtilizadas: maquinasDetalle
+                        .map(m => m.maquina)
+                        .join(", "),
+
                     operador: item.usuario || "Admin",
                     inicio,
                     fin,
-                    claseEstado
+                    claseEstado,
+
+                    idProduccionMaquina: detalle.idProduccionMaquina,
+                    idMaquina: detalle.idMaquina,
+                    zona: detalle.zona,
+                    ordenProceso: detalle.ordenProceso,
+                    horasMaquina: detalle.horas,
+                    minutosMaquina: detalle.minutos,
+
+                    inicioOriginal: inicio,
+                    finOriginal: fin,
+                    reprogramado: false,
+                    motivoReprogramacion: ""
                 };
             });
         });
+
+        aplicarColaPorMaquinaGantt(registros);
 
         const fechas = registros
             .flatMap(r => [fechaLocal(r.inicio), fechaLocal(r.fin)])
@@ -119,7 +324,22 @@ window.mostrarGanttPorMaquina = async function(){
 
         Object.values(agrupado).forEach(grupo => {
             grupo.tareas.sort((a, b) => {
-                return fechaLocal(a.inicio) - fechaLocal(b.inicio);
+
+                const diferenciaFecha =
+                    fechaLocal(a.inicio) - fechaLocal(b.inicio);
+
+                if (diferenciaFecha !== 0) {
+                    return diferenciaFecha;
+                }
+
+                const diferenciaOrden =
+                    (a.ordenProceso || 999) - (b.ordenProceso || 999);
+
+                if (diferenciaOrden !== 0) {
+                    return diferenciaOrden;
+                }
+
+                return (a.idProduccionMaquina || 0) - (b.idProduccionMaquina || 0);
             });
         });
 
