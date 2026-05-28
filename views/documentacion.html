@@ -1,64 +1,11 @@
 <!-- DOCUMENTACIÓN -->
 <div id="documentacion" class="section">
 
-    <!-- CONTENEDOR PRINCIPAL -->
-    <div class="doc-top-container">
-
-        <!-- HEADER -->
-        <div class="doc-header-pro">
-            <h2>📁 Reportes</h2>
-            <p>Gestiona visualizaciones y reportes del sistema de producción.</p>
-        </div>
-
-        <!-- CONTENEDOR INTERNO (ACCIONES) -->
-        <div class="doc-actions-container">
-
-            <div class="doc-card-top">
-                <h3>⚡ Acciones rápidas</h3>
-                <span class="doc-badge">LAGMET</span>
-            </div>
-
-            <div class="doc-actions-pro">
-
-                <div class="action-card blue" onclick="mostrarGanttPorMaquina()">
-                    <div class="icon">📊</div>
-                    <div class="card-text">
-                        <h4>Ver Carta Gantt</h4>
-                        <p>Visualiza el plan de producción</p>
-                    </div>
-                    <div class="card-arrow">→</div>
-                </div>
-
-                <div class="action-card purple" onclick="descargarGanttImagen()">
-                    <div class="icon">📷</div>
-                    <div class="card-text">
-                        <h4>Descargar Imagen</h4>
-                        <p>Exporta como PNG</p>
-                    </div>
-                    <div class="card-arrow">→</div>
-                </div>
-
-                <div class="action-card green" onclick="descargarGanttExcel()">
-                    <div class="icon">📊</div>
-                    <div class="card-text">
-                        <h4>Descargar Excel</h4>
-                        <p>Archivo .xlsx</p>
-                    </div>
-                    <div class="card-arrow">→</div>
-                </div>
-
-                <div class="action-card orange" onclick="generarInforme()">
-                    <div class="icon">📄</div>
-                    <div class="card-text">
-                        <h4>Generar Informe</h4>
-                        <p>PDF profesional</p>
-                    </div>
-                    <div class="card-arrow">→</div>
-                </div>
-
-            </div>
-        </div>
-
+    <!-- BREADCRUMB DOCUMENTACIÓN -->
+    <div class="doc-gantt-breadcrumb">
+        <span class="breadcrumb-main">Reportes</span>
+        <span class="breadcrumb-separator">›</span>
+        <span class="breadcrumb-current">Carta Gantt de Producción</span>
     </div>
 
     <!-- GANTT -->
@@ -70,6 +17,14 @@
             <div class="gantt-controls">
                 <button onclick="mostrarGanttPorMaquina()">Actualizar</button>
                 <button onclick="mostrarGanttPorMaquina()">Hoy</button>
+
+                <button 
+                    type="button" 
+                    class="btn-panel-acciones-gantt"
+                    onclick="togglePanelAccionesGantt()"
+                    title="Acciones y filtros">
+                    ⚙
+                </button>
             </div>
         </div>
 
@@ -85,6 +40,9 @@
             <div id="gantt-sidebar"></div>
             <div id="gantt"></div>
         </div>
+
+        <!-- CONTENEDOR PANEL ACCIONES GANTT -->
+        <div id="contenedorPanelAccionesGantt"></div>
 
         <!-- MODAL DETALLE GANTT -->
         <div id="modalDetalleGantt" class="modal-gantt-detalle">

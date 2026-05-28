@@ -1,0 +1,264 @@
+/* =========================
+   PANEL FLOTANTE ACCIONES GANTT
+========================= */
+
+.gantt-actions-overlay{
+    position:absolute;
+    top:150px;
+    right:34px;
+    width:310px;
+    padding:18px;
+    border-radius:16px;
+    background:rgba(20, 28, 46, 0.96);
+    border:1px solid rgba(255,255,255,0.14);
+    box-shadow:0 20px 45px rgba(0,0,0,0.45);
+    backdrop-filter:blur(16px);
+    z-index:50;
+
+    opacity:0;
+    visibility:hidden;
+    transform:translateY(-10px) scale(0.98);
+    pointer-events:none;
+    transition:0.22s ease;
+}
+
+.gantt-actions-overlay.active{
+    opacity:1;
+    visibility:visible;
+    transform:translateY(0) scale(1);
+    pointer-events:auto;
+}
+
+/* =========================
+   HEADER PANEL
+========================= */
+
+.gantt-actions-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:16px;
+}
+
+.gantt-actions-header h4{
+    margin:0;
+    color:#ffffff;
+    font-size:18px;
+    font-weight:800;
+}
+
+.gantt-actions-close{
+    width:30px;
+    height:30px;
+    border:none;
+    border-radius:8px;
+    background:rgba(255,255,255,0.10);
+    color:#ffffff;
+    font-size:20px;
+    cursor:pointer;
+    transition:0.2s ease;
+}
+
+.gantt-actions-close:hover{
+    background:rgba(255,255,255,0.18);
+}
+
+/* =========================
+   BOTONES ACCIONES
+========================= */
+
+.gantt-actions-list{
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+}
+
+.gantt-action-option{
+    width:100%;
+    min-height:62px;
+    border:none;
+    border-radius:12px;
+    padding:12px;
+    display:grid;
+    grid-template-columns:42px 1fr 28px;
+    align-items:center;
+    gap:10px;
+    color:#ffffff;
+    cursor:pointer;
+    text-align:left;
+    transition:0.2s ease;
+}
+
+.gantt-action-option:hover{
+    transform:translateY(-2px);
+    filter:brightness(1.08);
+}
+
+.gantt-action-icon{
+    width:38px;
+    height:38px;
+    border-radius:10px;
+    background:rgba(255,255,255,0.16);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:18px;
+}
+
+.gantt-action-text{
+    display:flex;
+    flex-direction:column;
+    gap:3px;
+}
+
+.gantt-action-text strong{
+    font-size:14px;
+    font-weight:800;
+}
+
+.gantt-action-text small{
+    font-size:12px;
+    color:rgba(255,255,255,0.78);
+}
+
+.gantt-action-arrow{
+    width:28px;
+    height:28px;
+    border-radius:50%;
+    background:rgba(255,255,255,0.16);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-weight:800;
+}
+
+/* =========================
+   COLORES BOTONES
+========================= */
+
+.gantt-action-option.action-blue{
+    background:linear-gradient(135deg, #2563eb, #38bdf8);
+}
+
+.gantt-action-option.action-purple{
+    background:linear-gradient(135deg, #6d28d9, #a855f7);
+}
+
+.gantt-action-option.action-green{
+    background:linear-gradient(135deg, #15803d, #22c55e);
+}
+
+.gantt-action-option.action-orange{
+    background:linear-gradient(135deg, #d97706, #f59e0b);
+}
+
+/* =========================
+   FILTROS PANEL
+========================= */
+
+.gantt-actions-filters{
+    margin-top:18px;
+    padding-top:16px;
+    border-top:1px solid rgba(255,255,255,0.12);
+}
+
+.gantt-actions-filters h5{
+    margin:0 0 4px;
+    color:#ffffff;
+    font-size:15px;
+    font-weight:800;
+}
+
+.gantt-actions-filters p{
+    margin:0 0 12px;
+    color:rgba(255,255,255,0.65);
+    font-size:12px;
+}
+
+.gantt-actions-filters select{
+    width:100%;
+    height:38px;
+    margin-bottom:10px;
+    border-radius:9px;
+    border:1px solid rgba(255,255,255,0.12);
+    background:rgba(255,255,255,0.07);
+    color:#ffffff;
+    padding:0 10px;
+    outline:none;
+}
+
+.gantt-actions-filters select option{
+    color:#111;
+}
+
+.gantt-clear-filters{
+    width:100%;
+    height:38px;
+    border:none;
+    border-radius:9px;
+    background:rgba(255,255,255,0.09);
+    color:#ffffff;
+    cursor:pointer;
+    transition:0.2s ease;
+}
+
+.gantt-clear-filters:hover{
+    background:rgba(255,255,255,0.16);
+}
+
+/* =========================
+   BOTÓN ABRIR PANEL ACCIONES
+========================= */
+
+.btn-panel-acciones-gantt{
+    width:46px;
+    height:46px;
+    padding:0;
+    border:none;
+    border-radius:12px;
+    background:rgba(255,255,255,0.14);
+    color:#ffffff;
+    font-size:20px;
+    font-weight:800;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    cursor:pointer;
+    transition:0.2s ease;
+}
+
+.btn-panel-acciones-gantt:hover{
+    background:rgba(59,130,246,0.35);
+    transform:translateY(-1px);
+}
+
+/* =========================
+   BREADCRUMB DOCUMENTACIÓN
+========================= */
+
+.doc-gantt-breadcrumb{
+    width:100%;
+    max-width:100%;
+    margin:0 0 18px 0;
+    display:flex;
+    align-items:center;
+    gap:10px;
+    color:rgba(255,255,255,0.72);
+    font-size:14px;
+    font-weight:600;
+}
+
+.doc-gantt-breadcrumb .breadcrumb-main{
+    color:#3b82f6;
+    cursor:default;
+}
+
+.doc-gantt-breadcrumb .breadcrumb-separator{
+    color:rgba(255,255,255,0.38);
+    font-size:18px;
+    line-height:1;
+}
+
+.doc-gantt-breadcrumb .breadcrumb-current{
+    color:rgba(255,255,255,0.72);
+}

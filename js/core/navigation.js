@@ -70,9 +70,15 @@ async function showSection(seccion) {
         }
 
         if (seccion === "documentacion") {
+
+            if (typeof cargarPanelAccionesGantt === "function") {
+                await cargarPanelAccionesGantt();
+            }
+
             if (typeof mostrarGanttPorMaquina === "function") {
                 mostrarGanttPorMaquina();
             }
+
         }
 
         if (seccion === "configuracion") {

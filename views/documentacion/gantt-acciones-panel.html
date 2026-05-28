@@ -1,0 +1,110 @@
+<!-- PANEL FLOTANTE ACCIONES GANTT -->
+<div id="panelAccionesGantt" class="gantt-actions-overlay">
+
+    <div class="gantt-actions-header">
+        <h4>Acciones</h4>
+
+        <button 
+            type="button" 
+            class="gantt-actions-close"
+            onclick="cerrarPanelAccionesGantt()">
+            ×
+        </button>
+    </div>
+
+    <div class="gantt-actions-list">
+
+        <button 
+            type="button" 
+            class="gantt-action-option action-blue"
+            onclick="mostrarGanttPorMaquina()">
+            
+            <span class="gantt-action-icon">📊</span>
+
+            <span class="gantt-action-text">
+                <strong>Ver Carta Gantt</strong>
+                <small>Visualiza el plan de producción</small>
+            </span>
+
+            <span class="gantt-action-arrow">→</span>
+        </button>
+
+        <button 
+            type="button" 
+            class="gantt-action-option action-purple"
+            onclick="descargarGanttImagen()">
+            
+            <span class="gantt-action-icon">📷</span>
+
+            <span class="gantt-action-text">
+                <strong>Descargar Imagen</strong>
+                <small>Exportar como PNG</small>
+            </span>
+
+            <span class="gantt-action-arrow">→</span>
+        </button>
+
+        <button 
+            type="button" 
+            class="gantt-action-option action-green"
+            onclick="descargarGanttExcel()">
+            
+            <span class="gantt-action-icon">📊</span>
+
+            <span class="gantt-action-text">
+                <strong>Descargar Excel</strong>
+                <small>Archivo .xlsx</small>
+            </span>
+
+            <span class="gantt-action-arrow">→</span>
+        </button>
+
+        <button 
+            type="button" 
+            class="gantt-action-option action-orange"
+            onclick="generarInforme()">
+            
+            <span class="gantt-action-icon">📄</span>
+
+            <span class="gantt-action-text">
+                <strong>Generar Informe</strong>
+                <small>PDF profesional</small>
+            </span>
+
+            <span class="gantt-action-arrow">→</span>
+        </button>
+
+    </div>
+
+    <div class="gantt-actions-filters">
+
+        <h5>Filtros Rápidos</h5>
+        <p>Personaliza la vista del Gantt</p>
+
+        <select id="filtroPanelMaquinaGantt">
+            <option value="todas">Todas las Máquinas</option>
+        </select>
+
+        <select id="filtroPanelOperadorGantt">
+            <option value="todos">Todos los Operadores</option>
+        </select>
+
+        <select id="filtroPanelEstadoGantt">
+            <option value="todos">Todos los Estados</option>
+            <option value="en_proceso">En Proceso</option>
+            <option value="pendiente">Pendiente</option>
+            <option value="atrasado">Retraso</option>
+            <option value="tiempo_muerto">Tiempo Muerto</option>
+            <option value="terminado">Terminado</option>
+        </select>
+
+        <button 
+            type="button" 
+            class="gantt-clear-filters"
+            onclick="limpiarFiltrosPanelGantt()">
+            Limpiar filtros
+        </button>
+
+    </div>
+
+</div>
