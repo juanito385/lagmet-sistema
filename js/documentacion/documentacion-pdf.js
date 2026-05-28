@@ -60,7 +60,7 @@ async function generarInforme(){
         const pageHeight = doc.internal.pageSize.getHeight();
 
         const logo = new Image();
-        logo.src = "img/LOGO-LAGMET.png";
+        logo.src = "/proyecto_lagmet/assets/img/logo-ironix.png";
 
         logo.onload = function(){
 
