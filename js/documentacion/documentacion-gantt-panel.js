@@ -9,7 +9,9 @@ async function cargarPanelAccionesGantt(){
     if (!contenedor) return;
 
     try {
-        const respuesta = await fetch("views/documentacion/gantt-acciones-panel.html");
+        const respuesta = await fetch(`views/documentacion/gantt-acciones-panel.html?v=${Date.now()}`, {
+            cache: "no-store"
+        });
 
         if (!respuesta.ok) {
             throw new Error("No se pudo cargar gantt-acciones-panel.html");

@@ -1,0 +1,109 @@
+<!-- MODAL EXPORTAR IMAGEN GANTT -->
+<div id="modalExportarImagenGantt" class="modal-exportar-gantt">
+
+    <div class="modal-exportar-gantt-card">
+
+        <button 
+            type="button" 
+            class="modal-exportar-gantt-cerrar"
+            onclick="cerrarModalExportarGantt()">
+            ×
+        </button>
+
+        <div class="modal-exportar-gantt-header">
+            <span class="modal-exportar-gantt-icon">📷</span>
+
+            <div>
+                <h3>Exportar Carta Gantt</h3>
+                <p>Selecciona cómo quieres descargar la imagen.</p>
+            </div>
+        </div>
+
+        <div class="modal-exportar-gantt-opciones">
+
+            <label class="export-option active">
+                <input 
+                    type="radio" 
+                    name="tipoExportacionGantt" 
+                    value="completa" 
+                    checked
+                    onchange="cambiarTipoExportacionGantt()">
+
+                <div>
+                    <strong>Vista completa</strong>
+                    <small>Descarga toda la Carta Gantt generada actualmente.</small>
+                </div>
+            </label>
+
+            <label class="export-option">
+                <input 
+                    type="radio" 
+                    name="tipoExportacionGantt" 
+                    value="mensual"
+                    onchange="cambiarTipoExportacionGantt()">
+
+                <div>
+                    <strong>Mes específico</strong>
+                    <small>Exporta solo el mes seleccionado.</small>
+                </div>
+            </label>
+
+        </div>
+
+        <div id="opcionesExportacionMensual" class="modal-exportar-mes" style="display:none;">
+
+            <div>
+                <label for="selectMesExportarGantt">Mes</label>
+                <select id="selectMesExportarGantt">
+                    <option value="0">Enero</option>
+                    <option value="1">Febrero</option>
+                    <option value="2">Marzo</option>
+                    <option value="3">Abril</option>
+                    <option value="4">Mayo</option>
+                    <option value="5">Junio</option>
+                    <option value="6">Julio</option>
+                    <option value="7">Agosto</option>
+                    <option value="8">Septiembre</option>
+                    <option value="9">Octubre</option>
+                    <option value="10">Noviembre</option>
+                    <option value="11">Diciembre</option>
+                </select>
+            </div>
+
+            <div>
+                <label for="selectAnioExportarGantt">Año</label>
+                <input 
+                    type="number" 
+                    id="selectAnioExportarGantt"
+                    min="2020"
+                    max="2100"
+                    value="2026">
+            </div>
+
+            <p class="modal-exportar-ayuda">
+                La imagen mostrará el mes completo. Si un trabajo continúa fuera del mes, se recortará visualmente.
+            </p>
+
+        </div>
+
+        <div class="modal-exportar-gantt-footer">
+
+            <button 
+                type="button" 
+                class="btn-exportar-cancelar"
+                onclick="cerrarModalExportarGantt()">
+                Cancelar
+            </button>
+
+            <button 
+                type="button" 
+                class="btn-exportar-confirmar"
+                onclick="confirmarExportacionGantt()">
+                Descargar imagen
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
