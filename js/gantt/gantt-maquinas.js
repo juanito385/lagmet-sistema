@@ -100,6 +100,9 @@ window.mostrarGanttPorMaquina = async function(){
         const totalDias = Math.floor((maxFecha - minFecha) / MS_DIA);
         const anchoDia = 48;
 
+        window.ganttFechaMinima = minFecha;
+        window.ganttAnchoDia = anchoDia;
+
         const agrupado = {};
 
         registros.forEach(item => {
@@ -233,3 +236,61 @@ window.mostrarGanttPorMaquina = async function(){
         cont.innerHTML = "Error cargando Gantt por máquina";
     }
 };
+
+/* =========================
+   IR A HOY EN GANTT
+========================= */
+function irHoyGantt(){
+
+    const cont = document.getElementById("gantt");
+
+    if (!cont || !window.ganttFechaMinima || !window.ganttAnchoDia) {
+        console.warn("No hay datos suficientes para centrar Hoy en Gantt");
+        return;
+    }
+
+    const hoy = new Date();
+    hoy.setHours(0, 0, 0, 0);
+
+    const fechaMinima = new Date(window.ganttFechaMinima);
+    fechaMinima.setHours(0, 0, 0, 0);
+
+    const MS_DIA = 1000 * 60 * 60 * 24;
+    const diasDesdeInicio = Math.floor((hoy - fechaMinima) / MS_DIA);
+
+    if (diasDesdeInicio < 0) {
+        cont.scrollLeft = 0;
+        return;
+    }
+
+    const posicionHoy = diasDesdeInicio * window.ganttAnchoDia;
+
+    cont.scrollTo({
+        left: Math.max(posicionHoy - cont.clientWidth / 2, 0),
+        behavior: "smooth"
+    });
+}
+
+window.irHoyGantt = irHoyGantt;
+
+/* =========================
+   ACTUALIZAR GANTT
+========================= */
+async function actualizarGantt(){
+
+    if (typeof cerrarPanelAccionesGantt === "function") {
+        cerrarPanelAccionesGantt();
+    }
+
+    if (typeof mostrarGanttPorMaquina === "function") {
+        await mostrarGanttPorMaquina();
+    }
+
+    setTimeout(() => {
+        if (typeof irHoyGantt === "function") {
+            irHoyGantt();
+        }
+    }, 150);
+}
+
+window.actualizarGantt = actualizarGantt;
