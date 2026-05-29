@@ -1,6 +1,7 @@
 <?php
 header('Content-Type: application/json');
 require_once __DIR__ . "/../conexion.php";
+require_once __DIR__ . "/../gantt/version_gantt.php";
 
 $input = json_decode(file_get_contents("php://input"), true);
 
@@ -219,6 +220,8 @@ try {
 
         $stmtSituacion->close();
     }
+
+    actualizarVersionGantt($conn);
 
     $conn->commit();
 

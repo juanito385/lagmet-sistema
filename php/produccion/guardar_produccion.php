@@ -1,6 +1,7 @@
 <?php
 header('Content-Type: application/json');
 require_once __DIR__ . "/../conexion.php";
+require_once __DIR__ . "/../gantt/version_gantt.php";
 
 date_default_timezone_set("America/Santiago");
 
@@ -210,6 +211,9 @@ try {
         $stmtSituacion->execute();
         $stmtSituacion->close();
     }
+
+
+    actualizarVersionGantt($conn);
 
     $conn->commit();
 
