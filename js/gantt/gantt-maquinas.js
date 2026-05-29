@@ -310,10 +310,14 @@ window.GANTT_MAQUINAS_CACHE_KEY =
 window.GANTT_MAQUINAS_DIRTY_KEY =
     window.GANTT_MAQUINAS_DIRTY_KEY || "ironix_gantt_maquinas_dirty_v1";
 
-function guardarCacheGanttMaquinas(data) {
+function guardarCacheGanttMaquinas(data, versionBackend = null) {
     try {
         const payload = {
             guardadoEn: new Date().toISOString(),
+
+            version: versionBackend ? Number(versionBackend.version || 0) : 0,
+            actualizadoEnBackend: versionBackend ? versionBackend.actualizadoEn || "" : "",
+
             data
         };
 
@@ -341,6 +345,9 @@ function obtenerCacheGanttMaquinas() {
             return null;
         }
 
+        payload.version = Number(payload.version || 0);
+        payload.actualizadoEnBackend = payload.actualizadoEnBackend || "";
+
         return payload;
 
     } catch (error) {
@@ -366,6 +373,221 @@ function limpiarCacheGanttMaquinas() {
 window.marcarGanttMaquinasDesactualizado = marcarGanttMaquinasDesactualizado;
 window.ganttMaquinasEstaDesactualizado = ganttMaquinasEstaDesactualizado;
 window.limpiarCacheGanttMaquinas = limpiarCacheGanttMaquinas;
+
+
+/* =========================
+   VERSION BACKEND GANTT
+========================= */
+window.obtenerVersionGanttBackend = window.obtenerVersionGanttBackend || async function(){
+
+    try {
+        const response = await fetch("php/gantt/obtener_version_gantt.php", {
+            cache: "no-store"
+        });
+
+        const data = await response.json();
+
+        if (!data.success) {
+            console.warn("No se pudo obtener la versión del Gantt:", data.message || data);
+            return null;
+        }
+
+        return {
+            modulo: data.modulo || "gantt_maquinas",
+            version: Number(data.version || 0),
+            actualizadoEn: data.actualizado_en || ""
+        };
+
+    } catch (error) {
+        console.warn("Error consultando versión backend del Gantt:", error);
+        return null;
+    }
+};
+
+/* =========================
+   AVISO VERSION GANTT
+========================= */
+function ocultarAvisoVersionGantt() {
+    const aviso = document.getElementById("gantt-version-alerta");
+
+    if (aviso) {
+        aviso.remove();
+    }
+}
+
+function obtenerPuntoInsercionAvisoGantt() {
+
+    /*
+        Objetivo:
+        insertar el aviso en la cabecera de la Carta Gantt,
+        antes del grupo de botones: Actualizar / Hoy / Configuración.
+    */
+
+    const botones = Array.from(document.querySelectorAll("button"));
+
+    const btnAccion = botones.find(btn => {
+        const texto = btn.textContent.trim().toLowerCase();
+
+        return (
+            texto.includes("actualizar") ||
+            texto.includes("sincronizar") ||
+            texto.includes("refrescar")
+        );
+    });
+
+    if (btnAccion) {
+        const contenedorBotones = btnAccion.parentElement;
+        const filaHeader = contenedorBotones ? contenedorBotones.parentElement : null;
+
+        /*
+            Caso ideal:
+            la fila del header contiene título + botones.
+            Insertamos el aviso antes del grupo de botones.
+        */
+        if (filaHeader && contenedorBotones && filaHeader.contains(contenedorBotones)) {
+            return {
+                padre: filaHeader,
+                antesDe: contenedorBotones
+            };
+        }
+    }
+
+    /*
+        Fallback:
+        si no encuentra botones, intenta insertar el aviso
+        en el contenedor superior del Gantt.
+    */
+    const gantt = document.getElementById("gantt");
+
+    if (!gantt) {
+        console.warn("No se encontró #gantt para insertar aviso de versión.");
+        return null;
+    }
+
+    const tarjetaPrincipal =
+        gantt.closest(".card") ||
+        gantt.closest(".glass-card") ||
+        gantt.closest(".documentacion-card") ||
+        gantt.closest(".gantt-card") ||
+        gantt.parentElement?.parentElement?.parentElement;
+
+    if (!tarjetaPrincipal) {
+        console.warn("No se encontró tarjeta principal para aviso Gantt.");
+        return null;
+    }
+
+    return {
+        padre: tarjetaPrincipal,
+        antesDe: tarjetaPrincipal.firstElementChild
+    };
+}
+
+function mostrarAvisoVersionGantt(versionCache, versionBackend) {
+
+    const puntoInsercion = obtenerPuntoInsercionAvisoGantt();
+
+    if (!puntoInsercion) {
+        console.warn("No se pudo insertar el aviso de versión Gantt.");
+        return;
+    }
+
+    let aviso = document.getElementById("gantt-version-alerta");
+
+    if (!aviso) {
+        aviso = document.createElement("div");
+        aviso.id = "gantt-version-alerta";
+        aviso.className = "gantt-version-alerta-header";
+
+        puntoInsercion.padre.insertBefore(aviso, puntoInsercion.antesDe);
+    }
+
+    aviso.innerHTML = `
+        <div class="gantt-version-alerta-icono">!</div>
+
+        <div class="gantt-version-alerta-texto">
+            <strong>Datos pendientes de sincronizar</strong>
+            <span>Versión local ${versionCache || 0} / Actual ${versionBackend || 0}</span>
+        </div>
+    `;
+}
+
+async function verificarVersionGanttMaquinas() {
+
+    let versionCache = Number(window.ganttMaquinasVersionCache || 0);
+
+    /*
+        Si la versión no está cargada en memoria,
+        la recuperamos desde localStorage.
+    */
+    if (!versionCache && typeof obtenerCacheGanttMaquinas === "function") {
+        const cache = obtenerCacheGanttMaquinas();
+
+        if (cache) {
+            versionCache = Number(cache.version || 0);
+
+            window.ganttMaquinasVersionCache = versionCache;
+            window.ganttMaquinasUltimaActualizacion = cache.guardadoEn || "";
+            window.ganttMaquinasActualizadoEnBackend = cache.actualizadoEnBackend || "";
+        }
+    }
+
+    const versionBackend = typeof window.obtenerVersionGanttBackend === "function"
+        ? await window.obtenerVersionGanttBackend()
+        : null;
+
+    if (!versionBackend || !versionBackend.version) {
+        console.warn("No se pudo validar la versión backend del Gantt.");
+        return;
+    }
+
+    const versionReal = Number(versionBackend.version || 0);
+
+    if (!versionCache) {
+        console.warn("No existe versión local del Gantt. Presiona Actualizar una vez para crear caché.");
+        ocultarAvisoVersionGantt();
+        return;
+    }
+
+    if (versionReal > versionCache) {
+        mostrarAvisoVersionGantt(versionCache, versionReal);
+        return;
+    }
+
+    ocultarAvisoVersionGantt();
+}
+
+window.mostrarAvisoVersionGantt = mostrarAvisoVersionGantt;
+window.ocultarAvisoVersionGantt = ocultarAvisoVersionGantt;
+window.verificarVersionGanttMaquinas = verificarVersionGanttMaquinas;
+
+async function verificarVersionGanttMaquinas() {
+
+    const versionCache = Number(window.ganttMaquinasVersionCache || 0);
+
+    if (!versionCache) {
+        ocultarAvisoVersionGantt();
+        return;
+    }
+
+    const versionBackend = typeof window.obtenerVersionGanttBackend === "function"
+        ? await window.obtenerVersionGanttBackend()
+        : null;
+
+    if (!versionBackend || !versionBackend.version) {
+        return;
+    }
+
+    const versionReal = Number(versionBackend.version || 0);
+
+    if (versionReal > versionCache) {
+        mostrarAvisoVersionGantt(versionCache, versionReal);
+        return;
+    }
+
+    ocultarAvisoVersionGantt();
+}
+
+window.verificarVersionGanttMaquinas = verificarVersionGanttMaquinas;
 
 
 /* =========================
@@ -481,7 +703,10 @@ window.mostrarGanttPorMaquina = async function(forzarActualizar = false){
 
             if (cache) {
                 data = cache.data;
+
                 window.ganttMaquinasUltimaActualizacion = cache.guardadoEn;
+                window.ganttMaquinasVersionCache = Number(cache.version || 0);
+                window.ganttMaquinasActualizadoEnBackend = cache.actualizadoEnBackend || "";
             }
         }
 
@@ -498,8 +723,17 @@ window.mostrarGanttPorMaquina = async function(forzarActualizar = false){
             data = await response.json();
 
             if (data.success && data.data && data.data.length) {
-                guardarCacheGanttMaquinas(data);
+
+                const versionBackend = typeof window.obtenerVersionGanttBackend === "function"
+                    ? await window.obtenerVersionGanttBackend()
+                    : null;
+
+                guardarCacheGanttMaquinas(data, versionBackend);
+
                 window.ganttMaquinasUltimaActualizacion = new Date().toISOString();
+                window.ganttMaquinasVersionCache = versionBackend
+                    ? Number(versionBackend.version || 0)
+                    : 0;
             }
         }
 
@@ -805,6 +1039,12 @@ window.mostrarGanttPorMaquina = async function(forzarActualizar = false){
                 </div>
             </div>
         `;
+
+        if (forzarActualizar) {
+            ocultarAvisoVersionGantt();
+        } else {
+            verificarVersionGanttMaquinas();
+        }
 
     } catch (error) {
         console.error("❌ Error cargando Gantt por máquina:", error);

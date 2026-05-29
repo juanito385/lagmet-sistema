@@ -82,3 +82,69 @@
     background:rgba(255,255,255,0.12) !important;
     color:#ffffff !important;
 }
+
+
+/* =========================
+   AVISO VERSION GANTT HEADER
+========================= */
+
+.gantt-version-alerta-header{
+    display:flex;
+    align-items:center;
+    gap:10px;
+
+    min-width:260px;
+    max-width:390px;
+
+    padding:9px 13px;
+    border-radius:14px;
+
+    border:1px solid rgba(255, 152, 0, 0.55);
+    background:linear-gradient(
+        135deg,
+        rgba(255, 152, 0, 0.16),
+        rgba(0, 0, 0, 0.22)
+    );
+
+    box-shadow:0 8px 20px rgba(0,0,0,0.22);
+    box-sizing:border-box;
+}
+
+.gantt-version-alerta-icono{
+    width:30px;
+    height:30px;
+    min-width:30px;
+
+    border:2px solid #ff9800;
+    border-radius:50%;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    color:#ffb74d;
+    font-weight:900;
+    font-size:18px;
+}
+
+.gantt-version-alerta-texto{
+    display:flex;
+    flex-direction:column;
+    gap:2px;
+    min-width:0;
+}
+
+.gantt-version-alerta-texto strong{
+    color:#ffb74d;
+    font-size:13px;
+    font-weight:800;
+    line-height:1.2;
+    white-space:nowrap;
+}
+
+.gantt-version-alerta-texto span{
+    color:rgba(255,255,255,0.72);
+    font-size:11px;
+    line-height:1.2;
+    white-space:nowrap;
+}
