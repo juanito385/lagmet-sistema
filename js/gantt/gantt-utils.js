@@ -181,3 +181,16 @@ function colorEstado(clase) {
     if (clase === "gantt-terminado") return "#9aa0a6";
     return "#5dade2";
 }
+
+function hayChoqueFechas(inicioA, finA, inicioB, finB) {
+    const aInicio = new Date(inicioA + "T00:00:00");
+    const aFin = new Date(finA + "T00:00:00");
+    const bInicio = new Date(inicioB + "T00:00:00");
+    const bFin = new Date(finB + "T00:00:00");
+
+    if (isNaN(aInicio) || isNaN(aFin) || isNaN(bInicio) || isNaN(bFin)) {
+        return false;
+    }
+
+    return aInicio <= bFin && bInicio <= aFin;
+}

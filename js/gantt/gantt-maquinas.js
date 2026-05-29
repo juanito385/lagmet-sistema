@@ -74,6 +74,7 @@ function parsearMaquinasDetalleGantt(item){
     }];
 }
 
+
 /* =========================
    COLA VISUAL POR MÁQUINA
 ========================= */
@@ -106,6 +107,33 @@ function sumarDiasFechaGantt(fechaTexto, dias){
     return fechaParaGantt(fecha);
 }
 
+/*
+    Fallback local:
+    se usa solo si hayChoqueFechas() no está disponible desde gantt-utils.js.
+*/
+function hayChoqueFechasGanttSeguro(inicioA, finA, inicioB, finB) {
+
+    if (typeof hayChoqueFechas === "function") {
+        return hayChoqueFechas(inicioA, finA, inicioB, finB);
+    }
+
+    const aInicio = fechaLocal(inicioA);
+    const aFin = fechaLocal(finA);
+    const bInicio = fechaLocal(inicioB);
+    const bFin = fechaLocal(finB);
+
+    if (!aInicio || !aFin || !bInicio || !bFin) {
+        return false;
+    }
+
+    aInicio.setHours(0, 0, 0, 0);
+    aFin.setHours(0, 0, 0, 0);
+    bInicio.setHours(0, 0, 0, 0);
+    bFin.setHours(0, 0, 0, 0);
+
+    return aInicio <= bFin && bInicio <= aFin;
+}
+
 function aplicarColaPorMaquinaGantt(registros){
 
     const ocupacionPorMaquina = {};
@@ -125,38 +153,39 @@ function aplicarColaPorMaquinaGantt(registros){
 
         tareasMaquina.sort((a, b) => {
 
-    /*
-        Cola por máquina:
-        primero se respeta lo que ya estaba registrado antes.
-        Esto evita que un producto nuevo/modificado se ponga delante
-        de trabajos que ya estaban programados en esa máquina.
-    */
-    const diferenciaRegistro =
-        (a.idProduccionMaquina || 999999) - (b.idProduccionMaquina || 999999);
+            /*
+                Cola por máquina:
+                primero se respeta lo que ya estaba registrado antes.
+                Esto evita que un producto nuevo/modificado se ponga delante
+                de trabajos que ya estaban programados en esa máquina.
+            */
+            const diferenciaRegistro =
+                (a.idProduccionMaquina || 999999) - (b.idProduccionMaquina || 999999);
 
-        if (diferenciaRegistro !== 0) {
-            return diferenciaRegistro;
-        }
+            if (diferenciaRegistro !== 0) {
+                return diferenciaRegistro;
+            }
 
-        const fechaA = fechaLocal(a.inicio);
-        const fechaB = fechaLocal(b.inicio);
+            const fechaA = fechaLocal(a.inicio);
+            const fechaB = fechaLocal(b.inicio);
 
-        const diferenciaFecha = fechaA - fechaB;
+            const diferenciaFecha = fechaA - fechaB;
 
-        if (diferenciaFecha !== 0) {
-            return diferenciaFecha;
-        }
+            if (diferenciaFecha !== 0) {
+                return diferenciaFecha;
+            }
 
-        const diferenciaOrden =
-            (a.ordenProceso || 999) - (b.ordenProceso || 999);
+            const diferenciaOrden =
+                (a.ordenProceso || 999) - (b.ordenProceso || 999);
 
-        if (diferenciaOrden !== 0) {
-            return diferenciaOrden;
-        }
+            if (diferenciaOrden !== 0) {
+                return diferenciaOrden;
+            }
 
-        return (a.id || 0) - (b.id || 0);
-    });
-        let ultimaFechaFin = null;
+            return (a.id || 0) - (b.id || 0);
+        });
+
+        const tareasProgramadas = [];
 
         tareasMaquina.forEach(tarea => {
 
@@ -170,15 +199,28 @@ function aplicarColaPorMaquinaGantt(registros){
 
             const duracionDias = diasEntreFechasGantt(tarea.inicio, tarea.fin);
 
-            if (ultimaFechaFin && inicioActual <= ultimaFechaFin) {
+            const conflicto = tareasProgramadas.find(tareaProgramada => {
+                return hayChoqueFechasGanttSeguro(
+                    tarea.inicio,
+                    tarea.fin,
+                    tareaProgramada.inicio,
+                    tareaProgramada.fin
+                );
+            });
+
+            if (conflicto) {
 
                 const inicioOriginal = tarea.inicio;
                 const finOriginal = tarea.fin;
 
-                const nuevoInicioFecha = new Date(ultimaFechaFin);
-                nuevoInicioFecha.setDate(nuevoInicioFecha.getDate() + 1);
+                const conflictoFin = fechaLocal(conflicto.fin);
 
-                const nuevoInicio = fechaParaGantt(nuevoInicioFecha);
+                if (!conflictoFin) return;
+
+                conflictoFin.setHours(0, 0, 0, 0);
+                conflictoFin.setDate(conflictoFin.getDate() + 1);
+
+                const nuevoInicio = fechaParaGantt(conflictoFin);
                 const nuevoFin = sumarDiasFechaGantt(nuevoInicio, duracionDias - 1);
 
                 tarea.inicio = nuevoInicio;
@@ -191,39 +233,233 @@ function aplicarColaPorMaquinaGantt(registros){
                 tarea.finOriginal = finOriginal;
                 tarea.nuevoInicio = nuevoInicio;
                 tarea.nuevoFin = nuevoFin;
-
-                ultimaFechaFin = fechaLocal(nuevoFin);
-                ultimaFechaFin.setHours(0, 0, 0, 0);
-
-                return;
             }
 
-            ultimaFechaFin = finActual;
+            tareasProgramadas.push({
+                inicio: tarea.inicio,
+                fin: tarea.fin
+            });
         });
     });
 
     return registros;
 }
 
-window.mostrarGanttPorMaquina = async function(){
+
+/* =========================
+   CACHE LOCAL GANTT MÁQUINAS
+========================= */
+
+/*
+    Se usa window para evitar errores si el archivo se carga más de una vez
+    dentro de la SPA.
+*/
+window.GANTT_MAQUINAS_CACHE_KEY =
+    window.GANTT_MAQUINAS_CACHE_KEY || "ironix_gantt_maquinas_cache_v1";
+
+window.GANTT_MAQUINAS_DIRTY_KEY =
+    window.GANTT_MAQUINAS_DIRTY_KEY || "ironix_gantt_maquinas_dirty_v1";
+
+function guardarCacheGanttMaquinas(data) {
+    try {
+        const payload = {
+            guardadoEn: new Date().toISOString(),
+            data
+        };
+
+        localStorage.setItem(
+            window.GANTT_MAQUINAS_CACHE_KEY,
+            JSON.stringify(payload)
+        );
+
+        localStorage.removeItem(window.GANTT_MAQUINAS_DIRTY_KEY);
+
+    } catch (error) {
+        console.warn("No se pudo guardar la caché del Gantt:", error);
+    }
+}
+
+function obtenerCacheGanttMaquinas() {
+    try {
+        const cache = localStorage.getItem(window.GANTT_MAQUINAS_CACHE_KEY);
+
+        if (!cache) return null;
+
+        const payload = JSON.parse(cache);
+
+        if (!payload || !payload.data || !payload.data.success) {
+            return null;
+        }
+
+        return payload;
+
+    } catch (error) {
+        console.warn("Caché Gantt inválida, se limpiará:", error);
+        localStorage.removeItem(window.GANTT_MAQUINAS_CACHE_KEY);
+        return null;
+    }
+}
+
+function marcarGanttMaquinasDesactualizado() {
+    localStorage.setItem(window.GANTT_MAQUINAS_DIRTY_KEY, "1");
+}
+
+function ganttMaquinasEstaDesactualizado() {
+    return localStorage.getItem(window.GANTT_MAQUINAS_DIRTY_KEY) === "1";
+}
+
+function limpiarCacheGanttMaquinas() {
+    localStorage.removeItem(window.GANTT_MAQUINAS_CACHE_KEY);
+    localStorage.removeItem(window.GANTT_MAQUINAS_DIRTY_KEY);
+}
+
+window.marcarGanttMaquinasDesactualizado = marcarGanttMaquinasDesactualizado;
+window.ganttMaquinasEstaDesactualizado = ganttMaquinasEstaDesactualizado;
+window.limpiarCacheGanttMaquinas = limpiarCacheGanttMaquinas;
+
+
+/* =========================
+   LOADING ESTABLE GANTT
+========================= */
+function renderLoadingGanttMaquina(cont, sidebar){
+
+    if (sidebar) {
+        sidebar.innerHTML = `
+            <div class="gantt-side-head machine-mode">
+                <strong>Máquina</strong>
+                <strong>Operador</strong>
+            </div>
+
+            <div class="gantt-side-row machine-mode gantt-loading-row">
+                <div class="gantt-side-producto">
+                    <span class="gantt-color-dot machine-dot"></span>
+                    <div>
+                        <strong>Cargando...</strong>
+                        <small>Preparando datos</small>
+                    </div>
+                </div>
+                <div>--</div>
+            </div>
+
+            <div class="gantt-side-row machine-mode gantt-loading-row">
+                <div class="gantt-side-producto">
+                    <span class="gantt-color-dot machine-dot"></span>
+                    <div>
+                        <strong>Cargando...</strong>
+                        <small>Preparando datos</small>
+                    </div>
+                </div>
+                <div>--</div>
+            </div>
+
+            <div class="gantt-side-row machine-mode gantt-loading-row">
+                <div class="gantt-side-producto">
+                    <span class="gantt-color-dot machine-dot"></span>
+                    <div>
+                        <strong>Cargando...</strong>
+                        <small>Preparando datos</small>
+                    </div>
+                </div>
+                <div>--</div>
+            </div>
+        `;
+    }
+
+    cont.innerHTML = `
+        <div class="gantt-machine-pro gantt-machine-loading" style="width:1200px;">
+            <div class="gantt-machine-calendar">
+                <div class="gantt-months">
+                    <div class="gantt-month" style="left:360px;">Cargando</div>
+                </div>
+
+                <div class="gantt-days">
+                    <div class="gantt-day">--</div>
+                    <div class="gantt-day">--</div>
+                    <div class="gantt-day">--</div>
+                    <div class="gantt-day">--</div>
+                    <div class="gantt-day">--</div>
+                    <div class="gantt-day">--</div>
+                    <div class="gantt-day">--</div>
+                    <div class="gantt-day">--</div>
+                    <div class="gantt-day">--</div>
+                    <div class="gantt-day">--</div>
+                    <div class="gantt-day">--</div>
+                    <div class="gantt-day">--</div>
+                </div>
+            </div>
+
+            <div class="gantt-machine-body">
+                <div class="gantt-machine-timeline-row">
+                    <div class="gantt-loading-bar" style="left:180px; width:280px;"></div>
+                </div>
+
+                <div class="gantt-machine-timeline-row">
+                    <div class="gantt-loading-bar" style="left:260px; width:340px;"></div>
+                </div>
+
+                <div class="gantt-machine-timeline-row">
+                    <div class="gantt-loading-bar" style="left:120px; width:220px;"></div>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+
+/* =========================
+   MOSTRAR GANTT POR MÁQUINA
+========================= */
+window.mostrarGanttPorMaquina = async function(forzarActualizar = false){
 
     const cont = document.getElementById("gantt");
     const sidebar = document.getElementById("gantt-sidebar");
 
     if (!cont) return;
 
-    cont.innerHTML = "Cargando Gantt por máquina...";
-
-    if (sidebar) {
-        sidebar.innerHTML = "";
-    }
-
     try {
-        const response = await fetch("php/produccion/obtener_produccion.php");
-        const data = await response.json();
+        let data = null;
+
+        const ganttYaRenderizado =
+            cont.querySelector(".gantt-machine-pro") !== null;
+
+        /*
+            Si no se fuerza actualización,
+            primero se intenta cargar la última versión guardada.
+        */
+        if (!forzarActualizar) {
+            const cache = obtenerCacheGanttMaquinas();
+
+            if (cache) {
+                data = cache.data;
+                window.ganttMaquinasUltimaActualizacion = cache.guardadoEn;
+            }
+        }
+
+        /*
+            Si no existe caché, recién ahí se consulta al servidor.
+            Esto pasa la primera vez o al presionar Actualizar.
+        */
+        if (!data) {
+            if (!ganttYaRenderizado) {
+                renderLoadingGanttMaquina(cont, sidebar);
+            }
+
+            const response = await fetch("php/produccion/obtener_produccion.php");
+            data = await response.json();
+
+            if (data.success && data.data && data.data.length) {
+                guardarCacheGanttMaquinas(data);
+                window.ganttMaquinasUltimaActualizacion = new Date().toISOString();
+            }
+        }
 
         if (!data.success || !data.data || !data.data.length) {
             cont.innerHTML = "No hay datos";
+
+            if (sidebar) {
+                sidebar.innerHTML = "";
+            }
+
             return;
         }
 
@@ -518,6 +754,7 @@ window.mostrarGanttPorMaquina = async function(){
     }
 };
 
+
 /* =========================
    IR A HOY EN GANTT
 ========================= */
@@ -554,6 +791,7 @@ function irHoyGantt(){
 
 window.irHoyGantt = irHoyGantt;
 
+
 /* =========================
    ACTUALIZAR GANTT
 ========================= */
@@ -564,7 +802,7 @@ async function actualizarGantt(){
     }
 
     if (typeof mostrarGanttPorMaquina === "function") {
-        await mostrarGanttPorMaquina();
+        await mostrarGanttPorMaquina(true);
     }
 
     setTimeout(() => {
