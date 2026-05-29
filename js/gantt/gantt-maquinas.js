@@ -134,19 +134,38 @@ function hayChoqueFechasGanttSeguro(inicioA, finA, inicioB, finB) {
     return aInicio <= bFin && bInicio <= aFin;
 }
 
+function obtenerClaveMaquinaGantt(tarea) {
+
+    const idMaquina = Number(tarea.idMaquina || 0);
+
+    if (idMaquina > 0) {
+        return `maquina-id-${idMaquina}`;
+    }
+
+    const zona = String(tarea.zona || "")
+        .trim()
+        .toLowerCase();
+
+    const nombreMaquina = String(tarea.maquina || "Sin máquina")
+        .trim()
+        .toLowerCase();
+
+    return `maquina-nombre-${zona}-${nombreMaquina}`;
+}
+
 function aplicarColaPorMaquinaGantt(registros){
 
     const ocupacionPorMaquina = {};
 
     registros.forEach(tarea => {
 
-        const maquina = tarea.maquina || "Sin máquina";
+        const claveMaquina = obtenerClaveMaquinaGantt(tarea);
 
-        if (!ocupacionPorMaquina[maquina]) {
-            ocupacionPorMaquina[maquina] = [];
+        if (!ocupacionPorMaquina[claveMaquina]) {
+            ocupacionPorMaquina[claveMaquina] = [];
         }
 
-        ocupacionPorMaquina[maquina].push(tarea);
+        ocupacionPorMaquina[claveMaquina].push(tarea);
     });
 
     Object.values(ocupacionPorMaquina).forEach(tareasMaquina => {
@@ -197,47 +216,78 @@ function aplicarColaPorMaquinaGantt(registros){
             inicioActual.setHours(0, 0, 0, 0);
             finActual.setHours(0, 0, 0, 0);
 
-            const duracionDias = diasEntreFechasGantt(tarea.inicio, tarea.fin);
+            const inicioOriginal = tarea.inicio;
+            const finOriginal = tarea.fin;
+            const duracionDias = Math.max(
+                1,
+                Number(tarea.duracionOriginalDias) || diasEntreFechasGantt(tarea.inicio, tarea.fin)
+            );
 
-            const conflicto = tareasProgramadas.find(tareaProgramada => {
-                return hayChoqueFechasGanttSeguro(
-                    tarea.inicio,
-                    tarea.fin,
-                    tareaProgramada.inicio,
-                    tareaProgramada.fin
-                );
-            });
+            let inicioPropuesto = tarea.inicio;
+            let finPropuesto = tarea.fin;
+            let fueReprogramada = false;
+            let ultimoConflicto = null;
 
-            if (conflicto) {
+            /*
+                Busca el primer espacio libre real.
+                Si al mover la tarea vuelve a chocar con otra,
+                sigue avanzando solo lo necesario.
+            */
+            while (true) {
 
-                const inicioOriginal = tarea.inicio;
-                const finOriginal = tarea.fin;
+                const conflicto = tareasProgramadas.find(tareaProgramada => {
+                    return hayChoqueFechasGanttSeguro(
+                        inicioPropuesto,
+                        finPropuesto,
+                        tareaProgramada.inicio,
+                        tareaProgramada.fin
+                    );
+                });
+
+                if (!conflicto) {
+                    break;
+                }
+
+                ultimoConflicto = conflicto;
 
                 const conflictoFin = fechaLocal(conflicto.fin);
 
-                if (!conflictoFin) return;
+                if (!conflictoFin) {
+                    break;
+                }
 
                 conflictoFin.setHours(0, 0, 0, 0);
                 conflictoFin.setDate(conflictoFin.getDate() + 1);
 
-                const nuevoInicio = fechaParaGantt(conflictoFin);
-                const nuevoFin = sumarDiasFechaGantt(nuevoInicio, duracionDias - 1);
+                inicioPropuesto = fechaParaGantt(conflictoFin);
+                finPropuesto = sumarDiasFechaGantt(inicioPropuesto, duracionDias - 1);
 
-                tarea.inicio = nuevoInicio;
-                tarea.fin = nuevoFin;
+                fueReprogramada = true;
+            }
+
+            if (fueReprogramada) {
+
+                tarea.inicio = inicioPropuesto;
+                tarea.fin = finPropuesto;
 
                 tarea.reprogramado = true;
-                tarea.motivoReprogramacion = `La máquina ${tarea.maquina} ya tenía trabajos programados.`;
+                tarea.motivoReprogramacion = ultimoConflicto
+                    ? `La máquina ${tarea.maquina} ya tenía trabajos programados entre ${ultimoConflicto.inicio} y ${ultimoConflicto.fin}.`
+                    : `La máquina ${tarea.maquina} ya tenía trabajos programados.`;
 
                 tarea.inicioOriginal = inicioOriginal;
                 tarea.finOriginal = finOriginal;
-                tarea.nuevoInicio = nuevoInicio;
-                tarea.nuevoFin = nuevoFin;
+                tarea.nuevoInicio = inicioPropuesto;
+                tarea.nuevoFin = finPropuesto;
             }
 
             tareasProgramadas.push({
                 inicio: tarea.inicio,
                 fin: tarea.fin
+            });
+
+            tareasProgramadas.sort((a, b) => {
+                return fechaLocal(a.inicio) - fechaLocal(b.inicio);
             });
         });
     });
@@ -510,6 +560,8 @@ window.mostrarGanttPorMaquina = async function(forzarActualizar = false){
                     fin,
                     claseEstado,
 
+                    duracionOriginalDias: diasEntreFechasGantt(inicio, fin),
+
                     idProduccionMaquina: detalle.idProduccionMaquina,
                     idMaquina: detalle.idMaquina,
                     zona: detalle.zona,
@@ -663,6 +715,10 @@ window.mostrarGanttPorMaquina = async function(forzarActualizar = false){
                     tarea.reprogramado ? "gantt-alerta-reprogramado-activa" : ""
                 ].filter(Boolean).join(" ");
 
+                const tieneAlertas =
+                    tarea.estaAtrasado === true ||
+                    tarea.reprogramado === true;
+
                 const opcionesDetalle = {
                     producto: tarea.producto,
                     maquina: tarea.maquina,
@@ -681,14 +737,16 @@ window.mostrarGanttPorMaquina = async function(forzarActualizar = false){
                     nuevoInicio: tarea.nuevoInicio || tarea.inicio,
                     nuevoFin: tarea.nuevoFin || tarea.fin,
 
-                    motivoReprogramacion: tarea.motivoReprogramacion || ""
+                    motivoReprogramacion: tarea.reprogramado === true
+                        ? tarea.motivoReprogramacion || `La máquina ${tarea.maquina} ya tenía trabajos programados.`
+                        : ""
                 };
 
                 const opcionesDetalleJson = encodeURIComponent(
                     JSON.stringify(opcionesDetalle)
                 );
 
-                const iconosAlertas = `
+                const iconosAlertas = tieneAlertas ? `
                     <button
                         type="button"
                         class="gantt-alertas-barra"
@@ -701,7 +759,7 @@ window.mostrarGanttPorMaquina = async function(forzarActualizar = false){
                         ${tarea.estaAtrasado ? `<span class="gantt-alerta-icon alerta-atraso">⚠</span>` : ""}
                         ${tarea.reprogramado ? `<span class="gantt-alerta-icon alerta-reprogramado">↻</span>` : ""}
                     </button>
-                `;
+                ` : "";
 
                 barrasHtml += `
                     <div
