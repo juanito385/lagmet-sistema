@@ -1,0 +1,84 @@
+/* =========================
+   MODAL ALERTAS GANTT
+========================= */
+
+.modal-alertas-card{
+    width:620px;
+    max-width:92vw;
+}
+
+.contenedor-alertas-gantt{
+    display:flex;
+    flex-direction:column;
+    gap:14px;
+    margin-top:22px;
+}
+
+.modal-alerta-card{
+    border-radius:14px;
+    padding:16px 18px;
+    border:1px solid rgba(255,255,255,0.08);
+    background:rgba(255,255,255,0.045);
+}
+
+.modal-alerta-card p{
+    margin:10px 0 14px;
+    color:#d6d9e6;
+    font-size:14px;
+    line-height:1.45;
+}
+
+.modal-alerta-titulo{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    font-size:15px;
+    font-weight:800;
+}
+
+.modal-alerta-titulo span{
+    font-size:20px;
+    line-height:1;
+}
+
+.modal-alerta-datos{
+    display:grid;
+    grid-template-columns:145px 1fr;
+    gap:10px;
+    margin-top:8px;
+    font-size:14px;
+}
+
+.modal-alerta-datos span{
+    color:#aeb4c5;
+}
+
+.modal-alerta-datos strong{
+    color:#ffffff;
+    font-weight:800;
+}
+
+/* Alerta atraso */
+.modal-alerta-card.alerta-atraso{
+    background:rgba(239,68,68,0.10);
+    border-color:rgba(239,68,68,0.35);
+}
+
+.modal-alerta-card.alerta-atraso .modal-alerta-titulo{
+    color:#ff6b6b;
+}
+
+/* Alerta reprogramado */
+.modal-alerta-card.alerta-reprogramado{
+    background:rgba(249,115,22,0.10);
+    border-color:rgba(249,115,22,0.38);
+}
+
+.modal-alerta-card.alerta-reprogramado .modal-alerta-titulo{
+    color:#fb923c;
+}
+
+.gantt-alerta-badge{
+    background:rgba(255,255,255,0.12) !important;
+    color:#ffffff !important;
+}

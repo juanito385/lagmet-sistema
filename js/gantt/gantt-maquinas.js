@@ -185,10 +185,12 @@ function aplicarColaPorMaquinaGantt(registros){
                 tarea.fin = nuevoFin;
 
                 tarea.reprogramado = true;
-                tarea.motivoReprogramacion =
-                    `Reprogramado por cruce en ${tarea.maquina}. ` +
-                    `Inicio original: ${inicioOriginal}. ` +
-                    `Nuevo inicio: ${nuevoInicio}.`;
+                tarea.motivoReprogramacion = `La máquina ${tarea.maquina} ya tenía trabajos programados.`;
+
+                tarea.inicioOriginal = inicioOriginal;
+                tarea.finOriginal = finOriginal;
+                tarea.nuevoInicio = nuevoInicio;
+                tarea.nuevoFin = nuevoFin;
 
                 ultimaFechaFin = fechaLocal(nuevoFin);
                 ultimaFechaFin.setHours(0, 0, 0, 0);
@@ -204,8 +206,6 @@ function aplicarColaPorMaquinaGantt(registros){
 }
 
 window.mostrarGanttPorMaquina = async function(){
-
-    console.log("🔥 GANTT POR MÁQUINA AVANZADO");
 
     const cont = document.getElementById("gantt");
     const sidebar = document.getElementById("gantt-sidebar");
@@ -284,7 +284,12 @@ window.mostrarGanttPorMaquina = async function(){
                     inicioOriginal: inicio,
                     finOriginal: fin,
                     reprogramado: false,
-                    motivoReprogramacion: ""
+                    motivoReprogramacion: "",
+
+                    estaAtrasado: item.esta_atrasado === true,
+                    fechaEstimada: item.fecha_fin || fin,
+                    fechaReal: item.fecha_fin_real || "",
+                    fechaActualEstado: item.fecha_estado_actual || ""
                 };
             });
         });
@@ -417,16 +422,72 @@ window.mostrarGanttPorMaquina = async function(){
                     Math.floor((fin - inicio) / MS_DIA) + 1
                 );
 
+                const claseAlertas = [
+                    tarea.estaAtrasado ? "gantt-alerta-atraso-activa" : "",
+                    tarea.reprogramado ? "gantt-alerta-reprogramado-activa" : ""
+                ].filter(Boolean).join(" ");
+
+                const opcionesDetalle = {
+                    producto: tarea.producto,
+                    maquina: tarea.maquina,
+                    inicio: tarea.inicio,
+                    fin: tarea.fin,
+
+                    estaAtrasado: tarea.estaAtrasado === true,
+                    reprogramado: tarea.reprogramado === true,
+
+                    fechaEstimada: tarea.fechaEstimada || tarea.finOriginal || tarea.fin,
+                    fechaReal: tarea.fechaReal || "",
+                    fechaActual: tarea.fechaActualEstado || "",
+
+                    inicioOriginal: tarea.inicioOriginal || tarea.inicio,
+                    finOriginal: tarea.finOriginal || tarea.fin,
+                    nuevoInicio: tarea.nuevoInicio || tarea.inicio,
+                    nuevoFin: tarea.nuevoFin || tarea.fin,
+
+                    motivoReprogramacion: tarea.motivoReprogramacion || ""
+                };
+
+                const opcionesDetalleJson = encodeURIComponent(
+                    JSON.stringify(opcionesDetalle)
+                );
+
+                const iconosAlertas = `
+                    <button
+                        type="button"
+                        class="gantt-alertas-barra"
+                        onclick="abrirModalAlertasGantt(
+                            event,
+                            JSON.parse(decodeURIComponent('${opcionesDetalleJson}'))
+                        )"
+                        title="Ver alertas"
+                    >
+                        ${tarea.estaAtrasado ? `<span class="gantt-alerta-icon alerta-atraso">⚠</span>` : ""}
+                        ${tarea.reprogramado ? `<span class="gantt-alerta-icon alerta-reprogramado">↻</span>` : ""}
+                    </button>
+                `;
+
                 barrasHtml += `
                     <div
-                        class="gantt-machine-bar ${tarea.claseEstado}"
-                        onclick="abrirDetalleGantt('${tarea.producto}', '${tarea.pedido}', '${tarea.inicio}', '${tarea.fin}', '${tarea.maquina}', '${tarea.claseEstado}', '${grupo.operador}', '${tarea.maquinasUtilizadas}')"
+                        class="gantt-machine-bar ${tarea.claseEstado} ${claseAlertas}"
+                        onclick="abrirDetalleGantt(
+                            '${tarea.producto}',
+                            '${tarea.pedido}',
+                            '${tarea.inicio}',
+                            '${tarea.fin}',
+                            '${tarea.maquina}',
+                            '${tarea.claseEstado}',
+                            '${grupo.operador}',
+                            '${tarea.maquinasUtilizadas}',
+                            JSON.parse(decodeURIComponent('${opcionesDetalleJson}'))
+                        )"
                         style="
                             left:${offsetDias * anchoDia}px;
                             width:${duracionDias * anchoDia}px;
                         "
                     >
-                        ${tarea.producto}
+                        <span class="gantt-bar-texto">${tarea.producto}</span>
+                        ${iconosAlertas}
                     </div>
                 `;
             });

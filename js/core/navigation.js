@@ -79,6 +79,10 @@ async function showSection(seccion) {
                 await cargarModalExportarGantt();
             }
 
+            if (typeof cargarModalAlertasGantt === "function") {
+                await cargarModalAlertasGantt();
+            }
+
             if (typeof mostrarGanttPorMaquina === "function") {
                 mostrarGanttPorMaquina();
             }
