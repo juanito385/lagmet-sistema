@@ -15,8 +15,19 @@
             <h3>📅 Carta Gantt de Producción</h3>
 
             <div class="gantt-controls">
-                <button onclick="actualizarGantt()">Actualizar</button>
-                <button onclick="irHoyGantt()">Hoy</button>
+
+                <button 
+                    type="button"
+                    onclick="refrescarVistaGantt()"
+                    title="Redibuja la Carta Gantt usando los datos ya cargados">
+                    Refrescar vista
+                </button>
+
+                <button 
+                    type="button"
+                    onclick="irHoyGantt()">
+                    Hoy
+                </button>
 
                 <button 
                     type="button" 

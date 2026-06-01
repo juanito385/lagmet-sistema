@@ -404,6 +404,37 @@ window.obtenerVersionGanttBackend = window.obtenerVersionGanttBackend || async f
     }
 };
 
+
+/* =========================
+   VERSION BACKEND GANTT
+========================= */
+async function obtenerVersionGanttBackend(){
+
+    try {
+        const response = await fetch("php/gantt/obtener_version_gantt.php", {
+            cache: "no-store"
+        });
+
+        const data = await response.json();
+
+        if (!data.success) {
+            console.warn("No se pudo obtener la versión del Gantt:", data.message || data);
+            return null;
+        }
+
+        return {
+            modulo: data.modulo || "gantt_maquinas",
+            version: Number(data.version || 0),
+            actualizadoEn: data.actualizado_en || ""
+        };
+
+    } catch (error) {
+        console.warn("Error consultando versión backend del Gantt:", error);
+        return null;
+    }
+}
+
+
 /* =========================
    AVISO VERSION GANTT
 ========================= */
@@ -415,74 +446,49 @@ function ocultarAvisoVersionGantt() {
     }
 }
 
+
 function obtenerPuntoInsercionAvisoGantt() {
 
     /*
-        Objetivo:
-        insertar el aviso en la cabecera de la Carta Gantt,
-        antes del grupo de botones: Actualizar / Hoy / Configuración.
+        Inserta la alerta FUERA del header,
+        justo debajo del título/botones y antes de la leyenda.
     */
+    const headerGantt = document.querySelector("#documentacion .gantt-header") ||
+                        document.querySelector(".gantt-header");
 
-    const botones = Array.from(document.querySelectorAll("button"));
-
-    const btnAccion = botones.find(btn => {
-        const texto = btn.textContent.trim().toLowerCase();
-
-        return (
-            texto.includes("actualizar") ||
-            texto.includes("sincronizar") ||
-            texto.includes("refrescar")
-        );
-    });
-
-    if (btnAccion) {
-        const contenedorBotones = btnAccion.parentElement;
-        const filaHeader = contenedorBotones ? contenedorBotones.parentElement : null;
-
-        /*
-            Caso ideal:
-            la fila del header contiene título + botones.
-            Insertamos el aviso antes del grupo de botones.
-        */
-        if (filaHeader && contenedorBotones && filaHeader.contains(contenedorBotones)) {
-            return {
-                padre: filaHeader,
-                antesDe: contenedorBotones
-            };
-        }
+    if (headerGantt && headerGantt.parentElement) {
+        return {
+            padre: headerGantt.parentElement,
+            antesDe: headerGantt.nextElementSibling
+        };
     }
 
-    /*
-        Fallback:
-        si no encuentra botones, intenta insertar el aviso
-        en el contenedor superior del Gantt.
-    */
-    const gantt = document.getElementById("gantt");
+    const leyendaGantt = document.querySelector("#documentacion .gantt-leyenda") ||
+                         document.querySelector(".gantt-leyenda");
 
-    if (!gantt) {
-        console.warn("No se encontró #gantt para insertar aviso de versión.");
-        return null;
+    if (leyendaGantt && leyendaGantt.parentElement) {
+        return {
+            padre: leyendaGantt.parentElement,
+            antesDe: leyendaGantt
+        };
     }
 
-    const tarjetaPrincipal =
-        gantt.closest(".card") ||
-        gantt.closest(".glass-card") ||
-        gantt.closest(".documentacion-card") ||
-        gantt.closest(".gantt-card") ||
-        gantt.parentElement?.parentElement?.parentElement;
+    const panelGantt = document.querySelector("#documentacion .gantt-panel") ||
+                       document.querySelector(".gantt-panel");
 
-    if (!tarjetaPrincipal) {
-        console.warn("No se encontró tarjeta principal para aviso Gantt.");
-        return null;
+    if (panelGantt) {
+        return {
+            padre: panelGantt,
+            antesDe: panelGantt.firstElementChild
+        };
     }
 
-    return {
-        padre: tarjetaPrincipal,
-        antesDe: tarjetaPrincipal.firstElementChild
-    };
+    console.warn("No se encontró punto válido para insertar aviso de versión Gantt.");
+    return null;
 }
 
-function mostrarAvisoVersionGantt(versionCache, versionBackend) {
+
+function mostrarAvisoVersionGantt(versionCache, versionBackend, actualizadoEn = "") {
 
     const puntoInsercion = obtenerPuntoInsercionAvisoGantt();
 
@@ -501,15 +507,69 @@ function mostrarAvisoVersionGantt(versionCache, versionBackend) {
         puntoInsercion.padre.insertBefore(aviso, puntoInsercion.antesDe);
     }
 
+    const textoFecha = actualizadoEn
+        ? `Último cambio detectado: ${actualizadoEn}`
+        : `Hay cambios nuevos disponibles.`;
+
     aviso.innerHTML = `
         <div class="gantt-version-alerta-icono">!</div>
 
         <div class="gantt-version-alerta-texto">
             <strong>Datos pendientes de sincronizar</strong>
-            <span>Versión local ${versionCache || 0} / Actual ${versionBackend || 0}</span>
+            <div class="gantt-version-alerta-detalle">
+                <span>Versión local ${versionCache || 0} / Actual ${versionBackend || 0}</span>
+                <span class="gantt-version-alerta-separador">•</span>
+                <small>${textoFecha}</small>
+            </div>
+        </div>
+
+        <div class="gantt-version-alerta-acciones">
+            <button 
+                type="button"
+                class="btn-sincronizar-version-gantt"
+                onclick="sincronizarDatosDesdeAvisoGantt(this)">
+                Sincronizar datos
+            </button>
         </div>
     `;
 }
+
+
+async function sincronizarDatosDesdeAvisoGantt(boton = null) {
+
+    try {
+        if (boton) {
+            boton.disabled = true;
+            boton.textContent = "Sincronizando...";
+        }
+
+        if (typeof sincronizarDatosGantt === "function") {
+            await sincronizarDatosGantt();
+        } else if (typeof mostrarGanttPorMaquina === "function") {
+            await mostrarGanttPorMaquina(true);
+        } else {
+            console.warn("No existe función disponible para sincronizar la Carta Gantt.");
+
+            if (boton) {
+                boton.disabled = false;
+                boton.textContent = "Sincronizar datos";
+            }
+
+            return;
+        }
+
+        ocultarAvisoVersionGantt();
+
+    } catch (error) {
+        console.error("Error al sincronizar datos desde aviso Gantt:", error);
+
+        if (boton) {
+            boton.disabled = false;
+            boton.textContent = "Sincronizar datos";
+        }
+    }
+}
+
 
 async function verificarVersionGanttMaquinas() {
 
@@ -517,7 +577,7 @@ async function verificarVersionGanttMaquinas() {
 
     /*
         Si la versión no está cargada en memoria,
-        la recuperamos desde localStorage.
+        se intenta recuperar desde localStorage.
     */
     if (!versionCache && typeof obtenerCacheGanttMaquinas === "function") {
         const cache = obtenerCacheGanttMaquinas();
@@ -531,9 +591,7 @@ async function verificarVersionGanttMaquinas() {
         }
     }
 
-    const versionBackend = typeof window.obtenerVersionGanttBackend === "function"
-        ? await window.obtenerVersionGanttBackend()
-        : null;
+    const versionBackend = await obtenerVersionGanttBackend();
 
     if (!versionBackend || !versionBackend.version) {
         console.warn("No se pudo validar la versión backend del Gantt.");
@@ -542,140 +600,37 @@ async function verificarVersionGanttMaquinas() {
 
     const versionReal = Number(versionBackend.version || 0);
 
+    /*
+        Si todavía no existe versión local,
+        no se muestra alerta. Primero debe existir caché.
+    */
     if (!versionCache) {
-        console.warn("No existe versión local del Gantt. Presiona Actualizar una vez para crear caché.");
+        console.warn("No existe versión local del Gantt. Sincroniza datos una vez para crear caché.");
         ocultarAvisoVersionGantt();
         return;
     }
 
     if (versionReal > versionCache) {
-        mostrarAvisoVersionGantt(versionCache, versionReal);
+        mostrarAvisoVersionGantt(
+            versionCache,
+            versionReal,
+            versionBackend.actualizadoEn || ""
+        );
         return;
     }
 
     ocultarAvisoVersionGantt();
 }
-
-window.mostrarAvisoVersionGantt = mostrarAvisoVersionGantt;
-window.ocultarAvisoVersionGantt = ocultarAvisoVersionGantt;
-window.verificarVersionGanttMaquinas = verificarVersionGanttMaquinas;
-
-async function verificarVersionGanttMaquinas() {
-
-    const versionCache = Number(window.ganttMaquinasVersionCache || 0);
-
-    if (!versionCache) {
-        ocultarAvisoVersionGantt();
-        return;
-    }
-
-    const versionBackend = typeof window.obtenerVersionGanttBackend === "function"
-        ? await window.obtenerVersionGanttBackend()
-        : null;
-
-    if (!versionBackend || !versionBackend.version) {
-        return;
-    }
-
-    const versionReal = Number(versionBackend.version || 0);
-
-    if (versionReal > versionCache) {
-        mostrarAvisoVersionGantt(versionCache, versionReal);
-        return;
-    }
-
-    ocultarAvisoVersionGantt();
-}
-
-window.verificarVersionGanttMaquinas = verificarVersionGanttMaquinas;
 
 
 /* =========================
-   LOADING ESTABLE GANTT
+   EXPORTAR FUNCIONES GANTT
 ========================= */
-function renderLoadingGanttMaquina(cont, sidebar){
-
-    if (sidebar) {
-        sidebar.innerHTML = `
-            <div class="gantt-side-head machine-mode">
-                <strong>Máquina</strong>
-                <strong>Operador</strong>
-            </div>
-
-            <div class="gantt-side-row machine-mode gantt-loading-row">
-                <div class="gantt-side-producto">
-                    <span class="gantt-color-dot machine-dot"></span>
-                    <div>
-                        <strong>Cargando...</strong>
-                        <small>Preparando datos</small>
-                    </div>
-                </div>
-                <div>--</div>
-            </div>
-
-            <div class="gantt-side-row machine-mode gantt-loading-row">
-                <div class="gantt-side-producto">
-                    <span class="gantt-color-dot machine-dot"></span>
-                    <div>
-                        <strong>Cargando...</strong>
-                        <small>Preparando datos</small>
-                    </div>
-                </div>
-                <div>--</div>
-            </div>
-
-            <div class="gantt-side-row machine-mode gantt-loading-row">
-                <div class="gantt-side-producto">
-                    <span class="gantt-color-dot machine-dot"></span>
-                    <div>
-                        <strong>Cargando...</strong>
-                        <small>Preparando datos</small>
-                    </div>
-                </div>
-                <div>--</div>
-            </div>
-        `;
-    }
-
-    cont.innerHTML = `
-        <div class="gantt-machine-pro gantt-machine-loading" style="width:1200px;">
-            <div class="gantt-machine-calendar">
-                <div class="gantt-months">
-                    <div class="gantt-month" style="left:360px;">Cargando</div>
-                </div>
-
-                <div class="gantt-days">
-                    <div class="gantt-day">--</div>
-                    <div class="gantt-day">--</div>
-                    <div class="gantt-day">--</div>
-                    <div class="gantt-day">--</div>
-                    <div class="gantt-day">--</div>
-                    <div class="gantt-day">--</div>
-                    <div class="gantt-day">--</div>
-                    <div class="gantt-day">--</div>
-                    <div class="gantt-day">--</div>
-                    <div class="gantt-day">--</div>
-                    <div class="gantt-day">--</div>
-                    <div class="gantt-day">--</div>
-                </div>
-            </div>
-
-            <div class="gantt-machine-body">
-                <div class="gantt-machine-timeline-row">
-                    <div class="gantt-loading-bar" style="left:180px; width:280px;"></div>
-                </div>
-
-                <div class="gantt-machine-timeline-row">
-                    <div class="gantt-loading-bar" style="left:260px; width:340px;"></div>
-                </div>
-
-                <div class="gantt-machine-timeline-row">
-                    <div class="gantt-loading-bar" style="left:120px; width:220px;"></div>
-                </div>
-            </div>
-        </div>
-    `;
-}
+window.obtenerVersionGanttBackend = obtenerVersionGanttBackend;
+window.mostrarAvisoVersionGantt = mostrarAvisoVersionGantt;
+window.ocultarAvisoVersionGantt = ocultarAvisoVersionGantt;
+window.verificarVersionGanttMaquinas = verificarVersionGanttMaquinas;
+window.sincronizarDatosDesdeAvisoGantt = sincronizarDatosDesdeAvisoGantt;
 
 
 /* =========================
@@ -1091,9 +1046,26 @@ window.irHoyGantt = irHoyGantt;
 
 
 /* =========================
-   ACTUALIZAR GANTT
+   REFRESCAR VISTA GANTT
+   Usa los datos ya cargados/cacheados
 ========================= */
-async function actualizarGantt(){
+async function refrescarVistaGantt(){
+
+    if (typeof cerrarPanelAccionesGantt === "function") {
+        cerrarPanelAccionesGantt();
+    }
+
+    if (typeof mostrarGanttPorMaquina === "function") {
+        await mostrarGanttPorMaquina(false);
+    }
+}
+
+
+/* =========================
+   SINCRONIZAR DATOS GANTT
+   Consulta nuevamente PHP / BD
+========================= */
+async function sincronizarDatosGantt(){
 
     if (typeof cerrarPanelAccionesGantt === "function") {
         cerrarPanelAccionesGantt();
@@ -1110,4 +1082,15 @@ async function actualizarGantt(){
     }, 150);
 }
 
+
+/* =========================
+   COMPATIBILIDAD TEMPORAL
+   Evita romper botones antiguos que aún usen actualizarGantt()
+========================= */
+async function actualizarGantt(){
+    await sincronizarDatosGantt();
+}
+
+window.refrescarVistaGantt = refrescarVistaGantt;
+window.sincronizarDatosGantt = sincronizarDatosGantt;
 window.actualizarGantt = actualizarGantt;
