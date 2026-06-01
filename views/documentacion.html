@@ -14,29 +14,37 @@
         <div class="gantt-header">
             <h3>📅 Carta Gantt de Producción</h3>
 
-            <div class="gantt-controls">
+            <div class="gantt-header-actions">
 
-                <button 
-                    type="button"
-                    onclick="refrescarVistaGantt()"
-                    title="Redibuja la Carta Gantt usando los datos ya cargados">
-                    Refrescar vista
-                </button>
+        <div class="gantt-controls">
+            <button 
+                type="button"
+                onclick="refrescarVistaGantt()"
+                title="Redibuja la Carta Gantt usando los datos ya cargados">
+                Refrescar vista
+            </button>
 
-                <button 
-                    type="button"
-                    onclick="irHoyGantt()">
-                    Hoy
-                </button>
+            <button 
+                type="button"
+                onclick="irHoyGantt()">
+                Hoy
+            </button>
 
-                <button 
-                    type="button" 
-                    class="btn-panel-acciones-gantt"
-                    onclick="togglePanelAccionesGantt()"
-                    title="Acciones y filtros">
-                    ⚙
-                </button>
-            </div>
+            <button 
+                type="button" 
+                class="btn-panel-acciones-gantt"
+                onclick="togglePanelAccionesGantt()"
+                title="Acciones y filtros">
+                ⚙
+            </button>
+        </div>
+
+    <div id="ganttUltimaSincronizacion" class="gantt-ultima-sincronizacion">
+        <span>Última sincronización:</span>
+        <strong>Sin registro</strong>
+    </div>
+
+</div>
         </div>
 
         <div class="gantt-leyenda">

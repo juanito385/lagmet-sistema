@@ -1001,11 +1001,107 @@ window.mostrarGanttPorMaquina = async function(forzarActualizar = false){
             verificarVersionGanttMaquinas();
         }
 
+        if (typeof mostrarUltimaSincronizacionGantt === "function") {
+            mostrarUltimaSincronizacionGantt();
+        }
+
     } catch (error) {
         console.error("❌ Error cargando Gantt por máquina:", error);
         cont.innerHTML = "Error cargando Gantt por máquina";
     }
 };
+
+/* =========================
+   ULTIMA SINCRONIZACION GANTT
+========================= */
+
+function formatearFechaUltimaSincronizacionGantt(fechaTexto){
+
+    if (!fechaTexto) {
+        return "Sin registro";
+    }
+
+    const fecha = new Date(fechaTexto.replace(" ", "T"));
+
+    if (isNaN(fecha.getTime())) {
+        return fechaTexto;
+    }
+
+    const dia = String(fecha.getDate()).padStart(2, "0");
+    const mes = String(fecha.getMonth() + 1).padStart(2, "0");
+    const anio = fecha.getFullYear();
+
+    const hora = String(fecha.getHours()).padStart(2, "0");
+    const minuto = String(fecha.getMinutes()).padStart(2, "0");
+
+    return `${dia}/${mes}/${anio} ${hora}:${minuto}`;
+}
+
+
+function obtenerUltimaSincronizacionGantt(){
+
+    /*
+        Primero intenta leer desde memoria.
+    */
+    if (window.ganttMaquinasUltimaActualizacion) {
+        return window.ganttMaquinasUltimaActualizacion;
+    }
+
+    /*
+        Luego intenta leer desde el caché actual del Gantt.
+    */
+    if (typeof obtenerCacheGanttMaquinas === "function") {
+        const cache = obtenerCacheGanttMaquinas();
+
+        if (cache && cache.guardadoEn) {
+            window.ganttMaquinasUltimaActualizacion = cache.guardadoEn;
+            return cache.guardadoEn;
+        }
+    }
+
+    return "";
+}
+
+
+function mostrarUltimaSincronizacionGantt(){
+
+    let indicador = document.getElementById("ganttUltimaSincronizacion");
+
+    /*
+        Si el indicador no existe en el HTML,
+        lo crea dentro del bloque derecho del header.
+    */
+    if (!indicador) {
+        const accionesHeader = document.querySelector(".gantt-header-actions");
+        const controlesGantt = document.querySelector(".gantt-controls");
+
+        if (!accionesHeader && !controlesGantt) {
+            console.warn("No se encontró ubicación para mostrar última sincronización.");
+            return;
+        }
+
+        indicador = document.createElement("div");
+        indicador.id = "ganttUltimaSincronizacion";
+        indicador.className = "gantt-ultima-sincronizacion";
+
+        if (accionesHeader) {
+            accionesHeader.appendChild(indicador);
+        } else {
+            controlesGantt.insertAdjacentElement("afterend", indicador);
+        }
+    }
+
+    const ultimaSincronizacion = obtenerUltimaSincronizacionGantt();
+    const textoFecha = formatearFechaUltimaSincronizacionGantt(ultimaSincronizacion);
+
+    indicador.innerHTML = `
+        <span>Última sincronización:</span>
+        <strong>${textoFecha}</strong>
+    `;
+}
+
+
+window.mostrarUltimaSincronizacionGantt = mostrarUltimaSincronizacionGantt;
 
 
 /* =========================
