@@ -551,3 +551,35 @@
         white-space:normal;
     }
 }
+
+.gantt-day {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    height: 46px;
+    box-sizing: border-box;
+    font-size: 12px;
+}
+
+.gantt-day-number {
+    font-weight: 700;
+    font-size: 13px;
+    line-height: 1;
+}
+
+.gantt-day-name {
+    font-size: 10px;
+    line-height: 1;
+    opacity: 0.75;
+}
+
+.gantt-weekend {
+    background: rgba(255, 255, 255, 0.04);
+}
+
+.gantt-weekend .gantt-day-name {
+    font-weight: 700;
+    color: #f59e0b;
+}

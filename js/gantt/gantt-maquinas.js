@@ -632,6 +632,18 @@ window.ocultarAvisoVersionGantt = ocultarAvisoVersionGantt;
 window.verificarVersionGanttMaquinas = verificarVersionGanttMaquinas;
 window.sincronizarDatosDesdeAvisoGantt = sincronizarDatosDesdeAvisoGantt;
 
+/* =========================
+   DÍAS DE SEMANA GANTT
+========================= */
+function obtenerNombreDiaSemanaGantt(fecha) {
+    const diasSemana = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
+    return diasSemana[fecha.getDay()];
+}
+
+function esFinDeSemanaGantt(fecha) {
+    const diaSemana = fecha.getDay();
+    return diaSemana === 0 || diaSemana === 6;
+}
 
 /* =========================
    MOSTRAR GANTT POR MÁQUINA
@@ -870,7 +882,15 @@ window.mostrarGanttPorMaquina = async function(forzarActualizar = false){
                 month: "long"
             });
 
-            diasHtml += `<div class="gantt-day">${dia}</div>`;
+            const nombreDiaSemana = obtenerNombreDiaSemanaGantt(fecha);
+            const claseFinDeSemana = esFinDeSemanaGantt(fecha) ? "gantt-weekend" : "";
+
+            diasHtml += `
+                <div class="gantt-day ${claseFinDeSemana}">
+                    <span class="gantt-day-number">${dia}</span>
+                    <span class="gantt-day-name">${nombreDiaSemana}</span>
+                </div>
+            `;
 
             if (mes !== mesActual) {
                 mesActual = mes;
