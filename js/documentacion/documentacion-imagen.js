@@ -128,6 +128,45 @@ function nombreMesGantt(mes){
     return meses[mes] || "Mes";
 }
 
+function medirTextoExportacionGantt(texto, font = "800 14px Arial"){
+
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
+
+    ctx.font = font;
+
+    return Math.ceil(ctx.measureText(String(texto || "")).width);
+}
+
+function calcularMargenCorteExportacionGantt(nombres){
+
+    if (!Array.isArray(nombres) || nombres.length === 0) {
+        return 0;
+    }
+
+    const anchoNombreMasLargo = Math.max(
+        ...nombres.map(nombre => medirTextoExportacionGantt(nombre))
+    );
+
+    /*
+        70px extra considera:
+        - flecha
+        - separación
+        - margen visual
+    */
+    const margenCalculado = anchoNombreMasLargo + 70;
+
+    /*
+        Límites:
+        - mínimo 170px para que no quede apretado
+        - máximo 420px para que no agrande demasiado la imagen
+    */
+    return Math.min(
+        420,
+        Math.max(170, margenCalculado)
+    );
+}
+
 async function exportarGanttPorMes(mes, anio){
 
     try {
@@ -145,15 +184,12 @@ async function exportarGanttPorMes(mes, anio){
             return;
         }
 
-        const inicioMes = new Date(anio, mes, 1);
-        const finMes = new Date(anio, mes + 1, 0);
-
-        inicioMes.setHours(0, 0, 0, 0);
-        finMes.setHours(0, 0, 0, 0);
+        const inicioMes = new Date(anio, mes, 1, 0, 0, 0, 0);
+        const finMes = new Date(anio, mes + 1, 0, 23, 59, 59, 999);
 
         const MS_DIA = 1000 * 60 * 60 * 24;
         const anchoDia = 48;
-        const totalDias = finMes.getDate();
+        const totalDias = new Date(anio, mes + 1, 0).getDate();
 
         const registros = data.data.flatMap(item => {
 
@@ -182,7 +218,7 @@ async function exportarGanttPorMes(mes, anio){
             }
 
             fechaInicio.setHours(0, 0, 0, 0);
-            fechaFin.setHours(0, 0, 0, 0);
+            fechaFin.setHours(23, 59, 59, 999);
 
             const cruzaMes =
                 fechaFin >= inicioMes &&
@@ -209,6 +245,9 @@ async function exportarGanttPorMes(mes, anio){
                 maquinas = ["Sin máquina"];
             }
 
+            const cortadaIzquierda = fechaInicio < inicioMes;
+            const cortadaDerecha = fechaFin > finMes;
+
             const inicioVisible = new Date(Math.max(fechaInicio, inicioMes));
             const finVisible = new Date(Math.min(fechaFin, finMes));
 
@@ -223,7 +262,9 @@ async function exportarGanttPorMes(mes, anio){
                     operador: item.usuario || "Admin",
                     inicioVisible,
                     finVisible,
-                    claseEstado
+                    claseEstado,
+                    cortadaIzquierda,
+                    cortadaDerecha
                 };
             });
         });
@@ -246,10 +287,45 @@ async function exportarGanttPorMes(mes, anio){
             return a.maquina.localeCompare(b.maquina);
         });
 
+        const anchoMesGantt = totalDias * anchoDia;
+
+        const hayCorteIzquierda = registros.some(item => item.cortadaIzquierda);
+        const hayCorteDerecha = registros.some(item => item.cortadaDerecha);
+
+        const nombresCorteIzquierda = registros
+            .filter(item => item.cortadaIzquierda)
+            .map(item => item.producto);
+
+        const nombresCorteDerecha = registros
+            .filter(item => item.cortadaDerecha)
+            .map(item => item.producto);
+
+        const margenIzquierdaExportacion = hayCorteIzquierda
+            ? calcularMargenCorteExportacionGantt(nombresCorteIzquierda)
+            : 0;
+
+        const margenDerechaExportacion = hayCorteDerecha
+            ? calcularMargenCorteExportacionGantt(nombresCorteDerecha)
+            : 0;
+
+        const anchoGanttExportacion =
+            margenIzquierdaExportacion +
+            anchoMesGantt +
+            margenDerechaExportacion;
+
         let diasHtml = "";
 
         for (let dia = 1; dia <= totalDias; dia++) {
-            diasHtml += `<div class="gantt-day">${String(dia).padStart(2, "0")}</div>`;
+            diasHtml += `
+                <div 
+                    class="gantt-day"
+                    style="
+                        width:${anchoDia}px;
+                        min-width:${anchoDia}px;
+                    ">
+                    ${String(dia).padStart(2, "0")}
+                </div>
+            `;
         }
 
         let sidebarHtml = `
@@ -258,6 +334,17 @@ async function exportarGanttPorMes(mes, anio){
                 <strong>Operador</strong>
             </div>
         `;
+
+        let lineasGridMesHtml = "";
+
+        for (let dia = 0; dia <= totalDias; dia++) {
+            lineasGridMesHtml += `
+                <div 
+                    class="gantt-export-linea-dia"
+                    style="left:${margenIzquierdaExportacion + (dia * anchoDia)}px;">
+                </div>
+            `;
+        }
 
         let filasHtml = "";
 
@@ -277,7 +364,18 @@ async function exportarGanttPorMes(mes, anio){
         `;
 
             filasHtml += `
-                <div class="gantt-machine-timeline-row"></div>
+                <div 
+                    class="gantt-machine-timeline-row"
+                    style="
+                        width:${anchoGanttExportacion}px;
+                        min-width:${anchoGanttExportacion}px;
+                        position:relative;
+                        overflow:visible;
+                        background:#ffffff;
+                    ">
+                    
+                    ${lineasGridMesHtml}
+                </div>
             `;
 
         } else {
@@ -308,28 +406,77 @@ async function exportarGanttPorMes(mes, anio){
                         Math.floor((tarea.finVisible - tarea.inicioVisible) / MS_DIA) + 1
                     );
 
+                    const estaCortada = tarea.cortadaIzquierda || tarea.cortadaDerecha;
+
+                    const textoDentroBarra = estaCortada
+                        ? ""
+                        : escaparTextoGantt(tarea.producto);
+
+                    let etiquetasCorteHtml = "";
+
+                    if (tarea.cortadaDerecha && margenDerechaExportacion > 0) {
+                        etiquetasCorteHtml += `
+                            <div 
+                                class="gantt-etiqueta-corte derecha"
+                                style="
+                                    left:${margenIzquierdaExportacion + anchoMesGantt + 32}px;
+                                    width:${Math.max(120, margenDerechaExportacion - 44)}px;
+                                ">
+                                <span>→</span>
+                                <strong>${escaparTextoGantt(tarea.producto)}</strong>
+                            </div>
+                        `;
+                    }
+
+                    if (tarea.cortadaIzquierda && margenIzquierdaExportacion > 0) {
+                        etiquetasCorteHtml += `
+                            <div 
+                                class="gantt-etiqueta-corte izquierda"
+                                style="
+                                    left:12px;
+                                    width:${Math.max(120, margenIzquierdaExportacion - 32)}px;
+                                ">
+                                <strong>${escaparTextoGantt(tarea.producto)}</strong>
+                                <span>←</span>
+                            </div>
+                        `;
+                    }
+
                     barrasHtml += `
                         <div
                             class="gantt-machine-bar ${tarea.claseEstado}"
                             style="
-                                left:${offsetDias * anchoDia}px;
+                                left:${margenIzquierdaExportacion + (offsetDias * anchoDia)}px;
                                 width:${duracionDias * anchoDia}px;
                             "
                         >
-                            ${escaparTextoGantt(tarea.producto)}
+                            ${textoDentroBarra}
                         </div>
+
+                        ${etiquetasCorteHtml}
                     `;
                 });
 
                 filasHtml += `
-                    <div class="gantt-machine-timeline-row">
+                    <div 
+                        class="gantt-machine-timeline-row"
+                        style="
+                            width:${anchoGanttExportacion}px;
+                            min-width:${anchoGanttExportacion}px;
+                            position:relative;
+                            overflow:visible;
+                            background:#ffffff;
+                        ">
+                        
+                        ${lineasGridMesHtml}
+
                         ${barrasHtml}
                     </div>
                 `;
             });
         }
 
-        const anchoGantt = totalDias * anchoDia;
+        const anchoGantt = anchoGanttExportacion;
         const anchoSidebar = 400;
 
         const exportWrapper = document.createElement("div");
@@ -364,19 +511,29 @@ async function exportarGanttPorMes(mes, anio){
 
                     <div id="gantt" style="width:${anchoGantt}px; height:auto; overflow:visible;">
                         <div class="gantt-machine-pro" style="width:${anchoGantt}px;">
-                            <div class="gantt-machine-calendar">
-                                <div class="gantt-months">
-                                    <div class="gantt-month" style="left:0;">
+                            <div class="gantt-machine-calendar" style="width:${anchoGantt}px;">
+                                <div class="gantt-months" style="width:${anchoGantt}px;">
+                                    <div 
+                                        class="gantt-month" 
+                                        style="
+                                            left:${margenIzquierdaExportacion}px;
+                                            width:${anchoMesGantt}px;
+                                        ">
                                         ${nombreMesGantt(mes)} ${anio}
                                     </div>
                                 </div>
 
-                                <div class="gantt-days">
+                                <div 
+                                    class="gantt-days"
+                                    style="
+                                        margin-left:${margenIzquierdaExportacion}px;
+                                        width:${anchoMesGantt}px;
+                                    ">
                                     ${diasHtml}
                                 </div>
                             </div>
 
-                            <div class="gantt-machine-body">
+                            <div class="gantt-machine-body" style="width:${anchoGantt}px;">
                                 ${filasHtml}
                             </div>
                         </div>
