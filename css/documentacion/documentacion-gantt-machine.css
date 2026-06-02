@@ -579,7 +579,49 @@
     background: rgba(255, 255, 255, 0.04);
 }
 
-.gantt-weekend .gantt-day-name {
-    font-weight: 700;
-    color: #f59e0b;
+/* =========================
+   DÍAS NO HÁBILES EN CABECERA
+========================= */
+
+.gantt-day.gantt-weekend {
+    background: rgba(239, 68, 68, 0.12);
+}
+
+.gantt-day.gantt-weekend .gantt-day-name {
+    color: #ef4444;
+    font-weight: 800;
+}
+
+.gantt-day.gantt-weekend .gantt-day-number {
+    color: #b91c1c;
+}
+
+/* =========================
+   DÍAS NO HÁBILES EN GRILLA
+========================= */
+
+.gantt-machine-timeline-row {
+    position: relative;
+    overflow: hidden;
+}
+
+.gantt-weekend-row-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 4;
+    pointer-events: none;
+}
+
+.gantt-weekend-column {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    background: rgba(239, 68, 68, 0.14);
+    border-left: 1px solid rgba(239, 68, 68, 0.22);
+    border-right: 1px solid rgba(239, 68, 68, 0.22);
+    box-sizing: border-box;
+}
+
+.gantt-machine-bar {
+    z-index: 2;
 }

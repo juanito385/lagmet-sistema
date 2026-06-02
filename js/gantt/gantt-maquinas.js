@@ -870,6 +870,7 @@ window.mostrarGanttPorMaquina = async function(forzarActualizar = false){
 
         let diasHtml = "";
         let mesesHtml = "";
+        let finesSemanaHtml = "";
         let mesActual = "";
 
         for (let i = 0; i <= totalDias; i++) {
@@ -891,6 +892,18 @@ window.mostrarGanttPorMaquina = async function(forzarActualizar = false){
                     <span class="gantt-day-name">${nombreDiaSemana}</span>
                 </div>
             `;
+
+            if (esFinDeSemanaGantt(fecha)) {
+                finesSemanaHtml += `
+                    <div
+                        class="gantt-weekend-column"
+                        style="
+                            left:${i * anchoDia}px;
+                            width:${anchoDia}px;
+                        "
+                    ></div>
+                `;
+            }
 
             if (mes !== mesActual) {
                 mesActual = mes;
@@ -997,6 +1010,10 @@ window.mostrarGanttPorMaquina = async function(forzarActualizar = false){
 
             filasHtml += `
                 <div class="gantt-machine-timeline-row">
+                    <div class="gantt-weekend-row-overlay">
+                        ${finesSemanaHtml}
+                    </div>
+
                     ${barrasHtml}
                 </div>
             `;
