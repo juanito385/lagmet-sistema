@@ -692,3 +692,55 @@
     border-left: 1px solid rgba(34, 197, 94, 0.35);
     border-right: 1px solid rgba(34, 197, 94, 0.35);
 }
+
+/* =========================
+   EXPORTACIÓN MENSUAL - NOMBRE MÁQUINA EN 2 LÍNEAS
+========================= */
+
+.gantt-export-monthly .gantt-side-producto {
+    display: flex !important;
+    align-items: center !important;
+    gap: 18px !important;
+    min-width: 0 !important;
+}
+
+.gantt-export-monthly .gantt-side-producto > div,
+.gantt-export-monthly .gantt-machine-name-block {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    justify-content: center !important;
+    gap: 5px !important;
+    min-width: 0 !important;
+    line-height: 1.15 !important;
+    text-align: left !important;
+}
+
+.gantt-export-monthly .gantt-side-producto strong,
+.gantt-export-monthly .gantt-machine-name-text {
+    display: block !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    font-size: 16px !important;
+    font-weight: 800 !important;
+    line-height: 1.15 !important;
+    color: #111827 !important;
+    white-space: nowrap !important;
+    text-align: left !important;
+}
+
+.gantt-export-monthly .gantt-side-producto small,
+.gantt-export-monthly .gantt-side-producto span.gantt-machine-count-text,
+.gantt-export-monthly .gantt-machine-count-text {
+    display: block !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    font-size: 13px !important;
+    font-weight: 500 !important;
+    line-height: 1.1 !important;
+    color: #6b7280 !important;
+    white-space: nowrap !important;
+    text-align: left !important;
+}

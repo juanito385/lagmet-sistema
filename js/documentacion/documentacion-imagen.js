@@ -391,27 +391,57 @@ async function exportarGanttPorMes(mes, anio){
 
         if (!maquinas.length) {
 
-            const totalProductos = grupo.tareas.length;
-            const textoProductos = totalProductos === 1 ? "producto" : "productos";
+                    const totalProductos = grupo.tareas.length;
+                    const textoProductos = totalProductos === 1 ? "producto" : "productos";
 
-            sidebarHtml += `
-                <div class="gantt-side-row machine-mode">
-                    <div class="gantt-side-producto">
-                        <span class="gantt-color-dot machine-dot"></span>
+                    sidebarHtml += `
+            <div class="gantt-side-row machine-mode">
+                <div class="gantt-side-producto">
+                    <span class="gantt-color-dot machine-dot"></span>
 
-                        <div class="gantt-machine-name-block">
-                            <strong class="gantt-machine-name-text">
-                                ${escaparTextoGantt(grupo.maquina)}
-                            </strong>
-                            <small class="gantt-machine-count-text">
-                                (${totalProductos} ${textoProductos})
-                            </small>
-                        </div>
+                    <div 
+                        class="gantt-machine-name-block"
+                        style="
+                            display:flex;
+                            flex-direction:column;
+                            align-items:flex-start;
+                            justify-content:center;
+                            gap:4px;
+                            min-width:0;
+                            line-height:1.2;
+                        "
+                    >
+                        <strong 
+                            class="gantt-machine-name-text"
+                            style="
+                                display:block;
+                                font-size:16px;
+                                font-weight:800;
+                                color:#111827;
+                                white-space:nowrap;
+                            "
+                        >
+                            ${escaparTextoGantt(grupo.maquina)}
+                        </strong>
+
+                        <small 
+                            class="gantt-machine-count-text"
+                            style="
+                                display:block;
+                                font-size:13px;
+                                font-weight:500;
+                                color:#6b7280;
+                                white-space:nowrap;
+                            "
+                        >
+                            (${totalProductos} ${textoProductos})
+                        </small>
                     </div>
-
-                    <div>${escaparTextoGantt(grupo.operador)}</div>
                 </div>
-            `;
+
+                <div>${escaparTextoGantt(grupo.operador)}</div>
+            </div>
+        `;
 
             filasHtml += `
                 <div 
@@ -443,15 +473,69 @@ async function exportarGanttPorMes(mes, anio){
 
             maquinas.forEach(grupo => {
 
+                                const totalProductos = grupo.tareas.length;
+                const textoProductos = totalProductos === 1 ? "producto" : "productos";
+
                 sidebarHtml += `
                     <div class="gantt-side-row machine-mode">
-                        <div class="gantt-side-producto">
+                        <div 
+                            class="gantt-side-producto"
+                            style="
+                                display:flex;
+                                align-items:center;
+                                gap:18px;
+                                min-width:0;
+                            "
+                        >
                             <span class="gantt-color-dot machine-dot"></span>
-                            <div>
-                                <strong>${escaparTextoGantt(grupo.maquina)}</strong>
-                                <small>(${grupo.tareas.length} productos)</small>
+
+                            <div 
+                                class="gantt-machine-name-block"
+                                style="
+                                    display:flex !important;
+                                    flex-direction:column !important;
+                                    align-items:flex-start !important;
+                                    justify-content:center;
+                                    gap:5px;
+                                    min-width:0;
+                                    line-height:1.15;
+                                    text-align:left;
+                                "
+                            >
+                                <strong 
+                                    class="gantt-machine-name-text"
+                                    style="
+                                        display:block !important;
+                                        margin:0;
+                                        padding:0;
+                                        width:100%;
+                                        font-size:16px;
+                                        font-weight:800;
+                                        line-height:1.15;
+                                        color:#111827;
+                                        white-space:nowrap;
+                                        text-align:left;
+                                    "
+                                >${escaparTextoGantt(grupo.maquina)}</strong>
+
+                                <span 
+                                    class="gantt-machine-count-text"
+                                    style="
+                                        display:block !important;
+                                        margin:0;
+                                        padding:0;
+                                        width:100%;
+                                        font-size:13px;
+                                        font-weight:500;
+                                        line-height:1.1;
+                                        color:#6b7280;
+                                        white-space:nowrap;
+                                        text-align:left;
+                                    "
+                                >(${totalProductos} ${textoProductos})</span>
                             </div>
                         </div>
+
                         <div>${escaparTextoGantt(grupo.operador)}</div>
                     </div>
                 `;
