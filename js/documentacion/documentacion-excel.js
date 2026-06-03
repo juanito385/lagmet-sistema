@@ -12,6 +12,28 @@ async function descargarGanttExcel(){
             return;
         }
 
+        /* =========================
+        NORMALIZAR SÁBADO TRABAJADO EXCEL
+        ========================= */
+        function normalizarSabadoTrabajadoExcel(valor) {
+
+            if (valor === true || valor === 1) return true;
+
+            const texto = String(valor ?? "")
+                .trim()
+                .toLowerCase()
+                .normalize("NFD")
+                .replace(/[\u0300-\u036f]/g, "");
+
+            return (
+                texto === "1" ||
+                texto === "true" ||
+                texto === "si" ||
+                texto === "s" ||
+                texto === "yes"
+            );
+        }
+
         const registros = data.data.flatMap(item => {
             let inicio = fechaParaGantt(item.fecha);
             let fin = fechaParaGantt(item.fecha_fin);
@@ -78,10 +100,10 @@ async function descargarGanttExcel(){
                     horasMaquina: detalle.horas || 0,
                     minutosMaquina: detalle.minutos || 0,
 
-                    trabajaSabadoRaw: item.trabaja_sabado,
-                    trabajaSabado: typeof normalizarTrabajaSabadoGantt === "function"
-                        ? normalizarTrabajaSabadoGantt(item.trabaja_sabado)
-                        : false
+                    trabajaSabadoRaw: item.trabaja_sabado ?? item.trabajaSabado ?? false,
+                    trabajaSabado: normalizarSabadoTrabajadoExcel(
+                        item.trabaja_sabado ?? item.trabajaSabado ?? false
+                    )
                 };
             });
         });
@@ -222,13 +244,40 @@ async function descargarGanttExcel(){
         ========================= */
         function esFinDeSemanaExcel(fecha) {
 
-            const fechaExcel = new Date(fecha);
-            const diaSemana = fechaExcel.getDay();
+    const fechaExcel = new Date(fecha);
+    const diaSemana = fechaExcel.getDay();
 
-            return diaSemana === 0 || diaSemana === 6;
+    return diaSemana === 0 || diaSemana === 6;
+        }
+
+        function esSabadoTrabajadoExcel(fecha) {
+
+            const fechaExcel = new Date(fecha);
+
+            if (fechaExcel.getDay() !== 6) {
+                return false;
+            }
+
+            const fechaTexto = fechaParaGantt(fechaExcel);
+
+            return registros.some(tarea => {
+
+                if (!tarea.trabajaSabado) return false;
+                if (!tarea.inicio || !tarea.fin) return false;
+
+                return tarea.inicio <= fechaTexto && fechaTexto <= tarea.fin;
+            });
         }
 
         function fondoDiaBaseExcel(fecha) {
+
+            if (esSabadoTrabajadoExcel(fecha)) {
+                return {
+                    type: "pattern",
+                    pattern: "solid",
+                    fgColor: { argb: "FFFFF2CC" }
+                };
+            }
 
             if (esFinDeSemanaExcel(fecha)) {
                 return {
@@ -242,6 +291,11 @@ async function descargarGanttExcel(){
         }
 
         function colorHeaderDiaExcel(fecha) {
+
+            if (esSabadoTrabajadoExcel(fecha)) {
+                return "FFFFE599";
+            }
+
             return esFinDeSemanaExcel(fecha)
                 ? "FFFFCDD2"
                 : "FFB7DEE8";
@@ -334,7 +388,12 @@ async function descargarGanttExcel(){
                 colorHeaderDiaExcel(dia.fecha)
             );
 
-            if (esFinDeSemanaExcel(dia.fecha)) {
+            if (esSabadoTrabajadoExcel(dia.fecha)) {
+                celdaSemana.font = {
+                    bold: true,
+                    color: { argb: "FF92400E" }
+                };
+            } else if (esFinDeSemanaExcel(dia.fecha)) {
                 celdaSemana.font = {
                     bold: true,
                     color: { argb: "FFB91C1C" }
