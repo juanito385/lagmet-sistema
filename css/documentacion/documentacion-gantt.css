@@ -125,60 +125,88 @@
     width:13px;
     height:13px;
     min-width:13px;
+    height:13px;
+
     border-radius:50%;
+    opacity:1;
+    border:none;
+    box-shadow:none;
+    flex-shrink:0;
 }
 
 /* División entre estados y días especiales */
 .gantt-leyenda-separador{
     width:1px;
     height:28px;
-    background:rgba(0,0,0,0.18);
+    background:rgba(0,0,0,0.22);
     margin:0 8px;
     flex-shrink:0;
 }
 
-/* Días especiales */
-.dia-fin-semana,
-.dia-sabado-trabajado{
+/* =========================
+   COLORES LEYENDA - ESTADOS
+========================= */
+
+.gantt-leyenda span b.estado-verde{
+    background:#f1c40f !important;
+    background-color:#f1c40f !important;
+    border:none !important;
+}
+
+.gantt-leyenda span b.estado-azul{
+    background:#5dade2 !important;
+    background-color:#5dade2 !important;
+    border:none !important;
+}
+
+.gantt-leyenda span b.estado-rojo{
+    background:#e74c3c !important;
+    background-color:#e74c3c !important;
+    border:none !important;
+}
+
+.gantt-leyenda span b.estado-naranja{
+    background:#f39c12 !important;
+    background-color:#f39c12 !important;
+    border:none !important;
+}
+
+.gantt-leyenda span b.estado-gris{
+    background:#2ecc71 !important;
+    background-color:#2ecc71 !important;
+    border:none !important;
+}
+
+/* =========================
+   COLORES LEYENDA - DÍAS ESPECIALES
+========================= */
+
+.gantt-leyenda span b.dia-fin-semana,
+.gantt-leyenda span b.dia-sabado-trabajado{
     border-radius:4px !important;
-    border:1px solid rgba(0,0,0,0.12);
+    border:1px solid rgba(0,0,0,0.18) !important;
 }
 
-.dia-fin-semana{
-    background:#ffe4e6;
+.gantt-leyenda span b.dia-fin-semana{
+    background:#ffcdd2 !important;
+    background-color:#ffcdd2 !important;
+    border-color:#ef9a9a !important;
 }
 
-.dia-sabado-trabajado{
+.gantt-leyenda span b.dia-sabado-trabajado{
     background:
         repeating-linear-gradient(
             135deg,
-            rgba(46, 204, 113, 0.45) 0px,
-            rgba(46, 204, 113, 0.45) 3px,
+            #2ecc71 0px,
+            #2ecc71 3px,
             transparent 3px,
             transparent 7px
         ),
-        #ffe4e6;
+        #ffcdd2 !important;
+
+    border-color:#27ae60 !important;
 }
 
-.estado-verde{
-    background:var(--estado-proceso);
-}
-
-.estado-azul{
-    background:var(--estado-pendiente);
-}
-
-.estado-rojo{
-    background:var(--estado-atrasado);
-}
-
-.estado-naranja{
-    background:var(--estado-tiempo-muerto);
-}
-
-.estado-gris{
-    background:var(--estado-terminado);
-}
 
 /* =========================
    WRAPPER GANTT
