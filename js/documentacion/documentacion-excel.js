@@ -271,11 +271,17 @@ async function descargarGanttExcel(){
 
         function fondoDiaBaseExcel(fecha) {
 
+            /*
+                En Excel:
+                - Sábado trabajado = verde suave sólido
+                - Sábado/Domingo normal = rosado
+                - Día normal = blanco
+            */
             if (esSabadoTrabajadoExcel(fecha)) {
                 return {
                     type: "pattern",
                     pattern: "solid",
-                    fgColor: { argb: "FFFFF2CC" }
+                    fgColor: { argb: "FFD9F99D" }
                 };
             }
 
@@ -293,7 +299,7 @@ async function descargarGanttExcel(){
         function colorHeaderDiaExcel(fecha) {
 
             if (esSabadoTrabajadoExcel(fecha)) {
-                return "FFFFE599";
+                return "FFBBF7D0";
             }
 
             return esFinDeSemanaExcel(fecha)

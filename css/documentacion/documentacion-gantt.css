@@ -90,14 +90,19 @@
 ========================= */
 
 .gantt-leyenda{
+    width:100%;
+    box-sizing:border-box;
     background:#fff;
     border-radius:14px;
     padding:16px 18px;
     margin-bottom:16px;
+
     display:flex;
-    gap:12px;
-    flex-wrap:wrap;
     align-items:center;
+    gap:12px;
+    flex-wrap:nowrap;
+
+    overflow-x:auto;
 }
 
 .gantt-leyenda span{
@@ -106,9 +111,13 @@
     padding:8px 12px;
     border-radius:10px;
     font-size:14px;
+
     display:flex;
     align-items:center;
     gap:7px;
+
+    white-space:nowrap;
+    flex-shrink:0;
 }
 
 .gantt-leyenda b{
@@ -117,6 +126,38 @@
     height:13px;
     min-width:13px;
     border-radius:50%;
+}
+
+/* División entre estados y días especiales */
+.gantt-leyenda-separador{
+    width:1px;
+    height:28px;
+    background:rgba(0,0,0,0.18);
+    margin:0 8px;
+    flex-shrink:0;
+}
+
+/* Días especiales */
+.dia-fin-semana,
+.dia-sabado-trabajado{
+    border-radius:4px !important;
+    border:1px solid rgba(0,0,0,0.12);
+}
+
+.dia-fin-semana{
+    background:#ffe4e6;
+}
+
+.dia-sabado-trabajado{
+    background:
+        repeating-linear-gradient(
+            135deg,
+            rgba(46, 204, 113, 0.45) 0px,
+            rgba(46, 204, 113, 0.45) 3px,
+            transparent 3px,
+            transparent 7px
+        ),
+        #ffe4e6;
 }
 
 .estado-verde{
