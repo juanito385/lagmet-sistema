@@ -315,15 +315,28 @@ async function exportarGanttPorMes(mes, anio){
 
         let diasHtml = "";
 
+        const nombresDiasExportacion = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
+
         for (let dia = 1; dia <= totalDias; dia++) {
+
+            const fechaDia = new Date(anio, mes, dia);
+            const numeroDiaSemana = fechaDia.getDay();
+            const nombreDiaSemana = nombresDiasExportacion[numeroDiaSemana];
+
+            const claseFinDeSemana =
+                numeroDiaSemana === 0 || numeroDiaSemana === 6
+                    ? "gantt-weekend"
+                    : "";
+
             diasHtml += `
                 <div 
-                    class="gantt-day"
+                    class="gantt-day ${claseFinDeSemana}"
                     style="
                         width:${anchoDia}px;
                         min-width:${anchoDia}px;
                     ">
-                    ${String(dia).padStart(2, "0")}
+                    <span class="gantt-day-number">${String(dia).padStart(2, "0")}</span>
+                    <span class="gantt-day-name">${nombreDiaSemana}</span>
                 </div>
             `;
         }
@@ -336,12 +349,40 @@ async function exportarGanttPorMes(mes, anio){
         `;
 
         let lineasGridMesHtml = "";
+        let finesSemanaMesHtml = "";
+
+        for (let dia = 1; dia <= totalDias; dia++) {
+
+            const fechaDia = new Date(anio, mes, dia);
+            const esFinSemana = fechaDia.getDay() === 0 || fechaDia.getDay() === 6;
+
+            if (esFinSemana) {
+                finesSemanaMesHtml += `
+                    <div
+                        class="gantt-weekend-column"
+                        style="
+                            left:${margenIzquierdaExportacion + ((dia - 1) * anchoDia)}px;
+                            width:${anchoDia}px;
+                        "
+                    ></div>
+                `;
+            }
+        }
 
         for (let dia = 0; dia <= totalDias; dia++) {
             lineasGridMesHtml += `
                 <div 
                     class="gantt-export-linea-dia"
-                    style="left:${margenIzquierdaExportacion + (dia * anchoDia)}px;">
+                    style="
+                        position:absolute;
+                        left:${margenIzquierdaExportacion + (dia * anchoDia)}px;
+                        top:0;
+                        width:1px;
+                        height:100%;
+                        background:#d1d5db;
+                        z-index:2;
+                        pointer-events:none;
+                    ">
                 </div>
             `;
         }
@@ -350,18 +391,27 @@ async function exportarGanttPorMes(mes, anio){
 
         if (!maquinas.length) {
 
+            const totalProductos = grupo.tareas.length;
+            const textoProductos = totalProductos === 1 ? "producto" : "productos";
+
             sidebarHtml += `
-            <div class="gantt-side-row machine-mode">
-                <div class="gantt-side-producto gantt-side-empty">
-                    <span class="gantt-color-dot machine-dot"></span>
-                    <div class="gantt-side-empty-texto">
-                        <strong>Sin trabajos</strong>
-                        <small>Sin programación</small>
+                <div class="gantt-side-row machine-mode">
+                    <div class="gantt-side-producto">
+                        <span class="gantt-color-dot machine-dot"></span>
+
+                        <div class="gantt-machine-name-block">
+                            <strong class="gantt-machine-name-text">
+                                ${escaparTextoGantt(grupo.maquina)}
+                            </strong>
+                            <small class="gantt-machine-count-text">
+                                (${totalProductos} ${textoProductos})
+                            </small>
+                        </div>
                     </div>
+
+                    <div>${escaparTextoGantt(grupo.operador)}</div>
                 </div>
-                <div>-</div>
-            </div>
-        `;
+            `;
 
             filasHtml += `
                 <div 
@@ -373,6 +423,17 @@ async function exportarGanttPorMes(mes, anio){
                         overflow:visible;
                         background:#ffffff;
                     ">
+
+                    <div 
+                        class="gantt-weekend-row-overlay"
+                        style="
+                            position:absolute;
+                            inset:0;
+                            z-index:1;
+                            pointer-events:none;
+                        ">
+                        ${finesSemanaMesHtml}
+                    </div>
                     
                     ${lineasGridMesHtml}
                 </div>
@@ -448,9 +509,10 @@ async function exportarGanttPorMes(mes, anio){
                             style="
                                 left:${margenIzquierdaExportacion + (offsetDias * anchoDia)}px;
                                 width:${duracionDias * anchoDia}px;
+                                z-index:5;
                             "
                         >
-                            ${textoDentroBarra}
+                            <span class="gantt-bar-texto">${textoDentroBarra}</span>
                         </div>
 
                         ${etiquetasCorteHtml}
@@ -467,6 +529,17 @@ async function exportarGanttPorMes(mes, anio){
                             overflow:visible;
                             background:#ffffff;
                         ">
+
+                        <div 
+                            class="gantt-weekend-row-overlay"
+                            style="
+                                position:absolute;
+                                inset:0;
+                                z-index:1;
+                                pointer-events:none;
+                            ">
+                            ${finesSemanaMesHtml}
+                        </div>
                         
                         ${lineasGridMesHtml}
 
