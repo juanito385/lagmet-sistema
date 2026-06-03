@@ -12,11 +12,13 @@ async function descargarGanttExcel(){
             return;
         }
 
-        const registros = data.data.map(item => {
+        const registros = data.data.flatMap(item => {
             let inicio = fechaParaGantt(item.fecha);
             let fin = fechaParaGantt(item.fecha_fin);
 
-            if (!inicio) inicio = fechaParaGantt(new Date());
+            if (!inicio) {
+                inicio = fechaParaGantt(new Date());
+            }
 
             if (!fin) {
                 let dias = parseInt(item.dias);
@@ -28,6 +30,10 @@ async function descargarGanttExcel(){
                 fin = sumarDias(inicio, dias);
             }
 
+            if (!fin) {
+                fin = sumarDias(inicio, 1);
+            }
+
             if (fechaLocal(inicio) > fechaLocal(fin)) {
                 fin = sumarDias(inicio, 1);
             }
@@ -35,15 +41,49 @@ async function descargarGanttExcel(){
             const progress = calcularProgreso(inicio, fin);
             const claseEstado = obtenerClaseEstado(progress, item, fin);
 
-            return {
-                producto: item.producto || "Sin nombre",
-                pedido: item.numero_pedido || "-",
-                maquina: item.maquina || "Sin máquina",
-                operador: item.usuario || "Admin",
-                inicio,
-                fin,
-                estado: claseEstado.replace("gantt-", "")
-            };
+            /*
+                Importante:
+                El Excel ahora usa la misma lógica de máquinas múltiples
+                que la Carta Gantt web.
+            */
+            const maquinasDetalle = typeof parsearMaquinasDetalleGantt === "function"
+                ? parsearMaquinasDetalleGantt(item)
+                : [{
+                    idProduccionMaquina: 0,
+                    idMaquina: 0,
+                    maquina: item.maquina || "Sin máquina",
+                    zona: "",
+                    ordenProceso: 1,
+                    horas: 0,
+                    minutos: 0
+                }];
+
+            return maquinasDetalle.map(detalle => {
+                return {
+                    id: item.id,
+                    producto: item.producto || "Sin nombre",
+                    pedido: item.numero_pedido || "-",
+
+                    maquina: detalle.maquina || "Sin máquina",
+                    operador: item.usuario || "Admin",
+
+                    inicio,
+                    fin,
+                    estado: claseEstado.replace("gantt-", ""),
+
+                    idProduccionMaquina: detalle.idProduccionMaquina || 0,
+                    idMaquina: detalle.idMaquina || 0,
+                    zona: detalle.zona || "",
+                    ordenProceso: detalle.ordenProceso || 1,
+                    horasMaquina: detalle.horas || 0,
+                    minutosMaquina: detalle.minutos || 0,
+
+                    trabajaSabadoRaw: item.trabaja_sabado,
+                    trabajaSabado: typeof normalizarTrabajaSabadoGantt === "function"
+                        ? normalizarTrabajaSabadoGantt(item.trabaja_sabado)
+                        : false
+                };
+            });
         });
 
         const fechas = registros
