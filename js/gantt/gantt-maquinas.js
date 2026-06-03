@@ -646,6 +646,71 @@ function esFinDeSemanaGantt(fecha) {
 }
 
 /* =========================
+   SÁBADO HABILITADO GANTT
+========================= */
+function normalizarTrabajaSabadoGantt(valor) {
+    if (valor === true || valor === 1) return true;
+
+    const texto = String(valor ?? "")
+        .trim()
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "");
+
+    return ["1", "si", "s", "true", "yes"].includes(texto);
+}
+
+function generarSabadosHabilitadosGlobalGantt(maquinas, minFecha, totalDias, anchoDia) {
+    const sabadosHabilitados = new Set();
+
+    const fechaBase = new Date(minFecha);
+    fechaBase.setHours(0, 0, 0, 0);
+
+    maquinas.forEach(grupo => {
+        grupo.tareas.forEach(tarea => {
+            if (tarea.trabajaSabado !== true) return;
+
+            const inicio = fechaLocal(tarea.inicio);
+            const fin = fechaLocal(tarea.fin);
+
+            if (!inicio || !fin) return;
+
+            inicio.setHours(0, 0, 0, 0);
+            fin.setHours(0, 0, 0, 0);
+
+            for (let i = 0; i <= totalDias; i++) {
+                const fechaDia = new Date(fechaBase);
+                fechaDia.setDate(fechaBase.getDate() + i);
+                fechaDia.setHours(0, 0, 0, 0);
+
+                const esSabado = fechaDia.getDay() === 6;
+
+                if (!esSabado) continue;
+
+                const tareaCruzaSabado = fechaDia >= inicio && fechaDia <= fin;
+
+                if (tareaCruzaSabado) {
+                    sabadosHabilitados.add(i);
+                }
+            }
+        });
+    });
+
+    return Array.from(sabadosHabilitados)
+        .map(i => `
+            <div
+                class="gantt-sabado-habilitado-column"
+                title="Sábado habilitado para trabajo"
+                style="
+                    left:${i * anchoDia}px;
+                    width:${anchoDia}px;
+                "
+            ></div>
+        `)
+        .join("");
+}
+
+/* =========================
    MOSTRAR GANTT POR MÁQUINA
 ========================= */
 window.mostrarGanttPorMaquina = async function(forzarActualizar = false){
@@ -679,7 +744,7 @@ window.mostrarGanttPorMaquina = async function(forzarActualizar = false){
 
         /*
             Si no existe caché, recién ahí se consulta al servidor.
-            Esto pasa la primera vez o al presionar Actualizar.
+            Esto pasa la primera vez o al presionar Sincronizar datos.
         */
         if (!data) {
             if (!ganttYaRenderizado) {
@@ -760,6 +825,9 @@ window.mostrarGanttPorMaquina = async function(forzarActualizar = false){
                     inicio,
                     fin,
                     claseEstado,
+
+                    trabajaSabado: normalizarTrabajaSabadoGantt(item.trabaja_sabado),
+                    trabajaSabadoRaw: item.trabaja_sabado,
 
                     duracionOriginalDias: diasEntreFechasGantt(inicio, fin),
 
@@ -884,12 +952,12 @@ window.mostrarGanttPorMaquina = async function(forzarActualizar = false){
 
             const dia = String(fecha.getDate()).padStart(2, "0");
 
+            const nombreDiaSemana = obtenerNombreDiaSemanaGantt(fecha);
+            const claseFinDeSemana = esFinDeSemanaGantt(fecha) ? "gantt-weekend" : "";
+
             const mes = fecha.toLocaleDateString("es-CL", {
                 month: "long"
             });
-
-            const nombreDiaSemana = obtenerNombreDiaSemanaGantt(fecha);
-            const claseFinDeSemana = esFinDeSemanaGantt(fecha) ? "gantt-weekend" : "";
 
             diasHtml += `
                 <div class="gantt-day ${claseFinDeSemana}">
@@ -920,6 +988,13 @@ window.mostrarGanttPorMaquina = async function(forzarActualizar = false){
                 `;
             }
         }
+
+        const sabadosHabilitadosGlobalHtml = generarSabadosHabilitadosGlobalGantt(
+            maquinas,
+            minFecha,
+            totalDias,
+            anchoDia
+        );
 
         let filasHtml = "";
 
@@ -1017,6 +1092,7 @@ window.mostrarGanttPorMaquina = async function(forzarActualizar = false){
                 <div class="gantt-machine-timeline-row">
                     <div class="gantt-weekend-row-overlay">
                         ${finesSemanaHtml}
+                        ${sabadosHabilitadosGlobalHtml}
                     </div>
 
                     ${barrasHtml}
