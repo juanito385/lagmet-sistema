@@ -853,14 +853,19 @@ window.mostrarGanttPorMaquina = async function(forzarActualizar = false){
                 const fila = document.createElement("div");
                 fila.className = "gantt-side-row machine-mode";
 
+                const totalProductos = grupo.tareas.length;
+                const textoProductos = totalProductos === 1 ? "producto" : "productos";
+
                 fila.innerHTML = `
                     <div class="gantt-side-producto">
                         <span class="gantt-color-dot machine-dot"></span>
-                        <div>
-                            <strong>${grupo.maquina}</strong>
-                            <small>(${grupo.tareas.length} productos)</small>
+
+                        <div class="gantt-machine-name-block">
+                            <strong class="gantt-machine-name-text">${grupo.maquina}</strong>
+                            <small class="gantt-machine-count-text">(${totalProductos} ${textoProductos})</small>
                         </div>
                     </div>
+
                     <div>${grupo.operador}</div>
                 `;
 
