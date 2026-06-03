@@ -174,7 +174,7 @@ async function descargarGanttExcel(){
                 fgColor: { argb: fondo }
             };
 
-            cell.border = borderExcelSuave();
+            cell.border = borderExcelFuerte();
         }
 
         /* =========================
@@ -310,33 +310,39 @@ async function descargarGanttExcel(){
 
             row.height = 30;
 
-            row.getCell(1).value = grupo.maquina;
-            row.getCell(2).value = grupo.operador;
+            const celdaMaquina = row.getCell(1);
+            const celdaOperador = row.getCell(2);
 
-            row.getCell(1).font = {
+            /* =========================
+            DATOS LATERALES
+            ========================= */
+            celdaMaquina.value = grupo.maquina;
+            celdaOperador.value = grupo.operador || "Admin";
+
+            /* =========================
+            ESTILO LATERAL
+            ========================= */
+            celdaMaquina.font = {
                 bold: true,
-                color: { argb: "FF111827" }
+                color: { argb: "FF000000" }
             };
 
-            row.getCell(2).font = {
-                color: { argb: "FF111827" }
+            celdaOperador.font = {
+                bold: false,
+                color: { argb: "FF000000" }
             };
 
-            row.getCell(1).alignment = {
-                horizontal: "center",
-                vertical: "middle"
-            };
+            [celdaMaquina, celdaOperador].forEach(cell => {
 
-            row.getCell(2).alignment = {
-                horizontal: "center",
-                vertical: "middle"
-            };
+                cell.alignment = {
+                    horizontal: "center",
+                    vertical: "middle",
+                    wrapText: true
+                };
 
-            row.getCell(1).border = borderExcelSuave();
-            row.getCell(2).border = borderExcelSuave();
-
-            row.getCell(1).fill = fondoFilaExcel();
-            row.getCell(2).fill = fondoFilaExcel();
+                cell.border = borderExcelFuerte();
+                cell.fill = fondoFilaExcel();
+            });
 
             dias.forEach((dia, index) => {
 
@@ -350,7 +356,7 @@ async function descargarGanttExcel(){
                     horizontal: "center",
                     vertical: "middle"
                 };
-            })
+            });
 
             grupo.tareas.forEach(tarea => {
 
