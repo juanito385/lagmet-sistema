@@ -18,23 +18,49 @@ function fondoFilaExcel() {
     };
 }
 
+/* =========================
+   COLORES OFICIALES GANTT EXCEL
+   Deben coincidir con la lógica visual actual
+========================= */
 function colorExcelEstadoSuave(estado) {
-    if (estado === "proceso") return "FF92D050";
-    if (estado === "pendiente") return "FF5B9BD5";
-    if (estado === "atrasado") return "FFFF4D4D";
-    if (estado === "tiempo-muerto") return "FFFFC000";
-    if (estado === "terminado") return "FFA6A6A6";
+
+    const estadoNormalizado = String(estado || "")
+        .trim()
+        .toLowerCase()
+        .replace(/_/g, "-");
+
+    /*
+        Mapeo esperado:
+        - En proceso    = Amarillo
+        - Pendiente     = Azul
+        - Atrasado      = Rojo
+        - Tiempo muerto = Naranjo
+        - Terminado     = Verde
+    */
+
+    if (estadoNormalizado === "proceso") return "FFFFD966";
+    if (estadoNormalizado === "pendiente") return "FF5B9BD5";
+    if (estadoNormalizado === "atrasado") return "FFFF4D4D";
+    if (estadoNormalizado === "tiempo-muerto") return "FFF39C12";
+    if (estadoNormalizado === "terminado") return "FF92D050";
+
     return "FFFFFFFF";
 }
 
 function borderBarraExcel(estado) {
+
+    const estadoNormalizado = String(estado || "")
+        .trim()
+        .toLowerCase()
+        .replace(/_/g, "-");
+
     let color = "FF666666";
 
-    if (estado === "proceso") color = "FF2E7D32";
-    if (estado === "pendiente") color = "FF1565C0";
-    if (estado === "atrasado") color = "FFB71C1C";
-    if (estado === "tiempo-muerto") color = "FFB26A00";
-    if (estado === "terminado") color = "FF6B7280";
+    if (estadoNormalizado === "proceso") color = "FFB45309";
+    if (estadoNormalizado === "pendiente") color = "FF1565C0";
+    if (estadoNormalizado === "atrasado") color = "FFB71C1C";
+    if (estadoNormalizado === "tiempo-muerto") color = "FFB26A00";
+    if (estadoNormalizado === "terminado") color = "FF2E7D32";
 
     return {
         top: { style: "medium", color: { argb: color } },
@@ -46,6 +72,7 @@ function borderBarraExcel(estado) {
 
 /* =========================
    ESTILOS EXCEL ANTIGUOS / RESPALDO
+   Se mantienen por compatibilidad
 ========================= */
 function borderExcel() {
     return {
@@ -57,10 +84,17 @@ function borderExcel() {
 }
 
 function colorExcelEstado(estado) {
-    if (estado === "proceso") return "FF92D050";
-    if (estado === "pendiente") return "FF5B9BD5";
-    if (estado === "atrasado") return "FFFF0000";
-    if (estado === "tiempo-muerto") return "FFFFC000";
-    if (estado === "terminado") return "FFA6A6A6";
+
+    const estadoNormalizado = String(estado || "")
+        .trim()
+        .toLowerCase()
+        .replace(/_/g, "-");
+
+    if (estadoNormalizado === "proceso") return "FFFFD966";
+    if (estadoNormalizado === "pendiente") return "FF5B9BD5";
+    if (estadoNormalizado === "atrasado") return "FFFF0000";
+    if (estadoNormalizado === "tiempo-muerto") return "FFF39C12";
+    if (estadoNormalizado === "terminado") return "FF92D050";
+
     return "FFFFFFFF";
 }

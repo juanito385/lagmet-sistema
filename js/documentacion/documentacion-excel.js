@@ -61,18 +61,28 @@ async function descargarGanttExcel(){
 
         const dias = [];
 
+        const diasSemanaExcel = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
+
         for (let i = 0; i <= totalDias; i++) {
 
-            const fecha = new Date(minFecha);
+                        const fecha = new Date(minFecha);
 
-            fecha.setDate(minFecha.getDate() + i);
+                        fecha.setDate(minFecha.getDate() + i);
+
+                        const nombreMes = fecha.toLocaleDateString("es-CL", {
+                month: "long"
+            });
 
             dias.push({
                 fecha,
                 texto: fecha.toLocaleDateString("es-CL", {
                     day: "numeric",
                     month: "numeric"
-                })
+                }),
+                diaTexto: String(fecha.getDate()).padStart(2, "0"),
+                diaSemanaTexto: diasSemanaExcel[fecha.getDay()],
+                mesTexto: nombreMes.charAt(0).toUpperCase() + nombreMes.slice(1),
+                mesClave: `${fecha.getFullYear()}-${String(fecha.getMonth() + 1).padStart(2, "0")}`
             });
         }
 
@@ -140,20 +150,14 @@ async function descargarGanttExcel(){
         };
 
         ganttSheet.getRow(1).height = 26;
-        ganttSheet.getRow(2).height = 8;
+        ganttSheet.getRow(2).height = 22;
+        ganttSheet.getRow(3).height = 20;
+        ganttSheet.getRow(4).height = 18;
 
-        const headerRow = ganttSheet.getRow(3);
-
-        headerRow.values = [
-            "Máquina",
-            "Operador",
-            ...dias.map(d => d.texto)
-        ];
-
-        headerRow.height = 24;
-
-        headerRow.eachCell(cell => {
-
+        /* =========================
+        ENCABEZADO MES + DÍA
+        ========================= */
+        function aplicarEstiloHeaderGanttExcel(cell, fondo = "FFB7DEE8") {
             cell.font = {
                 bold: true,
                 color: { argb: "FF0F172A" }
@@ -167,13 +171,138 @@ async function descargarGanttExcel(){
             cell.fill = {
                 type: "pattern",
                 pattern: "solid",
-                fgColor: { argb: "FFB7DEE8" }
+                fgColor: { argb: fondo }
             };
 
             cell.border = borderExcelSuave();
+        }
+
+        /* =========================
+        FINES DE SEMANA EXCEL
+        ========================= */
+        function esFinDeSemanaExcel(fecha) {
+
+            const fechaExcel = new Date(fecha);
+            const diaSemana = fechaExcel.getDay();
+
+            return diaSemana === 0 || diaSemana === 6;
+        }
+
+        function fondoDiaBaseExcel(fecha) {
+
+            if (esFinDeSemanaExcel(fecha)) {
+                return {
+                    type: "pattern",
+                    pattern: "solid",
+                    fgColor: { argb: "FFFFE4E6" }
+                };
+            }
+
+            return fondoFilaExcel();
+        }
+
+        function colorHeaderDiaExcel(fecha) {
+            return esFinDeSemanaExcel(fecha)
+                ? "FFFFCDD2"
+                : "FFB7DEE8";
+        }
+
+        /*
+            Máquina y Operador ocupan las filas 2 y 3,
+            para quedar alineados con el encabezado de meses y días.
+        */
+        ganttSheet.mergeCells(2, 1, 4, 1);
+        ganttSheet.mergeCells(2, 2, 4, 2);
+
+        const celdaMaquinaHeader = ganttSheet.getCell(2, 1);
+        const celdaOperadorHeader = ganttSheet.getCell(2, 2);
+
+        celdaMaquinaHeader.value = "Máquina";
+        celdaOperadorHeader.value = "Operador";
+
+        aplicarEstiloHeaderGanttExcel(celdaMaquinaHeader);
+        aplicarEstiloHeaderGanttExcel(celdaOperadorHeader);
+
+        /*
+            Fila 2: meses agrupados.
+            Fila 3: número de día.
+        */
+        let inicioGrupoMes = 0;
+
+        while (inicioGrupoMes < dias.length) {
+
+            const mesActual = dias[inicioGrupoMes].mesClave;
+            const nombreMesActual = dias[inicioGrupoMes].mesTexto;
+
+            let finGrupoMes = inicioGrupoMes;
+
+            while (
+                finGrupoMes + 1 < dias.length &&
+                dias[finGrupoMes + 1].mesClave === mesActual
+            ) {
+                finGrupoMes++;
+            }
+
+            const colInicioMes = inicioGrupoMes + 3;
+            const colFinMes = finGrupoMes + 3;
+
+            if (colInicioMes < colFinMes) {
+                ganttSheet.mergeCells(2, colInicioMes, 2, colFinMes);
+            }
+
+            const celdaMes = ganttSheet.getCell(2, colInicioMes);
+
+            celdaMes.value = nombreMesActual;
+
+            aplicarEstiloHeaderGanttExcel(celdaMes, "FF9FD5E5");
+
+            for (let col = colInicioMes; col <= colFinMes; col++) {
+                aplicarEstiloHeaderGanttExcel(ganttSheet.getCell(2, col), "FF9FD5E5");
+            }
+
+            inicioGrupoMes = finGrupoMes + 1;
+        }
+
+        dias.forEach((dia, index) => {
+
+            const col = index + 3;
+            const celdaDia = ganttSheet.getCell(3, col);
+
+            /*
+                Guardamos el día como número real para evitar
+                advertencias de Excel: "número almacenado como texto".
+                El formato "00" mantiene visualmente 01, 02, 03, etc.
+            */
+            celdaDia.value = dia.fecha.getDate();
+            celdaDia.numFmt = "00";
+
+            aplicarEstiloHeaderGanttExcel(
+                celdaDia,
+                colorHeaderDiaExcel(dia.fecha)
+            );
         });
 
-        let filaActual = 4;
+        dias.forEach((dia, index) => {
+
+            const col = index + 3;
+            const celdaSemana = ganttSheet.getCell(4, col);
+
+            celdaSemana.value = dia.diaSemanaTexto;
+
+            aplicarEstiloHeaderGanttExcel(
+                celdaSemana,
+                colorHeaderDiaExcel(dia.fecha)
+            );
+
+            if (esFinDeSemanaExcel(dia.fecha)) {
+                celdaSemana.font = {
+                    bold: true,
+                    color: { argb: "FFB91C1C" }
+                };
+            }
+        });
+
+        let filaActual = 5;
 
         ordenMaquinas.forEach(grupo => {
 
@@ -215,13 +344,13 @@ async function descargarGanttExcel(){
 
                 cell.border = borderExcelSuave();
 
-                cell.fill = fondoFilaExcel();
+                cell.fill = fondoDiaBaseExcel(dia.fecha);
 
                 cell.alignment = {
                     horizontal: "center",
                     vertical: "middle"
                 };
-            });
+            })
 
             grupo.tareas.forEach(tarea => {
 
@@ -309,11 +438,16 @@ async function descargarGanttExcel(){
 
                 const cell = separador.getCell(col);
 
-                cell.fill = {
-                    type: "pattern",
-                    pattern: "solid",
-                    fgColor: { argb: "FFFFFFFF" }
-                };
+                if (col >= 3) {
+                    const dia = dias[col - 3];
+                    cell.fill = fondoDiaBaseExcel(dia.fecha);
+                } else {
+                    cell.fill = {
+                        type: "pattern",
+                        pattern: "solid",
+                        fgColor: { argb: "FFFFFFFF" }
+                    };
+                }
             }
 
             filaActual++;
