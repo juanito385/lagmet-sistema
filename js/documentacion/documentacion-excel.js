@@ -1017,6 +1017,641 @@ async function descargarGanttExcel(){
         }
 
         /* =========================
+        HOJA DETALLES - RESUMEN + TABLA DE CONTROL
+        ========================= */
+
+        function crearHojaDetallesExcel(workbook, productosBase, registros, ordenMaquinas){
+
+            const detallesSheet = workbook.addWorksheet("Detalles");
+
+            detallesSheet.views = [{
+                showGridLines: true
+            }];
+
+            /* =========================
+            HELPERS INTERNOS DETALLES
+            ========================= */
+
+            function normalizarEstadoDetalleExcel(valor){
+
+                return String(valor || "pendiente")
+                    .trim()
+                    .toLowerCase()
+                    .normalize("NFD")
+                    .replace(/[\u0300-\u036f]/g, "")
+                    .replace(/\s+/g, "_")
+                    .replace(/-/g, "_");
+            }
+
+            function esProductoAtrasadoDetalleExcel(item){
+
+                if (item.esta_atrasado === true || item.esta_atrasado === 1) {
+                    return true;
+                }
+
+                const estado = normalizarEstadoDetalleExcel(
+                    item.estado_real ||
+                    item.estado_actual ||
+                    item.estado_bd
+                );
+
+                return estado === "atrasado" || estado === "retraso";
+            }
+
+            function trabajaSabadoDetalleExcel(valor){
+
+                if (valor === true || valor === 1) return true;
+
+                const texto = String(valor ?? "")
+                    .trim()
+                    .toLowerCase()
+                    .normalize("NFD")
+                    .replace(/[\u0300-\u036f]/g, "");
+
+                return ["1", "si", "s", "true", "yes"].includes(texto);
+            }
+
+            function textoSiNoDetalleExcel(valor){
+                return valor ? "Sí" : "No";
+            }
+
+            function valorDetalleExcel(valor){
+                return valor === null || valor === undefined || valor === "" ? "-" : valor;
+            }
+
+            function obtenerEstadoTextoDetalleExcel(item){
+
+                const estado = normalizarEstadoDetalleExcel(
+                    item.estado_real ||
+                    item.estado_actual ||
+                    item.estado_bd ||
+                    "pendiente"
+                );
+
+                const mapaEstados = {
+                    pendiente: "Pendiente",
+                    en_proceso: "En proceso",
+                    proceso: "En proceso",
+                    terminado: "Terminado",
+                    entregado: "Entregado",
+                    atrasado: "Atrasado",
+                    retraso: "Atrasado",
+                    pausado: "Pausado",
+                    tiempo_muerto: "Tiempo muerto"
+                };
+
+                return mapaEstados[estado] || estado;
+            }
+
+            function obtenerMaquinasTextoDetalleExcel(item){
+
+                if (item.maquinas_utilizadas && item.maquinas_utilizadas !== "Sin máquina") {
+                    return String(item.maquinas_utilizadas)
+                        .split("||")
+                        .map(maquina => maquina.trim())
+                        .filter(Boolean)
+                        .join(", ");
+                }
+
+                return item.maquina || "Sin máquina";
+            }
+
+            function obtenerRegistrosProductoDetalleExcel(item){
+
+                const idProducto = Number(item.id || 0);
+
+                let encontrados = registros.filter(registro => {
+                    return Number(registro.id || 0) === idProducto;
+                });
+
+                if (!encontrados.length) {
+                    encontrados = registros.filter(registro => {
+                        return (
+                            String(registro.producto || "") === String(item.producto || "") &&
+                            String(registro.pedido || "") === String(item.numero_pedido || "")
+                        );
+                    });
+                }
+
+                return encontrados;
+            }
+
+            function esProductoReprogramadoDetalleExcel(item){
+
+                const registrosProducto = obtenerRegistrosProductoDetalleExcel(item);
+
+                return registrosProducto.some(registro => {
+                    return registro.reprogramado === true;
+                });
+            }
+
+            function obtenerMotivoReprogramacionDetalleExcel(item){
+
+                const registrosProducto = obtenerRegistrosProductoDetalleExcel(item);
+
+                const motivos = registrosProducto
+                    .map(registro => registro.motivoReprogramacion)
+                    .filter(Boolean)
+                    .map(motivo => String(motivo).trim())
+                    .filter(Boolean);
+
+                const motivosUnicos = [...new Set(motivos)];
+
+                return motivosUnicos.length ? motivosUnicos.join(" | ") : "-";
+            }
+
+            function obtenerObservacionDetalleExcel(item){
+
+                return valorDetalleExcel(
+                    item.situacion_descripcion ||
+                    item.observaciones ||
+                    item.fallo_maquina ||
+                    item.maquina_fallo ||
+                    "-"
+                );
+            }
+
+            function obtenerColorEstadoDetalleExcel(estadoTexto){
+
+                const estado = normalizarEstadoDetalleExcel(estadoTexto);
+
+                if (estado === "en_proceso" || estado === "proceso") {
+                    return "FFFFD966"; // amarillo
+                }
+
+                if (estado === "pendiente") {
+                    return "FFBDD7EE"; // azul suave
+                }
+
+                if (estado === "terminado" || estado === "entregado") {
+                    return "FFE2F0D9"; // verde suave
+                }
+
+                if (estado === "atrasado" || estado === "retraso") {
+                    return "FFFFCDD2"; // rojo suave
+                }
+
+                if (estado === "pausado" || estado === "tiempo_muerto") {
+                    return "FFFCE4D6"; // naranja suave
+                }
+
+                return "FFFFFFFF";
+            }
+
+            function obtenerColorTextoEstadoDetalleExcel(estadoTexto){
+
+                const estado = normalizarEstadoDetalleExcel(estadoTexto);
+
+                if (estado === "terminado" || estado === "entregado") {
+                    return "FF166534";
+                }
+
+                if (estado === "atrasado" || estado === "retraso") {
+                    return "FFB91C1C";
+                }
+
+                if (estado === "pendiente") {
+                    return "FF1D4ED8";
+                }
+
+                if (estado === "pausado" || estado === "tiempo_muerto") {
+                    return "FFB45309";
+                }
+
+                return "FF111827";
+            }
+
+            function aplicarTituloDetalles(cell){
+
+                cell.font = {
+                    bold: true,
+                    size: 16,
+                    color: { argb: "FFFFFFFF" }
+                };
+
+                cell.fill = {
+                    type: "pattern",
+                    pattern: "solid",
+                    fgColor: { argb: "FFF59E0B" }
+                };
+
+                cell.alignment = {
+                    horizontal: "center",
+                    vertical: "middle"
+                };
+
+                cell.border = borderExcelFuerte();
+            }
+
+            function aplicarHeaderDetalles(cell){
+
+                cell.font = {
+                    bold: true,
+                    color: { argb: "FF0F172A" }
+                };
+
+                cell.fill = {
+                    type: "pattern",
+                    pattern: "solid",
+                    fgColor: { argb: "FFB7DEE8" }
+                };
+
+                cell.alignment = {
+                    horizontal: "center",
+                    vertical: "middle",
+                    wrapText: true
+                };
+
+                cell.border = borderExcelFuerte();
+            }
+
+            function aplicarCeldaDetalles(cell){
+
+                cell.font = {
+                    color: { argb: "FF111827" }
+                };
+
+                cell.alignment = {
+                    horizontal: "center",
+                    vertical: "middle",
+                    wrapText: true
+                };
+
+                cell.border = borderExcelFuerte();
+
+                cell.fill = {
+                    type: "pattern",
+                    pattern: "solid",
+                    fgColor: { argb: "FFFFFFFF" }
+                };
+            }
+
+            function aplicarCeldaEstadoDetalles(cell, estadoTexto){
+
+                cell.fill = {
+                    type: "pattern",
+                    pattern: "solid",
+                    fgColor: { argb: obtenerColorEstadoDetalleExcel(estadoTexto) }
+                };
+
+                cell.font = {
+                    bold: true,
+                    color: { argb: obtenerColorTextoEstadoDetalleExcel(estadoTexto) }
+                };
+            }
+
+            function aplicarCeldaSiNoDetalles(cell, activo, tipo){
+
+                if (!activo) {
+                    cell.fill = {
+                        type: "pattern",
+                        pattern: "solid",
+                        fgColor: { argb: "FFFFFFFF" }
+                    };
+
+                    cell.font = {
+                        bold: false,
+                        color: { argb: "FF111827" }
+                    };
+
+                    return;
+                }
+
+                if (tipo === "atrasado") {
+                    cell.fill = {
+                        type: "pattern",
+                        pattern: "solid",
+                        fgColor: { argb: "FFFFCDD2" }
+                    };
+
+                    cell.font = {
+                        bold: true,
+                        color: { argb: "FFB91C1C" }
+                    };
+                }
+
+                if (tipo === "reprogramado") {
+                    cell.fill = {
+                        type: "pattern",
+                        pattern: "solid",
+                        fgColor: { argb: "FFFCE4D6" }
+                    };
+
+                    cell.font = {
+                        bold: true,
+                        color: { argb: "FFB45309" }
+                    };
+                }
+
+                if (tipo === "sabado") {
+                    cell.fill = {
+                        type: "pattern",
+                        pattern: "solid",
+                        fgColor: { argb: "FFE2F0D9" }
+                    };
+
+                    cell.font = {
+                        bold: true,
+                        color: { argb: "FF166534" }
+                    };
+                }
+            }
+
+            /* =========================
+            DATOS RESUMEN
+            ========================= */
+
+            const totalProductos = productosBase.length;
+
+            const totalPendientes = productosBase.filter(item => {
+                const estado = normalizarEstadoDetalleExcel(
+                    item.estado_real ||
+                    item.estado_actual ||
+                    item.estado_bd
+                );
+
+                return estado === "pendiente";
+            }).length;
+
+            const totalEnProceso = productosBase.filter(item => {
+                const estado = normalizarEstadoDetalleExcel(
+                    item.estado_real ||
+                    item.estado_actual ||
+                    item.estado_bd
+                );
+
+                return estado === "en_proceso" || estado === "proceso";
+            }).length;
+
+            const totalTerminados = productosBase.filter(item => {
+                const estado = normalizarEstadoDetalleExcel(
+                    item.estado_real ||
+                    item.estado_actual ||
+                    item.estado_bd
+                );
+
+                return estado === "terminado";
+            }).length;
+
+            const totalEntregados = productosBase.filter(item => {
+                const estado = normalizarEstadoDetalleExcel(
+                    item.estado_real ||
+                    item.estado_actual ||
+                    item.estado_bd
+                );
+
+                return estado === "entregado";
+            }).length;
+
+            const totalAtrasados = productosBase.filter(item => {
+                return esProductoAtrasadoDetalleExcel(item);
+            }).length;
+
+            const totalReprogramados = productosBase.filter(item => {
+                return esProductoReprogramadoDetalleExcel(item);
+            }).length;
+
+            const totalSabadosTrabajados = productosBase.filter(item => {
+                return trabajaSabadoDetalleExcel(item.trabaja_sabado ?? item.trabajaSabado);
+            }).length;
+
+            const totalMaquinas = ordenMaquinas.length;
+
+            const ahora = new Date();
+
+            const fechaGeneracion =
+                `${String(ahora.getDate()).padStart(2, "0")}-` +
+                `${String(ahora.getMonth() + 1).padStart(2, "0")}-` +
+                `${ahora.getFullYear()} ` +
+                `${String(ahora.getHours()).padStart(2, "0")}:` +
+                `${String(ahora.getMinutes()).padStart(2, "0")}`;
+
+            const resumen = [
+                ["Fecha generación", fechaGeneracion],
+                ["Productos pendientes", totalPendientes],
+                ["Productos en proceso", totalEnProceso],
+                ["Productos terminados", totalTerminados],
+                ["Productos entregados", totalEntregados],
+                ["Productos atrasados", totalAtrasados],
+                ["Productos reprogramados", totalReprogramados],
+                ["Productos con sábado trabajado", totalSabadosTrabajados],
+                ["Máquinas utilizadas", totalMaquinas],
+                ["Total productos", totalProductos]
+            ];
+
+            /* =========================
+            TÍTULO GENERAL
+            ========================= */
+
+            detallesSheet.mergeCells("A1:Q1");
+
+            const tituloDetalles = detallesSheet.getCell("A1");
+
+            tituloDetalles.value = "DETALLES DE PRODUCCIÓN - CARTA GANTT";
+
+            aplicarTituloDetalles(tituloDetalles);
+
+            for (let col = 1; col <= 17; col++) {
+                aplicarTituloDetalles(detallesSheet.getCell(1, col));
+            }
+
+            detallesSheet.getRow(1).height = 26;
+
+            /* =========================
+            RESUMEN GENERAL
+            ========================= */
+
+            detallesSheet.mergeCells("A3:B3");
+
+            const tituloResumen = detallesSheet.getCell("A3");
+
+            tituloResumen.value = "Resumen general";
+
+            aplicarHeaderDetalles(tituloResumen);
+
+            for (let col = 1; col <= 2; col++) {
+                aplicarHeaderDetalles(detallesSheet.getCell(3, col));
+            }
+
+            detallesSheet.getRow(3).height = 22;
+
+            detallesSheet.getCell("A4").value = "Indicador";
+            detallesSheet.getCell("B4").value = "Total";
+
+            aplicarHeaderDetalles(detallesSheet.getCell("A4"));
+            aplicarHeaderDetalles(detallesSheet.getCell("B4"));
+
+            let filaResumen = 5;
+
+            resumen.forEach(item => {
+
+                const fila = detallesSheet.getRow(filaResumen);
+
+                fila.getCell(1).value = item[0];
+                fila.getCell(2).value = item[1];
+
+                aplicarCeldaDetalles(fila.getCell(1));
+                aplicarCeldaDetalles(fila.getCell(2));
+
+                filaResumen++;
+            });
+
+            /* =========================
+            TABLA COMPLETA DE PRODUCTOS
+            ========================= */
+
+            const filaInicioTablaProductos = filaResumen + 2;
+
+            detallesSheet.mergeCells(`A${filaInicioTablaProductos}:Q${filaInicioTablaProductos}`);
+
+            const tituloTablaProductos = detallesSheet.getCell(`A${filaInicioTablaProductos}`);
+
+            tituloTablaProductos.value = "Lista completa de productos";
+
+            aplicarHeaderDetalles(tituloTablaProductos);
+
+            for (let col = 1; col <= 17; col++) {
+                aplicarHeaderDetalles(detallesSheet.getCell(filaInicioTablaProductos, col));
+            }
+
+            const filaHeaderProductos = filaInicioTablaProductos + 1;
+
+            const headersProductos = [
+                "Producto",
+                "Pedido",
+                "Código",
+                "Cantidad",
+                "Máquina(s)",
+                "Operador",
+                "Fecha inicio",
+                "Fecha fin estimada",
+                "Fecha fin real",
+                "Estado",
+                "Atrasado",
+                "Reprogramado",
+                "Trabaja sábado",
+                "Turno",
+                "Fecha estado",
+                "Situación / observación",
+                "Motivo reprogramación"
+            ];
+
+            headersProductos.forEach((header, index) => {
+
+                const cell = detallesSheet.getCell(filaHeaderProductos, index + 1);
+
+                cell.value = header;
+
+                aplicarHeaderDetalles(cell);
+            });
+
+            let filaProducto = filaHeaderProductos + 1;
+
+            productosBase.forEach(item => {
+
+                const fila = detallesSheet.getRow(filaProducto);
+
+                const estadoTexto = obtenerEstadoTextoDetalleExcel(item);
+
+                const atrasado = esProductoAtrasadoDetalleExcel(item);
+
+                const reprogramado = esProductoReprogramadoDetalleExcel(item);
+
+                const trabajaSabado = trabajaSabadoDetalleExcel(
+                    item.trabaja_sabado ?? item.trabajaSabado
+                );
+
+                const motivoReprogramacion = obtenerMotivoReprogramacionDetalleExcel(item);
+
+                const datosFila = [
+                    valorDetalleExcel(item.producto),
+                    valorDetalleExcel(item.numero_pedido),
+                    valorDetalleExcel(item.codigo),
+                    valorDetalleExcel(item.cantidad),
+                    obtenerMaquinasTextoDetalleExcel(item),
+                    valorDetalleExcel(item.usuario),
+                    valorDetalleExcel(item.fecha),
+                    valorDetalleExcel(item.fecha_fin),
+                    valorDetalleExcel(item.fecha_fin_real),
+                    estadoTexto,
+                    textoSiNoDetalleExcel(atrasado),
+                    textoSiNoDetalleExcel(reprogramado),
+                    textoSiNoDetalleExcel(trabajaSabado),
+                    valorDetalleExcel(item.turno),
+                    valorDetalleExcel(item.fecha_estado_actual),
+                    obtenerObservacionDetalleExcel(item),
+                    motivoReprogramacion
+                ];
+
+                datosFila.forEach((valor, index) => {
+
+                    const cell = fila.getCell(index + 1);
+
+                    cell.value = valor;
+
+                    aplicarCeldaDetalles(cell);
+
+                    /*
+                        Columnas:
+                        10 Estado
+                        11 Atrasado
+                        12 Reprogramado
+                        13 Trabaja sábado
+                    */
+
+                    if (index === 9) {
+                        aplicarCeldaEstadoDetalles(cell, estadoTexto);
+                    }
+
+                    if (index === 10) {
+                        aplicarCeldaSiNoDetalles(cell, atrasado, "atrasado");
+                    }
+
+                    if (index === 11) {
+                        aplicarCeldaSiNoDetalles(cell, reprogramado, "reprogramado");
+                    }
+
+                    if (index === 12) {
+                        aplicarCeldaSiNoDetalles(cell, trabajaSabado, "sabado");
+                    }
+                });
+
+                fila.height = 26;
+
+                filaProducto++;
+            });
+
+            /* =========================
+            ANCHOS
+            ========================= */
+
+            detallesSheet.getColumn(1).width = 28;  // Producto
+            detallesSheet.getColumn(2).width = 18;  // Pedido
+            detallesSheet.getColumn(3).width = 18;  // Código
+            detallesSheet.getColumn(4).width = 12;  // Cantidad
+            detallesSheet.getColumn(5).width = 36;  // Máquina(s)
+            detallesSheet.getColumn(6).width = 18;  // Operador
+            detallesSheet.getColumn(7).width = 18;  // Inicio
+            detallesSheet.getColumn(8).width = 20;  // Fin estimada
+            detallesSheet.getColumn(9).width = 20;  // Fin real
+            detallesSheet.getColumn(10).width = 18; // Estado
+            detallesSheet.getColumn(11).width = 14; // Atrasado
+            detallesSheet.getColumn(12).width = 18; // Reprogramado
+            detallesSheet.getColumn(13).width = 18; // Sábado
+            detallesSheet.getColumn(14).width = 16; // Turno
+            detallesSheet.getColumn(15).width = 20; // Fecha estado
+            detallesSheet.getColumn(16).width = 38; // Situación
+            detallesSheet.getColumn(17).width = 48; // Motivo reprogramación
+        }
+
+        crearHojaDetallesExcel(
+            workbook,
+            data.data,
+            registros,
+            ordenMaquinas
+        );
+
+        /* =========================
            DESCARGA
         ========================= */
 
