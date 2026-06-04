@@ -265,6 +265,73 @@
 }
 
 /* =========================
+   OVERLAY FIN DE SEMANA
+========================= */
+
+.gantt-export-monthly .gantt-weekend-row-overlay{
+    position:absolute !important;
+    inset:0 !important;
+    width:100% !important;
+    height:100% !important;
+    overflow:visible !important;
+    pointer-events:none !important;
+    z-index:2 !important;
+}
+
+.gantt-export-monthly .gantt-weekend-column{
+    position:absolute !important;
+    top:0 !important;
+    bottom:0 !important;
+    height:100% !important;
+    background:#ffcdd2 !important;
+    background-color:#ffcdd2 !important;
+    z-index:1 !important;
+    pointer-events:none !important;
+}
+
+/* =========================
+   SÁBADO TRABAJADO - EXPORTACIÓN MENSUAL
+   Solución limpia: fondo rosado + rayas HTML reales
+========================= */
+
+.gantt-export-monthly .gantt-sabado-habilitado-export{
+    position:absolute !important;
+    top:0 !important;
+    bottom:0 !important;
+    height:100% !important;
+
+    background:#ffcdd2 !important;
+    background-color:#ffcdd2 !important;
+    background-image:none !important;
+
+    border:none !important;
+    outline:none !important;
+
+    overflow:hidden !important;
+    opacity:1 !important;
+    z-index:4 !important;
+    pointer-events:none !important;
+}
+
+.gantt-export-monthly .gantt-sabado-raya-export{
+    position:absolute !important;
+
+    top:-40px !important;
+    width:2px !important;
+    height:170px !important;
+
+    background:#22c55e !important;
+    background-color:#22c55e !important;
+
+    transform:rotate(45deg) !important;
+    transform-origin:center !important;
+
+    opacity:0.22 !important;
+    z-index:5 !important;
+    pointer-events:none !important;
+}
+
+/* =========================
    LÍNEAS REALES DE GRILLA
 ========================= */
 
@@ -278,7 +345,7 @@
 
     background:#d1d5db !important;
 
-    z-index:5 !important;
+    z-index:6 !important;
     pointer-events:none !important;
 }
 

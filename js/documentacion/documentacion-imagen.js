@@ -110,6 +110,7 @@ async function descargarGanttImagen() {
 /* =========================
    EXPORTAR GANTT POR MES
 ========================= */
+
 function escaparTextoGantt(valor){
     return String(valor ?? "")
         .replace(/&/g, "&amp;")
@@ -167,6 +168,104 @@ function calcularMargenCorteExportacionGantt(nombres){
     );
 }
 
+/* =========================
+   SÁBADOS HABILITADOS - EXPORTACIÓN MENSUAL
+========================= */
+
+function normalizarTrabajaSabadoExportacionGantt(valor){
+
+    if (typeof normalizarTrabajaSabadoGantt === "function") {
+        return normalizarTrabajaSabadoGantt(valor);
+    }
+
+    if (valor === true || valor === 1) return true;
+
+    const texto = String(valor ?? "")
+        .trim()
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "");
+
+    return ["1", "si", "sí", "s", "true", "yes"].includes(texto);
+}
+
+function generarSabadosHabilitadosMesExportacionGantt(registros, anio, mes, totalDias, anchoDia, margenIzquierda){
+
+    const sabadosHabilitados = new Set();
+
+    registros.forEach(tarea => {
+
+        if (tarea.trabajaSabado !== true) return;
+
+        const inicio = fechaLocal(tarea.inicioOriginal);
+        const fin = fechaLocal(tarea.finOriginal);
+
+        if (!inicio || !fin || isNaN(inicio.getTime()) || isNaN(fin.getTime())) return;
+
+        inicio.setHours(0, 0, 0, 0);
+        fin.setHours(0, 0, 0, 0);
+
+        for (let dia = 1; dia <= totalDias; dia++) {
+
+            const fechaDia = new Date(anio, mes, dia);
+            fechaDia.setHours(0, 0, 0, 0);
+
+            const esSabado = fechaDia.getDay() === 6;
+
+            if (!esSabado) continue;
+
+            const tareaCruzaSabado =
+                fechaDia >= inicio &&
+                fechaDia <= fin;
+
+            if (tareaCruzaSabado) {
+                sabadosHabilitados.add(dia);
+            }
+        }
+    });
+
+    const patronSabadoTrabajado = "url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%228%22 height=%228%22 viewBox=%220 0 8 8%22%3E%3Cpath d=%22M-2 10 L10 -2%22 stroke=%22%2322c55e%22 stroke-width=%221.4%22 stroke-opacity=%220.34%22/%3E%3C/svg%3E')";
+
+    return Array.from(sabadosHabilitados)
+        .map(dia => {
+
+            const left = margenIzquierda + ((dia - 1) * anchoDia);
+
+            return `
+                <div
+                    class="gantt-sabado-trabajado-export-css"
+                    data-dia-sabado="${dia}"
+                    title="Sábado habilitado para trabajo"
+                    style="
+                        position:absolute !important;
+                        top:0 !important;
+                        bottom:0 !important;
+                        left:${left}px !important;
+
+                        width:${anchoDia}px !important;
+                        min-width:${anchoDia}px !important;
+                        max-width:${anchoDia}px !important;
+                        height:100% !important;
+
+                        background-color:rgba(255, 205, 210, 0.42) !important;
+                        background-image:${patronSabadoTrabajado} !important;
+                        background-repeat:repeat !important;
+                        background-size:8px 8px !important;
+
+                        border:none !important;
+                        outline:none !important;
+
+                        overflow:hidden !important;
+                        opacity:1 !important;
+                        z-index:4 !important;
+                        pointer-events:none !important;
+                    "
+                ></div>
+            `;
+        })
+        .join("");
+}
+
 async function exportarGanttPorMes(mes, anio){
 
     try {
@@ -176,7 +275,6 @@ async function exportarGanttPorMes(mes, anio){
         }
 
         const respuesta = await fetch("php/produccion/obtener_produccion.php");
-
         const data = await respuesta.json();
 
         if (!data.success || !Array.isArray(data.data)) {
@@ -263,6 +361,14 @@ async function exportarGanttPorMes(mes, anio){
                     inicioVisible,
                     finVisible,
                     claseEstado,
+
+                    trabajaSabado: normalizarTrabajaSabadoExportacionGantt(
+                        item.trabaja_sabado ?? item.trabajaSabado
+                    ),
+                    trabajaSabadoRaw: item.trabaja_sabado ?? item.trabajaSabado,
+                    inicioOriginal: inicio,
+                    finOriginal: fin,
+
                     cortadaIzquierda,
                     cortadaDerecha
                 };
@@ -361,13 +467,30 @@ async function exportarGanttPorMes(mes, anio){
                     <div
                         class="gantt-weekend-column"
                         style="
+                            position:absolute;
+                            top:0;
+                            bottom:0;
                             left:${margenIzquierdaExportacion + ((dia - 1) * anchoDia)}px;
                             width:${anchoDia}px;
+                            height:100%;
+                            background:#ffcdd2;
+                            background-color:#ffcdd2;
+                            z-index:1;
+                            pointer-events:none;
                         "
                     ></div>
                 `;
             }
         }
+
+        const sabadosHabilitadosMesHtml = generarSabadosHabilitadosMesExportacionGantt(
+            registros,
+            anio,
+            mes,
+            totalDias,
+            anchoDia,
+            margenIzquierdaExportacion
+        );
 
         for (let dia = 0; dia <= totalDias; dia++) {
             lineasGridMesHtml += `
@@ -380,7 +503,7 @@ async function exportarGanttPorMes(mes, anio){
                         width:1px;
                         height:100%;
                         background:#d1d5db;
-                        z-index:2;
+                        z-index:6;
                         pointer-events:none;
                     ">
                 </div>
@@ -391,57 +514,20 @@ async function exportarGanttPorMes(mes, anio){
 
         if (!maquinas.length) {
 
-                    const totalProductos = grupo.tareas.length;
-                    const textoProductos = totalProductos === 1 ? "producto" : "productos";
+            sidebarHtml += `
+                <div class="gantt-side-row machine-mode">
+                    <div class="gantt-side-producto">
+                        <span class="gantt-color-dot machine-dot"></span>
 
-                    sidebarHtml += `
-            <div class="gantt-side-row machine-mode">
-                <div class="gantt-side-producto">
-                    <span class="gantt-color-dot machine-dot"></span>
-
-                    <div 
-                        class="gantt-machine-name-block"
-                        style="
-                            display:flex;
-                            flex-direction:column;
-                            align-items:flex-start;
-                            justify-content:center;
-                            gap:4px;
-                            min-width:0;
-                            line-height:1.2;
-                        "
-                    >
-                        <strong 
-                            class="gantt-machine-name-text"
-                            style="
-                                display:block;
-                                font-size:16px;
-                                font-weight:800;
-                                color:#111827;
-                                white-space:nowrap;
-                            "
-                        >
-                            ${escaparTextoGantt(grupo.maquina)}
-                        </strong>
-
-                        <small 
-                            class="gantt-machine-count-text"
-                            style="
-                                display:block;
-                                font-size:13px;
-                                font-weight:500;
-                                color:#6b7280;
-                                white-space:nowrap;
-                            "
-                        >
-                            (${totalProductos} ${textoProductos})
-                        </small>
+                        <div class="gantt-machine-name-block">
+                            <strong class="gantt-machine-name-text">Sin registros</strong>
+                            <small class="gantt-machine-count-text">(0 productos)</small>
+                        </div>
                     </div>
-                </div>
 
-                <div>${escaparTextoGantt(grupo.operador)}</div>
-            </div>
-        `;
+                    <div>-</div>
+                </div>
+            `;
 
             filasHtml += `
                 <div 
@@ -461,8 +547,10 @@ async function exportarGanttPorMes(mes, anio){
                             inset:0;
                             z-index:1;
                             pointer-events:none;
+                            overflow:visible;
                         ">
                         ${finesSemanaMesHtml}
+                        ${sabadosHabilitadosMesHtml}
                     </div>
                     
                     ${lineasGridMesHtml}
@@ -473,7 +561,7 @@ async function exportarGanttPorMes(mes, anio){
 
             maquinas.forEach(grupo => {
 
-                                const totalProductos = grupo.tareas.length;
+                const totalProductos = grupo.tareas.length;
                 const textoProductos = totalProductos === 1 ? "producto" : "productos";
 
                 sidebarHtml += `
@@ -593,7 +681,7 @@ async function exportarGanttPorMes(mes, anio){
                             style="
                                 left:${margenIzquierdaExportacion + (offsetDias * anchoDia)}px;
                                 width:${duracionDias * anchoDia}px;
-                                z-index:5;
+                                z-index:10;
                             "
                         >
                             <span class="gantt-bar-texto">${textoDentroBarra}</span>
@@ -621,8 +709,10 @@ async function exportarGanttPorMes(mes, anio){
                                 inset:0;
                                 z-index:1;
                                 pointer-events:none;
+                                overflow:visible;
                             ">
                             ${finesSemanaMesHtml}
+                            ${sabadosHabilitadosMesHtml}
                         </div>
                         
                         ${lineasGridMesHtml}
@@ -731,5 +821,4 @@ async function exportarGanttPorMes(mes, anio){
 }
 
 window.exportarGanttPorMes = exportarGanttPorMes;
-
 window.descargarGanttImagen = descargarGanttImagen;
