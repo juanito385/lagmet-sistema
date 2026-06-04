@@ -1644,11 +1644,467 @@ async function descargarGanttExcel(){
             detallesSheet.getColumn(17).width = 48; // Motivo reprogramación
         }
 
+        /* =========================
+        HOJA TIEMPOS - DURACIÓN POR PRODUCTO
+        ========================= */
+
+        function crearHojaTiemposExcel(workbook, productosBase, registros){
+
+            const tiemposSheet = workbook.addWorksheet("Tiempos");
+
+            tiemposSheet.views = [{
+                showGridLines: true,
+                state: "frozen",
+                ySplit: 3
+            }];
+
+            /* =========================
+            HELPERS INTERNOS TIEMPOS
+            ========================= */
+
+            function valorTiempoExcel(valor){
+                return valor === null || valor === undefined || valor === "" ? "-" : valor;
+            }
+
+            function normalizarFechaTextoTiempoExcel(valor){
+
+                const fecha = fechaParaGantt(valor);
+
+                return fecha || "-";
+            }
+
+            function obtenerMaquinasTextoTiempoExcel(item){
+
+                if (item.maquinas_utilizadas && item.maquinas_utilizadas !== "Sin máquina") {
+                    return String(item.maquinas_utilizadas)
+                        .split("||")
+                        .map(maquina => maquina.trim())
+                        .filter(Boolean)
+                        .join(", ");
+                }
+
+                return item.maquina || "Sin máquina";
+            }
+
+            function obtenerRegistrosProductoTiempoExcel(item){
+
+                const idProducto = Number(item.id || 0);
+
+                let encontrados = registros.filter(registro => {
+                    return Number(registro.id || 0) === idProducto;
+                });
+
+                if (!encontrados.length) {
+                    encontrados = registros.filter(registro => {
+                        return (
+                            String(registro.producto || "") === String(item.producto || "") &&
+                            String(registro.pedido || "") === String(item.numero_pedido || "")
+                        );
+                    });
+                }
+
+                return encontrados;
+            }
+
+            function esProductoReprogramadoTiempoExcel(item){
+
+                const registrosProducto = obtenerRegistrosProductoTiempoExcel(item);
+
+                return registrosProducto.some(registro => {
+                    return registro.reprogramado === true;
+                });
+            }
+
+            function obtenerFechaFinReprogramadaTiempoExcel(item){
+
+                const registrosProducto = obtenerRegistrosProductoTiempoExcel(item);
+
+                const fechas = registrosProducto
+                    .map(registro => {
+                        return registro.nuevoFin || registro.fin;
+                    })
+                    .map(fecha => fechaParaGantt(fecha))
+                    .filter(Boolean)
+                    .map(fecha => fechaLocal(fecha))
+                    .filter(Boolean);
+
+                if (!fechas.length) return null;
+
+                const fechaMayor = new Date(Math.max(...fechas));
+
+                return fechaParaGantt(fechaMayor);
+            }
+
+            function parseFechaHoraTiempoExcel(valor, usarFinDia = false){
+
+                if (!valor) return null;
+
+                if (valor instanceof Date && !isNaN(valor.getTime())) {
+                    return valor;
+                }
+
+                const texto = String(valor)
+                    .trim()
+                    .replace(/\n/g, " ")
+                    .replace("T", " ");
+
+                const matchFechaHora = texto.match(/^(\d{4})-(\d{2})-(\d{2})(?:\s+(\d{2}):(\d{2})(?::(\d{2}))?)?/);
+
+                if (matchFechaHora) {
+
+                    const anio = Number(matchFechaHora[1]);
+                    const mes = Number(matchFechaHora[2]) - 1;
+                    const dia = Number(matchFechaHora[3]);
+
+                    const hora = matchFechaHora[4] !== undefined
+                        ? Number(matchFechaHora[4])
+                        : usarFinDia ? 23 : 0;
+
+                    const minuto = matchFechaHora[5] !== undefined
+                        ? Number(matchFechaHora[5])
+                        : usarFinDia ? 59 : 0;
+
+                    const segundo = matchFechaHora[6] !== undefined
+                        ? Number(matchFechaHora[6])
+                        : usarFinDia ? 59 : 0;
+
+                    return new Date(anio, mes, dia, hora, minuto, segundo);
+                }
+
+                const fechaNormal = fechaLocal(valor);
+
+                if (!fechaNormal) return null;
+
+                if (usarFinDia) {
+                    fechaNormal.setHours(23, 59, 59, 999);
+                } else {
+                    fechaNormal.setHours(0, 0, 0, 0);
+                }
+
+                return fechaNormal;
+            }
+
+            function calcularHorasTotalesTiempoExcel(fechaInicio, fechaFin){
+
+                const inicio = parseFechaHoraTiempoExcel(fechaInicio, false);
+                const fin = parseFechaHoraTiempoExcel(fechaFin, true);
+
+                if (!inicio || !fin) return "-";
+
+                const diferenciaMs = fin - inicio;
+
+                if (diferenciaMs < 0) return "-";
+
+                const horas = diferenciaMs / (1000 * 60 * 60);
+
+                return Math.round(horas * 10) / 10;
+            }
+
+            function obtenerFechaFinCalculoTiempoExcel(item){
+
+                const fechaFinReal = fechaParaGantt(item.fecha_fin_real)
+                    ? item.fecha_fin_real
+                    : null;
+
+                const reprogramado = esProductoReprogramadoTiempoExcel(item);
+
+                const fechaFinReprogramada = obtenerFechaFinReprogramadaTiempoExcel(item);
+
+                if (fechaFinReal) {
+                    return {
+                        fecha: item.fecha_fin_real,
+                        tipo: reprogramado ? "Real reprogramado" : "Real"
+                    };
+                }
+
+                if (reprogramado && fechaFinReprogramada) {
+                    return {
+                        fecha: fechaFinReprogramada,
+                        tipo: "Proyectado reprogramado"
+                    };
+                }
+
+                return {
+                    fecha: item.fecha_fin,
+                    tipo: "Proyectado"
+                };
+            }
+
+            function aplicarTituloTiempos(cell){
+
+                cell.font = {
+                    bold: true,
+                    size: 16,
+                    color: { argb: "FFFFFFFF" }
+                };
+
+                cell.fill = {
+                    type: "pattern",
+                    pattern: "solid",
+                    fgColor: { argb: "FFF59E0B" }
+                };
+
+                cell.alignment = {
+                    horizontal: "center",
+                    vertical: "middle"
+                };
+
+                cell.border = borderExcelFuerte();
+            }
+
+            function aplicarHeaderTiempos(cell){
+
+                cell.font = {
+                    bold: true,
+                    color: { argb: "FF0F172A" }
+                };
+
+                cell.fill = {
+                    type: "pattern",
+                    pattern: "solid",
+                    fgColor: { argb: "FFB7DEE8" }
+                };
+
+                cell.alignment = {
+                    horizontal: "center",
+                    vertical: "middle",
+                    wrapText: true
+                };
+
+                cell.border = borderExcelFuerte();
+            }
+
+            function aplicarCeldaTiempos(cell){
+
+                cell.font = {
+                    color: { argb: "FF111827" }
+                };
+
+                cell.alignment = {
+                    horizontal: "center",
+                    vertical: "middle",
+                    wrapText: true
+                };
+
+                cell.border = borderExcelFuerte();
+
+                cell.fill = {
+                    type: "pattern",
+                    pattern: "solid",
+                    fgColor: { argb: "FFFFFFFF" }
+                };
+            }
+
+            function aplicarTipoCalculoTiempos(cell, tipo){
+
+                const tipoNormalizado = String(tipo || "")
+                    .toLowerCase()
+                    .trim();
+
+                if (tipoNormalizado.includes("real")) {
+                    cell.fill = {
+                        type: "pattern",
+                        pattern: "solid",
+                        fgColor: { argb: "FFE2F0D9" }
+                    };
+
+                    cell.font = {
+                        bold: true,
+                        color: { argb: "FF166534" }
+                    };
+
+                    return;
+                }
+
+                if (tipoNormalizado.includes("reprogramado")) {
+                    cell.fill = {
+                        type: "pattern",
+                        pattern: "solid",
+                        fgColor: { argb: "FFFCE4D6" }
+                    };
+
+                    cell.font = {
+                        bold: true,
+                        color: { argb: "FFB45309" }
+                    };
+
+                    return;
+                }
+
+                cell.fill = {
+                    type: "pattern",
+                    pattern: "solid",
+                    fgColor: { argb: "FFDBEAFE" }
+                };
+
+                cell.font = {
+                    bold: true,
+                    color: { argb: "FF1D4ED8" }
+                };
+            }
+
+            function aplicarReprogramadoTiempos(cell, reprogramado){
+
+                if (!reprogramado) {
+                    cell.fill = {
+                        type: "pattern",
+                        pattern: "solid",
+                        fgColor: { argb: "FFFFFFFF" }
+                    };
+
+                    cell.font = {
+                        bold: false,
+                        color: { argb: "FF111827" }
+                    };
+
+                    return;
+                }
+
+                cell.fill = {
+                    type: "pattern",
+                    pattern: "solid",
+                    fgColor: { argb: "FFFCE4D6" }
+                };
+
+                cell.font = {
+                    bold: true,
+                    color: { argb: "FFB45309" }
+                };
+            }
+
+            /* =========================
+            TÍTULO
+            ========================= */
+
+            tiemposSheet.mergeCells("A1:I1");
+
+            const titulo = tiemposSheet.getCell("A1");
+
+            titulo.value = "TIEMPOS DE PRODUCCIÓN";
+
+            aplicarTituloTiempos(titulo);
+
+            for (let col = 1; col <= 9; col++) {
+                aplicarTituloTiempos(tiemposSheet.getCell(1, col));
+            }
+
+            tiemposSheet.getRow(1).height = 26;
+
+            /* =========================
+            ENCABEZADOS
+            ========================= */
+
+            const headersTiempos = [
+                "Producto",
+                "Pedido",
+                "Máquina(s)",
+                "Fecha inicio",
+                "Fecha fin estimada",
+                "Fecha fin real / proyectada",
+                "Tipo cálculo",
+                "Total horas",
+                "Reprogramado"
+            ];
+
+            headersTiempos.forEach((header, index) => {
+
+                const cell = tiemposSheet.getCell(3, index + 1);
+
+                cell.value = header;
+
+                aplicarHeaderTiempos(cell);
+            });
+
+            /* =========================
+            FILAS
+            ========================= */
+
+            let filaTiempo = 4;
+
+            productosBase.forEach(item => {
+
+                const fechaInicio = item.fecha;
+                const fechaFinEstimada = item.fecha_fin;
+
+                const datosFinCalculo = obtenerFechaFinCalculoTiempoExcel(item);
+
+                const fechaFinCalculo = datosFinCalculo.fecha;
+
+                const tipoCalculo = datosFinCalculo.tipo;
+
+                const reprogramado = esProductoReprogramadoTiempoExcel(item);
+
+                const totalHoras = calcularHorasTotalesTiempoExcel(
+                    fechaInicio,
+                    fechaFinCalculo
+                );
+
+                const fila = tiemposSheet.getRow(filaTiempo);
+
+                const datosFila = [
+                    valorTiempoExcel(item.producto),
+                    valorTiempoExcel(item.numero_pedido),
+                    obtenerMaquinasTextoTiempoExcel(item),
+                    normalizarFechaTextoTiempoExcel(fechaInicio),
+                    normalizarFechaTextoTiempoExcel(fechaFinEstimada),
+                    valorTiempoExcel(fechaFinCalculo),
+                    tipoCalculo,
+                    totalHoras,
+                    reprogramado ? "Sí" : "No"
+                ];
+
+                datosFila.forEach((valor, index) => {
+
+                    const cell = fila.getCell(index + 1);
+
+                    cell.value = valor;
+
+                    aplicarCeldaTiempos(cell);
+
+                    if (index === 6) {
+                        aplicarTipoCalculoTiempos(cell, tipoCalculo);
+                    }
+
+                    if (index === 8) {
+                        aplicarReprogramadoTiempos(cell, reprogramado);
+                    }
+
+                    if (index === 7 && typeof valor === "number") {
+                        cell.numFmt = '0.0';
+                    }
+                });
+
+                fila.height = 26;
+
+                filaTiempo++;
+            });
+
+            /* =========================
+            ANCHOS
+            ========================= */
+
+            tiemposSheet.getColumn(1).width = 28; // Producto
+            tiemposSheet.getColumn(2).width = 18; // Pedido
+            tiemposSheet.getColumn(3).width = 36; // Máquina(s)
+            tiemposSheet.getColumn(4).width = 18; // Inicio
+            tiemposSheet.getColumn(5).width = 20; // Fin estimada
+            tiemposSheet.getColumn(6).width = 28; // Fin real/proyectada
+            tiemposSheet.getColumn(7).width = 26; // Tipo cálculo
+            tiemposSheet.getColumn(8).width = 16; // Total horas
+            tiemposSheet.getColumn(9).width = 18; // Reprogramado
+        }
+
         crearHojaDetallesExcel(
             workbook,
             data.data,
             registros,
             ordenMaquinas
+        );
+
+        crearHojaTiemposExcel(
+            workbook,
+            data.data,
+            registros
         );
 
         /* =========================
