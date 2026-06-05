@@ -244,50 +244,133 @@ function agregarFooterInformeGanttPDF(doc){
     }
 }
 
-function dibujarLeyendaGanttPDF(doc, x, y){
+function dibujarLeyendaGanttPDF(doc, x, y, anchoDisponible){
 
-    const items = [
-        { texto: "En proceso", color: [255, 217, 102] },
-        { texto: "Pendiente", color: [189, 215, 238] },
-        { texto: "Atrasado", color: [255, 205, 210] },
-        { texto: "Tiempo muerto", color: [252, 228, 214] },
-        { texto: "Terminado", color: [226, 240, 217] },
-        { texto: "Fin de semana", color: [255, 205, 210] },
-        { texto: "Sábado trabajado", color: [198, 224, 180] }
-    ];
+    const boxW = anchoDisponible || (doc.internal.pageSize.getWidth() - 28);
+    const boxH = 38;
 
-    let cursorX = x;
-    let cursorY = y;
+    const gap = 6;
+    const leftW = 122;
+    const rightW = boxW - leftW - gap;
+
+    const leftX = x;
+    const rightX = x + leftW + gap;
+
+    /* =========================
+       CONTENEDOR GENERAL
+    ========================= */
+
+    doc.setDrawColor(220, 220, 220);
+    doc.setFillColor(248, 250, 252);
+    doc.roundedRect(x, y, boxW, boxH, 2, 2, "FD");
 
     doc.setFont("helvetica", "bold");
-    doc.setFontSize(7.4);
+    doc.setFontSize(7.8);
     doc.setTextColor(8, 22, 55);
-    doc.text("Leyenda:", cursorX, cursorY + 4);
+    doc.text("Leyenda Carta Gantt", x + 6, y + 8);
 
-    cursorX += 19;
+    /* =========================
+       HELPER ITEM
+    ========================= */
 
-    items.forEach(item => {
+    function dibujarItemLeyenda(posX, posY, texto, color){
 
-        const itemWidth = doc.getTextWidth(item.texto) + 13;
+        doc.setFillColor(...color);
+        doc.rect(posX, posY - 3.8, 4.8, 4.8, "F");
 
-        if (cursorX + itemWidth > doc.internal.pageSize.getWidth() - 14) {
-            cursorX = x + 19;
-            cursorY += 8;
-        }
-
-        doc.setFillColor(...item.color);
-        doc.rect(cursorX, cursorY, 4.5, 4.5, "F");
-
-        doc.setDrawColor(180, 180, 180);
-        doc.rect(cursorX, cursorY, 4.5, 4.5);
+        doc.setDrawColor(170, 170, 170);
+        doc.rect(posX, posY - 3.8, 4.8, 4.8);
 
         doc.setFont("helvetica", "normal");
-        doc.setFontSize(6.8);
+        doc.setFontSize(6.3);
         doc.setTextColor(35, 35, 35);
-        doc.text(item.texto, cursorX + 6.5, cursorY + 3.7);
+        doc.text(texto, posX + 7, posY);
+    }
 
-        cursorX += itemWidth;
-    });
+    /* =========================
+       CAJA IZQUIERDA - ESTADOS
+    ========================= */
+
+    doc.setDrawColor(225, 225, 225);
+    doc.setFillColor(255, 255, 255);
+    doc.roundedRect(leftX + 6, y + 13, leftW - 10, 20, 1.5, 1.5, "FD");
+
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(6.8);
+    doc.setTextColor(245, 124, 0);
+    doc.text("Estados de producción", leftX + 10, y + 18);
+
+    const estadosY1 = y + 25;
+    const estadosY2 = y + 31;
+
+    /* Estados ordenados en grilla fija */
+    const estadoCol1 = leftX + 10;
+    const estadoCol2 = leftX + 50;
+    const estadoCol3 = leftX + 90;
+
+    dibujarItemLeyenda(
+        estadoCol1,
+        estadosY1,
+        "En proceso",
+        [255, 217, 102]
+    );
+
+    dibujarItemLeyenda(
+        estadoCol2,
+        estadosY1,
+        "Pendiente",
+        [189, 215, 238]
+    );
+
+    dibujarItemLeyenda(
+        estadoCol3,
+        estadosY1,
+        "Atrasado",
+        [255, 205, 210]
+    );
+
+    dibujarItemLeyenda(
+        estadoCol1,
+        estadosY2,
+        "Tiempo muerto",
+        [252, 228, 214]
+    );
+
+    dibujarItemLeyenda(
+        estadoCol2,
+        estadosY2,
+        "Terminado",
+        [226, 240, 217]
+    );
+
+    /* =========================
+       CAJA DERECHA - DÍAS ESPECIALES
+    ========================= */
+
+    doc.setDrawColor(225, 225, 225);
+    doc.setFillColor(255, 255, 255);
+    doc.roundedRect(rightX, y + 13, rightW - 6, 20, 1.5, 1.5, "FD");
+
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(6.8);
+    doc.setTextColor(245, 124, 0);
+    doc.text("Días especiales", rightX + 5, y + 18);
+
+    dibujarItemLeyenda(
+        rightX + 5,
+        y + 25,
+        "Fin de semana",
+        [255, 205, 210]
+    );
+
+    dibujarItemLeyenda(
+        rightX + 5,
+        y + 31,
+        "Sábado trabajado",
+        [198, 224, 180]
+    );
+
+    return boxH;
 }
 
 function dibujarCardIndicadorPDF(doc, x, y, w, h, titulo, valor, color = [8, 22, 55]){
@@ -1015,9 +1098,16 @@ function dibujarPaginaImagenGanttPDF(doc, imagenGantt, resumen){
             "FAST"
         );
 
-        dibujarLeyendaGanttPDF(doc, 14, imgY + imgH + 14);
+        const yLeyenda = imgY + imgH + 12;
 
-        const yAlerta = imgY + imgH + 36;
+        const altoLeyenda = dibujarLeyendaGanttPDF(
+            doc,
+            14,
+            yLeyenda,
+            pageWidth - 28
+        );
+
+        const yAlerta = yLeyenda + altoLeyenda + 8;
 
         doc.setDrawColor(245, 124, 0);
         doc.setFillColor(255, 247, 237);
