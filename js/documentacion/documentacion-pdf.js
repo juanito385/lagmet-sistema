@@ -55,6 +55,21 @@ async function generarInforme(){
         const datosRiesgos = prepararRiesgosAccionesGanttPDF(productos, datosOperativos, resumen);
         const periodo = obtenerPeriodoInformeGanttPDF(productos);
 
+        /* =========================
+        PÁGINA 1 - PORTADA
+        ========================= */
+
+        dibujarPortadaInformeGanttPDF(
+            doc,
+            logo,
+            fechaGeneracion,
+            resumen,
+            datosOperativos,
+            periodo
+        );
+
+        doc.addPage();
+
         dibujarHeaderInformeGanttPDF(
             doc,
             logo,
@@ -164,6 +179,206 @@ async function cargarLogoInformeGanttPDF(){
     });
 }
 
+/* =========================
+   PORTADA INFORME CARTA GANTT
+========================= */
+
+function dibujarPortadaInformeGanttPDF(doc, logo, fechaGeneracion, resumen, datosOperativos, periodo){
+
+    const pageWidth = doc.internal.pageSize.getWidth();
+
+    /* =========================
+       FRANJA SUPERIOR
+    ========================= */
+
+    doc.setFillColor(8, 22, 55);
+    doc.rect(0, 0, pageWidth, 72, "F");
+
+    /* Logo */
+    if (logo) {
+        doc.addImage(logo, "PNG", 22, 20, 38, 14);
+    } else {
+        doc.setTextColor(255, 255, 255);
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(16);
+        doc.text("IRONIX", 24, 30);
+    }
+
+    /* Título principal */
+    doc.setTextColor(255, 255, 255);
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(20);
+    doc.text("INFORME CARTA GANTT", pageWidth / 2, 35, {
+        align: "center"
+    });
+
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(12);
+    doc.text("LAGMET", pageWidth / 2, 48, {
+        align: "center"
+    });
+
+    /* Línea naranja */
+    doc.setDrawColor(245, 124, 0);
+    doc.setLineWidth(1.2);
+    doc.line(18, 82, pageWidth - 18, 82);
+
+    /* =========================
+       PRESENTACIÓN
+    ========================= */
+
+    doc.setTextColor(8, 22, 55);
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(13);
+    doc.text("Presentación del informe", 24, 102);
+
+    doc.setTextColor(45, 45, 45);
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(8.6);
+
+    const textoPresentacion = doc.splitTextToSize(
+        "Este documento presenta la información consolidada de la Carta Gantt de producción, incluyendo resumen general, carga por máquina, tiempos de producción, planificación visual, riesgos detectados y acciones sugeridas para apoyar el seguimiento productivo.",
+        pageWidth - 48
+    );
+
+    doc.text(textoPresentacion, 24, 114);
+
+    /* =========================
+       DATOS DEL INFORME
+    ========================= */
+
+    const datosY = 144;
+
+    doc.setDrawColor(220, 220, 220);
+    doc.setFillColor(248, 250, 252);
+    doc.roundedRect(24, datosY, pageWidth - 48, 42, 2, 2, "FD");
+
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(8.2);
+    doc.setTextColor(8, 22, 55);
+
+    doc.text("Empresa:", 32, datosY + 13);
+    doc.text("Área:", 32, datosY + 25);
+    doc.text("Módulo:", 112, datosY + 13);
+    doc.text("Período:", 112, datosY + 25);
+
+    doc.setFont("helvetica", "normal");
+    doc.setTextColor(35, 35, 35);
+
+    doc.text("LAGMET", 56, datosY + 13);
+    doc.text("Producción", 56, datosY + 25);
+    doc.text("Carta Gantt", 138, datosY + 13);
+    doc.text(periodo || "-", 138, datosY + 25);
+
+    doc.setTextColor(90, 90, 90);
+    doc.setFontSize(7);
+    doc.text(`Generado: ${fechaGeneracion}`, 32, datosY + 35);
+
+    /* =========================
+       RESUMEN PRINCIPAL
+    ========================= */
+
+    doc.setTextColor(245, 124, 0);
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(11.5);
+    doc.text("Resumen principal", 24, 210);
+
+    const cardY = 220;
+    const cardW = 32;
+    const cardH = 21;
+    const gap = 5;
+    const startX = 24;
+
+    function dibujarCardPortada(x, y, titulo, valor, colorTexto){
+
+        doc.setDrawColor(225, 225, 225);
+        doc.setFillColor(255, 255, 255);
+        doc.roundedRect(x, y, cardW, cardH, 2, 2, "FD");
+
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(10);
+        doc.setTextColor(...colorTexto);
+        doc.text(String(valor), x + cardW / 2, y + 8.5, {
+            align: "center"
+        });
+
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(5.6);
+        doc.setTextColor(70, 70, 70);
+
+        const tituloLineas = doc.splitTextToSize(titulo, cardW - 4);
+
+        doc.text(tituloLineas, x + cardW / 2, y + 15.5, {
+            align: "center"
+        });
+    }
+
+    dibujarCardPortada(
+        startX,
+        cardY,
+        "Productos",
+        resumen.totalProductos,
+        [8, 22, 55]
+    );
+
+    dibujarCardPortada(
+        startX + (cardW + gap),
+        cardY,
+        "Máquinas",
+        datosOperativos.cargaPorMaquina.length,
+        [8, 22, 55]
+    );
+
+    dibujarCardPortada(
+        startX + (cardW + gap) * 2,
+        cardY,
+        "En proceso",
+        resumen.enProceso,
+        [180, 120, 0]
+    );
+
+    dibujarCardPortada(
+        startX + (cardW + gap) * 3,
+        cardY,
+        "Terminados",
+        resumen.terminados,
+        [22, 101, 52]
+    );
+
+    dibujarCardPortada(
+        startX + (cardW + gap) * 4,
+        cardY,
+        "Atrasados",
+        resumen.atrasados,
+        [185, 28, 28]
+    );
+
+    /* =========================
+       OBJETIVO DEL DOCUMENTO
+    ========================= */
+
+    const objetivoY = 252;
+
+    doc.setDrawColor(180, 205, 235);
+    doc.setFillColor(239, 246, 255);
+    doc.roundedRect(24, objetivoY, pageWidth - 48, 20, 2, 2, "FD");
+
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(8.3);
+    doc.setTextColor(8, 22, 55);
+    doc.text("Objetivo del documento", 32, objetivoY + 7);
+
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(7);
+    doc.setTextColor(35, 35, 35);
+
+    const textoObjetivo = doc.splitTextToSize(
+        "Servir como respaldo visual y documental de la planificación productiva, facilitando el seguimiento de productos, fechas, estados, atrasos, tiempos y carga operativa.",
+        pageWidth - 64
+    );
+
+    doc.text(textoObjetivo, 32, objetivoY + 14);
+}
 function dibujarHeaderInformeGanttPDF(doc, logo, titulo, fechaGeneracion){
 
     const pageWidth = doc.internal.pageSize.getWidth();
@@ -215,7 +430,7 @@ function agregarFooterInformeGanttPDF(doc){
 
     const totalPages = doc.internal.getNumberOfPages();
 
-    for (let i = 1; i <= totalPages; i++) {
+    for (let i = 2; i <= totalPages; i++) {
 
         doc.setPage(i);
 

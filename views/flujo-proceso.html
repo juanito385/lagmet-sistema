@@ -1,122 +1,64 @@
 <section class="section flujo-proceso-section">
 
-<!-- HEADER -->
-<div class="flujo-header">
-    <div class="flujo-title-box">
+    <!-- HEADER -->
+    <div class="flujo-header">
+        <div class="flujo-title-box">
 
-        <div class="flujo-icon">
-            <span class="material-symbols-outlined">share</span>
+            <div class="flujo-icon">
+                <span class="material-symbols-outlined">share</span>
+            </div>
+
+            <div>
+                <h2>Flujo Proceso</h2>
+                <p>Ruta de fabricación y seguimiento por procesos</p>
+            </div>
+
         </div>
 
-        <div>
-            <h2>Flujo Proceso</h2>
-            <p>Ruta de fabricación y seguimiento por procesos</p>
-        </div>
-
+        <button class="btn-nuevo-flujo" id="btnNuevoFlujo">
+            + Nuevo Flujo
+        </button>
     </div>
-
-    <button class="btn-nuevo-flujo">+ Nuevo Flujo</button>
-</div>
 
     <!-- FILTROS -->
     <div class="flujo-filtros">
+
         <div class="flujo-field">
             <label>Producto</label>
-            <select>
-                <option>Liner Saddle Block 430-b</option>
+            <select id="selectProductoFlujo">
+                <option value="">Todos los productos</option>
             </select>
         </div>
 
         <div class="flujo-field">
             <label>Orden de trabajo</label>
-            <select>
-                <option>OT-2025-00045</option>
+            <select id="selectOtFlujo">
+                <option value="">Todas las OT</option>
             </select>
         </div>
 
         <div class="flujo-field">
             <label>Fecha</label>
-            <input type="date" value="2025-05-21">
+            <input type="date" id="fechaFlujo">
         </div>
 
-        <button class="btn-cargar-flujo">Cargar Flujo</button>
+        <button class="btn-cargar-flujo" id="btnCargarFlujo">
+            Cargar Flujo
+        </button>
+
     </div>
 
-    <!-- TABLERO -->
-    <div class="flujo-board">
+    <!-- TABLERO DINÁMICO -->
+    <div class="flujo-board-wrapper">
 
-        <div class="flujo-column-header">Torno<br>Horizontal</div>
-        <div class="flujo-column-header">Torno<br>Vertical</div>
-        <div class="flujo-column-header">Fresado</div>
-        <div class="flujo-column-header">Perforado</div>
-        <div class="flujo-column-header">Planeado</div>
-        <div class="flujo-column-header">Cortado</div>
-        <div class="flujo-column-header">Metalado</div>
-        <div class="flujo-column-header">Soldado</div>
-        <div class="flujo-column-header">Terminación<br>Manual</div>
-        <div class="flujo-column-header">Control<br>Calidad</div>
+        <div class="flujo-board" id="flujoBoard">
 
-        <div class="flujo-lane"></div>
+            <div class="flujo-empty-state" id="flujoEmptyState">
+                <span class="material-symbols-outlined">account_tree</span>
+                <h3>Selecciona un producto para visualizar su flujo</h3>
+                <p>El sistema cargará la ruta de fabricación usando el orden de máquinas guardado en la base de datos.</p>
+            </div>
 
-        <div class="flujo-card card-blue card-1">
-            <strong>1. Desbaste</strong>
-            <span>08:00 - 09:30</span>
-        </div>
-
-        <div class="flujo-arrow arrow-1"></div>
-
-        <div class="flujo-card card-blue card-2">
-            <strong>2. Ranurado<br>perimetral</strong>
-            <span>09:45 - 10:45</span>
-        </div>
-
-        <div class="flujo-arrow arrow-2"></div>
-
-        <div class="flujo-card card-blue card-3">
-            <strong>3. Medida final</strong>
-            <span>10:50 - 11:10</span>
-        </div>
-
-        <div class="flujo-arrow-horizontal arrow-3"></div>
-
-        <div class="flujo-card card-green card-4">
-            <strong>4. Perforado<br>Flange</strong>
-            <span>11:20 - 12:20</span>
-        </div>
-
-        <div class="flujo-arrow arrow-4"></div>
-
-        <div class="flujo-card card-green card-5">
-            <strong>5. Perforado<br>Lateral</strong>
-            <span>12:30 - 13:30</span>
-        </div>
-
-        <div class="flujo-arrow arrow-5"></div>
-
-        <div class="flujo-card card-purple card-6">
-            <strong>6. Fresado<br>canales</strong>
-            <span>14:00 - 15:30</span>
-        </div>
-
-        <div class="flujo-arrow-long arrow-6"></div>
-
-        <div class="flujo-card card-yellow card-7">
-            <strong>7. Repaso<br>de Hilos</strong>
-            <span>15:40 - 16:10</span>
-        </div>
-
-        <div class="flujo-arrow arrow-7"></div>
-
-        <div class="flujo-card card-yellow card-8">
-            <strong>8. Pulido</strong>
-            <span>16:15 - 16:45</span>
-        </div>
-
-        <div class="flujo-arrow-horizontal-small arrow-8"></div>
-
-        <div class="flujo-card card-red card-9">
-            <strong>9. Aprobación<br>CC</strong>
-            <span>16:50 - 17:10</span>
         </div>
 
     </div>
@@ -131,52 +73,22 @@
                 <thead>
                     <tr>
                         <th>#</th>
+                        <th>Producto</th>
                         <th>Máquina / Área</th>
                         <th>Proceso</th>
                         <th>Inicio</th>
                         <th>Fin</th>
                         <th>Duración</th>
-                        <th>Operador</th>
                         <th>Estado</th>
                         <th>Observaciones</th>
                     </tr>
                 </thead>
 
-                <tbody>
+                <tbody id="tablaDetalleFlujo">
                     <tr>
-                        <td>1</td>
-                        <td>Torno Vertical</td>
-                        <td>Desbaste</td>
-                        <td>08:00</td>
-                        <td>09:30</td>
-                        <td>01:30</td>
-                        <td>J. Pérez</td>
-                        <td><span class="estado-ok">Completado</span></td>
-                        <td>Desbaste general de la pieza</td>
-                    </tr>
-
-                    <tr>
-                        <td>2</td>
-                        <td>Torno Vertical</td>
-                        <td>Ranurado perimetral</td>
-                        <td>09:45</td>
-                        <td>10:45</td>
-                        <td>01:00</td>
-                        <td>J. Pérez</td>
-                        <td><span class="estado-ok">Completado</span></td>
-                        <td>Ranurado según plano</td>
-                    </tr>
-
-                    <tr>
-                        <td>3</td>
-                        <td>Torno Vertical</td>
-                        <td>Medida final</td>
-                        <td>10:50</td>
-                        <td>11:10</td>
-                        <td>00:20</td>
-                        <td>J. Pérez</td>
-                        <td><span class="estado-ok">Completado</span></td>
-                        <td>Verificación dimensional</td>
+                        <td colspan="9" class="flujo-table-empty">
+                            Sin operaciones cargadas
+                        </td>
                     </tr>
                 </tbody>
             </table>
@@ -186,27 +98,32 @@
             <h3>Resumen del Flujo</h3>
 
             <div class="resumen-linea">
+                <span>Total de Productos</span>
+                <strong id="resumenTotalProductos">0</strong>
+            </div>
+
+            <div class="resumen-linea">
                 <span>Total de Operaciones</span>
-                <strong>9</strong>
+                <strong id="resumenTotalOperaciones">0</strong>
             </div>
 
             <div class="resumen-linea">
                 <span>Tiempo Total Estimado</span>
-                <strong>09:10</strong>
+                <strong id="resumenTiempoEstimado">00:00</strong>
             </div>
 
             <div class="resumen-linea">
-                <span>Tiempo Total Real</span>
-                <strong>09:10</strong>
+                <span>Control de Calidad</span>
+                <strong id="resumenControlCalidad">Habilitado</strong>
             </div>
 
             <div class="resumen-linea">
                 <span>Progreso del Flujo</span>
-                <strong>100%</strong>
+                <strong id="resumenProgreso">0%</strong>
             </div>
 
             <div class="flujo-progress">
-                <div></div>
+                <div id="barraProgresoFlujo"></div>
             </div>
         </div>
 
