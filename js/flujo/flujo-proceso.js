@@ -9,6 +9,13 @@ let flujoProductosBD = [];
 let flujoProductoSeleccionado = null;
 let flujoCantidadOperacionesVisibles = 1;
 
+/*
+    Cards vacías creadas temporalmente.
+    Clave: índice de la operación base.
+    Valor: cantidad de cards vacías hacia abajo.
+*/
+let flujoCardsVaciasAbajo = {};
+
 /* =========================
    INICIAR FLUJO PROCESO
 ========================= */
@@ -111,8 +118,38 @@ function configurarEventosFlujoProceso() {
 
             if (!btnPlus) return;
 
-            avanzarFlujoProceso();
+            const direccion = btnPlus.dataset.direccion || "right";
+            const origen = btnPlus.dataset.origen || "operacion";
+            const indexBase = parseInt(btnPlus.dataset.indexBase || "-1", 10);
+
+            if (Number.isNaN(indexBase) || indexBase < 0) return;
+
+            if (origen === "placeholder") {
+                avanzarDesdeCardVacia(indexBase, direccion);
+                return;
+            }
+
+            if (direccion === "down") {
+                crearCardVaciaAbajo(indexBase);
+                return;
+            }
+
+            avanzarFlujoProceso(direccion);
         };
+    }
+
+    if (!window.__flujoResizeRegistrado) {
+        window.__flujoResizeRegistrado = true;
+
+        let resizeTimer = null;
+
+        window.addEventListener("resize", () => {
+            clearTimeout(resizeTimer);
+
+            resizeTimer = setTimeout(() => {
+                dibujarConectoresDinamicosFlujo();
+            }, 120);
+        });
     }
 }
 
@@ -138,6 +175,7 @@ function cargarFlujoSeleccionado() {
     }
 
     flujoCantidadOperacionesVisibles = 1;
+    flujoCardsVaciasAbajo = {};
 
     renderizarFlujoProducto(flujoProductoSeleccionado);
     renderizarTablaDetalleFlujo(flujoProductoSeleccionado);
@@ -147,7 +185,7 @@ function cargarFlujoSeleccionado() {
 /* =========================
    AVANZAR FLUJO PROCESO
 ========================= */
-function avanzarFlujoProceso() {
+function avanzarFlujoProceso(direccion = "right") {
     if (!flujoProductoSeleccionado) return;
 
     const operaciones = obtenerOperacionesOrdenadas(flujoProductoSeleccionado);
@@ -155,6 +193,8 @@ function avanzarFlujoProceso() {
     if (flujoCantidadOperacionesVisibles >= operaciones.length) {
         return;
     }
+
+    console.log("Avanzar flujo hacia:", direccion);
 
     flujoCantidadOperacionesVisibles++;
 
@@ -164,8 +204,42 @@ function avanzarFlujoProceso() {
 }
 
 /* =========================
+   CREAR CARD VACÍA ABAJO
+========================= */
+function crearCardVaciaAbajo(indexBase) {
+    if (!flujoProductoSeleccionado) return;
+
+    const operaciones = obtenerOperacionesOrdenadas(flujoProductoSeleccionado);
+    const siguienteReal = operaciones[indexBase + 1] || null;
+
+    if (!siguienteReal) {
+        return;
+    }
+
+    flujoCardsVaciasAbajo[indexBase] = (flujoCardsVaciasAbajo[indexBase] || 0) + 1;
+
+    renderizarFlujoProducto(flujoProductoSeleccionado);
+}
+
+/* =========================
+   AVANZAR DESDE CARD VACÍA
+========================= */
+function avanzarDesdeCardVacia(indexBase, direccion = "right") {
+    if (!flujoProductoSeleccionado) return;
+
+    if (direccion === "down") {
+        crearCardVaciaAbajo(indexBase);
+        return;
+    }
+
+    if (direccion === "right") {
+        avanzarFlujoProceso("right");
+    }
+}
+
+/* =========================
    RENDERIZAR FLUJO
-   Grilla dinámica tipo Excel con avance progresivo
+   Grilla dinámica tipo Excel con avance progresivo y cards vacías
 ========================= */
 function renderizarFlujoProducto(producto) {
     const board = document.getElementById("flujoBoard");
@@ -211,29 +285,137 @@ function renderizarFlujoProducto(producto) {
                                 const siguienteVisible = operacionesVisibles[operacion.indexGlobal + 1] || null;
                                 const siguienteReal = operaciones[operacion.indexGlobal + 1] || null;
 
-                                let tipoConector = "none";
+                                const cantidadVacias = flujoCardsVaciasAbajo[operacion.indexGlobal] || 0;
+                                const tieneCardVaciaAbajo = cantidadVacias > 0;
 
-                                if (siguienteVisible) {
+                                let tipoConector = "none";
+                                let haySiguienteOculto = Boolean(siguienteReal) && !siguienteVisible;
+
+                                if (tieneCardVaciaAbajo) {
+                                    tipoConector = "down";
+                                    haySiguienteOculto = false;
+                                } else if (siguienteVisible) {
                                     const columnaActual = obtenerNombreColumnaOperacion(operacion);
                                     const columnaSiguiente = obtenerNombreColumnaOperacion(siguienteVisible);
 
                                     tipoConector = columnaActual === columnaSiguiente ? "down" : "right";
                                 }
 
-                                const haySiguienteOculto = Boolean(siguienteReal) && !siguienteVisible;
-
-                                return crearTarjetaOperacion(
+                                const cardPrincipal = crearTarjetaOperacion(
                                     operacion,
                                     operacion.indexGlobal,
                                     tipoConector,
                                     haySiguienteOculto
                                 );
+
+                                const cardsVacias = crearCardsVaciasAbajo(
+                                    operacion,
+                                    operacion.indexGlobal,
+                                    cantidadVacias,
+                                    siguienteVisible,
+                                    siguienteReal
+                                );
+
+                                return cardPrincipal + cardsVacias;
                             }).join("")}
                         </div>
                     `;
                 }).join("")}
             </div>
 
+        </div>
+    `;
+
+    requestAnimationFrame(() => {
+        dibujarConectoresDinamicosFlujo();
+    });
+}
+
+/* =========================
+   CREAR CARDS VACÍAS ABAJO
+========================= */
+function crearCardsVaciasAbajo(operacionBase, indexBase, cantidadVacias, siguienteVisible, siguienteReal) {
+    if (cantidadVacias <= 0) return "";
+
+    let html = "";
+
+    for (let i = 1; i <= cantidadVacias; i++) {
+        const esUltimaVacia = i === cantidadVacias;
+
+        let tipoConector = "none";
+        let mostrarBotones = false;
+
+        if (!esUltimaVacia) {
+            tipoConector = "down";
+        } else if (siguienteVisible) {
+            const columnaActual = obtenerNombreColumnaOperacion(operacionBase);
+            const columnaSiguiente = obtenerNombreColumnaOperacion(siguienteVisible);
+
+            tipoConector = columnaActual === columnaSiguiente ? "down" : "right-up";
+        } else if (siguienteReal) {
+            mostrarBotones = true;
+        }
+
+        html += crearTarjetaVaciaOperacion(
+            indexBase,
+            i,
+            tipoConector,
+            mostrarBotones
+        );
+    }
+
+    return html;
+}
+
+/* =========================
+   CREAR TARJETA VACÍA
+========================= */
+function crearTarjetaVaciaOperacion(indexBase, numeroPlaceholder, tipoConector = "none", mostrarBotones = false) {
+    const accionHTML = mostrarBotones
+        ? `
+            <button 
+                class="flujo-grid-plus flujo-plus-right" 
+                data-origen="placeholder"
+                data-direccion="right"
+                data-index-base="${indexBase}"
+                title="Continuar flujo hacia la derecha">
+                +
+            </button>
+
+            <button 
+                class="flujo-grid-plus flujo-plus-down" 
+                data-origen="placeholder"
+                data-direccion="down"
+                data-index-base="${indexBase}"
+                title="Crear otra operación debajo">
+                +
+            </button>
+        `
+        : "";
+
+    const atributosDinamicos = tipoConector === "right-up"
+        ? `data-conector-dinamico="right-up" data-index-base="${indexBase}"`
+        : "";
+
+    return `
+        <div 
+            class="flujo-grid-card-wrapper flujo-card-vacia-wrapper conector-${tipoConector}"
+            ${atributosDinamicos}>
+
+            <div class="flujo-grid-card flujo-grid-card-vacia">
+
+                <div class="flujo-grid-card-vacia-icon">
+                    +
+                </div>
+
+                <div class="flujo-grid-card-info">
+                    <strong>Nueva operación</strong>
+                    <span>Vacía</span>
+                </div>
+
+                ${accionHTML}
+
+            </div>
         </div>
     `;
 }
@@ -312,7 +494,21 @@ function crearTarjetaOperacion(operacion, index, tipoConector = "none", haySigui
 
     if (haySiguienteOculto) {
         accionHTML = `
-            <button class="flujo-grid-plus" title="Mostrar siguiente operación">
+            <button 
+                class="flujo-grid-plus flujo-plus-right" 
+                data-origen="operacion"
+                data-direccion="right"
+                data-index-base="${index}"
+                title="Mostrar siguiente operación a la derecha">
+                +
+            </button>
+
+            <button 
+                class="flujo-grid-plus flujo-plus-down" 
+                data-origen="operacion"
+                data-direccion="down"
+                data-index-base="${index}"
+                title="Crear operación debajo">
                 +
             </button>
         `;
@@ -325,7 +521,10 @@ function crearTarjetaOperacion(operacion, index, tipoConector = "none", haySigui
     }
 
     return `
-        <div class="flujo-grid-card-wrapper conector-${tipoConector}">
+        <div 
+            class="flujo-grid-card-wrapper conector-${tipoConector}"
+            data-operacion-index="${index}">
+
             <div class="flujo-grid-card ${esCC ? "flujo-grid-card-cc" : ""}">
 
                 <div class="flujo-grid-card-numero">
@@ -342,6 +541,101 @@ function crearTarjetaOperacion(operacion, index, tipoConector = "none", haySigui
             </div>
         </div>
     `;
+}
+
+/* =========================
+   DIBUJAR CONECTORES DINÁMICOS
+   Une última card vacía con card real derecha
+========================= */
+function dibujarConectoresDinamicosFlujo() {
+    const body = document.querySelector("#flujoBoard .flujo-grid-body");
+
+    if (!body) return;
+
+    body.querySelectorAll(".flujo-conectores-svg").forEach(svg => svg.remove());
+
+    const fuentes = body.querySelectorAll('[data-conector-dinamico="right-up"]');
+
+    if (fuentes.length === 0) return;
+
+    const bodyRect = body.getBoundingClientRect();
+    const svgNS = "http://www.w3.org/2000/svg";
+
+    const svg = document.createElementNS(svgNS, "svg");
+    svg.classList.add("flujo-conectores-svg");
+    svg.setAttribute("width", bodyRect.width);
+    svg.setAttribute("height", bodyRect.height);
+    svg.setAttribute("viewBox", `0 0 ${bodyRect.width} ${bodyRect.height}`);
+
+    const defs = document.createElementNS(svgNS, "defs");
+
+    const marker = document.createElementNS(svgNS, "marker");
+    marker.setAttribute("id", "flujoArrowHead");
+    marker.setAttribute("markerWidth", "10");
+    marker.setAttribute("markerHeight", "10");
+    marker.setAttribute("refX", "8");
+    marker.setAttribute("refY", "3");
+    marker.setAttribute("orient", "auto");
+    marker.setAttribute("markerUnits", "strokeWidth");
+
+    const arrowPath = document.createElementNS(svgNS, "path");
+    arrowPath.setAttribute("d", "M0,0 L0,6 L9,3 z");
+    arrowPath.setAttribute("fill", "#247cff");
+
+    marker.appendChild(arrowPath);
+    defs.appendChild(marker);
+    svg.appendChild(defs);
+
+    fuentes.forEach(fuente => {
+        const indexBase = parseInt(fuente.dataset.indexBase || "-1", 10);
+        const indexDestino = indexBase + 1;
+
+        const destino = body.querySelector(`[data-operacion-index="${indexDestino}"]`);
+
+        if (!destino) return;
+
+        const cardOrigen = fuente.querySelector(".flujo-grid-card");
+        const cardDestino = destino.querySelector(".flujo-grid-card");
+
+        if (!cardOrigen || !cardDestino) return;
+
+        const origenRect = cardOrigen.getBoundingClientRect();
+        const destinoRect = cardDestino.getBoundingClientRect();
+
+        const startX = origenRect.right - bodyRect.left;
+        const startY = origenRect.top + (origenRect.height / 2) - bodyRect.top;
+
+        const endX = destinoRect.left - bodyRect.left;
+        const endY = destinoRect.top + (destinoRect.height / 2) - bodyRect.top;
+
+        if (endX <= startX) return;
+
+        const distanciaX = endX - startX;
+        const codoX = startX + Math.max(70, distanciaX * 0.45);
+
+        const path = document.createElementNS(svgNS, "path");
+
+        path.setAttribute(
+            "d",
+            `
+                M ${startX} ${startY}
+                L ${codoX} ${startY}
+                L ${codoX} ${endY}
+                L ${endX - 10} ${endY}
+            `
+        );
+
+        path.setAttribute("fill", "none");
+        path.setAttribute("stroke", "#247cff");
+        path.setAttribute("stroke-width", "2.4");
+        path.setAttribute("stroke-linecap", "round");
+        path.setAttribute("stroke-linejoin", "round");
+        path.setAttribute("marker-end", "url(#flujoArrowHead)");
+
+        svg.appendChild(path);
+    });
+
+    body.appendChild(svg);
 }
 
 /* =========================
