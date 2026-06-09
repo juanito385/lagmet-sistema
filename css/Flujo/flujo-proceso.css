@@ -11,31 +11,68 @@
 }
 
 /* =========================
-   HEADER
+   PANEL PRINCIPAL INTEGRADO
+   Título + filtros + tablero
 ========================= */
 
-.flujo-proceso-section .flujo-header {
+.flujo-proceso-section .flujo-panel-principal {
+    width: 100%;
+    box-sizing: border-box;
+
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+
+    padding: 26px;
+
     background: rgba(255,255,255,0.06);
     border: 1px solid rgba(255,255,255,0.12);
-    border-radius: 14px;
-    padding: 18px 22px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+    border-radius: 16px;
+
     box-shadow: 0 15px 35px rgba(0,0,0,0.25);
-    margin-bottom: 14px;
 }
 
-.flujo-proceso-section .flujo-title-box {
+/* Cabecera integrada */
+.flujo-proceso-section .flujo-panel-top {
     display: flex;
     align-items: center;
-    gap: 14px;
+    justify-content: space-between;
+
+    padding: 2px 4px 4px;
 }
 
+/* Título */
+.flujo-proceso-section .flujo-title-box,
+.flujo-proceso-section .flujo-title-box-integrado {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.flujo-proceso-section .flujo-title-box h2,
+.flujo-proceso-section .flujo-title-box-integrado h2 {
+    margin: 0;
+
+    font-size: 32px;
+    font-weight: 800;
+    color: #ffffff;
+    letter-spacing: 0.4px;
+}
+
+.flujo-proceso-section .flujo-title-box p,
+.flujo-proceso-section .flujo-title-box-integrado p {
+    margin: 4px 0 0;
+
+    color: #cfd6e6;
+    font-size: 14px;
+}
+
+/* Icono */
 .flujo-proceso-section .flujo-icon {
     display: flex;
     align-items: center;
     justify-content: center;
+
     color: #5ba7ff;
     line-height: 1;
 }
@@ -52,43 +89,24 @@
     'opsz' 48;
 }
 
-.flujo-proceso-section .flujo-title-box h2 {
-    margin: 0;
-    font-size: 30px;
-    font-weight: 800;
-    color: #fff;
-}
-
-.flujo-proceso-section .flujo-title-box p {
-    margin: 4px 0 0;
-    color: #cfd6e6;
-    font-size: 14px;
-}
-
-.flujo-proceso-section .btn-nuevo-flujo {
-    background: rgba(30,120,255,0.12);
-    color: #63a8ff;
-    border: 1px solid #2f83ff;
-    padding: 12px 22px;
-    border-radius: 8px;
-    font-weight: 700;
-    cursor: pointer;
-}
-
 /* =========================
-   FILTROS
+   FILTROS INTEGRADOS
 ========================= */
 
 .flujo-proceso-section .flujo-filtros {
-    background: rgba(255,255,255,0.06);
-    border: 1px solid rgba(255,255,255,0.12);
-    border-radius: 14px;
-    padding: 16px 20px;
     display: grid;
     grid-template-columns: 1.2fr 1fr 0.8fr auto;
     gap: 28px;
     align-items: end;
+
     margin-bottom: 0;
+    padding: 18px 20px;
+
+    background: rgba(20, 26, 42, 0.42);
+    border: 1px solid rgba(255,255,255,0.10);
+    border-radius: 14px;
+
+    box-shadow: none;
 }
 
 .flujo-proceso-section .flujo-field {
@@ -135,7 +153,8 @@
     padding-right: 42px;
 }
 
-.flujo-proceso-section .flujo-field select:focus {
+.flujo-proceso-section .flujo-field select:focus,
+.flujo-proceso-section .flujo-field input:focus {
     border-color: #5ba7ff;
     box-shadow: 0 0 0 2px rgba(91,167,255,0.18);
 }
@@ -162,26 +181,33 @@
     border-radius: 8px;
     font-weight: 800;
     cursor: pointer;
+    transition: 0.18s ease;
+}
+
+.flujo-proceso-section .btn-cargar-flujo:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 10px 24px rgba(36,124,255,0.32);
 }
 
 /* =========================
-   BOARD CENTRAL
+   BOARD CENTRAL INTEGRADO
 ========================= */
 
 .flujo-proceso-section .flujo-board-wrapper {
     width: 100%;
-    margin-top: 14px;
+    margin-top: 0;
+
     display: flex;
     justify-content: center;
 }
 
 .flujo-proceso-section .flujo-board {
     width: 100%;
-    min-height: 420px;
+    min-height: 430px;
     height: auto;
 
-    background: rgba(255,255,255,0.06);
-    border: 1px solid rgba(255,255,255,0.12);
+    background: rgba(20, 26, 42, 0.34);
+    border: 1px solid rgba(255,255,255,0.08);
     border-radius: 14px;
 
     padding: 28px;
@@ -194,7 +220,7 @@
     color: #fff;
     overflow: hidden;
 
-    box-shadow: 0 15px 35px rgba(0,0,0,0.25);
+    box-shadow: none;
 }
 
 /* Estado vacío */
@@ -305,6 +331,16 @@
 
 /* Cuerpo de grilla */
 .flujo-proceso-section .flujo-grid-body {
+    --flujo-fila-alto: 116px;
+    --flujo-card-ancho: 250px;
+    --flujo-card-alto: 86px;
+
+    --flujo-conector-color: #247cff;
+    --flujo-conector-grosor: 2px;
+
+    --flujo-flecha-ancho: 10px;
+    --flujo-flecha-alto: 14px;
+
     position: relative;
 
     display: grid;
@@ -319,9 +355,9 @@
         repeating-linear-gradient(
             to bottom,
             transparent 0,
-            transparent 80px,
-            rgba(0,0,0,0.10) 80px,
-            rgba(0,0,0,0.10) 81px
+            transparent calc(var(--flujo-fila-alto) - 1px),
+            rgba(0,0,0,0.10) calc(var(--flujo-fila-alto) - 1px),
+            rgba(0,0,0,0.10) var(--flujo-fila-alto)
         );
 }
 
@@ -336,8 +372,8 @@
     align-items: center;
     justify-content: flex-start;
 
-    gap: 52px;
-    padding: 38px 18px 32px;
+    gap: 0;
+    padding: 0 18px 0;
     box-sizing: border-box;
 
     border-right: 2px solid rgba(0,0,0,0.30);
@@ -357,27 +393,26 @@
 /* =========================
    CARDS DEL FLUJO
 ========================= */
-
 .flujo-proceso-section .flujo-grid-card-wrapper {
     position: relative;
     z-index: 5;
 
     width: 100%;
+    min-height: var(--flujo-fila-alto);
 
     display: flex;
     justify-content: center;
     align-items: center;
 
     overflow: visible;
-    min-height: auto;
 }
 
 .flujo-proceso-section .flujo-grid-card {
     position: relative;
     z-index: 5;
 
-    width: 250px;
-    min-height: 86px;
+    width: var(--flujo-card-ancho);
+    min-height: var(--flujo-card-alto);
 
     display: grid;
     grid-template-columns: 48px 1fr;
@@ -405,9 +440,12 @@
 
     transition:
         transform 0.18s ease,
-        box-shadow 0.18s ease;
+        box-shadow 0.18s ease,
+        border-color 0.18s ease,
+        background 0.18s ease;
 
     overflow: visible;
+    cursor: pointer;
 }
 
 .flujo-proceso-section .flujo-grid-card:hover {
@@ -489,7 +527,8 @@
    CARD VACÍA TEMPORAL
 ========================= */
 
-.flujo-proceso-section .flujo-grid-card-vacia {
+.flujo-proceso-section .flujo-grid-card-vacia,
+.flujo-proceso-section .flujo-grid-card-real-pendiente {
     background: rgba(255,255,255,0.18);
     border: 2px dashed rgba(36,124,255,0.55);
     color: #1f2937;
@@ -499,11 +538,19 @@
         inset 0 0 0 1px rgba(255,255,255,0.35);
 }
 
-.flujo-proceso-section .flujo-grid-card-vacia .flujo-grid-card-info strong {
+.flujo-proceso-section .flujo-grid-card-vacia:hover,
+.flujo-proceso-section .flujo-grid-card-real-pendiente:hover {
+    border-color: rgba(59, 130, 246, 0.95);
+    background: rgba(239, 246, 255, 0.85);
+}
+
+.flujo-proceso-section .flujo-grid-card-vacia .flujo-grid-card-info strong,
+.flujo-proceso-section .flujo-grid-card-real-pendiente .flujo-grid-card-info strong {
     color: #374151;
 }
 
-.flujo-proceso-section .flujo-grid-card-vacia .flujo-grid-card-info span {
+.flujo-proceso-section .flujo-grid-card-vacia .flujo-grid-card-info span,
+.flujo-proceso-section .flujo-grid-card-real-pendiente .flujo-grid-card-info span {
     color: #6b7280;
 }
 
@@ -523,6 +570,17 @@
     color: #6b7280;
     font-size: 24px;
     font-weight: 900;
+}
+
+/* Card temporal ya editada */
+.flujo-proceso-section .flujo-grid-card-temporal-editada {
+    border: 2px solid #3b82f6;
+    background: #f8fbff;
+}
+
+.flujo-proceso-section .flujo-grid-card-temporal-editada:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 18px 34px rgba(37, 99, 235, 0.22);
 }
 
 /* =========================
@@ -635,52 +693,94 @@
 }
 
 /* =========================
-   CONECTORES FIJOS
+   CONECTORES FIJOS UNIFICADOS
+   Horizontal + Vertical
+   Ajustados para tocar bordes de cards
 ========================= */
+/* ---------- HORIZONTAL ---------- */
+/*
+   Conector horizontal corregido.
 
+   Considera:
+   - ancho de la card
+   - padding lateral de columnas: 18px + 18px = 36px
+   - ancho de la punta de flecha
+*/
 .flujo-proceso-section .conector-right::after {
     content: "";
     position: absolute;
 
-    left: 50%;
     top: 50%;
+    left: calc(50% + (var(--flujo-card-ancho) / 2));
 
-    width: 100%;
-    height: 2px;
+    width: calc(
+        100% -
+        var(--flujo-card-ancho) +
+        36px -
+        var(--flujo-flecha-ancho)
+    );
 
-    background: #247cff;
+    height: var(--flujo-conector-grosor);
+
+    background: var(--flujo-conector-color);
     transform: translateY(-50%);
+
     z-index: 1;
+    pointer-events: none;
 }
 
 .flujo-proceso-section .conector-right::before {
     content: "";
     position: absolute;
 
-    left: calc(100% + 1px);
     top: 50%;
+    left: calc(
+        50% +
+        (var(--flujo-card-ancho) / 2) +
+        100% -
+        var(--flujo-card-ancho) +
+        36px -
+        var(--flujo-flecha-ancho)
+    );
 
     transform: translateY(-50%);
-    z-index: 2;
 
-    border-top: 6px solid transparent;
-    border-bottom: 6px solid transparent;
-    border-left: 9px solid #247cff;
+    z-index: 2;
+    pointer-events: none;
+
+    border-top: calc(var(--flujo-flecha-alto) / 2) solid transparent;
+    border-bottom: calc(var(--flujo-flecha-alto) / 2) solid transparent;
+    border-left: var(--flujo-flecha-ancho) solid var(--flujo-conector-color);
 }
 
+/* ---------- VERTICAL ---------- */
+/*
+   Distancia real entre:
+   - borde inferior de la card actual
+   - borde superior de la card siguiente
+
+   distancia = alto_fila - alto_card
+*/
 .flujo-proceso-section .conector-down::after {
     content: "";
     position: absolute;
 
     left: 50%;
-    top: 100%;
+    top: calc(50% + (var(--flujo-card-alto) / 2));
 
-    width: 2px;
-    height: 52px;
+    width: var(--flujo-conector-grosor);
 
-    background: #247cff;
+    height: calc(
+        var(--flujo-fila-alto) -
+        var(--flujo-card-alto) -
+        var(--flujo-flecha-ancho)
+    );
+
+    background: var(--flujo-conector-color);
     transform: translateX(-50%);
+
     z-index: 1;
+    pointer-events: none;
 }
 
 .flujo-proceso-section .conector-down::before {
@@ -688,16 +788,23 @@
     position: absolute;
 
     left: 50%;
-    top: calc(100% + 50px);
+    top: calc(
+        50% +
+        (var(--flujo-card-alto) / 2) +
+        var(--flujo-fila-alto) -
+        var(--flujo-card-alto) -
+        var(--flujo-flecha-ancho)
+    );
 
     transform: translateX(-50%);
+
     z-index: 2;
+    pointer-events: none;
 
-    border-left: 6px solid transparent;
-    border-right: 6px solid transparent;
-    border-top: 9px solid #247cff;
+    border-left: calc(var(--flujo-flecha-alto) / 2) solid transparent;
+    border-right: calc(var(--flujo-flecha-alto) / 2) solid transparent;
+    border-top: var(--flujo-flecha-ancho) solid var(--flujo-conector-color);
 }
-
 /* =========================
    CONECTORES SVG DINÁMICOS
    Para unir card vacía con card real derecha
@@ -838,18 +945,37 @@
 }
 
 @media (max-width: 700px) {
-    .flujo-proceso-section .flujo-header {
-        flex-direction: column;
-        align-items: flex-start;
+    .flujo-proceso-section .flujo-panel-principal {
+        padding: 18px;
         gap: 14px;
+    }
+
+    .flujo-proceso-section .flujo-panel-top {
+        align-items: flex-start;
+    }
+
+    .flujo-proceso-section .flujo-title-box,
+    .flujo-proceso-section .flujo-title-box-integrado {
+        align-items: flex-start;
+    }
+
+    .flujo-proceso-section .flujo-title-box h2,
+    .flujo-proceso-section .flujo-title-box-integrado h2 {
+        font-size: 26px;
+    }
+
+    .flujo-proceso-section .flujo-icon .material-symbols-outlined {
+        font-size: 40px;
     }
 
     .flujo-proceso-section .flujo-filtros {
         grid-template-columns: 1fr;
+        gap: 14px;
     }
 
     .flujo-proceso-section .btn-cargar-flujo {
         grid-column: auto;
+        width: 100%;
     }
 
     .flujo-proceso-section .flujo-board {
@@ -859,30 +985,4 @@
     .flujo-proceso-section .flujo-grid-proceso {
         overflow-x: auto;
     }
-}
-
-/* =========================
-   CARDS EDITABLES FLUJO
-========================= */
-
-.flujo-grid-card[data-tipo-card="real"],
-.flujo-grid-card[data-tipo-card="temporal"],
-.flujo-grid-card[data-tipo-card="vacia"] {
-    cursor: pointer;
-}
-
-.flujo-grid-card[data-tipo-card="real"]:hover,
-.flujo-grid-card-temporal-editada:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 18px 34px rgba(37, 99, 235, 0.22);
-}
-
-.flujo-grid-card-vacia:hover {
-    border-color: rgba(59, 130, 246, 0.9);
-    background: rgba(239, 246, 255, 0.78);
-}
-
-.flujo-grid-card-temporal-editada {
-    border: 2px solid #3b82f6;
-    background: #f8fbff;
 }

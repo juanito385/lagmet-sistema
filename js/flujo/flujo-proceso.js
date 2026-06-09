@@ -620,13 +620,14 @@ function crearTarjetaOperacion(operacion, index, tipoConector = "none", haySigui
     const esCC = esOperacionControlCalidad(operacion);
     const numeroVisual = obtenerNumeroVisualOperacionReal(index);
 
-    const titulo = esCC
-        ? "Control de calidad"
-        : operacion.maquina;
-
-    const duracion = esCC
-        ? "Cierre final"
-        : formatearDuracion(operacion.horas, operacion.minutos);
+    /*
+        Regla visual:
+        - Si la operación todavía no fue editada en Flujo Proceso,
+          se muestra como placeholder.
+        - Cuando se guarda desde el modal, debe quedar:
+          operacion._editadaFlujo = true;
+    */
+    const operacionEditada = operacion._editadaFlujo === true;
 
     let accionHTML = "";
 
@@ -658,6 +659,50 @@ function crearTarjetaOperacion(operacion, index, tipoConector = "none", haySigui
         `;
     }
 
+    /* =========================
+       OPERACIÓN SIN EDITAR
+       Se muestra como card vacía
+    ========================= */
+    if (!operacionEditada) {
+        return `
+            <div 
+                class="flujo-grid-card-wrapper conector-${tipoConector}"
+                data-operacion-index="${index}">
+
+                <div 
+                    class="flujo-grid-card flujo-grid-card-vacia flujo-grid-card-real-pendiente"
+                    data-tipo-card="real"
+                    data-operacion-index="${index}"
+                    title="Editar operación">
+
+                    <div class="flujo-grid-card-vacia-icon">
+                        +
+                    </div>
+
+                    <div class="flujo-grid-card-info">
+                        <strong>Nueva operación</strong>
+                        <span>Vacía</span>
+                    </div>
+
+                    ${accionHTML}
+
+                </div>
+            </div>
+        `;
+    }
+
+    /* =========================
+       OPERACIÓN EDITADA
+       Se muestra como card normal
+    ========================= */
+    const titulo = esCC
+        ? "Control de calidad"
+        : operacion.maquina;
+
+    const duracion = esCC
+        ? "Cierre final"
+        : formatearDuracion(operacion.horas, operacion.minutos);
+
     return `
         <div 
             class="flujo-grid-card-wrapper conector-${tipoConector}"
@@ -688,6 +733,7 @@ function crearTarjetaOperacion(operacion, index, tipoConector = "none", haySigui
 /* =========================
    DIBUJAR CONECTORES DINÁMICOS
    Une última card vacía con card real derecha
+   usando bordes reales de las cards
 ========================= */
 function dibujarConectoresDinamicosFlujo() {
     const body = document.querySelector("#flujoBoard .flujo-grid-body");
@@ -714,17 +760,17 @@ function dibujarConectoresDinamicosFlujo() {
     const marker = document.createElementNS(svgNS, "marker");
     marker.setAttribute("id", "flujoArrowHead");
     marker.setAttribute("markerWidth", "10");
-    marker.setAttribute("markerHeight", "10");
-    marker.setAttribute("refX", "8");
-    marker.setAttribute("refY", "3");
+    marker.setAttribute("markerHeight", "14");
+    marker.setAttribute("refX", "10");
+    marker.setAttribute("refY", "7");
     marker.setAttribute("orient", "auto");
-    marker.setAttribute("markerUnits", "strokeWidth");
+    marker.setAttribute("markerUnits", "userSpaceOnUse");
 
-    const arrowPath = document.createElementNS(svgNS, "path");
-    arrowPath.setAttribute("d", "M0,0 L0,6 L9,3 z");
-    arrowPath.setAttribute("fill", "#247cff");
+    const arrow = document.createElementNS(svgNS, "polygon");
+    arrow.setAttribute("points", "0 0, 10 7, 0 14");
+    arrow.setAttribute("fill", "#247cff");
 
-    marker.appendChild(arrowPath);
+    marker.appendChild(arrow);
     defs.appendChild(marker);
     svg.appendChild(defs);
 
@@ -741,35 +787,44 @@ function dibujarConectoresDinamicosFlujo() {
 
         if (!cardOrigen || !cardDestino) return;
 
-        const origenRect = cardOrigen.getBoundingClientRect();
-        const destinoRect = cardDestino.getBoundingClientRect();
+        const puntoOrigen = obtenerPuntoBordeDerechoCardFlujo(cardOrigen, body);
+        const puntoDestino = obtenerPuntoBordeIzquierdoCardFlujo(cardDestino, body);
 
-        const startX = origenRect.right - bodyRect.left;
-        const startY = origenRect.top + (origenRect.height / 2) - bodyRect.top;
+        if (!puntoOrigen || !puntoDestino) return;
 
-        const endX = destinoRect.left - bodyRect.left;
-        const endY = destinoRect.top + (destinoRect.height / 2) - bodyRect.top;
+        const startX = puntoOrigen.x;
+        const startY = puntoOrigen.y;
+
+        const endX = puntoDestino.x;
+        const endY = puntoDestino.y;
 
         if (endX <= startX) return;
 
         const distanciaX = endX - startX;
-        const codoX = startX + Math.max(70, distanciaX * 0.45);
+
+        /*
+            Codo controlado:
+            - Sale desde el borde derecho real de la card origen.
+            - Sube o baja si corresponde.
+            - Termina justo en el borde izquierdo real de la card destino.
+        */
+        const codoX = startX + Math.max(36, distanciaX * 0.35);
 
         const path = document.createElementNS(svgNS, "path");
 
         path.setAttribute(
             "d",
-            `
-                M ${startX} ${startY}
-                L ${codoX} ${startY}
-                L ${codoX} ${endY}
-                L ${endX - 10} ${endY}
-            `
+            [
+                `M ${startX} ${startY}`,
+                `L ${codoX} ${startY}`,
+                `L ${codoX} ${endY}`,
+                `L ${endX} ${endY}`
+            ].join(" ")
         );
 
         path.setAttribute("fill", "none");
         path.setAttribute("stroke", "#247cff");
-        path.setAttribute("stroke-width", "2.4");
+        path.setAttribute("stroke-width", "2");
         path.setAttribute("stroke-linecap", "round");
         path.setAttribute("stroke-linejoin", "round");
         path.setAttribute("marker-end", "url(#flujoArrowHead)");
@@ -780,6 +835,32 @@ function dibujarConectoresDinamicosFlujo() {
     body.appendChild(svg);
 }
 
+/* =========================
+   PUNTOS DE ANCLAJE REALES
+========================= */
+function obtenerPuntoBordeDerechoCardFlujo(card, body) {
+    if (!card || !body) return null;
+
+    const cardRect = card.getBoundingClientRect();
+    const bodyRect = body.getBoundingClientRect();
+
+    return {
+        x: cardRect.right - bodyRect.left,
+        y: cardRect.top - bodyRect.top + (cardRect.height / 2)
+    };
+}
+
+function obtenerPuntoBordeIzquierdoCardFlujo(card, body) {
+    if (!card || !body) return null;
+
+    const cardRect = card.getBoundingClientRect();
+    const bodyRect = body.getBoundingClientRect();
+
+    return {
+        x: cardRect.left - bodyRect.left,
+        y: cardRect.top - bodyRect.top + (cardRect.height / 2)
+    };
+}
 /* =========================
    TABLA DETALLE
 ========================= */
@@ -1023,6 +1104,7 @@ function guardarEdicionOperacionFlujo() {
         operacion.minutos = parseInt(minutos) || 0;
         operacion.descripcion = descripcion;
         operacion.tipo = tipo;
+        operacion._editadaFlujo = true;
     }
 
     if (flujoEdicionActual.tipo === "temporal") {

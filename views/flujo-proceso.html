@@ -1,69 +1,76 @@
 <section class="section flujo-proceso-section">
 
-    <!-- HEADER -->
-    <div class="flujo-header">
-        <div class="flujo-title-box">
+    <!-- =========================
+         PANEL PRINCIPAL FLUJO
+    ========================= -->
+    <div class="flujo-panel-principal">
 
-            <div class="flujo-icon">
-                <span class="material-symbols-outlined">share</span>
-            </div>
+        <!-- CABECERA INTEGRADA -->
+        <div class="flujo-panel-top">
 
-            <div>
-                <h2>Flujo Proceso</h2>
-                <p>Ruta de fabricación y seguimiento por procesos</p>
-            </div>
+            <div class="flujo-title-box flujo-title-box-integrado">
 
-        </div>
+                <div class="flujo-icon">
+                    <span class="material-symbols-outlined">share</span>
+                </div>
 
-        <button class="btn-nuevo-flujo" id="btnNuevoFlujo">
-            + Nuevo Flujo
-        </button>
-    </div>
+                <div>
+                    <h2>Flujo Proceso</h2>
+                    <p>Ruta de fabricación y seguimiento por procesos</p>
+                </div>
 
-    <!-- FILTROS -->
-    <div class="flujo-filtros">
-
-        <div class="flujo-field">
-            <label>Producto</label>
-            <select id="selectProductoFlujo">
-                <option value="">Todos los productos</option>
-            </select>
-        </div>
-
-        <div class="flujo-field">
-            <label>Orden de trabajo</label>
-            <select id="selectOtFlujo">
-                <option value="">Todas las OT</option>
-            </select>
-        </div>
-
-        <div class="flujo-field">
-            <label>Fecha</label>
-            <input type="date" id="fechaFlujo">
-        </div>
-
-        <button class="btn-cargar-flujo" id="btnCargarFlujo">
-            Cargar Flujo
-        </button>
-
-    </div>
-
-    <!-- TABLERO DINÁMICO -->
-    <div class="flujo-board-wrapper">
-
-        <div class="flujo-board" id="flujoBoard">
-
-            <div class="flujo-empty-state" id="flujoEmptyState">
-                <span class="material-symbols-outlined">account_tree</span>
-                <h3>Selecciona un producto para visualizar su flujo</h3>
-                <p>El sistema cargará la ruta de fabricación usando el orden de máquinas guardado en la base de datos.</p>
             </div>
 
         </div>
 
+        <!-- FILTROS INTEGRADOS -->
+        <div class="flujo-filtros flujo-filtros-integrados">
+
+            <div class="flujo-field">
+                <label>Producto</label>
+                <select id="selectProductoFlujo">
+                    <option value="">Todos los productos</option>
+                </select>
+            </div>
+
+            <div class="flujo-field">
+                <label>Orden de trabajo</label>
+                <select id="selectOtFlujo">
+                    <option value="">Todas las OT</option>
+                </select>
+            </div>
+
+            <div class="flujo-field">
+                <label>Fecha</label>
+                <input type="date" id="fechaFlujo">
+            </div>
+
+            <button class="btn-cargar-flujo" id="btnCargarFlujo">
+                Cargar Flujo
+            </button>
+
+        </div>
+
+        <!-- TABLERO DINÁMICO INTEGRADO -->
+        <div class="flujo-board-wrapper flujo-board-wrapper-integrado">
+
+            <div class="flujo-board" id="flujoBoard">
+
+                <div class="flujo-empty-state" id="flujoEmptyState">
+                    <span class="material-symbols-outlined">account_tree</span>
+                    <h3>Selecciona un producto para visualizar su flujo</h3>
+                    <p>El sistema cargará la ruta de fabricación usando el orden de máquinas guardado en la base de datos.</p>
+                </div>
+
+            </div>
+
+        </div>
+
     </div>
 
-    <!-- PARTE INFERIOR -->
+    <!-- =========================
+         PARTE INFERIOR
+    ========================= -->
     <div class="flujo-bottom">
 
         <div class="flujo-table-box">
@@ -126,10 +133,6 @@
                 <div id="barraProgresoFlujo"></div>
             </div>
         </div>
-
-    </div>
-
-</section>
 
     </div>
 
