@@ -1332,15 +1332,27 @@ function cerrarPanelOpcionesFlujo() {
 }
 
 function exportarImagenFlujo() {
-    cerrarPanelOpcionesFlujo();
+    if (
+        window.flujoProcesoExport &&
+        typeof window.flujoProcesoExport.exportarImagen === "function"
+    ) {
+        window.flujoProcesoExport.exportarImagen();
+        return;
+    }
 
-    alert("Exportar imagen será el siguiente paso. El botón ya quedó conectado.");
+    alert("El módulo de exportación del flujo no está cargado.");
 }
 
 function exportarPdfFlujo() {
-    cerrarPanelOpcionesFlujo();
+    if (
+        window.flujoProcesoExport &&
+        typeof window.flujoProcesoExport.exportarPdf === "function"
+    ) {
+        window.flujoProcesoExport.exportarPdf();
+        return;
+    }
 
-    alert("Exportar PDF será el siguiente paso. El botón ya quedó conectado.");
+    alert("El módulo de exportación del flujo no está cargado.");
 }
 
 function clonarEstadoFlujo(valor) {
