@@ -18,6 +18,17 @@ let flujoCardsVaciasAbajo = {};
 
 let flujoEdicionActual = null;
 
+/*
+    Copia original de los datos cargados desde BD.
+    Sirve para restablecer el flujo si el usuario editó algo.
+*/
+let flujoProductosOriginalesBD = [];
+
+/*
+    Historial temporal para deshacer cambios visuales.
+*/
+let flujoHistorialEstados = [];
+
 /* =========================
    INICIAR FLUJO PROCESO
 ========================= */
@@ -47,71 +58,110 @@ async function cargarDatosFlujoProceso() {
         }
 
         flujoProductosBD = data.productos || [];
+        flujoProductosOriginalesBD = clonarEstadoFlujo(flujoProductosBD);
 
         console.log("Productos flujo cargados:", flujoProductosBD);
 
     } catch (error) {
         console.error("Error cargando flujo proceso:", error);
+
         flujoProductosBD = [];
+        flujoProductosOriginalesBD = [];
     }
 }
 
 /* =========================
-   CARGAR SELECTORES
+   CARGAR BUSCADOR PRODUCTOS
 ========================= */
 function cargarSelectoresFlujoProceso() {
-    const selectProducto = document.getElementById("selectProductoFlujo");
-    const selectOt = document.getElementById("selectOtFlujo");
-
-    if (!selectProducto || !selectOt) return;
-
-    selectProducto.innerHTML = `<option value="">Todos los productos</option>`;
-    selectOt.innerHTML = `<option value="">Todas las OT</option>`;
-
-    flujoProductosBD.forEach(producto => {
-        const optionProducto = document.createElement("option");
-        optionProducto.value = producto.id;
-        optionProducto.textContent = producto.producto;
-        selectProducto.appendChild(optionProducto);
-
-        const optionOt = document.createElement("option");
-        optionOt.value = producto.id;
-        optionOt.textContent = producto.numero_pedido;
-        selectOt.appendChild(optionOt);
-    });
+    renderizarListaProductosFlujo("");
 }
-
 /* =========================
    EVENTOS
 ========================= */
 function configurarEventosFlujoProceso() {
     const btnCargar = document.getElementById("btnCargarFlujo");
-    const selectProducto = document.getElementById("selectProductoFlujo");
-    const selectOt = document.getElementById("selectOtFlujo");
+    const btnLimpiar = document.getElementById("btnLimpiarFlujo");
+    const btnDeshacer = document.getElementById("btnDeshacerFlujo");
+
+    const inputBuscarProducto = document.getElementById("inputBuscarProductoFlujo");
+    const btnLimpiarProducto = document.getElementById("btnLimpiarProductoFlujo");
+    const listaProductos = document.getElementById("listaProductosFlujo");
+
+    const btnOpciones = document.getElementById("btnOpcionesFlujo");
+    const btnCerrarOpciones = document.getElementById("btnCerrarOpcionesFlujo");
+    const btnExportarImagen = document.getElementById("btnExportarImagenFlujo");
+    const btnExportarPdf = document.getElementById("btnExportarPdfFlujo");
+    const btnRestablecer = document.getElementById("btnRestablecerFlujo");
+
     const board = document.getElementById("flujoBoard");
 
-    if (selectProducto) {
-        selectProducto.onchange = () => {
-            const idProducto = selectProducto.value;
+    if (inputBuscarProducto) {
+        inputBuscarProducto.oninput = () => {
+            const valor = inputBuscarProducto.value.trim();
 
-            if (selectOt) {
-                selectOt.value = idProducto;
-            }
+            const inputSeleccionado = document.getElementById("inputProductoSeleccionadoFlujo");
+            if (inputSeleccionado) inputSeleccionado.value = "";
+
+            renderizarListaProductosFlujo(valor);
+            mostrarListaProductosFlujo();
+        };
+
+        inputBuscarProducto.onfocus = () => {
+            renderizarListaProductosFlujo(inputBuscarProducto.value.trim());
+            mostrarListaProductosFlujo();
         };
     }
 
-    if (selectOt) {
-        selectOt.onchange = () => {
-            const idProducto = selectOt.value;
+    if (btnLimpiarProducto) {
+        btnLimpiarProducto.onclick = () => {
+            limpiarProductoSeleccionadoFlujo();
+        };
+    }
 
-            if (selectProducto) {
-                selectProducto.value = idProducto;
-            }
+    if (listaProductos) {
+        listaProductos.onclick = e => {
+            const item = e.target.closest(".flujo-producto-item");
+
+            if (!item || !item.dataset.id) return;
+
+            seleccionarProductoDesdeListaFlujo(item.dataset.id);
         };
     }
 
     if (btnCargar) {
         btnCargar.onclick = cargarFlujoSeleccionado;
+    }
+
+    if (btnLimpiar) {
+        btnLimpiar.onclick = limpiarFlujoProceso;
+    }
+
+    if (btnDeshacer) {
+        btnDeshacer.onclick = deshacerUltimoCambioFlujo;
+    }
+
+    if (btnOpciones) {
+        btnOpciones.onclick = e => {
+            e.stopPropagation();
+            alternarPanelOpcionesFlujo();
+        };
+    }
+
+    if (btnCerrarOpciones) {
+        btnCerrarOpciones.onclick = cerrarPanelOpcionesFlujo;
+    }
+
+    if (btnExportarImagen) {
+        btnExportarImagen.onclick = exportarImagenFlujo;
+    }
+
+    if (btnExportarPdf) {
+        btnExportarPdf.onclick = exportarPdfFlujo;
+    }
+
+    if (btnRestablecer) {
+        btnRestablecer.onclick = restablecerFlujoProceso;
     }
 
     if (board) {
@@ -168,6 +218,23 @@ function configurarEventosFlujoProceso() {
 
     configurarEventosModalFlujo();
 
+    if (!window.__flujoClickGlobalRegistrado) {
+        window.__flujoClickGlobalRegistrado = true;
+
+        document.addEventListener("click", e => {
+            const contenedorProducto = e.target.closest(".flujo-field-producto");
+            const contenedorOpciones = e.target.closest(".flujo-opciones-wrapper");
+
+            if (!contenedorProducto) {
+                ocultarListaProductosFlujo();
+            }
+
+            if (!contenedorOpciones) {
+                cerrarPanelOpcionesFlujo();
+            }
+        });
+    }
+
     if (!window.__flujoResizeRegistrado) {
         window.__flujoResizeRegistrado = true;
 
@@ -186,29 +253,211 @@ function configurarEventosFlujoProceso() {
    CARGAR FLUJO SELECCIONADO
 ========================= */
 function cargarFlujoSeleccionado() {
-    const selectProducto = document.getElementById("selectProductoFlujo");
-    const selectOt = document.getElementById("selectOtFlujo");
+    const producto = obtenerProductoSeleccionadoDesdeFormularioFlujo();
 
-    const idSeleccionado = selectProducto?.value || selectOt?.value || "";
-
-    if (!idSeleccionado) {
-        alert("Selecciona un producto para cargar su flujo");
+    if (!producto) {
+        alert("Selecciona un producto válido para cargar su flujo");
         return;
     }
 
-    flujoProductoSeleccionado = flujoProductosBD.find(p => String(p.id) === String(idSeleccionado));
-
-    if (!flujoProductoSeleccionado) {
-        alert("No se encontró el producto seleccionado");
-        return;
-    }
-
+    flujoProductoSeleccionado = clonarEstadoFlujo(producto);
     flujoCantidadOperacionesVisibles = 1;
     flujoCardsVaciasAbajo = {};
+    flujoHistorialEstados = [];
 
     renderizarFlujoProducto(flujoProductoSeleccionado);
     renderizarTablaDetalleFlujo(flujoProductoSeleccionado);
     renderizarResumenFlujo(flujoProductoSeleccionado);
+}
+
+/* =========================
+   BUSCADOR PRODUCTOS FLUJO
+========================= */
+function renderizarListaProductosFlujo(filtro = "") {
+    const lista = document.getElementById("listaProductosFlujo");
+
+    if (!lista) return;
+
+    const textoFiltro = normalizarTextoFlujo(filtro);
+
+    const productosFiltrados = flujoProductosBD
+        .filter(producto => {
+            const textoProducto = normalizarTextoFlujo(producto.producto || "");
+            const textoPedido = normalizarTextoFlujo(producto.numero_pedido || "");
+
+            if (!textoFiltro) return true;
+
+            return textoProducto.includes(textoFiltro) || textoPedido.includes(textoFiltro);
+        })
+        .slice(0, 20);
+
+    if (productosFiltrados.length === 0) {
+        lista.innerHTML = `
+            <div class="flujo-producto-item">
+                <strong>Sin resultados</strong>
+                <span>No se encontraron productos coincidentes</span>
+            </div>
+        `;
+        return;
+    }
+
+    lista.innerHTML = productosFiltrados.map(producto => {
+        const datosOt = separarOrdenTrabajoOtFlujo(producto.numero_pedido);
+
+        return `
+            <button 
+                type="button" 
+                class="flujo-producto-item" 
+                data-id="${escaparHTML(producto.id)}">
+
+                <strong>${escaparHTML(producto.producto || "Sin nombre")}</strong>
+                <span>Orden ${escaparHTML(datosOt.ordenTrabajo || "-")} · OT ${escaparHTML(datosOt.ot || "-")}</span>
+
+            </button>
+        `;
+    }).join("");
+}
+
+function mostrarListaProductosFlujo() {
+    const lista = document.getElementById("listaProductosFlujo");
+
+    if (lista) {
+        lista.classList.remove("oculto");
+    }
+}
+
+function ocultarListaProductosFlujo() {
+    const lista = document.getElementById("listaProductosFlujo");
+
+    if (lista) {
+        lista.classList.add("oculto");
+    }
+}
+
+function seleccionarProductoDesdeListaFlujo(idProducto) {
+    const producto = flujoProductosBD.find(p => String(p.id) === String(idProducto));
+
+    if (!producto) return;
+
+    const inputBuscar = document.getElementById("inputBuscarProductoFlujo");
+    const inputSeleccionado = document.getElementById("inputProductoSeleccionadoFlujo");
+    const inputOrden = document.getElementById("inputOrdenTrabajoFlujo");
+    const inputOt = document.getElementById("inputOtFlujo");
+
+    const datosOt = separarOrdenTrabajoOtFlujo(producto.numero_pedido);
+
+    if (inputBuscar) {
+        inputBuscar.value = producto.producto || "";
+    }
+
+    if (inputSeleccionado) {
+        inputSeleccionado.value = producto.id;
+    }
+
+    if (inputOrden) {
+        inputOrden.value = datosOt.ordenTrabajo || "";
+    }
+
+    if (inputOt) {
+        inputOt.value = datosOt.ot || "";
+    }
+
+    ocultarListaProductosFlujo();
+}
+
+function limpiarProductoSeleccionadoFlujo() {
+    const inputBuscar = document.getElementById("inputBuscarProductoFlujo");
+    const inputSeleccionado = document.getElementById("inputProductoSeleccionadoFlujo");
+
+    if (inputBuscar) inputBuscar.value = "";
+    if (inputSeleccionado) inputSeleccionado.value = "";
+
+    renderizarListaProductosFlujo("");
+    ocultarListaProductosFlujo();
+}
+
+function obtenerProductoSeleccionadoDesdeFormularioFlujo() {
+    const inputBuscar = document.getElementById("inputBuscarProductoFlujo");
+    const inputSeleccionado = document.getElementById("inputProductoSeleccionadoFlujo");
+    const inputOrden = document.getElementById("inputOrdenTrabajoFlujo");
+    const inputOt = document.getElementById("inputOtFlujo");
+
+    const idSeleccionado = inputSeleccionado?.value || "";
+    const textoProducto = normalizarTextoFlujo(inputBuscar?.value || "");
+    const ordenTrabajo = String(inputOrden?.value || "").trim();
+    const ot = normalizarOtFlujo(inputOt?.value || "");
+
+    let candidatos = flujoProductosBD;
+
+    if (idSeleccionado) {
+        candidatos = candidatos.filter(producto => String(producto.id) === String(idSeleccionado));
+    }
+
+    if (textoProducto) {
+        candidatos = candidatos.filter(producto => {
+            const nombreProducto = normalizarTextoFlujo(producto.producto || "");
+            return nombreProducto.includes(textoProducto);
+        });
+    }
+
+    if (ordenTrabajo || ot) {
+        candidatos = candidatos.filter(producto => {
+            const datosOt = separarOrdenTrabajoOtFlujo(producto.numero_pedido);
+
+            const coincideOrden = ordenTrabajo
+                ? String(datosOt.ordenTrabajo) === String(ordenTrabajo)
+                : true;
+
+            const coincideOt = ot
+                ? String(datosOt.ot) === String(ot)
+                : true;
+
+            return coincideOrden && coincideOt;
+        });
+    }
+
+    return candidatos[0] || null;
+}
+
+function separarOrdenTrabajoOtFlujo(numeroPedido) {
+    const limpio = String(numeroPedido || "").trim();
+
+    if (!limpio) {
+        return {
+            ordenTrabajo: "",
+            ot: ""
+        };
+    }
+
+    const partes = limpio.split("-");
+
+    const ordenTrabajo = String(partes[0] || "").trim();
+    const ot = normalizarOtFlujo(partes[1] || "");
+
+    return {
+        ordenTrabajo,
+        ot
+    };
+}
+
+function normalizarOtFlujo(valor) {
+    const limpio = String(valor || "").trim();
+
+    if (!limpio) return "";
+
+    if (/^\d+$/.test(limpio)) {
+        return limpio.padStart(2, "0");
+    }
+
+    return limpio;
+}
+
+function normalizarTextoFlujo(texto) {
+    return String(texto || "")
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .trim();
 }
 
 /* =========================
@@ -222,6 +471,8 @@ function avanzarFlujoProceso(direccion = "right") {
     if (flujoCantidadOperacionesVisibles >= operaciones.length) {
         return;
     }
+
+    guardarEstadoHistorialFlujoProceso();
 
     console.log("Avanzar flujo hacia:", direccion);
 
@@ -245,6 +496,8 @@ function crearCardVaciaAbajo(indexBase) {
         return;
     }
 
+    guardarEstadoHistorialFlujoProceso();
+
     if (!Array.isArray(flujoCardsVaciasAbajo[indexBase])) {
         flujoCardsVaciasAbajo[indexBase] = [];
     }
@@ -260,6 +513,8 @@ function crearCardVaciaAbajo(indexBase) {
     });
 
     renderizarFlujoProducto(flujoProductoSeleccionado);
+    renderizarTablaDetalleFlujo(flujoProductoSeleccionado);
+    renderizarResumenFlujo(flujoProductoSeleccionado);
 }
 
 /* =========================
@@ -934,6 +1189,165 @@ function renderizarResumenFlujo(producto) {
 }
 
 /* =========================
+   ACCIONES GENERALES FLUJO
+========================= */
+function limpiarFlujoProceso() {
+    flujoProductoSeleccionado = null;
+    flujoCantidadOperacionesVisibles = 1;
+    flujoCardsVaciasAbajo = {};
+    flujoHistorialEstados = [];
+    flujoEdicionActual = null;
+
+    const inputBuscar = document.getElementById("inputBuscarProductoFlujo");
+    const inputSeleccionado = document.getElementById("inputProductoSeleccionadoFlujo");
+    const inputOrden = document.getElementById("inputOrdenTrabajoFlujo");
+    const inputOt = document.getElementById("inputOtFlujo");
+
+    if (inputBuscar) inputBuscar.value = "";
+    if (inputSeleccionado) inputSeleccionado.value = "";
+    if (inputOrden) inputOrden.value = "";
+    if (inputOt) inputOt.value = "";
+
+    ocultarListaProductosFlujo();
+    cerrarPanelOpcionesFlujo();
+    renderizarEstadoInicialFlujoProceso();
+}
+
+function renderizarEstadoInicialFlujoProceso() {
+    const board = document.getElementById("flujoBoard");
+    const tabla = document.getElementById("tablaDetalleFlujo");
+
+    if (board) {
+        board.innerHTML = `
+            <div class="flujo-empty-state" id="flujoEmptyState">
+                <span class="material-symbols-outlined">account_tree</span>
+                <h3>Selecciona un producto para visualizar su flujo</h3>
+                <p>El sistema cargará la ruta de fabricación usando el orden de trabajo y la OT proporcionados.</p>
+            </div>
+        `;
+    }
+
+    if (tabla) {
+        tabla.innerHTML = `
+            <tr>
+                <td colspan="9" class="flujo-table-empty">
+                    Sin operaciones cargadas
+                </td>
+            </tr>
+        `;
+    }
+
+    const resumenTotalProductos = document.getElementById("resumenTotalProductos");
+    const resumenTotalOperaciones = document.getElementById("resumenTotalOperaciones");
+    const resumenTiempoEstimado = document.getElementById("resumenTiempoEstimado");
+    const resumenControlCalidad = document.getElementById("resumenControlCalidad");
+    const resumenProgreso = document.getElementById("resumenProgreso");
+    const barraProgreso = document.getElementById("barraProgresoFlujo");
+
+    if (resumenTotalProductos) resumenTotalProductos.textContent = "0";
+    if (resumenTotalOperaciones) resumenTotalOperaciones.textContent = "0";
+    if (resumenTiempoEstimado) resumenTiempoEstimado.textContent = "00:00";
+    if (resumenControlCalidad) resumenControlCalidad.textContent = "Habilitado";
+    if (resumenProgreso) resumenProgreso.textContent = "0%";
+    if (barraProgreso) barraProgreso.style.width = "0%";
+}
+
+function restablecerFlujoProceso() {
+    if (!flujoProductoSeleccionado) {
+        alert("No hay un flujo cargado para restablecer");
+        return;
+    }
+
+    const idActual = flujoProductoSeleccionado.id;
+
+    const productoOriginal = flujoProductosOriginalesBD.find(producto => {
+        return String(producto.id) === String(idActual);
+    });
+
+    if (!productoOriginal) {
+        alert("No se encontró el estado original del flujo");
+        return;
+    }
+
+    flujoProductoSeleccionado = clonarEstadoFlujo(productoOriginal);
+    flujoCantidadOperacionesVisibles = 1;
+    flujoCardsVaciasAbajo = {};
+    flujoHistorialEstados = [];
+
+    cerrarPanelOpcionesFlujo();
+
+    renderizarFlujoProducto(flujoProductoSeleccionado);
+    renderizarTablaDetalleFlujo(flujoProductoSeleccionado);
+    renderizarResumenFlujo(flujoProductoSeleccionado);
+}
+
+function guardarEstadoHistorialFlujoProceso() {
+    if (!flujoProductoSeleccionado) return;
+
+    flujoHistorialEstados.push({
+        producto: clonarEstadoFlujo(flujoProductoSeleccionado),
+        cantidadOperacionesVisibles: flujoCantidadOperacionesVisibles,
+        cardsVaciasAbajo: clonarEstadoFlujo(flujoCardsVaciasAbajo)
+    });
+
+    if (flujoHistorialEstados.length > 30) {
+        flujoHistorialEstados.shift();
+    }
+}
+
+function deshacerUltimoCambioFlujo() {
+    if (flujoHistorialEstados.length === 0) {
+        alert("No hay cambios para deshacer");
+        return;
+    }
+
+    const estadoAnterior = flujoHistorialEstados.pop();
+
+    flujoProductoSeleccionado = clonarEstadoFlujo(estadoAnterior.producto);
+    flujoCantidadOperacionesVisibles = estadoAnterior.cantidadOperacionesVisibles;
+    flujoCardsVaciasAbajo = clonarEstadoFlujo(estadoAnterior.cardsVaciasAbajo || {});
+
+    cerrarModalEditarOperacionFlujo();
+    cerrarPanelOpcionesFlujo();
+
+    renderizarFlujoProducto(flujoProductoSeleccionado);
+    renderizarTablaDetalleFlujo(flujoProductoSeleccionado);
+    renderizarResumenFlujo(flujoProductoSeleccionado);
+}
+
+function alternarPanelOpcionesFlujo() {
+    const panel = document.getElementById("panelOpcionesFlujo");
+
+    if (!panel) return;
+
+    panel.classList.toggle("oculto");
+}
+
+function cerrarPanelOpcionesFlujo() {
+    const panel = document.getElementById("panelOpcionesFlujo");
+
+    if (panel) {
+        panel.classList.add("oculto");
+    }
+}
+
+function exportarImagenFlujo() {
+    cerrarPanelOpcionesFlujo();
+
+    alert("Exportar imagen será el siguiente paso. El botón ya quedó conectado.");
+}
+
+function exportarPdfFlujo() {
+    cerrarPanelOpcionesFlujo();
+
+    alert("Exportar PDF será el siguiente paso. El botón ya quedó conectado.");
+}
+
+function clonarEstadoFlujo(valor) {
+    return JSON.parse(JSON.stringify(valor));
+}
+
+/* =========================
    MODAL EDITAR OPERACIÓN
 ========================= */
 function configurarEventosModalFlujo() {
@@ -1092,6 +1506,8 @@ function guardarEdicionOperacionFlujo() {
         alert("Ingresa el nombre de la operación");
         return;
     }
+
+    guardarEstadoHistorialFlujoProceso();
 
     if (flujoEdicionActual.tipo === "real") {
         const operaciones = obtenerOperacionesOrdenadas(flujoProductoSeleccionado);

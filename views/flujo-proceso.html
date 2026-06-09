@@ -23,31 +23,156 @@
 
         </div>
 
-        <!-- FILTROS INTEGRADOS -->
+        <!-- CONTROLES DEL FLUJO -->
         <div class="flujo-filtros flujo-filtros-integrados">
 
-            <div class="flujo-field">
-                <label>Producto</label>
-                <select id="selectProductoFlujo">
-                    <option value="">Todos los productos</option>
-                </select>
+            <!-- Producto buscable -->
+            <div class="flujo-field flujo-field-producto">
+                <label for="inputBuscarProductoFlujo">Producto</label>
+
+                <div class="flujo-search-box">
+                    <span class="material-symbols-outlined">search</span>
+
+                    <input 
+                        type="text" 
+                        id="inputBuscarProductoFlujo"
+                        autocomplete="off"
+                        placeholder="Buscar producto..."
+                    >
+
+                    <button 
+                        type="button" 
+                        id="btnLimpiarProductoFlujo" 
+                        class="btn-limpiar-producto-flujo"
+                        title="Limpiar producto">
+                        ×
+                    </button>
+                </div>
+
+                <!-- Lista desplegable filtrada por JS -->
+                <div id="listaProductosFlujo" class="flujo-productos-lista oculto"></div>
+
+                <!-- Valor real seleccionado -->
+                <input type="hidden" id="inputProductoSeleccionadoFlujo">
             </div>
 
-            <div class="flujo-field">
-                <label>Orden de trabajo</label>
-                <select id="selectOtFlujo">
-                    <option value="">Todas las OT</option>
-                </select>
+            <!-- Orden de trabajo -->
+            <div class="flujo-field flujo-field-orden">
+                <label for="inputOrdenTrabajoFlujo">Orden de trabajo</label>
+                <input 
+                    type="text" 
+                    id="inputOrdenTrabajoFlujo"
+                    placeholder="2311"
+                >
             </div>
 
-            <div class="flujo-field">
-                <label>Fecha</label>
-                <input type="date" id="fechaFlujo">
+            <!-- OT -->
+            <div class="flujo-field flujo-field-ot">
+                <label for="inputOtFlujo">OT</label>
+                <input 
+                    type="text" 
+                    id="inputOtFlujo"
+                    placeholder="02"
+                >
             </div>
 
-            <button class="btn-cargar-flujo" id="btnCargarFlujo">
-                Cargar Flujo
-            </button>
+            <!-- Acciones principales -->
+            <div class="flujo-acciones-principales">
+
+                <button 
+                    type="button" 
+                    class="btn-deshacer-flujo" 
+                    id="btnDeshacerFlujo"
+                    title="Deshacer último cambio">
+                    <span class="material-symbols-outlined">undo</span>
+                </button>
+
+                <button 
+                    type="button" 
+                    class="btn-cargar-flujo" 
+                    id="btnCargarFlujo">
+                    <span class="material-symbols-outlined">download</span>
+                    Cargar
+                </button>
+
+                <button 
+                    type="button" 
+                    class="btn-limpiar-flujo" 
+                    id="btnLimpiarFlujo">
+                    <span class="material-symbols-outlined">ink_eraser</span>
+                    Limpiar
+                </button>
+
+                <div class="flujo-opciones-wrapper">
+
+                    <button 
+                        type="button" 
+                        class="btn-opciones-flujo" 
+                        id="btnOpcionesFlujo">
+                        <span class="material-symbols-outlined">settings</span>
+                        Opciones
+                        <span class="material-symbols-outlined icon-opciones-arrow">expand_more</span>
+                    </button>
+
+                    <!-- PANEL FLOTANTE OPCIONES -->
+                    <div id="panelOpcionesFlujo" class="flujo-opciones-panel oculto">
+
+                        <div class="flujo-opciones-header">
+                            <h3>Opciones del flujo</h3>
+
+                            <button 
+                                type="button" 
+                                id="btnCerrarOpcionesFlujo" 
+                                class="btn-cerrar-opciones-flujo">
+                                ×
+                            </button>
+                        </div>
+
+                        <div class="flujo-opciones-lista">
+
+                            <button 
+                                type="button" 
+                                class="flujo-opcion-item" 
+                                id="btnExportarImagenFlujo">
+                                <span class="material-symbols-outlined opcion-imagen">image</span>
+
+                                <div>
+                                    <strong>Exportar imagen</strong>
+                                    <small>Descargar flujo como PNG</small>
+                                </div>
+                            </button>
+
+                            <button 
+                                type="button" 
+                                class="flujo-opcion-item" 
+                                id="btnExportarPdfFlujo">
+                                <span class="material-symbols-outlined opcion-pdf">picture_as_pdf</span>
+
+                                <div>
+                                    <strong>Exportar PDF</strong>
+                                    <small>Descargar flujo como PDF</small>
+                                </div>
+                            </button>
+
+                            <button 
+                                type="button" 
+                                class="flujo-opcion-item" 
+                                id="btnRestablecerFlujo">
+                                <span class="material-symbols-outlined opcion-restablecer">history</span>
+
+                                <div>
+                                    <strong>Restablecer flujo</strong>
+                                    <small>Volver al estado original</small>
+                                </div>
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
 
         </div>
 
@@ -59,7 +184,9 @@
                 <div class="flujo-empty-state" id="flujoEmptyState">
                     <span class="material-symbols-outlined">account_tree</span>
                     <h3>Selecciona un producto para visualizar su flujo</h3>
-                    <p>El sistema cargará la ruta de fabricación usando el orden de máquinas guardado en la base de datos.</p>
+                    <p>
+                        El sistema cargará la ruta de fabricación usando el orden de trabajo y la OT proporcionados.
+                    </p>
                 </div>
 
             </div>
