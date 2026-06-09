@@ -6,11 +6,15 @@ require_once __DIR__ . "/../conexion.php";
 date_default_timezone_set("America/Santiago");
 
 try {
-    
 
     /*
         Este endpoint obtiene productos con sus máquinas usadas,
         respetando el orden_proceso guardado al registrar producción.
+
+        Corrección aplicada:
+        - Si una máquina no tiene orden_proceso válido, se ordena después de las que sí tienen orden.
+        - Luego se normaliza el orden de todas las máquinas.
+        - Control de Calidad (CC) siempre se agrega al final.
     */
 
     $sql = "
@@ -43,7 +47,10 @@ try {
 
         ORDER BY
             p.id DESC,
-            pm.orden_proceso ASC,
+            CASE 
+                WHEN pm.orden_proceso IS NULL OR pm.orden_proceso <= 0 THEN 999999
+                ELSE pm.orden_proceso
+            END ASC,
             pm.id ASC
     ";
 
@@ -75,12 +82,14 @@ try {
             ];
         }
 
-        $orden = $fila["orden_proceso"];
+        $ordenOriginal = $fila["orden_proceso"];
 
         $productos[$idProduccion]["operaciones"][] = [
             "id" => intval($fila["produccion_maquina_id"]),
             "id_maquina" => intval($fila["id_maquina"]),
-            "orden" => $orden !== null ? intval($orden) : null,
+            "orden" => ($ordenOriginal !== null && intval($ordenOriginal) > 0)
+                ? intval($ordenOriginal)
+                : null,
             "zona" => $fila["zona"],
             "maquina" => $fila["maquina"],
             "tipo" => "maquina",
@@ -90,30 +99,56 @@ try {
     }
 
     /*
-        Agregar CC automáticamente al final de cada flujo.
-        CC no viene desde la BD, se suma visualmente como cierre obligatorio.
+        Normalizar orden de operaciones y agregar CC al final.
+
+        Regla:
+        1. Las máquinas reales siempre van antes que Control de Calidad.
+        2. Si una máquina tiene orden_proceso válido, se respeta.
+        3. Si no tiene orden_proceso, se ubica después de las ordenadas.
+        4. CC siempre queda como la última operación.
     */
     foreach ($productos as &$producto) {
 
-        $ultimoOrden = 0;
+        $operaciones = $producto["operaciones"];
 
-        foreach ($producto["operaciones"] as $operacion) {
-            if ($operacion["orden"] !== null && $operacion["orden"] > $ultimoOrden) {
-                $ultimoOrden = $operacion["orden"];
+        usort($operaciones, function ($a, $b) {
+
+            $ordenA = $a["orden"] !== null ? intval($a["orden"]) : 999999;
+            $ordenB = $b["orden"] !== null ? intval($b["orden"]) : 999999;
+
+            if ($ordenA !== $ordenB) {
+                return $ordenA - $ordenB;
             }
+
+            return intval($a["id"]) - intval($b["id"]);
+        });
+
+        $operacionesNormalizadas = [];
+        $ordenNormalizado = 1;
+
+        foreach ($operaciones as $operacion) {
+
+            $operacion["orden"] = $ordenNormalizado;
+            $operacionesNormalizadas[] = $operacion;
+
+            $ordenNormalizado++;
         }
 
-        $producto["operaciones"][] = [
+        $operacionesNormalizadas[] = [
             "id" => null,
             "id_maquina" => null,
-            "orden" => $ultimoOrden + 1,
+            "orden" => $ordenNormalizado,
             "zona" => "control_calidad",
             "maquina" => "CC",
             "tipo" => "control_calidad",
             "horas" => 0,
             "minutos" => 0
         ];
+
+        $producto["operaciones"] = $operacionesNormalizadas;
     }
+
+    unset($producto);
 
     echo json_encode([
         "success" => true,
@@ -129,4 +164,5 @@ try {
 }
 
 $conn->close();
+
 ?>

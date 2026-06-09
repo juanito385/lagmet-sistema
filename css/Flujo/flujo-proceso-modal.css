@@ -1,0 +1,304 @@
+/* =========================
+   MODAL EDITAR OPERACIÓN
+   FLUJO PROCESO
+========================= */
+
+.flujo-modal-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 24px;
+
+    background: rgba(8, 12, 28, 0.72);
+    backdrop-filter: blur(5px);
+}
+
+/* Estado oculto */
+.flujo-modal-overlay.oculto {
+    display: none;
+}
+
+/* Caja principal del modal */
+.flujo-modal-card {
+    width: 100%;
+    max-width: 620px;
+
+    background: linear-gradient(180deg, #202637 0%, #171d2c 100%);
+    border: 1px solid rgba(148, 163, 184, 0.22);
+    border-radius: 16px;
+
+    box-shadow: 0 28px 80px rgba(0, 0, 0, 0.48);
+
+    overflow: hidden;
+    color: #f8fafc;
+
+    animation: flujoModalEntrada 0.22s ease-out;
+}
+
+/* Animación suave */
+@keyframes flujoModalEntrada {
+    from {
+        opacity: 0;
+        transform: translateY(12px) scale(0.98);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* =========================
+   HEADER MODAL
+========================= */
+
+.flujo-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 20px;
+
+    padding: 26px 32px 20px;
+
+    border-bottom: 1px solid rgba(148, 163, 184, 0.14);
+}
+
+.flujo-modal-header h3 {
+    margin: 0;
+
+    font-size: 24px;
+    font-weight: 800;
+    color: #f8fafc;
+}
+
+.flujo-modal-header p {
+    margin: 8px 0 0;
+
+    font-size: 14px;
+    line-height: 1.5;
+    color: #cbd5e1;
+}
+
+.flujo-modal-close {
+    width: 36px;
+    height: 36px;
+
+    border: none;
+    border-radius: 10px;
+
+    background: transparent;
+    color: #cbd5e1;
+
+    font-size: 30px;
+    line-height: 1;
+
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+.flujo-modal-close:hover {
+    background: rgba(148, 163, 184, 0.12);
+    color: #ffffff;
+}
+
+/* =========================
+   BODY MODAL
+========================= */
+
+.flujo-modal-body {
+    padding: 24px 32px;
+}
+
+.flujo-modal-info {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+
+    padding: 14px 16px;
+    margin-bottom: 22px;
+
+    border: 1px solid rgba(59, 130, 246, 0.55);
+    border-radius: 10px;
+
+    background: rgba(59, 130, 246, 0.08);
+}
+
+.flujo-modal-info .material-symbols-outlined {
+    font-size: 22px;
+    color: #60a5fa;
+}
+
+.flujo-modal-info p {
+    margin: 0;
+
+    font-size: 14px;
+    line-height: 1.45;
+    color: #e2e8f0;
+}
+
+/* =========================
+   FORMULARIO
+========================= */
+
+.flujo-form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+
+    margin-bottom: 18px;
+}
+
+.flujo-form-group label {
+    font-size: 14px;
+    font-weight: 700;
+    color: #e5e7eb;
+}
+
+.flujo-form-group input,
+.flujo-form-group select,
+.flujo-form-group textarea {
+    width: 100%;
+
+    border: 1px solid rgba(148, 163, 184, 0.18);
+    border-radius: 10px;
+
+    background: rgba(51, 57, 76, 0.95);
+    color: #f8fafc;
+
+    font-size: 14px;
+    padding: 13px 14px;
+
+    outline: none;
+    transition: 0.2s ease;
+}
+
+.flujo-form-group input::placeholder,
+.flujo-form-group textarea::placeholder {
+    color: rgba(203, 213, 225, 0.55);
+}
+
+.flujo-form-group input:focus,
+.flujo-form-group select:focus,
+.flujo-form-group textarea:focus {
+    border-color: rgba(59, 130, 246, 0.85);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.16);
+}
+
+.flujo-form-group textarea {
+    resize: vertical;
+    min-height: 82px;
+}
+
+/* Fila horas:minutos */
+.flujo-form-row {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: end;
+    gap: 14px;
+}
+
+.flujo-form-separator {
+    padding-bottom: 31px;
+
+    color: #cbd5e1;
+    font-size: 20px;
+    font-weight: 800;
+}
+
+/* =========================
+   FOOTER MODAL
+========================= */
+
+.flujo-modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 14px;
+
+    padding: 20px 32px 26px;
+
+    border-top: 1px solid rgba(148, 163, 184, 0.14);
+}
+
+.btn-flujo-modal-cancelar,
+.btn-flujo-modal-guardar {
+    min-width: 150px;
+    height: 46px;
+
+    border-radius: 10px;
+
+    font-size: 14px;
+    font-weight: 800;
+
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+.btn-flujo-modal-cancelar {
+    border: 1px solid rgba(148, 163, 184, 0.35);
+    background: rgba(51, 57, 76, 0.65);
+    color: #e5e7eb;
+}
+
+.btn-flujo-modal-cancelar:hover {
+    background: rgba(71, 85, 105, 0.8);
+}
+
+.btn-flujo-modal-guardar {
+    border: 1px solid rgba(59, 130, 246, 0.9);
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
+    color: #ffffff;
+
+    box-shadow: 0 10px 24px rgba(37, 99, 235, 0.28);
+}
+
+.btn-flujo-modal-guardar:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 14px 30px rgba(37, 99, 235, 0.38);
+}
+
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media (max-width: 700px) {
+
+    .flujo-modal-overlay {
+        align-items: flex-start;
+        padding: 16px;
+        overflow-y: auto;
+    }
+
+    .flujo-modal-card {
+        max-width: 100%;
+    }
+
+    .flujo-modal-header,
+    .flujo-modal-body,
+    .flujo-modal-footer {
+        padding-left: 20px;
+        padding-right: 20px;
+    }
+
+    .flujo-form-row {
+        grid-template-columns: 1fr;
+        gap: 0;
+    }
+
+    .flujo-form-separator {
+        display: none;
+    }
+
+    .flujo-modal-footer {
+        flex-direction: column-reverse;
+    }
+
+    .btn-flujo-modal-cancelar,
+    .btn-flujo-modal-guardar {
+        width: 100%;
+    }
+}

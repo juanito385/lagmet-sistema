@@ -130,3 +130,118 @@
     </div>
 
 </section>
+
+    </div>
+
+    <!-- =========================
+         MODAL EDITAR OPERACIÓN
+    ========================= -->
+    <div id="modalEditarOperacionFlujo" class="flujo-modal-overlay oculto">
+
+        <div class="flujo-modal-card">
+
+            <div class="flujo-modal-header">
+                <div>
+                    <h3>Editar Operación</h3>
+                    <p>
+                        Edita los datos de la operación. Los cambios se reflejarán en el flujo al guardar.
+                    </p>
+                </div>
+
+                <button type="button" id="btnCerrarModalFlujo" class="flujo-modal-close">
+                    ×
+                </button>
+            </div>
+
+            <div class="flujo-modal-body">
+
+                <div class="flujo-modal-info">
+                    <span class="material-symbols-outlined">info</span>
+                    <p>
+                        Modifica la operación seleccionada. Si es una operación nueva, pasará de estado vacío a operación fija.
+                    </p>
+                </div>
+
+                <input type="hidden" id="inputIndiceOperacionFlujo">
+                <input type="hidden" id="inputTipoEdicionOperacionFlujo">
+
+                <div class="flujo-form-group">
+                    <label for="inputNombreOperacionFlujo">Nombre de la operación</label>
+                    <input 
+                        type="text" 
+                        id="inputNombreOperacionFlujo" 
+                        placeholder="Ej: Cepillo, Torno 1000, Pulido manual"
+                    >
+                </div>
+
+                <div class="flujo-form-row">
+
+                    <div class="flujo-form-group">
+                        <label for="selectHorasOperacionFlujo">Horas</label>
+                        <select id="selectHorasOperacionFlujo">
+                            <option value="00">00</option>
+                            <option value="01">01</option>
+                            <option value="02">02</option>
+                            <option value="03">03</option>
+                            <option value="04">04</option>
+                            <option value="05">05</option>
+                            <option value="06">06</option>
+                            <option value="07">07</option>
+                            <option value="08">08</option>
+                            <option value="09">09</option>
+                            <option value="10">10</option>
+                            <option value="11">11</option>
+                            <option value="12">12</option>
+                        </select>
+                    </div>
+
+                    <div class="flujo-form-separator">:</div>
+
+                    <div class="flujo-form-group">
+                        <label for="selectMinutosOperacionFlujo">Minutos</label>
+                        <select id="selectMinutosOperacionFlujo">
+                            <option value="00">00</option>
+                            <option value="15">15</option>
+                            <option value="30">30</option>
+                            <option value="45">45</option>
+                        </select>
+                    </div>
+
+                </div>
+
+                <div class="flujo-form-group">
+                    <label for="textareaDescripcionOperacionFlujo">Descripción opcional</label>
+                    <textarea 
+                        id="textareaDescripcionOperacionFlujo" 
+                        rows="3" 
+                        placeholder="Ej: Proceso inicial de preparación de la pieza."
+                    ></textarea>
+                </div>
+
+                <div class="flujo-form-group">
+                    <label for="selectTipoOperacionFlujo">Tipo de operación</label>
+                    <select id="selectTipoOperacionFlujo">
+                        <option value="normal">Normal</option>
+                        <option value="manual">Manual</option>
+                        <option value="control_calidad">Control de calidad</option>
+                        <option value="externa">Externa</option>
+                    </select>
+                </div>
+
+            </div>
+
+            <div class="flujo-modal-footer">
+                <button type="button" id="btnCancelarModalFlujo" class="btn-flujo-modal-cancelar">
+                    Cancelar
+                </button>
+
+                <button type="button" id="btnGuardarModalFlujo" class="btn-flujo-modal-guardar">
+                    Guardar cambios
+                </button>
+            </div>
+
+        </div>
+
+    </div>
+
+</section>

@@ -10,11 +10,13 @@ let flujoProductoSeleccionado = null;
 let flujoCantidadOperacionesVisibles = 1;
 
 /*
-    Cards vacías creadas temporalmente.
+    Cards temporales creadas manualmente.
     Clave: índice de la operación base.
-    Valor: cantidad de cards vacías hacia abajo.
+    Valor: array de cards temporales.
 */
 let flujoCardsVaciasAbajo = {};
+
+let flujoEdicionActual = null;
 
 /* =========================
    INICIAR FLUJO PROCESO
@@ -116,27 +118,55 @@ function configurarEventosFlujoProceso() {
         board.onclick = e => {
             const btnPlus = e.target.closest(".flujo-grid-plus");
 
-            if (!btnPlus) return;
+            if (btnPlus) {
+                e.stopPropagation();
 
-            const direccion = btnPlus.dataset.direccion || "right";
-            const origen = btnPlus.dataset.origen || "operacion";
-            const indexBase = parseInt(btnPlus.dataset.indexBase || "-1", 10);
+                const direccion = btnPlus.dataset.direccion || "right";
+                const origen = btnPlus.dataset.origen || "operacion";
+                const indexBase = parseInt(btnPlus.dataset.indexBase || "-1", 10);
 
-            if (Number.isNaN(indexBase) || indexBase < 0) return;
+                if (Number.isNaN(indexBase) || indexBase < 0) return;
 
-            if (origen === "placeholder") {
-                avanzarDesdeCardVacia(indexBase, direccion);
+                if (origen === "placeholder") {
+                    avanzarDesdeCardVacia(indexBase, direccion);
+                    return;
+                }
+
+                if (direccion === "down") {
+                    crearCardVaciaAbajo(indexBase);
+                    return;
+                }
+
+                avanzarFlujoProceso(direccion);
                 return;
             }
 
-            if (direccion === "down") {
-                crearCardVaciaAbajo(indexBase);
+            const cardTemporal = e.target.closest('[data-tipo-card="vacia"], [data-tipo-card="temporal"]');
+
+            if (cardTemporal) {
+                const indexBase = parseInt(cardTemporal.dataset.indexBase || "-1", 10);
+                const posicionVacia = parseInt(cardTemporal.dataset.posicionVacia || "-1", 10);
+
+                if (!Number.isNaN(indexBase) && !Number.isNaN(posicionVacia)) {
+                    abrirModalEditarOperacionTemporalFlujo(indexBase, posicionVacia);
+                }
+
                 return;
             }
 
-            avanzarFlujoProceso(direccion);
+            const cardReal = e.target.closest('[data-tipo-card="real"]');
+
+            if (cardReal) {
+                const indexOperacion = parseInt(cardReal.dataset.operacionIndex || "-1", 10);
+
+                if (!Number.isNaN(indexOperacion) && indexOperacion >= 0) {
+                    abrirModalEditarOperacionRealFlujo(indexOperacion);
+                }
+            }
         };
     }
+
+    configurarEventosModalFlujo();
 
     if (!window.__flujoResizeRegistrado) {
         window.__flujoResizeRegistrado = true;
@@ -152,7 +182,6 @@ function configurarEventosFlujoProceso() {
         });
     }
 }
-
 /* =========================
    CARGAR FLUJO SELECCIONADO
 ========================= */
@@ -216,7 +245,19 @@ function crearCardVaciaAbajo(indexBase) {
         return;
     }
 
-    flujoCardsVaciasAbajo[indexBase] = (flujoCardsVaciasAbajo[indexBase] || 0) + 1;
+    if (!Array.isArray(flujoCardsVaciasAbajo[indexBase])) {
+        flujoCardsVaciasAbajo[indexBase] = [];
+    }
+
+    flujoCardsVaciasAbajo[indexBase].push({
+        idTemporal: `temp_${Date.now()}_${Math.random().toString(16).slice(2)}`,
+        editada: false,
+        nombre: "",
+        horas: "00",
+        minutos: "00",
+        descripcion: "",
+        tipo: "normal"
+    });
 
     renderizarFlujoProducto(flujoProductoSeleccionado);
 }
@@ -285,7 +326,11 @@ function renderizarFlujoProducto(producto) {
                                 const siguienteVisible = operacionesVisibles[operacion.indexGlobal + 1] || null;
                                 const siguienteReal = operaciones[operacion.indexGlobal + 1] || null;
 
-                                const cantidadVacias = flujoCardsVaciasAbajo[operacion.indexGlobal] || 0;
+                                const cardsTemporales = Array.isArray(flujoCardsVaciasAbajo[operacion.indexGlobal])
+                                    ? flujoCardsVaciasAbajo[operacion.indexGlobal]
+                                    : [];
+
+                                const cantidadVacias = cardsTemporales.length;
                                 const tieneCardVaciaAbajo = cantidadVacias > 0;
 
                                 let tipoConector = "none";
@@ -311,7 +356,7 @@ function renderizarFlujoProducto(producto) {
                                 const cardsVacias = crearCardsVaciasAbajo(
                                     operacion,
                                     operacion.indexGlobal,
-                                    cantidadVacias,
+                                    cardsTemporales,
                                     siguienteVisible,
                                     siguienteReal
                                 );
@@ -334,13 +379,16 @@ function renderizarFlujoProducto(producto) {
 /* =========================
    CREAR CARDS VACÍAS ABAJO
 ========================= */
-function crearCardsVaciasAbajo(operacionBase, indexBase, cantidadVacias, siguienteVisible, siguienteReal) {
-    if (cantidadVacias <= 0) return "";
+function crearCardsVaciasAbajo(operacionBase, indexBase, cardsTemporales = [], siguienteVisible, siguienteReal) {
+    if (!Array.isArray(cardsTemporales) || cardsTemporales.length <= 0) return "";
 
     let html = "";
 
+    const cantidadVacias = cardsTemporales.length;
+
     for (let i = 1; i <= cantidadVacias; i++) {
         const esUltimaVacia = i === cantidadVacias;
+        const cardTemporal = cardsTemporales[i - 1];
 
         let tipoConector = "none";
         let mostrarBotones = false;
@@ -359,6 +407,7 @@ function crearCardsVaciasAbajo(operacionBase, indexBase, cantidadVacias, siguien
         html += crearTarjetaVaciaOperacion(
             indexBase,
             i,
+            cardTemporal,
             tipoConector,
             mostrarBotones
         );
@@ -368,9 +417,9 @@ function crearCardsVaciasAbajo(operacionBase, indexBase, cantidadVacias, siguien
 }
 
 /* =========================
-   CREAR TARJETA VACÍA
+   CREAR TARJETA VACÍA / TEMPORAL
 ========================= */
-function crearTarjetaVaciaOperacion(indexBase, numeroPlaceholder, tipoConector = "none", mostrarBotones = false) {
+function crearTarjetaVaciaOperacion(indexBase, numeroPlaceholder, cardTemporal, tipoConector = "none", mostrarBotones = false) {
     const accionHTML = mostrarBotones
         ? `
             <button 
@@ -397,12 +446,57 @@ function crearTarjetaVaciaOperacion(indexBase, numeroPlaceholder, tipoConector =
         ? `data-conector-dinamico="right-up" data-index-base="${indexBase}"`
         : "";
 
+    const estaEditada = Boolean(cardTemporal?.editada);
+
+    if (estaEditada) {
+        const numeroVisual = obtenerNumeroVisualCardTemporal(indexBase, numeroPlaceholder);
+        const titulo = cardTemporal.nombre || "Operación temporal";
+        const duracion = formatearDuracion(cardTemporal.horas, cardTemporal.minutos);
+
+        return `
+            <div 
+                class="flujo-grid-card-wrapper flujo-card-temporal-wrapper conector-${tipoConector}"
+                data-card-temporal="true"
+                data-index-base="${indexBase}"
+                data-posicion-vacia="${numeroPlaceholder}"
+                ${atributosDinamicos}>
+
+                <div 
+                    class="flujo-grid-card flujo-grid-card-temporal-editada"
+                    data-tipo-card="temporal"
+                    data-index-base="${indexBase}"
+                    data-posicion-vacia="${numeroPlaceholder}">
+
+                    <div class="flujo-grid-card-numero">
+                        ${numeroVisual}
+                    </div>
+
+                    <div class="flujo-grid-card-info">
+                        <strong>${numeroVisual}. ${escaparHTML(titulo)}</strong>
+                        <span>${escaparHTML(duracion)}</span>
+                    </div>
+
+                    ${accionHTML}
+
+                </div>
+            </div>
+        `;
+    }
+
     return `
         <div 
             class="flujo-grid-card-wrapper flujo-card-vacia-wrapper conector-${tipoConector}"
+            data-card-temporal="true"
+            data-index-base="${indexBase}"
+            data-posicion-vacia="${numeroPlaceholder}"
             ${atributosDinamicos}>
 
-            <div class="flujo-grid-card flujo-grid-card-vacia">
+            <div 
+                class="flujo-grid-card flujo-grid-card-vacia"
+                data-tipo-card="vacia"
+                data-index-base="${indexBase}"
+                data-posicion-vacia="${numeroPlaceholder}"
+                title="Editar nueva operación">
 
                 <div class="flujo-grid-card-vacia-icon">
                     +
@@ -422,22 +516,65 @@ function crearTarjetaVaciaOperacion(indexBase, numeroPlaceholder, tipoConector =
 
 /* =========================
    OBTENER OPERACIONES ORDENADAS
+   Regla crítica:
+   - Las máquinas reales siempre van primero.
+   - Control de Calidad siempre queda al final.
 ========================= */
 function obtenerOperacionesOrdenadas(producto) {
     const operaciones = [...(producto?.operaciones || [])];
 
     operaciones.sort((a, b) => {
-        const ordenA = a.orden !== null && a.orden !== undefined ? Number(a.orden) : 999999;
-        const ordenB = b.orden !== null && b.orden !== undefined ? Number(b.orden) : 999999;
+        const aEsCC = esOperacionControlCalidad(a);
+        const bEsCC = esOperacionControlCalidad(b);
+
+        if (aEsCC && !bEsCC) return 1;
+        if (!aEsCC && bEsCC) return -1;
+
+        const ordenA = obtenerOrdenSeguro(a);
+        const ordenB = obtenerOrdenSeguro(b);
 
         if (ordenA !== ordenB) {
             return ordenA - ordenB;
         }
 
-        return Number(a.id || 0) - Number(b.id || 0);
+        const idA = a.id !== null && a.id !== undefined ? Number(a.id) : 999999;
+        const idB = b.id !== null && b.id !== undefined ? Number(b.id) : 999999;
+
+        return idA - idB;
     });
 
     return operaciones;
+}
+
+/* =========================
+   DETECTAR CONTROL DE CALIDAD
+========================= */
+function esOperacionControlCalidad(operacion) {
+    if (!operacion) return false;
+
+    const tipo = String(operacion.tipo || "").toLowerCase().trim();
+    const maquina = String(operacion.maquina || "").toLowerCase().trim();
+    const zona = String(operacion.zona || "").toLowerCase().trim();
+
+    return (
+        tipo === "control_calidad" ||
+        zona === "control_calidad" ||
+        maquina === "cc" ||
+        maquina.includes("control de calidad")
+    );
+}
+
+/* =========================
+   ORDEN SEGURO
+========================= */
+function obtenerOrdenSeguro(operacion) {
+    const orden = Number(operacion?.orden);
+
+    if (!Number.isFinite(orden) || orden <= 0) {
+        return 999999;
+    }
+
+    return orden;
 }
 
 /* =========================
@@ -469,7 +606,7 @@ function obtenerColumnasFlujo(operaciones) {
    NOMBRE COLUMNA
 ========================= */
 function obtenerNombreColumnaOperacion(operacion) {
-    if (operacion.tipo === "control_calidad") {
+    if (esOperacionControlCalidad(operacion)) {
         return "Control de Calidad (CC)";
     }
 
@@ -480,7 +617,8 @@ function obtenerNombreColumnaOperacion(operacion) {
    CREAR TARJETA
 ========================= */
 function crearTarjetaOperacion(operacion, index, tipoConector = "none", haySiguienteOculto = false) {
-    const esCC = operacion.tipo === "control_calidad";
+    const esCC = esOperacionControlCalidad(operacion);
+    const numeroVisual = obtenerNumeroVisualOperacionReal(index);
 
     const titulo = esCC
         ? "Control de calidad"
@@ -525,14 +663,18 @@ function crearTarjetaOperacion(operacion, index, tipoConector = "none", haySigui
             class="flujo-grid-card-wrapper conector-${tipoConector}"
             data-operacion-index="${index}">
 
-            <div class="flujo-grid-card ${esCC ? "flujo-grid-card-cc" : ""}">
+            <div 
+                class="flujo-grid-card ${esCC ? "flujo-grid-card-cc" : ""}"
+                data-tipo-card="real"
+                data-operacion-index="${index}"
+                title="Editar operación">
 
                 <div class="flujo-grid-card-numero">
-                    ${index + 1}
+                    ${numeroVisual}
                 </div>
 
                 <div class="flujo-grid-card-info">
-                    <strong>${index + 1}. ${escaparHTML(titulo)}</strong>
+                    <strong>${numeroVisual}. ${escaparHTML(titulo)}</strong>
                     <span>${escaparHTML(duracion)}</span>
                 </div>
 
@@ -660,7 +802,7 @@ function renderizarTablaDetalleFlujo(producto) {
     }
 
     tbody.innerHTML = operacionesVisibles.map((op, index) => {
-        const esCC = op.tipo === "control_calidad";
+        const esCC = esOperacionControlCalidad(op);
 
         return `
             <tr>
@@ -708,6 +850,245 @@ function renderizarResumenFlujo(producto) {
     if (tiempoEstimado) tiempoEstimado.textContent = convertirMinutosAHHMM(minutosTotales);
     if (progreso) progreso.textContent = `${porcentaje}%`;
     if (barra) barra.style.width = `${porcentaje}%`;
+}
+
+/* =========================
+   MODAL EDITAR OPERACIÓN
+========================= */
+function configurarEventosModalFlujo() {
+    const btnCerrar = document.getElementById("btnCerrarModalFlujo");
+    const btnCancelar = document.getElementById("btnCancelarModalFlujo");
+    const btnGuardar = document.getElementById("btnGuardarModalFlujo");
+    const modal = document.getElementById("modalEditarOperacionFlujo");
+
+    if (btnCerrar) {
+        btnCerrar.onclick = cerrarModalEditarOperacionFlujo;
+    }
+
+    if (btnCancelar) {
+        btnCancelar.onclick = cerrarModalEditarOperacionFlujo;
+    }
+
+    if (btnGuardar) {
+        btnGuardar.onclick = guardarEdicionOperacionFlujo;
+    }
+
+    if (modal) {
+        modal.onclick = e => {
+            if (e.target === modal) {
+                cerrarModalEditarOperacionFlujo();
+            }
+        };
+    }
+}
+
+function abrirModalEditarOperacionRealFlujo(indexOperacion) {
+    if (!flujoProductoSeleccionado) return;
+
+    const operaciones = obtenerOperacionesOrdenadas(flujoProductoSeleccionado);
+    const operacion = operaciones[indexOperacion];
+
+    if (!operacion) return;
+
+    flujoEdicionActual = {
+        tipo: "real",
+        indexOperacion
+    };
+
+    const esCC = esOperacionControlCalidad(operacion);
+
+    const nombre = esCC
+        ? "Control de calidad"
+        : operacion.maquina || "";
+
+    cargarDatosFormularioModalFlujo({
+        nombre,
+        horas: operacion.horas || "00",
+        minutos: operacion.minutos || "00",
+        descripcion: operacion.descripcion || operacion.observaciones || "",
+        tipo: esCC ? "control_calidad" : (operacion.tipo || "normal")
+    });
+
+    abrirModalEditarOperacionFlujo();
+}
+
+function abrirModalEditarOperacionTemporalFlujo(indexBase, posicionVacia) {
+    const cardsTemporales = flujoCardsVaciasAbajo[indexBase];
+
+    if (!Array.isArray(cardsTemporales)) return;
+
+    const cardTemporal = cardsTemporales[posicionVacia - 1];
+
+    if (!cardTemporal) return;
+
+    flujoEdicionActual = {
+        tipo: "temporal",
+        indexBase,
+        posicionVacia
+    };
+
+    cargarDatosFormularioModalFlujo({
+        nombre: cardTemporal.nombre || "",
+        horas: cardTemporal.horas || "00",
+        minutos: cardTemporal.minutos || "00",
+        descripcion: cardTemporal.descripcion || "",
+        tipo: cardTemporal.tipo || "normal"
+    });
+
+    abrirModalEditarOperacionFlujo();
+}
+
+function abrirModalEditarOperacionFlujo() {
+    const modal = document.getElementById("modalEditarOperacionFlujo");
+
+    if (!modal) {
+        console.warn("No existe #modalEditarOperacionFlujo en el HTML");
+        return;
+    }
+
+    modal.classList.remove("oculto");
+
+    setTimeout(() => {
+        const inputNombre = document.getElementById("inputNombreOperacionFlujo");
+        if (inputNombre) inputNombre.focus();
+    }, 50);
+}
+
+function cerrarModalEditarOperacionFlujo() {
+    const modal = document.getElementById("modalEditarOperacionFlujo");
+
+    if (modal) {
+        modal.classList.add("oculto");
+    }
+
+    flujoEdicionActual = null;
+}
+
+function cargarDatosFormularioModalFlujo(datos) {
+    const inputNombre = document.getElementById("inputNombreOperacionFlujo");
+    const selectHoras = document.getElementById("selectHorasOperacionFlujo");
+    const selectMinutos = document.getElementById("selectMinutosOperacionFlujo");
+    const textareaDescripcion = document.getElementById("textareaDescripcionOperacionFlujo");
+    const selectTipo = document.getElementById("selectTipoOperacionFlujo");
+
+    if (inputNombre) {
+        inputNombre.value = datos.nombre || "";
+    }
+
+    if (selectHoras) {
+        asignarValorSelectFlujo(selectHoras, String(parseInt(datos.horas) || 0).padStart(2, "0"));
+    }
+
+    if (selectMinutos) {
+        asignarValorSelectFlujo(selectMinutos, String(parseInt(datos.minutos) || 0).padStart(2, "0"));
+    }
+
+    if (textareaDescripcion) {
+        textareaDescripcion.value = datos.descripcion || "";
+    }
+
+    if (selectTipo) {
+        asignarValorSelectFlujo(selectTipo, datos.tipo || "normal");
+    }
+}
+
+function guardarEdicionOperacionFlujo() {
+    if (!flujoProductoSeleccionado || !flujoEdicionActual) return;
+
+    const inputNombre = document.getElementById("inputNombreOperacionFlujo");
+    const selectHoras = document.getElementById("selectHorasOperacionFlujo");
+    const selectMinutos = document.getElementById("selectMinutosOperacionFlujo");
+    const textareaDescripcion = document.getElementById("textareaDescripcionOperacionFlujo");
+    const selectTipo = document.getElementById("selectTipoOperacionFlujo");
+
+    const nombre = inputNombre?.value.trim() || "";
+    const horas = selectHoras?.value || "00";
+    const minutos = selectMinutos?.value || "00";
+    const descripcion = textareaDescripcion?.value.trim() || "";
+    const tipo = selectTipo?.value || "normal";
+
+    if (!nombre) {
+        alert("Ingresa el nombre de la operación");
+        return;
+    }
+
+    if (flujoEdicionActual.tipo === "real") {
+        const operaciones = obtenerOperacionesOrdenadas(flujoProductoSeleccionado);
+        const operacion = operaciones[flujoEdicionActual.indexOperacion];
+
+        if (!operacion) return;
+
+        operacion.maquina = nombre;
+        operacion.horas = parseInt(horas) || 0;
+        operacion.minutos = parseInt(minutos) || 0;
+        operacion.descripcion = descripcion;
+        operacion.tipo = tipo;
+    }
+
+    if (flujoEdicionActual.tipo === "temporal") {
+        const cardsTemporales = flujoCardsVaciasAbajo[flujoEdicionActual.indexBase];
+
+        if (!Array.isArray(cardsTemporales)) return;
+
+        const cardTemporal = cardsTemporales[flujoEdicionActual.posicionVacia - 1];
+
+        if (!cardTemporal) return;
+
+        cardTemporal.editada = true;
+        cardTemporal.nombre = nombre;
+        cardTemporal.horas = parseInt(horas) || 0;
+        cardTemporal.minutos = parseInt(minutos) || 0;
+        cardTemporal.descripcion = descripcion;
+        cardTemporal.tipo = tipo;
+    }
+
+    cerrarModalEditarOperacionFlujo();
+
+    renderizarFlujoProducto(flujoProductoSeleccionado);
+    renderizarTablaDetalleFlujo(flujoProductoSeleccionado);
+    renderizarResumenFlujo(flujoProductoSeleccionado);
+}
+
+function asignarValorSelectFlujo(select, valor) {
+    if (!select) return;
+
+    const existe = Array.from(select.options).some(option => option.value === valor);
+
+    if (!existe) {
+        const option = document.createElement("option");
+        option.value = valor;
+        option.textContent = valor;
+        select.appendChild(option);
+    }
+
+    select.value = valor;
+}
+
+/* =========================
+   NUMERACIÓN VISUAL
+========================= */
+function contarCardsTemporalesEditadasAntes(indexOperacion) {
+    let total = 0;
+
+    Object.entries(flujoCardsVaciasAbajo).forEach(([indexBase, cards]) => {
+        const base = parseInt(indexBase, 10);
+
+        if (Number.isNaN(base)) return;
+        if (base >= indexOperacion) return;
+        if (!Array.isArray(cards)) return;
+
+        total += cards.filter(card => card.editada).length;
+    });
+
+    return total;
+}
+
+function obtenerNumeroVisualOperacionReal(indexOperacion) {
+    return indexOperacion + 1 + contarCardsTemporalesEditadasAntes(indexOperacion);
+}
+
+function obtenerNumeroVisualCardTemporal(indexBase, posicionVacia) {
+    return obtenerNumeroVisualOperacionReal(indexBase) + posicionVacia;
 }
 
 /* =========================
