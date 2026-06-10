@@ -1,205 +1,242 @@
 <section class="section perfil-section">
 
-    <!-- HEADER -->
-    <div class="perfil-header">
-        <div>
-            <h2>Perfil del Usuario</h2>
-            <p>Información de cuenta, actividad y configuración personal</p>
-        </div>
-
-        <button class="btn-editar-perfil">
-            <span class="material-symbols-outlined">edit</span>
-            Editar perfil
-        </button>
+    <!-- HEADER SIMPLE -->
+    <div class="perfil-header-simple">
+        <h2>Perfil del Usuario</h2>
+        <p>Gestiona tu información personal y la configuración de tu cuenta.</p>
     </div>
 
-    <!-- CARD PRINCIPAL -->
-    <div class="perfil-main-card">
+    <!-- PANEL PRINCIPAL -->
+    <div class="perfil-cuenta-card">
 
-        <div class="perfil-avatar-box">
-            <div class="perfil-avatar">ADM</div>
-            <span class="estado-online"></span>
+        <div class="perfil-cuenta-header">
+            <h3>Configuración de cuenta</h3>
         </div>
 
-        <div class="perfil-info-principal">
-            <h3>Admin</h3>
-            <p>Administrador de Producción</p>
+        <!-- TABS -->
+        <div class="perfil-tabs">
+            <button class="perfil-tab active" data-perfil-tab="info">
+                <span class="material-symbols-outlined">person</span>
+                Información personal
+            </button>
 
-            <span class="perfil-badge">
-                <span class="material-symbols-outlined">verified_user</span>
-                IRONIX Operator
-            </span>
+            <button class="perfil-tab" data-perfil-tab="password">
+                <span class="material-symbols-outlined">lock</span>
+                Cambiar contraseña
+            </button>
 
-            <div class="perfil-datos">
-                <span>
-                    <span class="material-symbols-outlined">mail</span>
-                    admin@gmail.com
-                </span>
-
-                <span>
-                    <span class="material-symbols-outlined">business_center</span>
-                    Producción
-                </span>
-
-                <span>
-                    <span class="material-symbols-outlined">badge</span>
-                    ID Usuario: 1001
-                </span>
-            </div>
-        </div>
-
-        <div class="perfil-session-box">
-            <div>
-                <span>Último acceso</span>
-                <strong>Hoy, 10:35 AM</strong>
-                <p>10 de mayo de 2026</p>
-            </div>
-
-            <div>
-                <span>Estado de sesión</span>
-                <strong class="sesion-activa">Activa</strong>
-                <p>Chrome en Windows</p>
-            </div>
-        </div>
-
-    </div>
-
-    <!-- MÉTRICAS -->
-    <div class="perfil-metricas">
-
-        <div class="perfil-metrica-card">
-            <div class="metrica-icon purple">
-                <span class="material-symbols-outlined">assignment_turned_in</span>
-            </div>
-            <div>
-                <h3>42</h3>
-                <p>OT completadas</p>
-                <span>↑ 12% vs mes anterior</span>
-            </div>
-        </div>
-
-        <div class="perfil-metrica-card">
-            <div class="metrica-icon blue">
-                <span class="material-symbols-outlined">schedule</span>
-            </div>
-            <div>
-                <h3>128h 45m</h3>
-                <p>Tiempo activo</p>
-                <span>↑ 8% vs mes anterior</span>
-            </div>
-        </div>
-
-        <div class="perfil-metrica-card">
-            <div class="metrica-icon green">
-                <span class="material-symbols-outlined">precision_manufacturing</span>
-            </div>
-            <div>
-                <h3>8</h3>
-                <p>Máquinas utilizadas</p>
-                <span>Ver detalle →</span>
-            </div>
-        </div>
-
-        <div class="perfil-metrica-card">
-            <div class="metrica-icon yellow">
-                <span class="material-symbols-outlined">trending_up</span>
-            </div>
-            <div>
-                <h3>92%</h3>
-                <p>Eficiencia promedio</p>
-                <span>↑ 5% vs mes anterior</span>
-            </div>
-        </div>
-
-    </div>
-
-    <!-- CONTENIDO -->
-    <div class="perfil-grid">
-
-        <!-- INFORMACIÓN -->
-        <div class="perfil-panel perfil-info-panel">
-            <h3>Información personal</h3>
-
-            <div class="perfil-info-grid">
-                <p><span>Nombre completo</span><strong>Admin</strong></p>
-                <p><span>Correo electrónico</span><strong>admin@gmail.com</strong></p>
-                <p><span>Rol</span><strong>Administrador</strong></p>
-                <p><span>Área</span><strong>Producción</strong></p>
-                <p><span>Teléfono</span><strong>+56 9 1234 5678</strong></p>
-                <p><span>Idioma</span><strong>Español / Chile</strong></p>
-            </div>
-        </div>
-
-        <!-- SEGURIDAD -->
-        <div class="perfil-panel perfil-security-panel">
-            <h3>Cambiar contraseña</h3>
-
-            <div class="perfil-form">
-                <label>Contraseña actual</label>
-                <input type="password" placeholder="Ingresa tu contraseña actual">
-
-                <label>Nueva contraseña</label>
-                <input type="password" placeholder="Ingresa tu nueva contraseña">
-
-                <label>Confirmar contraseña</label>
-                <input type="password" placeholder="Confirma tu nueva contraseña">
-
-                <button>Actualizar contraseña</button>
-            </div>
-        </div>
-
-        <!-- ACTIVIDAD -->
-        <div class="perfil-panel perfil-actividad-panel">
-            <h3>Actividad reciente</h3>
-
-            <div class="actividad-lista">
-                <div class="actividad-item green">
-                    <span class="material-symbols-outlined">check_circle</span>
-                    <div>
-                        <strong>Completó OT-2025-00045</strong>
-                        <p>Liner Saddle Block 430-b · Hoy, 09:15 AM</p>
-                    </div>
-                </div>
-
-                <div class="actividad-item blue">
-                    <span class="material-symbols-outlined">edit_square</span>
-                    <div>
-                        <strong>Actualizó producción</strong>
-                        <p>Fresadora CNC · Ayer, 04:30 PM</p>
-                    </div>
-                </div>
-
-                <div class="actividad-item purple">
-                    <span class="material-symbols-outlined">description</span>
-                    <div>
-                        <strong>Creó OT-2025-00046</strong>
-                        <p>Housing Support 210-a · Ayer, 11:20 AM</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- SESIONES -->
-        <div class="perfil-panel perfil-sesiones-panel">
-            <h3>Sesiones activas</h3>
-
-            <div class="sesion-item">
+            <button class="perfil-tab" data-perfil-tab="sesiones">
                 <span class="material-symbols-outlined">desktop_windows</span>
-                <div>
-                    <strong>Windows · Chrome</strong>
-                    <p>Sesión actual · Santiago, Chile</p>
+                Sesiones activas
+            </button>
+        </div>
+
+        <!-- CONTENIDO TABS -->
+        <div class="perfil-tabs-content">
+
+            <!-- PANEL INFORMACIÓN PERSONAL -->
+            <div class="perfil-tab-panel active" data-perfil-panel="info">
+
+                <div class="perfil-panel-layout">
+
+                    <!-- INFORMACIÓN PERSONAL -->
+                    <div class="perfil-panel-box">
+                        <div class="perfil-panel-title">
+                            <span class="material-symbols-outlined">person</span>
+                            <h3>Información personal</h3>
+                        </div>
+
+                        <div class="perfil-info-grid-clean">
+
+                            <div class="perfil-info-item">
+                                <span>Nombre completo</span>
+                                <strong id="perfilNombre">Admin</strong>
+                            </div>
+
+                            <div class="perfil-info-item">
+                                <span>Área</span>
+                                <strong id="perfilArea">Producción</strong>
+                            </div>
+
+                            <div class="perfil-info-item">
+                                <span>Rol</span>
+                                <strong id="perfilRol">Administrador</strong>
+                            </div>
+
+                            <div class="perfil-info-item">
+                                <span>Idioma</span>
+                                <strong id="perfilIdioma">Español / Chile</strong>
+                            </div>
+
+                            <div class="perfil-info-item">
+                                <span>Teléfono</span>
+                                <strong id="perfilTelefono">+56 9 1234 5678</strong>
+                            </div>
+
+                            <div class="perfil-info-item">
+                                <span>Fecha de registro</span>
+                                <strong id="perfilFechaRegistro">
+                                    <span class="material-symbols-outlined">calendar_month</span>
+                                    15/04/2025
+                                </strong>
+                            </div>
+
+                            <div class="perfil-info-item">
+                                <span>Correo electrónico</span>
+                                <strong id="perfilCorreo">admin@gmail.com</strong>
+                            </div>
+
+                            <div class="perfil-info-item">
+                                <span>Estado de la cuenta</span>
+                                <strong>
+                                    <span class="perfil-estado-activo">Activa</span>
+                                </strong>
+                            </div>
+
+                        </div>
+
+                        <button class="perfil-btn-secundario" type="button">
+                            <span class="material-symbols-outlined">edit</span>
+                            Editar información
+                        </button>
+                    </div>
+
+                    <!-- SESIONES RESUMEN -->
+                    <div class="perfil-panel-box">
+                        <div class="perfil-panel-title">
+                            <span class="material-symbols-outlined">desktop_windows</span>
+                            <h3>Sesiones activas</h3>
+                        </div>
+
+                        <div class="perfil-sesion-lista">
+
+                            <div class="perfil-sesion-item">
+                                <span class="material-symbols-outlined">desktop_windows</span>
+
+                                <div>
+                                    <strong>Windows · Chrome</strong>
+                                    <p>Sesión actual · Santiago, Chile</p>
+                                    <small>IP: 186.64.123.10</small>
+                                </div>
+
+                                <span class="perfil-sesion-actual">Actual</span>
+                            </div>
+
+                            <div class="perfil-sesion-item">
+                                <span class="material-symbols-outlined">computer</span>
+
+                                <div>
+                                    <strong>Windows · Chrome</strong>
+                                    <p>08/05/2026 · 02:15 PM</p>
+                                    <small>IP: 186.64.123.10</small>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <button class="perfil-btn-danger" type="button">
+                            <span class="material-symbols-outlined">logout</span>
+                            Cerrar otras sesiones
+                        </button>
+                    </div>
+
                 </div>
+
             </div>
 
-            <div class="sesion-item">
-                <span class="material-symbols-outlined">computer</span>
-                <div>
-                    <strong>Windows · Chrome</strong>
-                    <p>08/05/2026 · 02:15 PM</p>
+            <!-- PANEL CAMBIAR CONTRASEÑA -->
+            <div class="perfil-tab-panel" data-perfil-panel="password">
+
+                <div class="perfil-panel-box perfil-password-box">
+                    <div class="perfil-panel-title">
+                        <span class="material-symbols-outlined">lock</span>
+                        <h3>Cambiar contraseña</h3>
+                    </div>
+
+                    <div class="perfil-form-clean">
+
+                        <label for="perfilPasswordActual">Contraseña actual</label>
+                        <input 
+                            type="password" 
+                            id="perfilPasswordActual"
+                            placeholder="Ingresa tu contraseña actual"
+                        >
+
+                        <label for="perfilPasswordNueva">Nueva contraseña</label>
+                        <input 
+                            type="password" 
+                            id="perfilPasswordNueva"
+                            placeholder="Ingresa tu nueva contraseña"
+                        >
+
+                        <label for="perfilPasswordConfirmar">Confirmar contraseña</label>
+                        <input 
+                            type="password" 
+                            id="perfilPasswordConfirmar"
+                            placeholder="Confirma tu nueva contraseña"
+                        >
+
+                        <button class="perfil-btn-principal" type="button">
+                            Actualizar contraseña
+                        </button>
+
+                    </div>
                 </div>
+
             </div>
 
-            <button class="btn-cerrar-sesiones">Cerrar otras sesiones</button>
+            <!-- PANEL SESIONES ACTIVAS -->
+            <div class="perfil-tab-panel" data-perfil-panel="sesiones">
+
+                <div class="perfil-panel-box">
+                    <div class="perfil-panel-title">
+                        <span class="material-symbols-outlined">desktop_windows</span>
+                        <h3>Sesiones activas</h3>
+                    </div>
+
+                    <div class="perfil-sesion-lista perfil-sesion-lista-full">
+
+                        <div class="perfil-sesion-item">
+                            <span class="material-symbols-outlined">desktop_windows</span>
+
+                            <div>
+                                <strong>Windows · Chrome</strong>
+                                <p>Sesión actual · Santiago, Chile</p>
+                                <small>IP: 186.64.123.10</small>
+                            </div>
+
+                            <span class="perfil-sesion-actual">Actual</span>
+                        </div>
+
+                        <div class="perfil-sesion-item">
+                            <span class="material-symbols-outlined">computer</span>
+
+                            <div>
+                                <strong>Windows · Chrome</strong>
+                                <p>08/05/2026 · 02:15 PM</p>
+                                <small>IP: 186.64.123.10</small>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <button class="perfil-btn-danger" type="button">
+                        <span class="material-symbols-outlined">logout</span>
+                        Cerrar otras sesiones
+                    </button>
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- AVISO INFERIOR -->
+        <div class="perfil-alerta-info">
+            <span class="material-symbols-outlined">shield</span>
+            <p>
+                <strong>Importante:</strong>
+                Si cierras otras sesiones, todas las sesiones activas en otros dispositivos se cerrarán y deberás iniciar sesión nuevamente.
+            </p>
         </div>
 
     </div>
