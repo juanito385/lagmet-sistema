@@ -19,20 +19,33 @@
 
     overflow: visible;
     flex-shrink: 0;
+
+    position: relative;
+    z-index: 1000;
+
+    transition: width 0.3s ease, padding 0.3s ease;
 }
 
-/* CONTENEDORES */
+/* =========================
+   CONTENEDORES
+========================= */
+
 .sidebar-top {
     display: flex;
     flex-direction: column;
     align-items: center;
     padding-top: 0;
+
+    position: relative;
+    z-index: 1001;
 }
 
 .sidebar-bottom {
     flex-shrink: 0;
     padding: 90px 0 35px;
+
     position: relative;
+    z-index: 1200;
 }
 
 /* =========================
@@ -66,7 +79,7 @@
 }
 
 /* =========================
-   MENÚ
+   MENÚ PRINCIPAL
 ========================= */
 
 .menu {
@@ -93,7 +106,7 @@
 
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 12px;
 }
 
 .menu button:hover {
@@ -124,10 +137,11 @@
 .sidebar-user {
     position: relative;
     width: 100%;
+    z-index: 1300;
 }
 
 .sidebar-user-btn {
-    width: calc(100%);
+    width: 100%;
     margin: 0 auto;
 
     min-height: 58px;
@@ -137,8 +151,8 @@
     align-items: center;
     gap: 12px;
 
-    background: rgba(255,255,255,0.065);
-    border: 1px solid rgba(255,255,255,0.14);
+    background: rgba(255,255,255,0.075);
+    border: 1px solid rgba(255,255,255,0.16);
     border-radius: 14px;
 
     color: #fff;
@@ -149,11 +163,21 @@
 
     overflow: hidden;
     transition: 0.25s ease;
+
+    position: relative;
+    z-index: 1301;
 }
 
 .sidebar-user-btn:hover {
     border-color: #5ba7ff;
     box-shadow: 0 0 20px rgba(91,167,255,0.22);
+}
+
+.sidebar-user.active .sidebar-user-btn {
+    border-color: #5ba7ff;
+    box-shadow:
+        0 0 22px rgba(91,167,255,0.26),
+        0 12px 28px rgba(0,0,0,0.34);
 }
 
 .sidebar-user-avatar {
@@ -226,12 +250,15 @@
     width: 220px;
     padding: 10px;
 
-    background: rgba(15, 20, 35, 0.96);
-    border: 1px solid rgba(255,255,255,0.13);
+    background: rgba(8, 13, 28, 0.985);
+    border: 1px solid rgba(91,167,255,0.25);
     border-radius: 16px;
 
     backdrop-filter: blur(18px);
-    box-shadow: 0 20px 45px rgba(0,0,0,0.48);
+    box-shadow:
+        0 24px 60px rgba(0,0,0,0.68),
+        0 0 0 1px rgba(255,255,255,0.04),
+        0 0 28px rgba(91,167,255,0.10);
 
     opacity: 0;
     visibility: hidden;
@@ -239,7 +266,8 @@
 
     transition: 0.25s ease;
 
-    z-index: 9999;
+    z-index: 1500;
+    pointer-events: none;
 }
 
 /* Flechita visual hacia el usuario */
@@ -253,11 +281,18 @@
     width: 12px;
     height: 12px;
 
-    background: rgba(15,20,35,0.96);
-    border-left: 1px solid rgba(255,255,255,0.13);
-    border-bottom: 1px solid rgba(255,255,255,0.13);
+    background: rgba(8, 13, 28, 0.985);
+    border-left: 1px solid rgba(91,167,255,0.25);
+    border-bottom: 1px solid rgba(91,167,255,0.25);
 
     transform: rotate(45deg);
+}
+
+.sidebar-user.active .sidebar-user-menu {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+    pointer-events: auto;
 }
 
 .sidebar-user-menu button {
@@ -278,13 +313,13 @@
     text-align: left;
 
     font-size: 13px;
-    font-weight: 600;
+    font-weight: 700;
 
     transition: 0.2s ease;
 }
 
 .sidebar-user-menu button:hover {
-    background: rgba(91,167,255,0.14);
+    background: rgba(91,167,255,0.16);
     color: #fff;
 }
 
@@ -306,22 +341,12 @@
 }
 
 .sidebar-user-menu .sidebar-user-logout:hover {
-    background: rgba(255,70,70,0.13);
-}
-
-.sidebar-user.active .sidebar-user-menu {
-    opacity: 1;
-    visibility: visible;
-    transform: translateY(0);
+    background: rgba(255,70,70,0.15);
 }
 
 /* =========================
-   SIDEBAR FINAL COLAPSABLE
+   SIDEBAR COLAPSABLE
 ========================= */
-
-.sidebar {
-    transition: width 0.3s ease, padding 0.3s ease;
-}
 
 .sidebar-toggle {
     width: 42px;
@@ -383,15 +408,11 @@
     overflow: hidden;
 
     transform: none;
+    text-align: center;
 }
 
 .sidebar.collapsed .menu button .material-symbols-outlined {
     font-size: 24px;
-}
-
-/* Emojis dentro de botones normales */
-.sidebar.collapsed .menu button {
-    text-align: center;
 }
 
 /* Usuario compacto */
@@ -434,13 +455,6 @@
 
     overflow: hidden;
     flex-shrink: 0;
-}
-
-/* Evita que el texto del menú se corra mientras cargan los íconos */
-.sidebar .menu button {
-    display: flex;
-    align-items: center;
-    gap: 12px;
 }
 
 /* Mantiene el texto estable */
