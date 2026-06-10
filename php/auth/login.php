@@ -1,5 +1,5 @@
 <?php
-header('Content-Type: application/json');
+header('Content-Type: application/json; charset=utf-8');
 require_once __DIR__ . "/../conexion.php";
 
 if ($_SERVER["REQUEST_METHOD"] !== "POST") {
@@ -23,9 +23,32 @@ if ($email === "" || $password === "") {
     exit;
 }
 
-$stmt = $conn->prepare("SELECT id, nombre, correo, password FROM usuarios WHERE correo = ?");
+/* ===============================
+   BUSCAR USUARIO
+================================ */
+$stmt = $conn->prepare("
+    SELECT 
+        id, 
+        nombre, 
+        correo, 
+        password, 
+        rol
+    FROM usuarios
+    WHERE correo = ?
+    LIMIT 1
+");
+
+if (!$stmt) {
+    echo json_encode([
+        "success" => false,
+        "message" => "Error interno al preparar el login"
+    ]);
+    exit;
+}
+
 $stmt->bind_param("s", $email);
 $stmt->execute();
+
 $result = $stmt->get_result();
 
 if ($result->num_rows === 0) {
@@ -33,27 +56,38 @@ if ($result->num_rows === 0) {
         "success" => false,
         "message" => "Usuario no encontrado"
     ]);
+    $stmt->close();
+    $conn->close();
     exit;
 }
 
 $user = $result->fetch_assoc();
 
-/* LOGIN CON CONTRASEÑA ENCRIPTADA */
-if (password_verify($password, $user["password"])) {
-    echo json_encode([
-        "success" => true,
-        "user" => [
-            "id" => $user["id"],
-            "nombre" => $user["nombre"],
-            "email" => $user["correo"]
-        ]
-    ]);
-} else {
+/* ===============================
+   VALIDAR CONTRASEÑA ENCRIPTADA
+================================ */
+if (!password_verify($password, $user["password"])) {
     echo json_encode([
         "success" => false,
         "message" => "Contraseña incorrecta"
     ]);
+    $stmt->close();
+    $conn->close();
+    exit;
 }
+
+/* ===============================
+   LOGIN CORRECTO
+================================ */
+echo json_encode([
+    "success" => true,
+    "user" => [
+        "id" => $user["id"],
+        "nombre" => $user["nombre"],
+        "email" => $user["correo"],
+        "rol" => $user["rol"]
+    ]
+]);
 
 $stmt->close();
 $conn->close();
