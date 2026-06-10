@@ -32,7 +32,8 @@ $stmt = $conn->prepare("
         nombre, 
         correo, 
         password, 
-        rol
+        rol,
+        estado
     FROM usuarios
     WHERE correo = ?
     LIMIT 1
@@ -62,6 +63,30 @@ if ($result->num_rows === 0) {
 }
 
 $user = $result->fetch_assoc();
+$stmt->close();
+
+/* ===============================
+   VALIDAR ESTADO DE CUENTA
+================================ */
+$estadoUsuario = $user["estado"] ?? "activa";
+
+if ($estadoUsuario === "inactiva") {
+    echo json_encode([
+        "success" => false,
+        "message" => "Tu cuenta está inactiva. Contacta al administrador."
+    ]);
+    $conn->close();
+    exit;
+}
+
+if ($estadoUsuario === "bloqueada") {
+    echo json_encode([
+        "success" => false,
+        "message" => "Tu cuenta está bloqueada. Contacta al administrador."
+    ]);
+    $conn->close();
+    exit;
+}
 
 /* ===============================
    VALIDAR CONTRASEÑA ENCRIPTADA
@@ -71,9 +96,46 @@ if (!password_verify($password, $user["password"])) {
         "success" => false,
         "message" => "Contraseña incorrecta"
     ]);
-    $stmt->close();
     $conn->close();
     exit;
+}
+
+/* ===============================
+   OBTENER PERMISOS
+================================ */
+$permisos = [];
+
+$stmtPermisos = $conn->prepare("
+    SELECT 
+        modulo,
+        puede_ver,
+        puede_crear,
+        puede_editar,
+        puede_eliminar,
+        puede_exportar
+    FROM usuario_permisos
+    WHERE usuario_id = ?
+");
+
+if ($stmtPermisos) {
+    $stmtPermisos->bind_param("i", $user["id"]);
+    $stmtPermisos->execute();
+
+    $resultPermisos = $stmtPermisos->get_result();
+
+    while ($permiso = $resultPermisos->fetch_assoc()) {
+        $modulo = $permiso["modulo"];
+
+        $permisos[$modulo] = [
+            "ver" => (int)$permiso["puede_ver"] === 1,
+            "crear" => (int)$permiso["puede_crear"] === 1,
+            "editar" => (int)$permiso["puede_editar"] === 1,
+            "eliminar" => (int)$permiso["puede_eliminar"] === 1,
+            "exportar" => (int)$permiso["puede_exportar"] === 1
+        ];
+    }
+
+    $stmtPermisos->close();
 }
 
 /* ===============================
@@ -85,10 +147,11 @@ echo json_encode([
         "id" => $user["id"],
         "nombre" => $user["nombre"],
         "email" => $user["correo"],
-        "rol" => $user["rol"]
+        "rol" => $user["rol"],
+        "estado" => $estadoUsuario,
+        "permisos" => $permisos
     ]
 ]);
 
-$stmt->close();
 $conn->close();
 ?>
