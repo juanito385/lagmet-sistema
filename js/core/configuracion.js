@@ -1,5 +1,17 @@
 console.log("CONFIGURACION.JS CARGADO");
- 
+
+/* =========================
+   OBTENER USUARIO ACTUAL
+========================= */
+function obtenerUsuarioConfiguracion() {
+    try {
+        return JSON.parse(localStorage.getItem("user"));
+    } catch (error) {
+        console.error("Error leyendo usuario desde localStorage:", error);
+        return null;
+    }
+}
+
 /* =========================
    CARGAR USUARIO
 ========================= */
@@ -8,18 +20,33 @@ function cargarUsuario() {
     const correo = document.getElementById("configCorreo");
     const rol = document.getElementById("configRol");
 
+    /*
+        Si la vista Configuración todavía no está cargada,
+        no hacemos nada. La función se volverá a llamar
+        cuando la vista aparezca en pantalla.
+    */
     if (!nombre || !correo || !rol) {
-        setTimeout(cargarUsuario, 300);
         return;
     }
 
-    fetch("php/config/obtener_usuario.php")
+    const user = obtenerUsuarioConfiguracion();
+
+    if (!user || !user.id) {
+        console.warn("No hay usuario logueado para cargar configuración");
+        return;
+    }
+
+    fetch(`php/config/obtener_usuario.php?usuario_id=${user.id}`)
         .then(res => res.json())
         .then(data => {
+            console.log("Usuario configuración:", data);
+
             if (data.success && data.usuario) {
-                nombre.value = data.usuario.nombre;
-                correo.value = data.usuario.correo;
-                rol.value = data.usuario.rol;
+                nombre.value = data.usuario.nombre || "";
+                correo.value = data.usuario.correo || "";
+                rol.value = data.usuario.rol || "";
+            } else {
+                console.warn(data.message || "No se pudo cargar el usuario");
             }
         })
         .catch(err => console.error("Error al cargar usuario:", err));
@@ -29,10 +56,26 @@ function cargarUsuario() {
    GUARDAR CONFIGURACIÓN
 ========================= */
 function guardarConfiguracion() {
-    const nombre = document.getElementById("configNombre").value;
-    const correo = document.getElementById("configCorreo").value;
+    const nombreInput = document.getElementById("configNombre");
+    const correoInput = document.getElementById("configCorreo");
+
+    if (!nombreInput || !correoInput) {
+        alert("No se encontraron los campos de configuración");
+        return;
+    }
+
+    const user = obtenerUsuarioConfiguracion();
+
+    if (!user || !user.id) {
+        alert("No hay usuario logueado");
+        return;
+    }
+
+    const nombre = nombreInput.value.trim();
+    const correo = correoInput.value.trim();
 
     const formData = new FormData();
+    formData.append("usuario_id", user.id);
     formData.append("nombre", nombre);
     formData.append("correo", correo);
 
@@ -43,7 +86,20 @@ function guardarConfiguracion() {
     .then(res => res.json())
     .then(data => {
         if (data.success) {
-            alert("Datos actualizados correctamente");
+            alert(data.message || "Datos actualizados correctamente");
+
+            const usuarioActualizado = {
+                ...user,
+                nombre: nombre,
+                email: correo
+            };
+
+            localStorage.setItem("user", JSON.stringify(usuarioActualizado));
+
+            if (typeof actualizarUsuarioSidebar === "function") {
+                actualizarUsuarioSidebar();
+            }
+
             cargarUsuario();
         } else {
             alert(data.message || "Error al actualizar");
@@ -63,7 +119,20 @@ function cambiarPasswordConfiguracion() {
     const passwordNueva = document.getElementById("passwordNueva");
     const passwordConfirmar = document.getElementById("passwordConfirmar");
 
+    if (!passwordActual || !passwordNueva || !passwordConfirmar) {
+        alert("No se encontraron los campos de contraseña");
+        return;
+    }
+
+    const user = obtenerUsuarioConfiguracion();
+
+    if (!user || !user.id) {
+        alert("No hay usuario logueado");
+        return;
+    }
+
     const formData = new FormData();
+    formData.append("usuario_id", user.id);
     formData.append("actual", passwordActual.value);
     formData.append("nueva", passwordNueva.value);
     formData.append("confirmar", passwordConfirmar.value);
@@ -132,8 +201,25 @@ document.addEventListener("click", function(e) {
 ========================= */
 window.guardarConfiguracion = guardarConfiguracion;
 window.cambiarPasswordConfiguracion = cambiarPasswordConfiguracion;
+window.cargarUsuario = cargarUsuario;
 
 /* =========================
-   INICIAR
+   DETECTAR CUANDO SE CARGA CONFIGURACIÓN
 ========================= */
-cargarUsuario();
+const observerConfiguracion = new MutationObserver(() => {
+    const configNombre = document.getElementById("configNombre");
+
+    if (configNombre) {
+        cargarUsuario();
+    }
+});
+
+document.addEventListener("DOMContentLoaded", () => {
+    const contenido = document.getElementById("contenido");
+
+    if (contenido) {
+        observerConfiguracion.observe(contenido, {
+            childList: true
+        });
+    }
+});
