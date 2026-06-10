@@ -46,59 +46,129 @@
                             <h3>Información personal</h3>
                         </div>
 
-                        <div class="perfil-info-grid-clean">
+                        <!-- MODO VISUAL -->
+                        <div class="perfil-info-view" id="perfilInfoView">
 
-                            <div class="perfil-info-item">
-                                <span>Nombre completo</span>
-                                <strong id="perfilNombre">Admin</strong>
+                            <div class="perfil-info-grid-clean">
+
+                                <div class="perfil-info-item">
+                                    <span>Nombre completo</span>
+                                    <strong id="perfilNombre">Usuario</strong>
+                                </div>
+
+                                <div class="perfil-info-item">
+                                    <span>Área</span>
+                                    <strong id="perfilArea">Producción</strong>
+                                </div>
+
+                                <div class="perfil-info-item">
+                                    <span>Rol</span>
+                                    <strong id="perfilRol">Usuario</strong>
+                                </div>
+
+                                <div class="perfil-info-item">
+                                    <span>Idioma</span>
+                                    <strong id="perfilIdioma">Español / Chile</strong>
+                                </div>
+
+                                <div class="perfil-info-item">
+                                    <span>Teléfono</span>
+                                    <strong id="perfilTelefono">Sin registrar</strong>
+                                </div>
+
+                                <div class="perfil-info-item">
+                                    <span>Fecha de registro</span>
+                                    <strong id="perfilFechaRegistro">
+                                        <span class="material-symbols-outlined">calendar_month</span>
+                                        Sin fecha
+                                    </strong>
+                                </div>
+
+                                <div class="perfil-info-item">
+                                    <span>Correo electrónico</span>
+                                    <strong id="perfilCorreo">Sin correo</strong>
+                                </div>
+
+                                <div class="perfil-info-item">
+                                    <span>Estado de la cuenta</span>
+                                    <strong>
+                                        <span class="perfil-estado-activo" id="perfilEstadoCuenta">Activa</span>
+                                    </strong>
+                                </div>
+
                             </div>
 
-                            <div class="perfil-info-item">
-                                <span>Área</span>
-                                <strong id="perfilArea">Producción</strong>
+                            <button id="btnEditarInfoPerfil" class="perfil-btn-secundario" type="button">
+                                <span class="material-symbols-outlined">edit</span>
+                                Editar información
+                            </button>
+
+                        </div>
+
+                        <!-- MODO EDICIÓN -->
+                        <div class="perfil-info-edit" id="perfilInfoEdit" hidden>
+
+                            <div class="perfil-edit-grid">
+
+                                <div class="perfil-edit-field">
+                                    <label for="perfilEditNombre">Nombre completo</label>
+                                    <input 
+                                        type="text" 
+                                        id="perfilEditNombre"
+                                        placeholder="Nombre completo"
+                                    >
+                                </div>
+
+                                <div class="perfil-edit-field">
+                                    <label for="perfilEditCorreo">Correo electrónico</label>
+                                    <input 
+                                        type="email" 
+                                        id="perfilEditCorreo"
+                                        placeholder="correo@empresa.cl"
+                                    >
+                                </div>
+
+                                <div class="perfil-edit-field">
+                                    <label for="perfilEditTelefono">Teléfono</label>
+                                    <input 
+                                        type="text" 
+                                        id="perfilEditTelefono"
+                                        placeholder="+56 9 1234 5678"
+                                    >
+                                </div>
+
+                                <div class="perfil-edit-field">
+                                    <label for="perfilEditArea">Área</label>
+                                    <input 
+                                        type="text" 
+                                        id="perfilEditArea"
+                                        placeholder="Producción"
+                                    >
+                                </div>
+
+                                <div class="perfil-edit-field">
+                                    <label for="perfilEditIdioma">Idioma</label>
+                                    <select id="perfilEditIdioma">
+                                        <option value="Español / Chile">Español / Chile</option>
+                                        <option value="Español">Español</option>
+                                        <option value="Inglés">Inglés</option>
+                                    </select>
+                                </div>
+
                             </div>
 
-                            <div class="perfil-info-item">
-                                <span>Rol</span>
-                                <strong id="perfilRol">Administrador</strong>
-                            </div>
+                            <div class="perfil-edit-actions">
+                                <button id="btnGuardarInfoPerfil" class="perfil-btn-principal perfil-btn-inline" type="button">
+                                    Guardar cambios
+                                </button>
 
-                            <div class="perfil-info-item">
-                                <span>Idioma</span>
-                                <strong id="perfilIdioma">Español / Chile</strong>
-                            </div>
-
-                            <div class="perfil-info-item">
-                                <span>Teléfono</span>
-                                <strong id="perfilTelefono">+56 9 1234 5678</strong>
-                            </div>
-
-                            <div class="perfil-info-item">
-                                <span>Fecha de registro</span>
-                                <strong id="perfilFechaRegistro">
-                                    <span class="material-symbols-outlined">calendar_month</span>
-                                    15/04/2025
-                                </strong>
-                            </div>
-
-                            <div class="perfil-info-item">
-                                <span>Correo electrónico</span>
-                                <strong id="perfilCorreo">admin@gmail.com</strong>
-                            </div>
-
-                            <div class="perfil-info-item">
-                                <span>Estado de la cuenta</span>
-                                <strong>
-                                    <span class="perfil-estado-activo">Activa</span>
-                                </strong>
+                                <button id="btnCancelarInfoPerfil" class="perfil-btn-secundario" type="button">
+                                    Cancelar
+                                </button>
                             </div>
 
                         </div>
 
-                        <button class="perfil-btn-secundario" type="button">
-                            <span class="material-symbols-outlined">edit</span>
-                            Editar información
-                        </button>
                     </div>
 
                     <!-- SESIONES RESUMEN -->

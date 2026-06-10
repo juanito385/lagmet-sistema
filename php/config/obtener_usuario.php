@@ -26,6 +26,10 @@ $sql = "
         nombre, 
         correo, 
         rol,
+        telefono,
+        area,
+        idioma,
+        estado,
         fecha_creacion
     FROM usuarios 
     WHERE id = ?
