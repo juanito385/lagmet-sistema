@@ -81,7 +81,7 @@ function mostrarBloqueoConfiguracionAdmin() {
    LISTAR USUARIOS
 ========================= */
 
-async function listarUsuariosConfiguracion() {
+async function listarUsuariosConfiguracion(usuarioMantenerSeleccionado = null) {
     try {
         const response = await fetch("php/usuarios/listar_usuarios.php", {
             cache: "no-store"
@@ -102,11 +102,23 @@ async function listarUsuariosConfiguracion() {
         renderResumenUsuariosConfiguracion();
         renderTablaUsuariosConfiguracion();
 
-        const usuarioNormal = configUsuarios.find(usuario => usuario.rol !== "admin");
-        const primerUsuario = usuarioNormal || configUsuarios[0] || null;
+        let usuarioSeleccionar = null;
 
-        if (primerUsuario) {
-            await seleccionarUsuarioConfiguracion(primerUsuario.id);
+        if (usuarioMantenerSeleccionado) {
+            usuarioSeleccionar = configUsuarios.find(
+                usuario => Number(usuario.id) === Number(usuarioMantenerSeleccionado)
+            );
+        }
+
+        if (!usuarioSeleccionar) {
+            usuarioSeleccionar =
+                configUsuarios.find(usuario => usuario.rol !== "admin") ||
+                configUsuarios[0] ||
+                null;
+        }
+
+        if (usuarioSeleccionar) {
+            await seleccionarUsuarioConfiguracion(usuarioSeleccionar.id);
         }
 
     } catch (error) {
@@ -149,16 +161,6 @@ function renderResumenUsuariosConfiguracion() {
 }
 
 function calcularModulosRestringidosConfig() {
-    const modulos = [
-        "dashboard",
-        "monitoreo",
-        "productos",
-        "documentacion",
-        "flujo-proceso",
-        "estados",
-        "configuracion"
-    ];
-
     const usuarioNormal = configUsuarios.find(usuario => usuario.rol !== "admin");
 
     if (!usuarioNormal) return 0;
@@ -280,6 +282,7 @@ async function seleccionarUsuarioConfiguracion(usuarioId) {
     });
 
     pintarUsuarioSeleccionadoConfig(usuario);
+    actualizarBotonesEstadoUsuarioConfig(usuario);
 
     await cargarPermisosUsuarioConfiguracion(usuario.id);
 }
@@ -300,6 +303,55 @@ function pintarUsuarioSeleccionadoConfig(usuario) {
     if (avatar) avatar.textContent = obtenerInicialUsuarioConfig(usuario.nombre);
     if (nombre) nombre.textContent = usuario.nombre || "Usuario";
     if (correo) correo.textContent = usuario.correo || "Sin correo";
+}
+
+/* =========================
+   BOTONES SEGÚN ESTADO
+========================= */
+
+function actualizarBotonesEstadoUsuarioConfig(usuario) {
+    const btnBloquear = document.getElementById("btnBloquearUsuarioConfig");
+    const btnDesactivar = document.getElementById("btnDesactivarUsuarioConfig");
+
+    if (!btnBloquear || !btnDesactivar || !usuario) return;
+
+    const esAdmin = usuario.rol === "admin";
+
+    btnBloquear.disabled = esAdmin;
+    btnDesactivar.disabled = esAdmin;
+
+    btnBloquear.style.opacity = esAdmin ? "0.45" : "1";
+    btnDesactivar.style.opacity = esAdmin ? "0.45" : "1";
+
+    btnBloquear.style.cursor = esAdmin ? "not-allowed" : "pointer";
+    btnDesactivar.style.cursor = esAdmin ? "not-allowed" : "pointer";
+
+    if (usuario.estado === "bloqueada") {
+        btnBloquear.textContent = "Bloqueado";
+        btnBloquear.disabled = true;
+        btnBloquear.style.opacity = "0.45";
+        btnBloquear.style.cursor = "not-allowed";
+
+        btnDesactivar.textContent = "Activar";
+        btnDesactivar.disabled = esAdmin;
+        btnDesactivar.style.opacity = esAdmin ? "0.45" : "1";
+        btnDesactivar.style.cursor = esAdmin ? "not-allowed" : "pointer";
+        return;
+    }
+
+    if (usuario.estado === "inactiva") {
+        btnBloquear.textContent = "Bloquear";
+        btnBloquear.disabled = esAdmin;
+
+        btnDesactivar.textContent = "Activar";
+        btnDesactivar.disabled = esAdmin;
+        btnDesactivar.style.opacity = esAdmin ? "0.45" : "1";
+        btnDesactivar.style.cursor = esAdmin ? "not-allowed" : "pointer";
+        return;
+    }
+
+    btnBloquear.textContent = "Bloquear";
+    btnDesactivar.textContent = "Desactivar";
 }
 
 /* =========================
@@ -380,9 +432,6 @@ async function guardarPermisosConfiguracion() {
         permisos[modulo] = check.checked === true;
     });
 
-    /*
-        Perfil siempre debe quedar visible.
-    */
     permisos["perfil"] = true;
 
     const formData = new FormData();
@@ -411,6 +460,66 @@ async function guardarPermisosConfiguracion() {
     } catch (error) {
         console.error("Error guardando permisos:", error);
         alert("Error al guardar permisos");
+    }
+}
+
+/* =========================
+   ACTUALIZAR ESTADO USUARIO
+========================= */
+
+async function actualizarEstadoUsuarioConfiguracion(nuevoEstado) {
+    if (!configUsuarioSeleccionado) {
+        alert("Selecciona un usuario primero");
+        return;
+    }
+
+    const admin = obtenerUsuarioConfiguracion();
+
+    if (!admin || !admin.id || admin.rol !== "admin") {
+        alert("No tienes permisos para modificar usuarios");
+        return;
+    }
+
+    if (configUsuarioSeleccionado.rol === "admin" && nuevoEstado !== "activa") {
+        alert("No puedes bloquear o desactivar un administrador");
+        return;
+    }
+
+    const estadoTexto = formatearEstadoUsuarioConfig(nuevoEstado);
+
+    const confirmar = confirm(
+        `¿Seguro que deseas cambiar el estado de ${configUsuarioSeleccionado.nombre} a "${estadoTexto}"?`
+    );
+
+    if (!confirmar) return;
+
+    const formData = new FormData();
+    formData.append("admin_id", admin.id);
+    formData.append("usuario_id", configUsuarioSeleccionado.id);
+    formData.append("estado", nuevoEstado);
+
+    try {
+        const response = await fetch("php/usuarios/actualizar_estado_usuario.php", {
+            method: "POST",
+            body: formData
+        });
+
+        const data = await response.json();
+
+        console.log("Actualizar estado:", data);
+
+        if (!data.success) {
+            alert(data.message || "No se pudo actualizar el estado del usuario");
+            return;
+        }
+
+        alert(data.message || "Estado actualizado correctamente");
+
+        await listarUsuariosConfiguracion(configUsuarioSeleccionado.id);
+
+    } catch (error) {
+        console.error("Error actualizando estado:", error);
+        alert("Error al actualizar estado del usuario");
     }
 }
 
@@ -486,7 +595,7 @@ document.addEventListener("click", async function(e) {
             return;
         }
 
-        alert(`Bloquear usuario: ${configUsuarioSeleccionado.nombre}. Se conectará al endpoint en el siguiente paso.`);
+        await actualizarEstadoUsuarioConfiguracion("bloqueada");
         return;
     }
 
@@ -498,7 +607,11 @@ document.addEventListener("click", async function(e) {
             return;
         }
 
-        alert(`Desactivar usuario: ${configUsuarioSeleccionado.nombre}. Se conectará al endpoint en el siguiente paso.`);
+        const nuevoEstado = configUsuarioSeleccionado.estado === "activa"
+            ? "inactiva"
+            : "activa";
+
+        await actualizarEstadoUsuarioConfiguracion(nuevoEstado);
         return;
     }
 
@@ -588,6 +701,7 @@ window.cargarConfiguracion = cargarConfiguracion;
 window.listarUsuariosConfiguracion = listarUsuariosConfiguracion;
 window.seleccionarUsuarioConfiguracion = seleccionarUsuarioConfiguracion;
 window.guardarPermisosConfiguracion = guardarPermisosConfiguracion;
+window.actualizarEstadoUsuarioConfiguracion = actualizarEstadoUsuarioConfiguracion;
 
 /* =========================
    DETECTAR CARGA DINÁMICA
