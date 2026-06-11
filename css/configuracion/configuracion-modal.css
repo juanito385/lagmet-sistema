@@ -331,3 +331,42 @@
 #configuracion .config-modal-field[hidden] {
     display: none !important;
 }
+
+/* =========================
+   MODAL RESTABLECER CONTRASEÑA
+========================= */
+
+#configuracion .config-modal-small {
+    width: min(560px, 100%);
+}
+
+#configuracion .config-modal-grid-one {
+    grid-template-columns: 1fr;
+}
+
+#configuracion .config-reset-user-box {
+    margin-bottom: 16px;
+    padding: 13px 14px;
+
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    background: rgba(8, 14, 28, 0.45);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 8px;
+}
+
+#configuracion .config-reset-user-box strong {
+    display: block;
+    color: #fff;
+    font-size: 14px;
+    font-weight: 900;
+}
+
+#configuracion .config-reset-user-box span:not(.material-symbols-outlined) {
+    display: block;
+    margin-top: 2px;
+    color: #9fb0d0;
+    font-size: 12px;
+}

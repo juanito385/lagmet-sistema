@@ -542,18 +542,21 @@ function prepararModalUsuarioConfig(modo, usuario = null) {
     inputId.value = esEditar && usuario ? usuario.id : "";
 
     actualizarTextoConfig("modalUsuarioTitulo", esEditar ? "Editar usuario" : "Nuevo usuario");
+
     actualizarTextoConfig(
         "modalUsuarioDescripcion",
         esEditar
             ? "Modifica los datos administrativos del usuario seleccionado."
             : "Crea una nueva cuenta de acceso para IRONIX."
     );
+
     actualizarTextoConfig(
         "modalUsuarioInfo",
         esEditar
             ? "Si cambias el rol del usuario, sus permisos base se recalcularán automáticamente."
             : "Al crear un usuario, se generarán automáticamente sus permisos iniciales según el rol seleccionado."
     );
+
     actualizarTextoConfig("modalUsuarioBotonTexto", esEditar ? "Guardar cambios" : "Crear usuario");
 
     const campoPassword = document.getElementById("campoPasswordNuevoUsuario");
@@ -841,6 +844,117 @@ function actualizarLocalStorageSiEsUsuarioActualConfig(usuarioActualizado) {
 }
 
 /* =========================
+   MODAL RESTABLECER CONTRASEÑA
+========================= */
+
+function abrirModalResetPasswordConfig() {
+    if (!configUsuarioSeleccionado) {
+        alert("Selecciona un usuario primero");
+        return;
+    }
+
+    const modal = document.getElementById("modalResetPasswordConfig");
+
+    if (!modal) {
+        alert("No se encontró el modal de restablecer contraseña");
+        return;
+    }
+
+    limpiarModalResetPasswordConfig();
+
+    actualizarTextoConfig("resetPasswordAvatar", obtenerInicialUsuarioConfig(configUsuarioSeleccionado.nombre));
+    actualizarTextoConfig("resetPasswordNombre", configUsuarioSeleccionado.nombre || "Usuario seleccionado");
+    actualizarTextoConfig("resetPasswordCorreo", configUsuarioSeleccionado.correo || "Sin correo");
+
+    modal.hidden = false;
+
+    setTimeout(() => {
+        document.getElementById("resetPasswordNueva")?.focus();
+    }, 80);
+}
+
+function cerrarModalResetPasswordConfig() {
+    const modal = document.getElementById("modalResetPasswordConfig");
+
+    if (!modal) return;
+
+    modal.hidden = true;
+}
+
+function limpiarModalResetPasswordConfig() {
+    asignarValorConfig("resetPasswordNueva", "");
+    asignarValorConfig("resetPasswordConfirmar", "");
+}
+
+async function restablecerPasswordUsuarioConfig() {
+    if (!configUsuarioSeleccionado) {
+        alert("Selecciona un usuario primero");
+        return;
+    }
+
+    const admin = obtenerUsuarioConfiguracion();
+
+    if (!admin || !admin.id || admin.rol !== "admin") {
+        alert("No tienes permisos para restablecer contraseñas");
+        return;
+    }
+
+    const nuevaPassword = obtenerValorConfig("resetPasswordNueva");
+    const confirmarPassword = obtenerValorConfig("resetPasswordConfirmar");
+
+    if (!nuevaPassword || !confirmarPassword) {
+        alert("Completa la nueva contraseña y su confirmación");
+        return;
+    }
+
+    if (nuevaPassword !== confirmarPassword) {
+        alert("Las contraseñas no coinciden");
+        return;
+    }
+
+    if (nuevaPassword.length < 6) {
+        alert("La contraseña debe tener al menos 6 caracteres");
+        return;
+    }
+
+    const confirmar = confirm(
+        `¿Seguro que deseas restablecer la contraseña de "${configUsuarioSeleccionado.nombre}"?`
+    );
+
+    if (!confirmar) return;
+
+    const formData = new FormData();
+    formData.append("admin_id", admin.id);
+    formData.append("usuario_id", configUsuarioSeleccionado.id);
+    formData.append("nueva_password", nuevaPassword);
+    formData.append("confirmar_password", confirmarPassword);
+
+    try {
+        const response = await fetch("php/usuarios/restablecer_password_usuario.php", {
+            method: "POST",
+            body: formData
+        });
+
+        const data = await response.json();
+
+        console.log("Restablecer contraseña:", data);
+
+        if (!data.success) {
+            alert(data.message || "No se pudo restablecer la contraseña");
+            return;
+        }
+
+        alert(data.message || "Contraseña restablecida correctamente");
+
+        cerrarModalResetPasswordConfig();
+
+    } catch (error) {
+        console.error("Error restableciendo contraseña:", error);
+        alert("Error al restablecer contraseña");
+    }
+}
+
+/* =========================
    BUSCADOR
 ========================= */
 
@@ -912,9 +1026,9 @@ document.addEventListener("click", async function(e) {
         return;
     }
 
-    const overlayModal = e.target.closest("#modalNuevoUsuarioConfig");
+    const overlayModalUsuario = e.target.closest("#modalNuevoUsuarioConfig");
 
-    if (overlayModal && e.target.id === "modalNuevoUsuarioConfig") {
+    if (overlayModalUsuario && e.target.id === "modalNuevoUsuarioConfig") {
         cerrarModalNuevoUsuarioConfig();
         return;
     }
@@ -962,7 +1076,29 @@ document.addEventListener("click", async function(e) {
             return;
         }
 
-        alert(`Restablecer contraseña de: ${configUsuarioSeleccionado.nombre}. Se implementará después.`);
+        abrirModalResetPasswordConfig();
+        return;
+    }
+
+    const btnCerrarReset = e.target.closest("#btnCerrarModalResetPassword");
+    const btnCancelarReset = e.target.closest("#btnCancelarResetPassword");
+
+    if (btnCerrarReset || btnCancelarReset) {
+        cerrarModalResetPasswordConfig();
+        return;
+    }
+
+    const btnGuardarReset = e.target.closest("#btnGuardarResetPassword");
+
+    if (btnGuardarReset) {
+        await restablecerPasswordUsuarioConfig();
+        return;
+    }
+
+    const overlayReset = e.target.closest("#modalResetPasswordConfig");
+
+    if (overlayReset && e.target.id === "modalResetPasswordConfig") {
+        cerrarModalResetPasswordConfig();
         return;
     }
 });
@@ -976,6 +1112,7 @@ document.addEventListener("input", function(e) {
 document.addEventListener("keydown", function(e) {
     if (e.key === "Escape") {
         cerrarModalNuevoUsuarioConfig();
+        cerrarModalResetPasswordConfig();
     }
 });
 
@@ -1072,6 +1209,9 @@ window.abrirModalEditarUsuarioConfig = abrirModalEditarUsuarioConfig;
 window.cerrarModalNuevoUsuarioConfig = cerrarModalNuevoUsuarioConfig;
 window.crearUsuarioConfiguracion = crearUsuarioConfiguracion;
 window.actualizarUsuarioAdminConfiguracion = actualizarUsuarioAdminConfiguracion;
+window.abrirModalResetPasswordConfig = abrirModalResetPasswordConfig;
+window.cerrarModalResetPasswordConfig = cerrarModalResetPasswordConfig;
+window.restablecerPasswordUsuarioConfig = restablecerPasswordUsuarioConfig;
 
 /* =========================
    DETECTAR CARGA DINÁMICA
