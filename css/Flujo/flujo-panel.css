@@ -1,0 +1,78 @@
+/* =========================
+   PANEL PRINCIPAL INTEGRADO
+   Título + filtros + tablero
+========================= */
+
+.flujo-proceso-section .flujo-panel-principal {
+    width: 100%;
+    box-sizing: border-box;
+
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+
+    padding: 26px;
+
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 16px;
+
+    box-shadow: 0 15px 35px rgba(0,0,0,0.25);
+}
+
+/* Cabecera integrada */
+.flujo-proceso-section .flujo-panel-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    padding: 2px 4px 4px;
+}
+
+/* Título */
+.flujo-proceso-section .flujo-title-box,
+.flujo-proceso-section .flujo-title-box-integrado {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.flujo-proceso-section .flujo-title-box h2,
+.flujo-proceso-section .flujo-title-box-integrado h2 {
+    margin: 0;
+
+    font-size: 32px;
+    font-weight: 800;
+    color: #ffffff;
+    letter-spacing: 0.4px;
+}
+
+.flujo-proceso-section .flujo-title-box p,
+.flujo-proceso-section .flujo-title-box-integrado p {
+    margin: 4px 0 0;
+
+    color: #cfd6e6;
+    font-size: 14px;
+}
+
+/* Icono */
+.flujo-proceso-section .flujo-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    color: #5ba7ff;
+    line-height: 1;
+}
+
+.flujo-proceso-section .flujo-icon .material-symbols-outlined {
+    display: block;
+    font-size: 46px;
+    color: #5ba7ff;
+
+    font-variation-settings:
+    'FILL' 0,
+    'wght' 300,
+    'GRAD' 0,
+    'opsz' 48;
+}

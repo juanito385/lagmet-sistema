@@ -1,0 +1,113 @@
+/* =========================
+   CONECTORES FIJOS UNIFICADOS
+   Horizontal + Vertical
+   Ajustados para tocar bordes de cards
+========================= */
+/* ---------- HORIZONTAL ---------- */
+/*
+   Conector horizontal corregido.
+
+   Considera:
+   - ancho de la card
+   - padding lateral de columnas: 18px + 18px = 36px
+   - ancho de la punta de flecha
+*/
+.flujo-proceso-section .conector-right::after {
+    content: "";
+    position: absolute;
+
+    top: 50%;
+    left: calc(50% + (var(--flujo-card-ancho) / 2));
+
+    width: calc(
+        100% -
+        var(--flujo-card-ancho) +
+        36px -
+        var(--flujo-flecha-ancho)
+    );
+
+    height: var(--flujo-conector-grosor);
+
+    background: var(--flujo-conector-color);
+    transform: translateY(-50%);
+
+    z-index: 1;
+    pointer-events: none;
+}
+
+.flujo-proceso-section .conector-right::before {
+    content: "";
+    position: absolute;
+
+    top: 50%;
+    left: calc(
+        50% +
+        (var(--flujo-card-ancho) / 2) +
+        100% -
+        var(--flujo-card-ancho) +
+        36px -
+        var(--flujo-flecha-ancho)
+    );
+
+    transform: translateY(-50%);
+
+    z-index: 2;
+    pointer-events: none;
+
+    border-top: calc(var(--flujo-flecha-alto) / 2) solid transparent;
+    border-bottom: calc(var(--flujo-flecha-alto) / 2) solid transparent;
+    border-left: var(--flujo-flecha-ancho) solid var(--flujo-conector-color);
+}
+
+/* ---------- VERTICAL ---------- */
+/*
+   Distancia real entre:
+   - borde inferior de la card actual
+   - borde superior de la card siguiente
+
+   distancia = alto_fila - alto_card
+*/
+.flujo-proceso-section .conector-down::after {
+    content: "";
+    position: absolute;
+
+    left: 50%;
+    top: calc(50% + (var(--flujo-card-alto) / 2));
+
+    width: var(--flujo-conector-grosor);
+
+    height: calc(
+        var(--flujo-fila-alto) -
+        var(--flujo-card-alto) -
+        var(--flujo-flecha-ancho)
+    );
+
+    background: var(--flujo-conector-color);
+    transform: translateX(-50%);
+
+    z-index: 1;
+    pointer-events: none;
+}
+
+.flujo-proceso-section .conector-down::before {
+    content: "";
+    position: absolute;
+
+    left: 50%;
+    top: calc(
+        50% +
+        (var(--flujo-card-alto) / 2) +
+        var(--flujo-fila-alto) -
+        var(--flujo-card-alto) -
+        var(--flujo-flecha-ancho)
+    );
+
+    transform: translateX(-50%);
+
+    z-index: 2;
+    pointer-events: none;
+
+    border-left: calc(var(--flujo-flecha-alto) / 2) solid transparent;
+    border-right: calc(var(--flujo-flecha-alto) / 2) solid transparent;
+    border-top: var(--flujo-flecha-ancho) solid var(--flujo-conector-color);
+}

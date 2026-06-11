@@ -1,0 +1,74 @@
+/* =========================
+   BOARD CENTRAL INTEGRADO
+========================= */
+
+.flujo-proceso-section .flujo-board-wrapper {
+    width: 100%;
+    margin-top: 0;
+
+    display: flex;
+    justify-content: center;
+}
+
+.flujo-proceso-section .flujo-board {
+    width: 100%;
+    min-height: 430px;
+    height: auto;
+
+    background: rgba(20, 26, 42, 0.34);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 14px;
+
+    padding: 28px;
+    box-sizing: border-box;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    color: #fff;
+    overflow: hidden;
+
+    box-shadow: none;
+}
+
+/* Estado vacío */
+.flujo-proceso-section .flujo-empty-state {
+    width: 100%;
+    min-height: 340px;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    text-align: center;
+    color: #d8dfed;
+}
+
+.flujo-proceso-section .flujo-empty-state .material-symbols-outlined {
+    font-size: 58px;
+    color: #5ba7ff;
+    margin-bottom: 14px;
+
+    font-variation-settings:
+    'FILL' 0,
+    'wght' 300,
+    'GRAD' 0,
+    'opsz' 48;
+}
+
+.flujo-proceso-section .flujo-empty-state h3 {
+    margin: 0 0 10px;
+    font-size: 22px;
+    font-weight: 800;
+    color: #ffffff;
+}
+
+.flujo-proceso-section .flujo-empty-state p {
+    max-width: 520px;
+    margin: 0;
+    font-size: 14px;
+    line-height: 1.5;
+    color: #cfd6e6;
+}

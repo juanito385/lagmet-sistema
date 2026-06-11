@@ -1,0 +1,1368 @@
+/* =========================
+   FLUJO PROCESO
+   CSS encapsulado para NO afectar Dashboard
+========================= */
+
+.flujo-proceso-section {
+    padding: 14px;
+    color: #fff;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* =========================
+   PANEL PRINCIPAL INTEGRADO
+   Título + filtros + tablero
+========================= */
+
+.flujo-proceso-section .flujo-panel-principal {
+    width: 100%;
+    box-sizing: border-box;
+
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+
+    padding: 26px;
+
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 16px;
+
+    box-shadow: 0 15px 35px rgba(0,0,0,0.25);
+}
+
+/* Cabecera integrada */
+.flujo-proceso-section .flujo-panel-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    padding: 2px 4px 4px;
+}
+
+/* Título */
+.flujo-proceso-section .flujo-title-box,
+.flujo-proceso-section .flujo-title-box-integrado {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.flujo-proceso-section .flujo-title-box h2,
+.flujo-proceso-section .flujo-title-box-integrado h2 {
+    margin: 0;
+
+    font-size: 32px;
+    font-weight: 800;
+    color: #ffffff;
+    letter-spacing: 0.4px;
+}
+
+.flujo-proceso-section .flujo-title-box p,
+.flujo-proceso-section .flujo-title-box-integrado p {
+    margin: 4px 0 0;
+
+    color: #cfd6e6;
+    font-size: 14px;
+}
+
+/* Icono */
+.flujo-proceso-section .flujo-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    color: #5ba7ff;
+    line-height: 1;
+}
+
+.flujo-proceso-section .flujo-icon .material-symbols-outlined {
+    display: block;
+    font-size: 46px;
+    color: #5ba7ff;
+
+    font-variation-settings:
+    'FILL' 0,
+    'wght' 300,
+    'GRAD' 0,
+    'opsz' 48;
+}
+
+/* =========================
+   CONTROLES / FILTROS INTEGRADOS
+   Producto + OT + acciones
+========================= */
+
+.flujo-proceso-section .flujo-filtros {
+    position: relative;
+
+    display: grid;
+    grid-template-columns: minmax(380px, 1.45fr) minmax(150px, 0.55fr) minmax(90px, 0.32fr) auto;
+    gap: 18px;
+    align-items: end;
+
+    margin-bottom: 0;
+    padding: 18px 20px;
+
+    background: rgba(20, 26, 42, 0.42);
+    border: 1px solid rgba(255,255,255,0.10);
+    border-radius: 14px;
+
+    box-shadow: none;
+}
+
+.flujo-proceso-section .flujo-field {
+    position: relative;
+
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.flujo-proceso-section .flujo-field label {
+    color: #cfd6e6;
+    font-size: 14px;
+}
+
+.flujo-proceso-section .flujo-field input,
+.flujo-proceso-section .flujo-field select {
+    width: 100%;
+
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.14);
+    color: #fff;
+
+    padding: 13px 15px;
+    border-radius: 8px;
+    outline: none;
+
+    box-sizing: border-box;
+}
+
+.flujo-proceso-section .flujo-field input:focus,
+.flujo-proceso-section .flujo-field select:focus {
+    border-color: #5ba7ff;
+    box-shadow: 0 0 0 2px rgba(91,167,255,0.18);
+}
+
+.flujo-proceso-section .flujo-field input::placeholder {
+    color: rgba(207, 214, 230, 0.65);
+}
+
+/* =========================
+   BUSCADOR PRODUCTO
+========================= */
+
+.flujo-proceso-section .flujo-field-producto {
+    min-width: 360px;
+}
+
+.flujo-proceso-section .flujo-search-box {
+    position: relative;
+
+    display: flex;
+    align-items: center;
+
+    width: 100%;
+}
+
+.flujo-proceso-section .flujo-search-box .material-symbols-outlined {
+    position: absolute;
+    left: 14px;
+
+    font-size: 21px;
+    color: #9ca3af;
+
+    pointer-events: none;
+}
+
+.flujo-proceso-section .flujo-search-box input {
+    padding-left: 44px;
+    padding-right: 42px;
+}
+
+.flujo-proceso-section .btn-limpiar-producto-flujo {
+    position: absolute;
+    right: 10px;
+
+    width: 24px;
+    height: 24px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border: none;
+    border-radius: 6px;
+
+    background: rgba(255,255,255,0.06);
+    color: #aeb7c8;
+
+    font-size: 18px;
+    cursor: pointer;
+
+    transition: 0.18s ease;
+}
+
+.flujo-proceso-section .btn-limpiar-producto-flujo:hover {
+    background: rgba(255,255,255,0.12);
+    color: #ffffff;
+}
+
+/* Lista desplegable de productos */
+.flujo-proceso-section .flujo-productos-lista {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+
+    width: 100%;
+    max-height: 240px;
+
+    overflow-y: auto;
+
+    background: rgba(18, 24, 38, 0.98);
+    border: 1px solid rgba(91,167,255,0.28);
+    border-radius: 10px;
+
+    box-shadow: 0 18px 40px rgba(0,0,0,0.35);
+
+    z-index: 120;
+}
+
+.flujo-proceso-section .flujo-productos-lista.oculto {
+    display: none;
+}
+
+.flujo-proceso-section .flujo-producto-item {
+    width: 100%;
+
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+
+    padding: 11px 14px;
+
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+
+    color: #ffffff;
+    text-align: left;
+
+    cursor: pointer;
+}
+
+.flujo-proceso-section .flujo-producto-item:hover {
+    background: rgba(91,167,255,0.12);
+}
+
+.flujo-proceso-section .flujo-producto-item strong {
+    font-size: 13px;
+    color: #ffffff;
+}
+
+.flujo-proceso-section .flujo-producto-item span {
+    font-size: 12px;
+    color: #9ca3af;
+}
+
+/* =========================
+   ACCIONES PRINCIPALES
+========================= */
+
+.flujo-proceso-section .flujo-acciones-principales {
+    display: flex;
+    align-items: end;
+    justify-content: flex-end;
+    gap: 10px;
+
+    min-width: max-content;
+}
+
+.flujo-proceso-section .btn-deshacer-flujo,
+.flujo-proceso-section .btn-limpiar-flujo,
+.flujo-proceso-section .btn-opciones-flujo,
+.flujo-proceso-section .btn-cargar-flujo {
+    min-height: 43px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+
+    border-radius: 8px;
+
+    font-weight: 800;
+    font-size: 14px;
+
+    cursor: pointer;
+    transition: 0.18s ease;
+}
+
+.flujo-proceso-section .btn-deshacer-flujo {
+    width: 54px;
+
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.12);
+    color: #e5e7eb;
+}
+
+.flujo-proceso-section .btn-deshacer-flujo:hover {
+    background: rgba(255,255,255,0.12);
+    border-color: rgba(91,167,255,0.32);
+    color: #ffffff;
+}
+
+.flujo-proceso-section .btn-cargar-flujo {
+    min-width: 126px;
+
+    background: linear-gradient(135deg, #5ba7ff, #247cff);
+    color: #fff;
+    border: none;
+
+    padding: 0 22px;
+}
+
+.flujo-proceso-section .btn-cargar-flujo:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 10px 24px rgba(36,124,255,0.32);
+}
+
+.flujo-proceso-section .btn-limpiar-flujo {
+    min-width: 118px;
+
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.14);
+    color: #ffffff;
+
+    padding: 0 18px;
+}
+
+.flujo-proceso-section .btn-limpiar-flujo:hover {
+    background: rgba(255,255,255,0.12);
+    border-color: rgba(255,255,255,0.22);
+}
+
+.flujo-proceso-section .btn-opciones-flujo {
+    min-width: 142px;
+
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(91,167,255,0.28);
+    color: #ffffff;
+
+    padding: 0 18px;
+}
+
+.flujo-proceso-section .btn-opciones-flujo:hover {
+    background: rgba(91,167,255,0.10);
+    border-color: rgba(91,167,255,0.5);
+}
+
+.flujo-proceso-section .btn-deshacer-flujo .material-symbols-outlined,
+.flujo-proceso-section .btn-cargar-flujo .material-symbols-outlined,
+.flujo-proceso-section .btn-limpiar-flujo .material-symbols-outlined,
+.flujo-proceso-section .btn-opciones-flujo .material-symbols-outlined {
+    font-size: 21px;
+}
+
+.flujo-proceso-section .icon-opciones-arrow {
+    font-size: 20px !important;
+}
+
+/* =========================
+   PANEL FLOTANTE OPCIONES
+========================= */
+
+.flujo-proceso-section .flujo-opciones-wrapper {
+    position: relative;
+}
+
+.flujo-proceso-section .flujo-opciones-panel {
+    position: absolute;
+    top: calc(100% + 12px);
+    right: 0;
+
+    width: 330px;
+
+    background: rgba(18, 24, 38, 0.98);
+    border: 1px solid rgba(91,167,255,0.24);
+    border-radius: 14px;
+
+    box-shadow: 0 22px 55px rgba(0,0,0,0.45);
+
+    padding: 14px;
+
+    z-index: 150;
+}
+
+.flujo-proceso-section .flujo-opciones-panel.oculto {
+    display: none;
+}
+
+.flujo-proceso-section .flujo-opciones-panel::before {
+    content: "";
+    position: absolute;
+    top: -7px;
+    right: 34px;
+
+    width: 12px;
+    height: 12px;
+
+    background: rgba(18, 24, 38, 0.98);
+    border-left: 1px solid rgba(91,167,255,0.24);
+    border-top: 1px solid rgba(91,167,255,0.24);
+
+    transform: rotate(45deg);
+}
+
+.flujo-proceso-section .flujo-opciones-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    margin-bottom: 12px;
+}
+
+.flujo-proceso-section .flujo-opciones-header h3 {
+    margin: 0;
+
+    color: #ffffff;
+    font-size: 15px;
+    font-weight: 800;
+}
+
+.flujo-proceso-section .btn-cerrar-opciones-flujo {
+    width: 26px;
+    height: 26px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border: none;
+    border-radius: 7px;
+
+    background: rgba(255,255,255,0.06);
+    color: #aeb7c8;
+
+    font-size: 18px;
+    cursor: pointer;
+}
+
+.flujo-proceso-section .btn-cerrar-opciones-flujo:hover {
+    background: rgba(255,255,255,0.12);
+    color: #ffffff;
+}
+
+.flujo-proceso-section .flujo-opciones-lista {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.flujo-proceso-section .flujo-opcion-item {
+    width: 100%;
+
+    display: grid;
+    grid-template-columns: 38px 1fr;
+    align-items: center;
+    gap: 12px;
+
+    padding: 12px;
+
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 10px;
+
+    background: rgba(255,255,255,0.05);
+
+    text-align: left;
+    cursor: pointer;
+
+    transition: 0.18s ease;
+}
+
+.flujo-proceso-section .flujo-opcion-item:hover {
+    background: rgba(91,167,255,0.10);
+    border-color: rgba(91,167,255,0.28);
+}
+
+.flujo-proceso-section .flujo-opcion-item .material-symbols-outlined {
+    width: 34px;
+    height: 34px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 8px;
+
+    font-size: 22px;
+}
+
+.flujo-proceso-section .flujo-opcion-item strong {
+    display: block;
+
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 800;
+}
+
+.flujo-proceso-section .flujo-opcion-item small {
+    display: block;
+
+    margin-top: 3px;
+
+    color: #aeb7c8;
+    font-size: 12px;
+}
+
+.flujo-proceso-section .opcion-imagen {
+    background: rgba(245, 158, 11, 0.12);
+    color: #f59e0b;
+}
+
+.flujo-proceso-section .opcion-pdf {
+    background: rgba(239, 68, 68, 0.12);
+    color: #ef4444;
+}
+
+.flujo-proceso-section .opcion-restablecer {
+    background: rgba(139, 92, 246, 0.12);
+    color: #8b5cf6;
+}
+
+/* =========================
+   BOARD CENTRAL INTEGRADO
+========================= */
+
+.flujo-proceso-section .flujo-board-wrapper {
+    width: 100%;
+    margin-top: 0;
+
+    display: flex;
+    justify-content: center;
+}
+
+.flujo-proceso-section .flujo-board {
+    width: 100%;
+    min-height: 430px;
+    height: auto;
+
+    background: rgba(20, 26, 42, 0.34);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 14px;
+
+    padding: 28px;
+    box-sizing: border-box;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    color: #fff;
+    overflow: hidden;
+
+    box-shadow: none;
+}
+
+/* Estado vacío */
+.flujo-proceso-section .flujo-empty-state {
+    width: 100%;
+    min-height: 340px;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    text-align: center;
+    color: #d8dfed;
+}
+
+.flujo-proceso-section .flujo-empty-state .material-symbols-outlined {
+    font-size: 58px;
+    color: #5ba7ff;
+    margin-bottom: 14px;
+
+    font-variation-settings:
+    'FILL' 0,
+    'wght' 300,
+    'GRAD' 0,
+    'opsz' 48;
+}
+
+.flujo-proceso-section .flujo-empty-state h3 {
+    margin: 0 0 10px;
+    font-size: 22px;
+    font-weight: 800;
+    color: #ffffff;
+}
+
+.flujo-proceso-section .flujo-empty-state p {
+    max-width: 520px;
+    margin: 0;
+    font-size: 14px;
+    line-height: 1.5;
+    color: #cfd6e6;
+}
+
+/* =========================
+   GRILLA DINÁMICA TIPO EXCEL
+========================= */
+
+.flujo-proceso-section .flujo-grid-proceso {
+    width: 100%;
+    min-height: 360px;
+
+    display: grid;
+    grid-template-rows: 64px 1fr;
+
+    border: 1px solid rgba(0,0,0,0.22);
+    border-radius: 12px;
+    overflow: hidden;
+
+    background: #d9dde5;
+
+    box-shadow:
+        0 18px 38px rgba(0,0,0,0.32),
+        inset 0 1px 0 rgba(255,255,255,0.35);
+}
+
+/* Header de columnas */
+.flujo-proceso-section .flujo-grid-header {
+    display: grid;
+    grid-template-columns: repeat(var(--flujo-columnas), minmax(220px, 1fr));
+
+    height: 64px;
+
+    background:
+        linear-gradient(
+            180deg,
+            #ffffff 0%,
+            #eef1f6 100%
+        );
+
+    border-bottom: 2px solid rgba(0,0,0,0.55);
+}
+
+.flujo-proceso-section .flujo-grid-header-cell {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 0 14px;
+
+    text-align: center;
+    color: #111827;
+    font-size: 16px;
+    font-weight: 900;
+    letter-spacing: 0.25px;
+
+    border-right: 2px solid rgba(0,0,0,0.38);
+
+    text-shadow: none;
+
+    box-shadow:
+        inset 0 -1px 0 rgba(255,255,255,0.55),
+        inset 0 1px 0 rgba(255,255,255,0.75);
+}
+
+.flujo-proceso-section .flujo-grid-header-cell:last-child {
+    border-right: none;
+}
+
+/* Cuerpo de grilla */
+.flujo-proceso-section .flujo-grid-body {
+    --flujo-fila-alto: 116px;
+    --flujo-card-ancho: 250px;
+    --flujo-card-alto: 86px;
+
+    --flujo-conector-color: #247cff;
+    --flujo-conector-grosor: 2px;
+
+    --flujo-flecha-ancho: 10px;
+    --flujo-flecha-alto: 14px;
+
+    position: relative;
+
+    display: grid;
+    grid-template-columns: repeat(var(--flujo-columnas), minmax(220px, 1fr));
+
+    min-height: 300px;
+
+    border-top: 1px solid rgba(0,0,0,0.14);
+
+    background-color: #c9ced7;
+    background-image:
+        repeating-linear-gradient(
+            to bottom,
+            transparent 0,
+            transparent calc(var(--flujo-fila-alto) - 1px),
+            rgba(0,0,0,0.10) calc(var(--flujo-fila-alto) - 1px),
+            rgba(0,0,0,0.10) var(--flujo-fila-alto)
+        );
+}
+
+/* Columnas */
+.flujo-proceso-section .flujo-grid-column {
+    position: relative;
+
+    min-height: 300px;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+
+    gap: 0;
+    padding: 0 18px 0;
+    box-sizing: border-box;
+
+    border-right: 2px solid rgba(0,0,0,0.30);
+
+    background:
+        linear-gradient(
+            180deg,
+            rgba(255,255,255,0.18),
+            rgba(255,255,255,0.05)
+        );
+}
+
+.flujo-proceso-section .flujo-grid-column:last-child {
+    border-right: none;
+}
+
+/* =========================
+   CARDS DEL FLUJO
+========================= */
+.flujo-proceso-section .flujo-grid-card-wrapper {
+    position: relative;
+    z-index: 5;
+
+    width: 100%;
+    min-height: var(--flujo-fila-alto);
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    overflow: visible;
+}
+
+.flujo-proceso-section .flujo-grid-card {
+    position: relative;
+    z-index: 5;
+
+    width: var(--flujo-card-ancho);
+    min-height: var(--flujo-card-alto);
+
+    display: grid;
+    grid-template-columns: 48px 1fr;
+    align-items: center;
+    gap: 14px;
+
+    padding: 16px 18px;
+    box-sizing: border-box;
+
+    border-radius: 8px;
+    border: 2px solid #247cff;
+
+    background:
+        linear-gradient(
+            180deg,
+            #f8fbff 0%,
+            #edf4ff 100%
+        );
+
+    color: #111827;
+
+    box-shadow:
+        0 15px 30px rgba(0,0,0,0.22),
+        0 0 0 1px rgba(255,255,255,0.75);
+
+    transition:
+        transform 0.18s ease,
+        box-shadow 0.18s ease,
+        border-color 0.18s ease,
+        background 0.18s ease;
+
+    overflow: visible;
+    cursor: pointer;
+}
+
+.flujo-proceso-section .flujo-grid-card:hover {
+    transform: translateY(-2px);
+
+    box-shadow:
+        0 16px 30px rgba(0,0,0,0.28),
+        0 0 0 1px rgba(255,255,255,0.75);
+}
+
+/* Número lateral */
+.flujo-proceso-section .flujo-grid-card-numero {
+    width: 40px;
+    height: 40px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 8px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #2d7be8,
+            #5ba7ff
+        );
+
+    color: #ffffff;
+    font-size: 16px;
+    font-weight: 900;
+}
+
+/* Texto */
+.flujo-proceso-section .flujo-grid-card-info {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.flujo-proceso-section .flujo-grid-card-info strong {
+    font-size: 15px;
+    line-height: 1.2;
+    font-weight: 900;
+    color: #111827;
+}
+
+.flujo-proceso-section .flujo-grid-card-info span {
+    font-size: 13px;
+    color: #1f2937;
+}
+
+/* Card Control de Calidad */
+.flujo-proceso-section .flujo-grid-card-cc {
+    border-color: #4caf50;
+
+    background:
+        linear-gradient(
+            180deg,
+            #f8fff6 0%,
+            #eaffea 100%
+        );
+
+    box-shadow:
+        0 15px 30px rgba(0,0,0,0.22),
+        0 0 0 1px rgba(76,175,80,0.22);
+}
+
+.flujo-proceso-section .flujo-grid-card-cc .flujo-grid-card-numero {
+    background:
+        linear-gradient(
+            135deg,
+            #3c8b3f,
+            #63c967
+        );
+}
+
+/* =========================
+   CARD VACÍA TEMPORAL
+========================= */
+
+.flujo-proceso-section .flujo-grid-card-vacia,
+.flujo-proceso-section .flujo-grid-card-real-pendiente {
+    background: rgba(255,255,255,0.18);
+    border: 2px dashed rgba(36,124,255,0.55);
+    color: #1f2937;
+
+    box-shadow:
+        0 10px 22px rgba(0,0,0,0.12),
+        inset 0 0 0 1px rgba(255,255,255,0.35);
+}
+
+.flujo-proceso-section .flujo-grid-card-vacia:hover,
+.flujo-proceso-section .flujo-grid-card-real-pendiente:hover {
+    border-color: rgba(59, 130, 246, 0.95);
+    background: rgba(239, 246, 255, 0.85);
+}
+
+.flujo-proceso-section .flujo-grid-card-vacia .flujo-grid-card-info strong,
+.flujo-proceso-section .flujo-grid-card-real-pendiente .flujo-grid-card-info strong {
+    color: #374151;
+}
+
+.flujo-proceso-section .flujo-grid-card-vacia .flujo-grid-card-info span,
+.flujo-proceso-section .flujo-grid-card-real-pendiente .flujo-grid-card-info span {
+    color: #6b7280;
+}
+
+.flujo-proceso-section .flujo-grid-card-vacia-icon {
+    width: 40px;
+    height: 40px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 8px;
+    border: 2px dashed rgba(107,114,128,0.65);
+
+    background: rgba(255,255,255,0.22);
+
+    color: #6b7280;
+    font-size: 24px;
+    font-weight: 900;
+}
+
+/* Card temporal ya editada */
+.flujo-proceso-section .flujo-grid-card-temporal-editada {
+    border: 2px solid #3b82f6;
+    background: #f8fbff;
+}
+
+.flujo-proceso-section .flujo-grid-card-temporal-editada:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 18px 34px rgba(37, 99, 235, 0.22);
+}
+
+/* =========================
+   BOTONES + EN HOVER
+========================= */
+
+.flujo-proceso-section .flujo-grid-plus {
+    position: absolute;
+
+    width: 30px;
+    height: 30px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border: none;
+    border-radius: 7px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #247cff,
+            #5ba7ff
+        );
+
+    color: #ffffff;
+
+    font-size: 20px;
+    font-weight: 900;
+    line-height: 1;
+
+    opacity: 0;
+    pointer-events: none;
+
+    cursor: pointer;
+    z-index: 20;
+
+    box-shadow:
+        0 8px 18px rgba(36,124,255,0.32),
+        0 0 0 2px rgba(255,255,255,0.65);
+
+    transition:
+        opacity 0.18s ease,
+        transform 0.18s ease,
+        box-shadow 0.18s ease,
+        background 0.18s ease;
+}
+
+.flujo-proceso-section .flujo-grid-card:hover .flujo-grid-plus {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+/* + derecho */
+.flujo-proceso-section .flujo-plus-right {
+    right: -15px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.flujo-proceso-section .flujo-grid-card:hover .flujo-plus-right {
+    transform: translateY(-50%) scale(1.04);
+}
+
+/* + inferior */
+.flujo-proceso-section .flujo-plus-down {
+    left: 50%;
+    bottom: -15px;
+    transform: translateX(-50%);
+}
+
+.flujo-proceso-section .flujo-grid-card:hover .flujo-plus-down {
+    transform: translateX(-50%) scale(1.04);
+}
+
+.flujo-proceso-section .flujo-grid-plus:hover {
+    background:
+        linear-gradient(
+            135deg,
+            #1f6fe5,
+            #4f9dff
+        );
+
+    box-shadow:
+        0 10px 22px rgba(36,124,255,0.45),
+        0 0 0 4px rgba(36,124,255,0.16);
+}
+
+/* Check final */
+.flujo-proceso-section .flujo-grid-check {
+    position: absolute;
+    right: 12px;
+    bottom: 12px;
+
+    width: 26px;
+    height: 26px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 50%;
+
+    background: #4caf50;
+    color: #ffffff !important;
+
+    font-size: 15px;
+    font-weight: 900;
+}
+
+/* =========================
+   CONECTORES FIJOS UNIFICADOS
+   Horizontal + Vertical
+   Ajustados para tocar bordes de cards
+========================= */
+/* ---------- HORIZONTAL ---------- */
+/*
+   Conector horizontal corregido.
+
+   Considera:
+   - ancho de la card
+   - padding lateral de columnas: 18px + 18px = 36px
+   - ancho de la punta de flecha
+*/
+.flujo-proceso-section .conector-right::after {
+    content: "";
+    position: absolute;
+
+    top: 50%;
+    left: calc(50% + (var(--flujo-card-ancho) / 2));
+
+    width: calc(
+        100% -
+        var(--flujo-card-ancho) +
+        36px -
+        var(--flujo-flecha-ancho)
+    );
+
+    height: var(--flujo-conector-grosor);
+
+    background: var(--flujo-conector-color);
+    transform: translateY(-50%);
+
+    z-index: 1;
+    pointer-events: none;
+}
+
+.flujo-proceso-section .conector-right::before {
+    content: "";
+    position: absolute;
+
+    top: 50%;
+    left: calc(
+        50% +
+        (var(--flujo-card-ancho) / 2) +
+        100% -
+        var(--flujo-card-ancho) +
+        36px -
+        var(--flujo-flecha-ancho)
+    );
+
+    transform: translateY(-50%);
+
+    z-index: 2;
+    pointer-events: none;
+
+    border-top: calc(var(--flujo-flecha-alto) / 2) solid transparent;
+    border-bottom: calc(var(--flujo-flecha-alto) / 2) solid transparent;
+    border-left: var(--flujo-flecha-ancho) solid var(--flujo-conector-color);
+}
+
+/* ---------- VERTICAL ---------- */
+/*
+   Distancia real entre:
+   - borde inferior de la card actual
+   - borde superior de la card siguiente
+
+   distancia = alto_fila - alto_card
+*/
+.flujo-proceso-section .conector-down::after {
+    content: "";
+    position: absolute;
+
+    left: 50%;
+    top: calc(50% + (var(--flujo-card-alto) / 2));
+
+    width: var(--flujo-conector-grosor);
+
+    height: calc(
+        var(--flujo-fila-alto) -
+        var(--flujo-card-alto) -
+        var(--flujo-flecha-ancho)
+    );
+
+    background: var(--flujo-conector-color);
+    transform: translateX(-50%);
+
+    z-index: 1;
+    pointer-events: none;
+}
+
+.flujo-proceso-section .conector-down::before {
+    content: "";
+    position: absolute;
+
+    left: 50%;
+    top: calc(
+        50% +
+        (var(--flujo-card-alto) / 2) +
+        var(--flujo-fila-alto) -
+        var(--flujo-card-alto) -
+        var(--flujo-flecha-ancho)
+    );
+
+    transform: translateX(-50%);
+
+    z-index: 2;
+    pointer-events: none;
+
+    border-left: calc(var(--flujo-flecha-alto) / 2) solid transparent;
+    border-right: calc(var(--flujo-flecha-alto) / 2) solid transparent;
+    border-top: var(--flujo-flecha-ancho) solid var(--flujo-conector-color);
+}
+/* =========================
+   CONECTORES SVG DINÁMICOS
+   Para unir card vacía con card real derecha
+========================= */
+
+.flujo-proceso-section .flujo-conectores-svg {
+    position: absolute;
+    inset: 0;
+
+    width: 100%;
+    height: 100%;
+
+    pointer-events: none;
+    z-index: 3;
+    overflow: visible;
+}
+
+/* Apaga conectores fijos antiguos right-up */
+.flujo-proceso-section .conector-right-up::after,
+.flujo-proceso-section .conector-right-up::before,
+.flujo-proceso-section .conector-right-up .flujo-grid-card::after,
+.flujo-proceso-section .conector-right-up .flujo-grid-card::before,
+.flujo-proceso-section .conector-right-up .flujo-grid-card-info::after,
+.flujo-proceso-section .conector-right-up .flujo-grid-card-info::before {
+    content: none !important;
+    display: none !important;
+}
+
+/* =========================
+   PARTE INFERIOR
+========================= */
+
+.flujo-proceso-section .flujo-bottom {
+    display: grid;
+    grid-template-columns: 1fr 320px;
+    gap: 14px;
+    margin-top: 14px;
+}
+
+.flujo-proceso-section .flujo-table-box,
+.flujo-proceso-section .flujo-resumen {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 12px;
+    padding: 16px;
+}
+
+.flujo-proceso-section .flujo-table-box h3,
+.flujo-proceso-section .flujo-resumen h3 {
+    margin: 0 0 14px;
+    color: #5ba7ff;
+    font-size: 17px;
+}
+
+.flujo-proceso-section .flujo-table {
+    width: 100%;
+    border-collapse: collapse;
+    color: #fff;
+    font-size: 13px;
+}
+
+.flujo-proceso-section .flujo-table th {
+    background: rgba(255,255,255,0.08);
+    padding: 12px;
+    text-align: left;
+    font-size: 12px;
+    color: #fff;
+}
+
+.flujo-proceso-section .flujo-table td {
+    padding: 11px 12px;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    color: #e8edf7;
+}
+
+.flujo-proceso-section .flujo-table-empty {
+    text-align: center;
+    color: #cfd6e6;
+    padding: 22px;
+}
+
+.flujo-proceso-section .estado-ok {
+    background: #3c8b3f;
+    color: #fff;
+    padding: 6px 10px;
+    border-radius: 7px;
+    font-size: 12px;
+}
+
+.flujo-proceso-section .resumen-linea {
+    display: flex;
+    justify-content: space-between;
+    padding: 12px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    font-size: 14px;
+}
+
+.flujo-proceso-section .resumen-linea span {
+    color: #d8dfed;
+}
+
+.flujo-proceso-section .resumen-linea strong {
+    color: #fff;
+}
+
+.flujo-proceso-section .flujo-progress {
+    width: 100%;
+    height: 6px;
+    background: rgba(255,255,255,0.12);
+    border-radius: 20px;
+    margin-top: 14px;
+    overflow: hidden;
+}
+
+.flujo-proceso-section .flujo-progress div {
+    width: 100%;
+    height: 100%;
+    background: #5bd45b;
+    border-radius: 20px;
+}
+
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media (max-width: 1250px) {
+    .flujo-proceso-section .flujo-filtros {
+        grid-template-columns: 1.4fr 0.7fr 0.4fr;
+    }
+
+    .flujo-proceso-section .flujo-acciones-principales {
+        grid-column: 1 / -1;
+        justify-content: flex-start;
+    }
+}
+
+@media (max-width: 1100px) {
+    .flujo-proceso-section .flujo-filtros {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .flujo-proceso-section .flujo-field-producto {
+        min-width: auto;
+        grid-column: 1 / -1;
+    }
+
+    .flujo-proceso-section .flujo-acciones-principales {
+        grid-column: 1 / -1;
+    }
+
+    .flujo-proceso-section .flujo-bottom {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 700px) {
+    .flujo-proceso-section .flujo-panel-principal {
+        padding: 18px;
+        gap: 14px;
+    }
+
+    .flujo-proceso-section .flujo-panel-top {
+        align-items: flex-start;
+    }
+
+    .flujo-proceso-section .flujo-title-box,
+    .flujo-proceso-section .flujo-title-box-integrado {
+        align-items: flex-start;
+    }
+
+    .flujo-proceso-section .flujo-title-box h2,
+    .flujo-proceso-section .flujo-title-box-integrado h2 {
+        font-size: 26px;
+    }
+
+    .flujo-proceso-section .flujo-icon .material-symbols-outlined {
+        font-size: 40px;
+    }
+
+    .flujo-proceso-section .flujo-filtros {
+        grid-template-columns: 1fr;
+        gap: 14px;
+    }
+
+    .flujo-proceso-section .flujo-acciones-principales {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .flujo-proceso-section .btn-deshacer-flujo,
+    .flujo-proceso-section .btn-cargar-flujo,
+    .flujo-proceso-section .btn-limpiar-flujo,
+    .flujo-proceso-section .btn-opciones-flujo {
+        width: 100%;
+    }
+
+    .flujo-proceso-section .flujo-opciones-panel {
+        position: fixed;
+        top: auto;
+        right: 16px;
+        left: 16px;
+        bottom: 16px;
+
+        width: auto;
+    }
+
+    .flujo-proceso-section .flujo-opciones-panel::before {
+        display: none;
+    }
+
+    .flujo-proceso-section .flujo-board {
+        padding: 18px;
+    }
+
+    .flujo-proceso-section .flujo-grid-proceso {
+        overflow-x: auto;
+    }
+}

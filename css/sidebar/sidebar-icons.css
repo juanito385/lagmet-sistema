@@ -1,0 +1,26 @@
+/* =========================
+   FIX CARGA ICONOS SIDEBAR
+========================= */
+
+.sidebar .material-symbols-outlined,
+.sidebar .material-icons {
+    width: 24px;
+    min-width: 24px;
+    height: 24px;
+    min-height: 24px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 24px;
+    line-height: 1;
+
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+/* Mantiene el texto estable */
+.sidebar .menu button span:not(.material-symbols-outlined):not(.material-icons) {
+    white-space: nowrap;
+}

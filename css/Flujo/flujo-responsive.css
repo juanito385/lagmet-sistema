@@ -1,0 +1,97 @@
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media (max-width: 1250px) {
+    .flujo-proceso-section .flujo-filtros {
+        grid-template-columns: 1.4fr 0.7fr 0.4fr;
+    }
+
+    .flujo-proceso-section .flujo-acciones-principales {
+        grid-column: 1 / -1;
+        justify-content: flex-start;
+    }
+}
+
+@media (max-width: 1100px) {
+    .flujo-proceso-section .flujo-filtros {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .flujo-proceso-section .flujo-field-producto {
+        min-width: auto;
+        grid-column: 1 / -1;
+    }
+
+    .flujo-proceso-section .flujo-acciones-principales {
+        grid-column: 1 / -1;
+    }
+
+    .flujo-proceso-section .flujo-bottom {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 700px) {
+    .flujo-proceso-section .flujo-panel-principal {
+        padding: 18px;
+        gap: 14px;
+    }
+
+    .flujo-proceso-section .flujo-panel-top {
+        align-items: flex-start;
+    }
+
+    .flujo-proceso-section .flujo-title-box,
+    .flujo-proceso-section .flujo-title-box-integrado {
+        align-items: flex-start;
+    }
+
+    .flujo-proceso-section .flujo-title-box h2,
+    .flujo-proceso-section .flujo-title-box-integrado h2 {
+        font-size: 26px;
+    }
+
+    .flujo-proceso-section .flujo-icon .material-symbols-outlined {
+        font-size: 40px;
+    }
+
+    .flujo-proceso-section .flujo-filtros {
+        grid-template-columns: 1fr;
+        gap: 14px;
+    }
+
+    .flujo-proceso-section .flujo-acciones-principales {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .flujo-proceso-section .btn-deshacer-flujo,
+    .flujo-proceso-section .btn-cargar-flujo,
+    .flujo-proceso-section .btn-limpiar-flujo,
+    .flujo-proceso-section .btn-opciones-flujo {
+        width: 100%;
+    }
+
+    .flujo-proceso-section .flujo-opciones-panel {
+        position: fixed;
+        top: auto;
+        right: 16px;
+        left: 16px;
+        bottom: 16px;
+
+        width: auto;
+    }
+
+    .flujo-proceso-section .flujo-opciones-panel::before {
+        display: none;
+    }
+
+    .flujo-proceso-section .flujo-board {
+        padding: 18px;
+    }
+
+    .flujo-proceso-section .flujo-grid-proceso {
+        overflow-x: auto;
+    }
+}

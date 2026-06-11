@@ -1,0 +1,116 @@
+/* =========================
+   BUSCADOR PRODUCTO
+========================= */
+
+.flujo-proceso-section .flujo-field-producto {
+    min-width: 360px;
+}
+
+.flujo-proceso-section .flujo-search-box {
+    position: relative;
+
+    display: flex;
+    align-items: center;
+
+    width: 100%;
+}
+
+.flujo-proceso-section .flujo-search-box .material-symbols-outlined {
+    position: absolute;
+    left: 14px;
+
+    font-size: 21px;
+    color: #9ca3af;
+
+    pointer-events: none;
+}
+
+.flujo-proceso-section .flujo-search-box input {
+    padding-left: 44px;
+    padding-right: 42px;
+}
+
+.flujo-proceso-section .btn-limpiar-producto-flujo {
+    position: absolute;
+    right: 10px;
+
+    width: 24px;
+    height: 24px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border: none;
+    border-radius: 6px;
+
+    background: rgba(255,255,255,0.06);
+    color: #aeb7c8;
+
+    font-size: 18px;
+    cursor: pointer;
+
+    transition: 0.18s ease;
+}
+
+.flujo-proceso-section .btn-limpiar-producto-flujo:hover {
+    background: rgba(255,255,255,0.12);
+    color: #ffffff;
+}
+
+/* Lista desplegable de productos */
+.flujo-proceso-section .flujo-productos-lista {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+
+    width: 100%;
+    max-height: 240px;
+
+    overflow-y: auto;
+
+    background: rgba(18, 24, 38, 0.98);
+    border: 1px solid rgba(91,167,255,0.28);
+    border-radius: 10px;
+
+    box-shadow: 0 18px 40px rgba(0,0,0,0.35);
+
+    z-index: 120;
+}
+
+.flujo-proceso-section .flujo-productos-lista.oculto {
+    display: none;
+}
+
+.flujo-proceso-section .flujo-producto-item {
+    width: 100%;
+
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+
+    padding: 11px 14px;
+
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+
+    color: #ffffff;
+    text-align: left;
+
+    cursor: pointer;
+}
+
+.flujo-proceso-section .flujo-producto-item:hover {
+    background: rgba(91,167,255,0.12);
+}
+
+.flujo-proceso-section .flujo-producto-item strong {
+    font-size: 13px;
+    color: #ffffff;
+}
+
+.flujo-proceso-section .flujo-producto-item span {
+    font-size: 12px;
+    color: #9ca3af;
+}

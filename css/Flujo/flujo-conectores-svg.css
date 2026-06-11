@@ -1,0 +1,27 @@
+/* =========================
+   CONECTORES SVG DINÁMICOS
+   Para unir card vacía con card real derecha
+========================= */
+
+.flujo-proceso-section .flujo-conectores-svg {
+    position: absolute;
+    inset: 0;
+
+    width: 100%;
+    height: 100%;
+
+    pointer-events: none;
+    z-index: 3;
+    overflow: visible;
+}
+
+/* Apaga conectores fijos antiguos right-up */
+.flujo-proceso-section .conector-right-up::after,
+.flujo-proceso-section .conector-right-up::before,
+.flujo-proceso-section .conector-right-up .flujo-grid-card::after,
+.flujo-proceso-section .conector-right-up .flujo-grid-card::before,
+.flujo-proceso-section .conector-right-up .flujo-grid-card-info::after,
+.flujo-proceso-section .conector-right-up .flujo-grid-card-info::before {
+    content: none !important;
+    display: none !important;
+}

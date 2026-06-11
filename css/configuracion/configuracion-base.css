@@ -1,0 +1,79 @@
+/* =========================
+   CONFIGURACIÓN ADMINISTRATIVA
+========================= */
+
+#configuracion {
+    width: 100% !important;
+    max-width: none !important;
+    padding: 6px 0 36px !important;
+    color: #fff !important;
+    box-sizing: border-box !important;
+}
+/* =========================
+   HEADER
+========================= */
+
+#configuracion .config-admin-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 18px;
+    margin-bottom: 20px;
+}
+
+#configuracion .config-admin-header h2 {
+    margin: 0 !important;
+    font-size: 34px !important;
+    font-weight: 900 !important;
+    letter-spacing: 0.8px !important;
+    color: #fff !important;
+}
+
+#configuracion .config-admin-header p {
+    margin: 6px 0 0 !important;
+    color: #c7d0e6 !important;
+    font-size: 15px !important;
+}
+
+#configuracion .config-admin-badge {
+    height: 38px;
+    padding: 0 15px;
+
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+
+    background: rgba(47,128,255,0.12);
+    border: 1px solid rgba(91,167,255,0.38);
+    border-radius: 6px;
+
+    color: #75b7ff;
+    font-size: 13px;
+    font-weight: 900;
+    white-space: nowrap;
+}
+
+#configuracion .config-admin-badge .material-symbols-outlined {
+    font-size: 20px;
+}
+/* =========================
+   CARD PRINCIPAL
+========================= */
+
+#configuracion .config-admin-shell {
+    width: 100%;
+    box-sizing: border-box;
+
+    padding: 18px;
+
+    background:
+        linear-gradient(135deg, rgba(20, 31, 54, 0.86), rgba(12, 18, 34, 0.94)),
+        rgba(255,255,255,0.035);
+
+    border: 1px solid rgba(255,255,255,0.10);
+    border-radius: 14px;
+
+    box-shadow:
+        0 20px 55px rgba(0,0,0,0.32),
+        inset 0 0 0 1px rgba(255,255,255,0.018);
+}

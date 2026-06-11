@@ -1,0 +1,38 @@
+/* =========================
+   SISTEMA
+========================= */
+
+#configuracion .config-system-list {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(220px, 1fr));
+    gap: 12px;
+}
+
+#configuracion .config-system-list p {
+    margin: 0 !important;
+    padding: 14px 15px;
+
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    color: #cbd5e1 !important;
+    font-size: 13px !important;
+
+    background: rgba(8, 14, 28, 0.40);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 8px;
+}
+
+#configuracion .config-system-list .material-symbols-outlined {
+    color: #9fb0d0;
+    font-size: 19px;
+}
+
+#configuracion .config-system-list strong {
+    color: #fff;
+}
+
+#configuracion .config-ok {
+    color: #4ade80;
+}

@@ -1,0 +1,59 @@
+/* =========================
+   CARD VACÍA TEMPORAL
+========================= */
+
+.flujo-proceso-section .flujo-grid-card-vacia,
+.flujo-proceso-section .flujo-grid-card-real-pendiente {
+    background: rgba(255,255,255,0.18);
+    border: 2px dashed rgba(36,124,255,0.55);
+    color: #1f2937;
+
+    box-shadow:
+        0 10px 22px rgba(0,0,0,0.12),
+        inset 0 0 0 1px rgba(255,255,255,0.35);
+}
+
+.flujo-proceso-section .flujo-grid-card-vacia:hover,
+.flujo-proceso-section .flujo-grid-card-real-pendiente:hover {
+    border-color: rgba(59, 130, 246, 0.95);
+    background: rgba(239, 246, 255, 0.85);
+}
+
+.flujo-proceso-section .flujo-grid-card-vacia .flujo-grid-card-info strong,
+.flujo-proceso-section .flujo-grid-card-real-pendiente .flujo-grid-card-info strong {
+    color: #374151;
+}
+
+.flujo-proceso-section .flujo-grid-card-vacia .flujo-grid-card-info span,
+.flujo-proceso-section .flujo-grid-card-real-pendiente .flujo-grid-card-info span {
+    color: #6b7280;
+}
+
+.flujo-proceso-section .flujo-grid-card-vacia-icon {
+    width: 40px;
+    height: 40px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 8px;
+    border: 2px dashed rgba(107,114,128,0.65);
+
+    background: rgba(255,255,255,0.22);
+
+    color: #6b7280;
+    font-size: 24px;
+    font-weight: 900;
+}
+
+/* Card temporal ya editada */
+.flujo-proceso-section .flujo-grid-card-temporal-editada {
+    border: 2px solid #3b82f6;
+    background: #f8fbff;
+}
+
+.flujo-proceso-section .flujo-grid-card-temporal-editada:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 18px 34px rgba(37, 99, 235, 0.22);
+}

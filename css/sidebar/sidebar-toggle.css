@@ -1,0 +1,33 @@
+/* =========================
+   SIDEBAR COLAPSABLE
+========================= */
+
+.sidebar-toggle {
+    width: 42px;
+    height: 42px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    margin: 0 auto 18px;
+
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.16);
+    border-radius: 12px;
+
+    color: #fff;
+    cursor: pointer;
+
+    transition: 0.25s ease;
+}
+
+.sidebar-toggle:hover {
+    border-color: #5ba7ff;
+    box-shadow: 0 0 18px rgba(91,167,255,0.25);
+}
+
+.sidebar-toggle .material-symbols-outlined {
+    font-size: 26px;
+    color: #dce7ff;
+}

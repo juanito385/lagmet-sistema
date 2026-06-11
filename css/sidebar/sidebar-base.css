@@ -1,0 +1,27 @@
+/* =========================
+   SIDEBAR
+========================= */
+
+.sidebar {
+    width: 220px;
+    height: 100vh;
+    padding: 28px 20px 25px;
+    box-sizing: border-box;
+
+    background: rgba(255,255,255,0.05);
+    backdrop-filter: blur(10px);
+
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+
+    border-right: 1px solid rgba(255,255,255,0.08);
+
+    overflow: visible;
+    flex-shrink: 0;
+
+    position: relative;
+    z-index: 1000;
+
+    transition: width 0.3s ease, padding 0.3s ease;
+}

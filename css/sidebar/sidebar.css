@@ -1,0 +1,16 @@
+/* =========================
+   SIDEBAR - ARCHIVO AGRUPADOR
+   Ruta: css/sidebar/sidebars nuevos/sidebar.css
+========================= 
+
+@import url("./sidebar-base.css");
+@import url("./sidebar-contenedores.css");
+@import url("./sidebar-logo.css");
+@import url("./sidebar-menu.css");
+@import url("./sidebar-usuario.css");
+@import url("./sidebar-dropdown.css");
+@import url("./sidebar-toggle.css");
+@import url("./sidebar-collapsed.css");
+@import url("./sidebar-icons.css");
+
+*/

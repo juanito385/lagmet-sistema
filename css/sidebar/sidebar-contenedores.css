@@ -1,0 +1,21 @@
+/* =========================
+   CONTENEDORES
+========================= */
+
+.sidebar-top {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 0;
+
+    position: relative;
+    z-index: 1001;
+}
+
+.sidebar-bottom {
+    flex-shrink: 0;
+    padding: 90px 0 35px;
+
+    position: relative;
+    z-index: 1200;
+}

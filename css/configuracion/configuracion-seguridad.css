@@ -1,0 +1,67 @@
+/* =========================
+   SEGURIDAD
+========================= */
+
+#configuracion .config-security-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+}
+
+#configuracion .config-security-action {
+    min-height: 150px;
+    padding: 16px;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 12px;
+
+    background: rgba(8, 14, 28, 0.40);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 8px;
+}
+
+#configuracion .config-security-icon {
+    width: 44px;
+    height: 44px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 50%;
+}
+
+#configuracion .config-security-icon .material-symbols-outlined {
+    font-size: 25px;
+}
+
+#configuracion .config-security-icon.danger {
+    background: rgba(255,70,70,0.14);
+    color: #ff6b6b;
+}
+
+#configuracion .config-security-icon.warning {
+    background: rgba(245,158,11,0.14);
+    color: #f59e0b;
+}
+
+#configuracion .config-security-icon.purple {
+    background: rgba(124,60,255,0.18);
+    color: #b68cff;
+}
+
+#configuracion .config-security-action h4 {
+    margin: 0;
+    color: #fff;
+    font-size: 14px;
+    font-weight: 900;
+}
+
+#configuracion .config-security-action p {
+    margin: 3px 0 0;
+    color: #9fb0d0;
+    font-size: 12px;
+    line-height: 1.4;
+}

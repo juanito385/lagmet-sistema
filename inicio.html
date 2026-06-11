@@ -14,7 +14,16 @@
 <link rel="stylesheet" href="css/base.css">
 <link rel="stylesheet" href="css/layout.css">
 <link rel="stylesheet" href="css/auth/login.css">
-<link rel="stylesheet" href="css/sidebar.css">
+
+<link rel="stylesheet" href="css/sidebar/sidebar-base.css">
+<link rel="stylesheet" href="css/sidebar/sidebar-contenedores.css">
+<link rel="stylesheet" href="css/sidebar/sidebar-logo.css">
+<link rel="stylesheet" href="css/sidebar/sidebar-menu.css">
+<link rel="stylesheet" href="css/sidebar/sidebar-usuario.css">
+<link rel="stylesheet" href="css/sidebar/sidebar-dropdown.css">
+<link rel="stylesheet" href="css/sidebar/sidebar-toggle.css">
+<link rel="stylesheet" href="css/sidebar/sidebar-collapsed.css">
+<link rel="stylesheet" href="css/sidebar/sidebar-icons.css">
 <!-- TABLAS -->
 <link rel="stylesheet" href="css/tablas/tablas-base.css">
 <link rel="stylesheet" href="css/tablas/productos-tabla.css">
@@ -51,10 +60,35 @@
 <link rel="stylesheet" href="css/documentacion/documentacion-modal.css">
 <link rel="stylesheet" href="css/documentacion/documentacion-responsive.css">
 
-<link rel="stylesheet" href="css/configuracion/configuracion.css">
+<link rel="stylesheet" href="css/configuracion/configuracion-base.css">
+<link rel="stylesheet" href="css/configuracion/configuracion-tabs.css">
+<link rel="stylesheet" href="css/configuracion/configuracion-resumen.css">
+<link rel="stylesheet" href="css/configuracion/configuracion-cards.css">
+<link rel="stylesheet" href="css/configuracion/configuracion-botones.css">
+<link rel="stylesheet" href="css/configuracion/configuracion-usuarios.css">
+<link rel="stylesheet" href="css/configuracion/configuracion-permisos.css">
+<link rel="stylesheet" href="css/configuracion/configuracion-seguridad.css">
+<link rel="stylesheet" href="css/configuracion/configuracion-sistema.css">
+<link rel="stylesheet" href="css/configuracion/configuracion-nota.css">
+<link rel="stylesheet" href="css/configuracion/configuracion-focus.css">
+<link rel="stylesheet" href="css/configuracion/configuracion-responsive.css">
 <link rel="stylesheet" href="css/configuracion/configuracion-modal.css">
 <!-- Flujos de procesos -->
-<link rel="stylesheet" href="css/Flujo/flujo-proceso.css">
+<link rel="stylesheet" href="css/flujo/flujo-base.css">
+<link rel="stylesheet" href="css/flujo/flujo-panel.css">
+<link rel="stylesheet" href="css/flujo/flujo-controles.css">
+<link rel="stylesheet" href="css/flujo/flujo-buscador.css">
+<link rel="stylesheet" href="css/flujo/flujo-acciones.css">
+<link rel="stylesheet" href="css/flujo/flujo-opciones.css">
+<link rel="stylesheet" href="css/flujo/flujo-board.css">
+<link rel="stylesheet" href="css/flujo/flujo-grilla.css">
+<link rel="stylesheet" href="css/flujo/flujo-cards.css">
+<link rel="stylesheet" href="css/flujo/flujo-card-vacia.css">
+<link rel="stylesheet" href="css/flujo/flujo-botones-hover.css">
+<link rel="stylesheet" href="css/flujo/flujo-conectores-fijos.css">
+<link rel="stylesheet" href="css/flujo/flujo-conectores-svg.css">
+<link rel="stylesheet" href="css/flujo/flujo-footer.css">
+<link rel="stylesheet" href="css/flujo/flujo-responsive.css">
 <link rel="stylesheet" href="css//Flujo/flujo-proceso-modal.css">
 <!-- ESTADOS -->
 <link rel="stylesheet" href="css/estados/estados-base.css">
@@ -188,7 +222,20 @@
 <!-- JS DEL SISTEMA -->
 
 <!-- FLUJOS PROCESOS PRODUCTOS -->
-<script src="js/flujo/flujo-proceso.js"></script>
+<script src="js/flujo/flujo-state.js"></script>
+<script src="js/flujo/flujo-helpers.js"></script>
+<script src="js/flujo/flujo-data.js"></script>
+<script src="js/flujo/flujo-buscador.js"></script>
+<script src="js/flujo/flujo-eventos.js"></script>
+<script src="js/flujo/flujo-acciones-avance.js"></script>
+<script src="js/flujo/flujo-render.js"></script>
+<script src="js/flujo/flujo-operaciones.js"></script>
+<script src="js/flujo/flujo-conectores.js"></script>
+<script src="js/flujo/flujo-detalle-resumen.js"></script>
+<script src="js/flujo/flujo-acciones-generales.js"></script>
+<script src="js/flujo/flujo-modal.js"></script>
+<script src="js/flujo/flujo-numeracion.js"></script>
+<script src="js/flujo/flujo-main.js"></script>
 <script src="js//flujo/flujo-proceso-export.js"></script>
 
 <script src="js/core/auth.js"></script>
@@ -196,7 +243,15 @@
 <script src="js/core/navigation.js"></script>
 
 <!-- PERFIL -->
+<script src="js/perfil/perfil-state.js"></script>
+<script src="js/perfil/perfil-helpers.js"></script>
+<script src="js/perfil/perfil-render.js"></script>
+<script src="js/perfil/perfil-data.js"></script>
+<script src="js/perfil/perfil-edicion.js"></script>
+<script src="js/perfil/perfil-password.js"></script>
 <script src="js/perfil/perfil-tabs.js"></script>
+<script src="js/perfil/perfil-events.js"></script>
+<script src="js/perfil/perfil-main.js"></script>
 
 <!-- LOGIN / RECUPERACIÓN DINÁMICA -->
 <script src="js/auth/login-loader.js"></script>
@@ -252,7 +307,15 @@
 
 
 <script src="js/core/main.js"></script>
-<script src="js/core/configuracion.js"></script>
+
+<script src="js/core/configuracion/configuracion-state.js"></script>
+<script src="js/core/configuracion/configuracion-helpers.js"></script>
+<script src="js/core/configuracion/configuracion-usuarios.js"></script>
+<script src="js/core/configuracion/configuracion-permisos.js"></script>
+<script src="js/core/configuracion/configuracion-modales.js"></script>
+<script src="js/core/configuracion/configuracion-seguridad.js"></script>
+<script src="js/core/configuracion/configuracion-events.js"></script>
+<script src="js/core/configuracion/configuracion-main.js"></script>
 
 <script>
 function toggleSidebar() {

@@ -1,0 +1,60 @@
+/* =========================
+   CONTROLES / FILTROS INTEGRADOS
+   Producto + OT + acciones
+========================= */
+
+.flujo-proceso-section .flujo-filtros {
+    position: relative;
+
+    display: grid;
+    grid-template-columns: minmax(380px, 1.45fr) minmax(150px, 0.55fr) minmax(90px, 0.32fr) auto;
+    gap: 18px;
+    align-items: end;
+
+    margin-bottom: 0;
+    padding: 18px 20px;
+
+    background: rgba(20, 26, 42, 0.42);
+    border: 1px solid rgba(255,255,255,0.10);
+    border-radius: 14px;
+
+    box-shadow: none;
+}
+
+.flujo-proceso-section .flujo-field {
+    position: relative;
+
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.flujo-proceso-section .flujo-field label {
+    color: #cfd6e6;
+    font-size: 14px;
+}
+
+.flujo-proceso-section .flujo-field input,
+.flujo-proceso-section .flujo-field select {
+    width: 100%;
+
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.14);
+    color: #fff;
+
+    padding: 13px 15px;
+    border-radius: 8px;
+    outline: none;
+
+    box-sizing: border-box;
+}
+
+.flujo-proceso-section .flujo-field input:focus,
+.flujo-proceso-section .flujo-field select:focus {
+    border-color: #5ba7ff;
+    box-shadow: 0 0 0 2px rgba(91,167,255,0.18);
+}
+
+.flujo-proceso-section .flujo-field input::placeholder {
+    color: rgba(207, 214, 230, 0.65);
+}

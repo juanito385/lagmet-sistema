@@ -1,0 +1,29 @@
+/* =========================
+   NOTA INFERIOR
+========================= */
+
+#configuracion .config-admin-note {
+    max-width: 760px;
+    margin: 16px auto 0;
+    padding: 12px 14px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+
+    background: rgba(47,128,255,0.10);
+    border: 1px solid rgba(91,167,255,0.15);
+    border-radius: 6px;
+}
+
+#configuracion .config-admin-note .material-symbols-outlined {
+    color: #5ba7ff;
+    font-size: 20px;
+}
+
+#configuracion .config-admin-note p {
+    margin: 0 !important;
+    color: #b8c4dc !important;
+    font-size: 13px !important;
+}

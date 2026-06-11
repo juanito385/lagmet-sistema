@@ -1,0 +1,102 @@
+/* =========================
+   ACCIONES PRINCIPALES
+========================= */
+
+.flujo-proceso-section .flujo-acciones-principales {
+    display: flex;
+    align-items: end;
+    justify-content: flex-end;
+    gap: 10px;
+
+    min-width: max-content;
+}
+
+.flujo-proceso-section .btn-deshacer-flujo,
+.flujo-proceso-section .btn-limpiar-flujo,
+.flujo-proceso-section .btn-opciones-flujo,
+.flujo-proceso-section .btn-cargar-flujo {
+    min-height: 43px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+
+    border-radius: 8px;
+
+    font-weight: 800;
+    font-size: 14px;
+
+    cursor: pointer;
+    transition: 0.18s ease;
+}
+
+.flujo-proceso-section .btn-deshacer-flujo {
+    width: 54px;
+
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.12);
+    color: #e5e7eb;
+}
+
+.flujo-proceso-section .btn-deshacer-flujo:hover {
+    background: rgba(255,255,255,0.12);
+    border-color: rgba(91,167,255,0.32);
+    color: #ffffff;
+}
+
+.flujo-proceso-section .btn-cargar-flujo {
+    min-width: 126px;
+
+    background: linear-gradient(135deg, #5ba7ff, #247cff);
+    color: #fff;
+    border: none;
+
+    padding: 0 22px;
+}
+
+.flujo-proceso-section .btn-cargar-flujo:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 10px 24px rgba(36,124,255,0.32);
+}
+
+.flujo-proceso-section .btn-limpiar-flujo {
+    min-width: 118px;
+
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.14);
+    color: #ffffff;
+
+    padding: 0 18px;
+}
+
+.flujo-proceso-section .btn-limpiar-flujo:hover {
+    background: rgba(255,255,255,0.12);
+    border-color: rgba(255,255,255,0.22);
+}
+
+.flujo-proceso-section .btn-opciones-flujo {
+    min-width: 142px;
+
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(91,167,255,0.28);
+    color: #ffffff;
+
+    padding: 0 18px;
+}
+
+.flujo-proceso-section .btn-opciones-flujo:hover {
+    background: rgba(91,167,255,0.10);
+    border-color: rgba(91,167,255,0.5);
+}
+
+.flujo-proceso-section .btn-deshacer-flujo .material-symbols-outlined,
+.flujo-proceso-section .btn-cargar-flujo .material-symbols-outlined,
+.flujo-proceso-section .btn-limpiar-flujo .material-symbols-outlined,
+.flujo-proceso-section .btn-opciones-flujo .material-symbols-outlined {
+    font-size: 21px;
+}
+
+.flujo-proceso-section .icon-opciones-arrow {
+    font-size: 20px !important;
+}

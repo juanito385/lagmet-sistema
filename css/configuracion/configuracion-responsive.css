@@ -1,0 +1,68 @@
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media (max-width: 1200px) {
+    #configuracion .config-security-grid {
+        grid-template-columns: 1fr;
+    }
+
+    #configuracion .config-permisos-card {
+        max-width: 100%;
+    }
+}
+
+@media (max-width: 900px) {
+    #configuracion .config-admin-summary {
+        grid-template-columns: 1fr;
+    }
+
+    #configuracion .config-admin-tabs {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    #configuracion .config-card-header {
+        flex-direction: column;
+    }
+
+    #configuracion .config-card-actions {
+        width: 100%;
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    #configuracion .config-search-box {
+        width: 100%;
+    }
+
+    #configuracion .config-system-list {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 600px) {
+    #configuracion .config-admin-header {
+        flex-direction: column;
+    }
+
+    #configuracion .config-admin-badge {
+        width: 100%;
+        justify-content: center;
+    }
+
+    #configuracion .config-admin-shell {
+        padding: 14px;
+    }
+
+    #configuracion .config-admin-tabs {
+        grid-template-columns: 1fr;
+    }
+
+    #configuracion .config-summary-card {
+        align-items: flex-start;
+    }
+
+    #configuracion .config-admin-card {
+        padding: 14px;
+    }
+}

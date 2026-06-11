@@ -1,0 +1,146 @@
+/* =========================
+   BOTONES
+========================= */
+
+#configuracion button {
+    font-family: inherit;
+}
+
+#configuracion .config-btn-primary,
+#configuracion .config-btn-save {
+    height: 38px;
+    margin: 0 !important;
+    padding: 0 16px !important;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+
+    background: linear-gradient(135deg, #ff8800, #f57c00) !important;
+    border: none !important;
+    border-radius: 6px !important;
+
+    color: #fff !important;
+    font-size: 13px !important;
+    font-weight: 900 !important;
+
+    cursor: pointer;
+    box-shadow: 0 8px 20px rgba(255,136,0,0.20) !important;
+    transition: 0.22s ease;
+}
+
+#configuracion .config-btn-primary:hover,
+#configuracion .config-btn-save:hover {
+    filter: brightness(1.08);
+    transform: translateY(-1px);
+}
+
+#configuracion .config-btn-primary .material-symbols-outlined,
+#configuracion .config-btn-save .material-symbols-outlined {
+    font-size: 18px;
+}
+
+#configuracion .config-btn-save {
+    width: 100%;
+    margin-top: 14px !important;
+}
+
+#configuracion .config-btn-table {
+    height: 32px;
+    margin: 0 !important;
+    padding: 0 10px !important;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+
+    background: rgba(91,167,255,0.08) !important;
+    border: 1px solid rgba(91,167,255,0.34) !important;
+    border-radius: 6px !important;
+
+    color: #75b7ff !important;
+    font-size: 12px !important;
+    font-weight: 800 !important;
+
+    box-shadow: none !important;
+    cursor: pointer;
+}
+
+#configuracion .config-btn-table:hover {
+    background: rgba(91,167,255,0.14) !important;
+    border-color: rgba(91,167,255,0.65) !important;
+}
+
+#configuracion .config-btn-table .material-symbols-outlined {
+    font-size: 17px;
+}
+
+#configuracion .config-btn-icon {
+    width: 32px;
+    height: 32px;
+    margin: 0 !important;
+    padding: 0 !important;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    background: transparent !important;
+    border: none !important;
+    border-radius: 6px !important;
+
+    color: #aebbd3 !important;
+    box-shadow: none !important;
+    cursor: pointer;
+}
+
+#configuracion .config-btn-icon:hover {
+    background: rgba(255,255,255,0.06) !important;
+    color: #fff !important;
+}
+
+#configuracion .config-btn-danger,
+#configuracion .config-btn-warning,
+#configuracion .config-btn-purple {
+    height: 34px;
+    min-width: 104px;
+    margin: 0 !important;
+    padding: 0 14px !important;
+
+    border-radius: 6px !important;
+    background: transparent !important;
+    box-shadow: none !important;
+
+    font-size: 12px !important;
+    font-weight: 900 !important;
+    cursor: pointer;
+}
+
+#configuracion .config-btn-danger {
+    color: #ff6b6b !important;
+    border: 1px solid rgba(255,70,70,0.48) !important;
+}
+
+#configuracion .config-btn-warning {
+    color: #f59e0b !important;
+    border: 1px solid rgba(245,158,11,0.48) !important;
+}
+
+#configuracion .config-btn-purple {
+    color: #b68cff !important;
+    border: 1px solid rgba(124,60,255,0.48) !important;
+}
+
+#configuracion .config-btn-danger:hover {
+    background: rgba(255,70,70,0.12) !important;
+}
+
+#configuracion .config-btn-warning:hover {
+    background: rgba(245,158,11,0.12) !important;
+}
+
+#configuracion .config-btn-purple:hover {
+    background: rgba(124,60,255,0.14) !important;
+}

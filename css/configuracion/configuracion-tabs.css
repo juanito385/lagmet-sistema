@@ -1,0 +1,91 @@
+/* =========================
+   TABS
+========================= */
+
+#configuracion .config-admin-tabs {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0;
+
+    margin-bottom: 18px;
+
+    background: rgba(8, 14, 28, 0.60);
+    border: 1px solid rgba(255,255,255,0.09);
+    border-radius: 9px;
+    overflow: hidden;
+}
+
+#configuracion .config-admin-tab {
+    height: 56px;
+    margin: 0 !important;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+
+    background: transparent !important;
+    border: none !important;
+    border-radius: 0 !important;
+
+    color: #c9d4ea !important;
+    font-size: 14px !important;
+    font-weight: 900 !important;
+
+    cursor: pointer;
+    box-shadow: none !important;
+    transition: 0.22s ease;
+}
+
+#configuracion .config-admin-tab .material-symbols-outlined {
+    color: #aab7d0;
+    font-size: 22px;
+}
+
+#configuracion .config-admin-tab:hover {
+    background: rgba(91,167,255,0.08) !important;
+    color: #fff !important;
+}
+
+#configuracion .config-admin-tab:hover .material-symbols-outlined {
+    color: #75b7ff;
+}
+
+#configuracion .config-admin-tab.active {
+    color: #5ba7ff !important;
+    background: rgba(91,167,255,0.12) !important;
+    box-shadow: inset 0 -2px 0 rgba(91,167,255,0.95) !important;
+}
+
+#configuracion .config-admin-tab.active .material-symbols-outlined {
+    color: #5ba7ff;
+}
+/* =========================
+   CONTENIDO TABS
+========================= */
+
+#configuracion .config-tab-content {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+#configuracion .config-tab-panel {
+    display: none;
+    animation: configPanelFade 0.20s ease;
+}
+
+#configuracion .config-tab-panel.active {
+    display: block;
+}
+
+@keyframes configPanelFade {
+    from {
+        opacity: 0;
+        transform: translateY(6px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

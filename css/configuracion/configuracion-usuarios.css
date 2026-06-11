@@ -1,0 +1,223 @@
+/* =========================
+   BUSCADOR
+========================= */
+
+#configuracion .config-search-box {
+    height: 38px;
+    width: 250px;
+
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    padding: 0 12px;
+
+    background: rgba(8, 14, 28, 0.54);
+    border: 1px solid rgba(255,255,255,0.10);
+    border-radius: 6px;
+}
+
+#configuracion .config-search-box .material-symbols-outlined {
+    color: #8ea0bc;
+    font-size: 21px;
+}
+
+#configuracion .config-search-box input {
+    width: 100% !important;
+    height: 100% !important;
+
+    padding: 0 !important;
+    border: none !important;
+    outline: none !important;
+
+    background: transparent !important;
+    color: #fff !important;
+
+    font-size: 13px !important;
+}
+
+#configuracion .config-search-box input::placeholder {
+    color: rgba(207,216,234,0.55);
+}
+/* =========================
+   TABLA USUARIOS
+========================= */
+
+#configuracion .config-users-table-wrap {
+    overflow-x: auto;
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 8px;
+}
+
+#configuracion .config-users-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 780px;
+}
+
+#configuracion .config-users-table thead {
+    background: rgba(8, 14, 28, 0.55);
+}
+
+#configuracion .config-users-table th {
+    padding: 12px 14px;
+
+    color: #cbd5e1;
+    font-size: 12px;
+    font-weight: 900;
+    text-align: left;
+}
+
+#configuracion .config-users-table td {
+    padding: 13px 14px;
+
+    color: #dce7ff;
+    font-size: 13px;
+
+    border-top: 1px solid rgba(255,255,255,0.06);
+}
+
+#configuracion .config-users-table tbody tr {
+    transition: 0.18s ease;
+}
+
+#configuracion .config-users-table tbody tr:hover {
+    background: rgba(91,167,255,0.045);
+}
+
+#configuracion .config-users-table tbody tr.config-row-selected {
+    background: rgba(91,167,255,0.08);
+    box-shadow: inset 3px 0 0 rgba(91,167,255,0.95);
+}
+
+#configuracion .config-user-cell {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+}
+
+#configuracion .config-user-avatar {
+    width: 34px;
+    height: 34px;
+    min-width: 34px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 50%;
+
+    background: rgba(47,128,255,0.18);
+    border: 1px solid rgba(91,167,255,0.28);
+
+    color: #75b7ff;
+    font-size: 13px;
+    font-weight: 900;
+}
+
+#configuracion .config-user-cell strong {
+    display: block;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 900;
+}
+
+#configuracion .config-user-cell span {
+    display: block;
+    margin-top: 2px;
+    color: #7f8da6;
+    font-size: 11px;
+}
+
+#configuracion .config-role-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 4px 8px;
+    border-radius: 5px;
+
+    font-size: 12px;
+    font-weight: 900;
+}
+
+#configuracion .config-role-badge.admin {
+    background: rgba(124,60,255,0.18);
+    color: #b68cff;
+}
+
+#configuracion .config-role-badge.usuario {
+    background: rgba(91,167,255,0.12);
+    color: #a7cfff;
+}
+
+#configuracion .config-status-dot {
+    width: 8px;
+    height: 8px;
+
+    display: inline-block;
+    margin-right: 7px;
+
+    border-radius: 50%;
+}
+
+#configuracion .config-status-dot.active {
+    background: #4ade80;
+    box-shadow: 0 0 10px rgba(74,222,128,0.45);
+}
+
+#configuracion .config-status-dot.inactive {
+    background: #f59e0b;
+    box-shadow: 0 0 10px rgba(245,158,11,0.45);
+}
+
+#configuracion .config-status-dot.blocked {
+    background: #ff6b6b;
+    box-shadow: 0 0 10px rgba(255,107,107,0.45);
+}
+
+#configuracion .config-table-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+#configuracion .config-table-footer {
+    margin: 12px 0 0 !important;
+    color: #aab7d0 !important;
+    font-size: 13px !important;
+}
+/* =========================
+   USUARIO SELECCIONADO
+========================= */
+
+#configuracion .config-selected-user {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    padding: 12px 13px;
+    margin-bottom: 14px;
+
+    background: rgba(8, 14, 28, 0.45);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 8px;
+}
+
+#configuracion .config-selected-user strong {
+    display: block;
+    color: #fff;
+    font-size: 14px;
+    font-weight: 900;
+}
+
+#configuracion .config-selected-user span:not(.material-symbols-outlined) {
+    display: block;
+    margin-top: 2px;
+    color: #9fb0d0;
+    font-size: 12px;
+}
+
+#configuracion .config-security-selected-user {
+    max-width: 520px;
+}

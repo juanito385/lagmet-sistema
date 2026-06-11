@@ -1,0 +1,11 @@
+/* =========================
+   FOCO PANEL PERMISOS
+========================= */
+
+#configuracion .config-permisos-focus {
+    border-color: rgba(91,167,255,0.70) !important;
+    box-shadow:
+        0 0 0 2px rgba(91,167,255,0.18),
+        0 18px 45px rgba(0,0,0,0.35) !important;
+    transition: 0.25s ease;
+}

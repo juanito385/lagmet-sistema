@@ -1,0 +1,11 @@
+/* =========================
+   FLUJO PROCESO
+   CSS encapsulado para NO afectar Dashboard
+========================= */
+
+.flujo-proceso-section {
+    padding: 14px;
+    color: #fff;
+    width: 100%;
+    box-sizing: border-box;
+}
