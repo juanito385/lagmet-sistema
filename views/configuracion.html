@@ -432,5 +432,127 @@
             La sección Configuración solo es visible para administradores o usuarios con permiso temporal.
         </p>
     </div>
+    <!-- MODAL NUEVO USUARIO -->
+    <div id="modalNuevoUsuarioConfig" class="config-modal-overlay" hidden>
+
+        <div class="config-modal-card">
+
+            <div class="config-modal-header">
+                <div>
+                    <h3>
+                        <span class="material-symbols-outlined">person_add</span>
+                        Nuevo usuario
+                    </h3>
+                    <p>Crea una nueva cuenta de acceso para IRONIX.</p>
+                </div>
+
+                <button id="btnCerrarModalNuevoUsuario" class="config-modal-close" type="button">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+
+            <div class="config-modal-body">
+
+                <div class="config-modal-grid">
+
+                    <div class="config-modal-field">
+                        <label for="nuevoUsuarioNombre">Nombre completo</label>
+                        <input 
+                            type="text" 
+                            id="nuevoUsuarioNombre"
+                            placeholder="Ej: Juan Pérez"
+                        >
+                    </div>
+
+                    <div class="config-modal-field">
+                        <label for="nuevoUsuarioCorreo">Correo electrónico</label>
+                        <input 
+                            type="email" 
+                            id="nuevoUsuarioCorreo"
+                            placeholder="usuario@empresa.cl"
+                        >
+                    </div>
+
+                    <div class="config-modal-field">
+                        <label for="nuevoUsuarioPassword">Contraseña inicial</label>
+                        <input 
+                            type="password" 
+                            id="nuevoUsuarioPassword"
+                            placeholder="Mínimo 6 caracteres"
+                        >
+                    </div>
+
+                    <div class="config-modal-field">
+                        <label for="nuevoUsuarioRol">Rol</label>
+                        <select id="nuevoUsuarioRol">
+                            <option value="usuario">Usuario</option>
+                            <option value="admin">Administrador</option>
+                        </select>
+                    </div>
+
+                    <div class="config-modal-field">
+                        <label for="nuevoUsuarioEstado">Estado</label>
+                        <select id="nuevoUsuarioEstado">
+                            <option value="activa">Activa</option>
+                            <option value="inactiva">Inactiva</option>
+                            <option value="bloqueada">Bloqueada</option>
+                        </select>
+                    </div>
+
+                    <div class="config-modal-field">
+                        <label for="nuevoUsuarioTelefono">Teléfono</label>
+                        <input 
+                            type="text" 
+                            id="nuevoUsuarioTelefono"
+                            placeholder="+56 9 1234 5678"
+                        >
+                    </div>
+
+                    <div class="config-modal-field">
+                        <label for="nuevoUsuarioArea">Área</label>
+                        <input 
+                            type="text" 
+                            id="nuevoUsuarioArea"
+                            value="Producción"
+                            placeholder="Producción"
+                        >
+                    </div>
+
+                    <div class="config-modal-field">
+                        <label for="nuevoUsuarioIdioma">Idioma</label>
+                        <select id="nuevoUsuarioIdioma">
+                            <option value="Español / Chile">Español / Chile</option>
+                            <option value="Español">Español</option>
+                            <option value="Inglés">Inglés</option>
+                        </select>
+                    </div>
+
+                </div>
+
+                <div class="config-modal-alert">
+                    <span class="material-symbols-outlined">info</span>
+                    <p>
+                        Al crear un usuario, se generarán automáticamente sus permisos iniciales según el rol seleccionado.
+                    </p>
+                </div>
+
+            </div>
+
+            <div class="config-modal-footer">
+                <button id="btnCancelarNuevoUsuario" class="config-btn-modal-secondary" type="button">
+                    Cancelar
+                </button>
+
+                <button id="btnGuardarNuevoUsuario" class="config-btn-modal-primary" type="button">
+                    <span class="material-symbols-outlined">save</span>
+                    Crear usuario
+                </button>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
 
 </div>

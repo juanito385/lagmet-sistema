@@ -28,7 +28,6 @@ function obtenerUsuarioConfiguracion() {
 
 function usuarioActualEsAdminConfig() {
     const user = obtenerUsuarioConfiguracion();
-
     return user && user.rol === "admin";
 }
 
@@ -524,6 +523,153 @@ async function actualizarEstadoUsuarioConfiguracion(nuevoEstado) {
 }
 
 /* =========================
+   MODAL NUEVO USUARIO
+========================= */
+
+function abrirModalNuevoUsuarioConfig() {
+    const modal = document.getElementById("modalNuevoUsuarioConfig");
+
+    if (!modal) {
+        alert("No se encontró el modal de nuevo usuario");
+        return;
+    }
+
+    limpiarFormularioNuevoUsuarioConfig();
+    modal.hidden = false;
+
+    setTimeout(() => {
+        document.getElementById("nuevoUsuarioNombre")?.focus();
+    }, 80);
+}
+
+function cerrarModalNuevoUsuarioConfig() {
+    const modal = document.getElementById("modalNuevoUsuarioConfig");
+
+    if (!modal) return;
+
+    modal.hidden = true;
+}
+
+function limpiarFormularioNuevoUsuarioConfig() {
+    asignarValorConfig("nuevoUsuarioNombre", "");
+    asignarValorConfig("nuevoUsuarioCorreo", "");
+    asignarValorConfig("nuevoUsuarioPassword", "");
+    asignarValorConfig("nuevoUsuarioRol", "usuario");
+    asignarValorConfig("nuevoUsuarioEstado", "activa");
+    asignarValorConfig("nuevoUsuarioTelefono", "");
+    asignarValorConfig("nuevoUsuarioArea", "Producción");
+    asignarValorConfig("nuevoUsuarioIdioma", "Español / Chile");
+}
+
+function obtenerDatosNuevoUsuarioConfig() {
+    return {
+        nombre: obtenerValorConfig("nuevoUsuarioNombre"),
+        correo: obtenerValorConfig("nuevoUsuarioCorreo"),
+        password: obtenerValorConfig("nuevoUsuarioPassword"),
+        rol: obtenerValorConfig("nuevoUsuarioRol") || "usuario",
+        estado: obtenerValorConfig("nuevoUsuarioEstado") || "activa",
+        telefono: obtenerValorConfig("nuevoUsuarioTelefono"),
+        area: obtenerValorConfig("nuevoUsuarioArea") || "Producción",
+        idioma: obtenerValorConfig("nuevoUsuarioIdioma") || "Español / Chile"
+    };
+}
+
+function validarNuevoUsuarioConfig(datos) {
+    if (!datos.nombre || !datos.correo || !datos.password) {
+        alert("Completa nombre, correo y contraseña");
+        return false;
+    }
+
+    if (!validarCorreoConfig(datos.correo)) {
+        alert("Correo electrónico no válido");
+        return false;
+    }
+
+    if (datos.password.length < 6) {
+        alert("La contraseña debe tener al menos 6 caracteres");
+        return false;
+    }
+
+    if (!["admin", "usuario"].includes(datos.rol)) {
+        alert("Rol no válido");
+        return false;
+    }
+
+    if (!["activa", "inactiva", "bloqueada"].includes(datos.estado)) {
+        alert("Estado no válido");
+        return false;
+    }
+
+    if (!datos.area) {
+        alert("El área no puede quedar vacía");
+        return false;
+    }
+
+    if (!datos.idioma) {
+        alert("El idioma no puede quedar vacío");
+        return false;
+    }
+
+    return true;
+}
+
+async function crearUsuarioConfiguracion() {
+    const admin = obtenerUsuarioConfiguracion();
+
+    if (!admin || !admin.id || admin.rol !== "admin") {
+        alert("No tienes permisos para crear usuarios");
+        return;
+    }
+
+    const datos = obtenerDatosNuevoUsuarioConfig();
+
+    if (!validarNuevoUsuarioConfig(datos)) return;
+
+    const confirmar = confirm(`¿Deseas crear el usuario "${datos.nombre}"?`);
+
+    if (!confirmar) return;
+
+    const formData = new FormData();
+    formData.append("admin_id", admin.id);
+    formData.append("nombre", datos.nombre);
+    formData.append("correo", datos.correo);
+    formData.append("password", datos.password);
+    formData.append("rol", datos.rol);
+    formData.append("estado", datos.estado);
+    formData.append("telefono", datos.telefono);
+    formData.append("area", datos.area);
+    formData.append("idioma", datos.idioma);
+
+    try {
+        const response = await fetch("php/usuarios/crear_usuario.php", {
+            method: "POST",
+            body: formData
+        });
+
+        const data = await response.json();
+
+        console.log("Crear usuario:", data);
+
+        if (!data.success) {
+            alert(data.message || "No se pudo crear el usuario");
+            return;
+        }
+
+        alert(data.message || "Usuario creado correctamente");
+
+        cerrarModalNuevoUsuarioConfig();
+
+        const nuevoId = data.usuario?.id || null;
+
+        await listarUsuariosConfiguracion(nuevoId);
+
+    } catch (error) {
+        console.error("Error creando usuario:", error);
+        alert("Error al crear usuario");
+    }
+}
+
+/* =========================
    BUSCADOR
 ========================= */
 
@@ -576,7 +722,29 @@ document.addEventListener("click", async function(e) {
     const btnNuevo = e.target.closest("#btnNuevoUsuarioConfig");
 
     if (btnNuevo) {
-        alert("La creación de usuarios se implementará en un paso posterior.");
+        abrirModalNuevoUsuarioConfig();
+        return;
+    }
+
+    const btnCerrarModal = e.target.closest("#btnCerrarModalNuevoUsuario");
+    const btnCancelarNuevo = e.target.closest("#btnCancelarNuevoUsuario");
+
+    if (btnCerrarModal || btnCancelarNuevo) {
+        cerrarModalNuevoUsuarioConfig();
+        return;
+    }
+
+    const btnGuardarNuevo = e.target.closest("#btnGuardarNuevoUsuario");
+
+    if (btnGuardarNuevo) {
+        await crearUsuarioConfiguracion();
+        return;
+    }
+
+    const overlayModal = e.target.closest("#modalNuevoUsuarioConfig");
+
+    if (overlayModal && e.target.id === "modalNuevoUsuarioConfig") {
+        cerrarModalNuevoUsuarioConfig();
         return;
     }
 
@@ -634,6 +802,12 @@ document.addEventListener("input", function(e) {
     }
 });
 
+document.addEventListener("keydown", function(e) {
+    if (e.key === "Escape") {
+        cerrarModalNuevoUsuarioConfig();
+    }
+});
+
 /* =========================
    TABS VISUALES
 ========================= */
@@ -662,6 +836,22 @@ function actualizarTextoConfig(id, texto) {
     }
 }
 
+function obtenerValorConfig(id) {
+    const elemento = document.getElementById(id);
+
+    if (!elemento) return "";
+
+    return elemento.value.trim();
+}
+
+function asignarValorConfig(id, valor) {
+    const elemento = document.getElementById(id);
+
+    if (elemento) {
+        elemento.value = valor;
+    }
+}
+
 function obtenerInicialUsuarioConfig(nombre) {
     if (!nombre) return "U";
 
@@ -684,6 +874,10 @@ function formatearEstadoUsuarioConfig(estado) {
     return "Sin estado";
 }
 
+function validarCorreoConfig(correo) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo);
+}
+
 function escaparHTMLConfig(valor) {
     return String(valor ?? "")
         .replaceAll("&", "&amp;")
@@ -702,6 +896,9 @@ window.listarUsuariosConfiguracion = listarUsuariosConfiguracion;
 window.seleccionarUsuarioConfiguracion = seleccionarUsuarioConfiguracion;
 window.guardarPermisosConfiguracion = guardarPermisosConfiguracion;
 window.actualizarEstadoUsuarioConfiguracion = actualizarEstadoUsuarioConfiguracion;
+window.abrirModalNuevoUsuarioConfig = abrirModalNuevoUsuarioConfig;
+window.cerrarModalNuevoUsuarioConfig = cerrarModalNuevoUsuarioConfig;
+window.crearUsuarioConfiguracion = crearUsuarioConfiguracion;
 
 /* =========================
    DETECTAR CARGA DINÁMICA
