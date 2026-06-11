@@ -59,6 +59,28 @@
 }
 
 /* =========================
+   CARD PRINCIPAL
+========================= */
+
+#configuracion .config-admin-shell {
+    width: 100%;
+    box-sizing: border-box;
+
+    padding: 18px;
+
+    background:
+        linear-gradient(135deg, rgba(20, 31, 54, 0.86), rgba(12, 18, 34, 0.94)),
+        rgba(255,255,255,0.035);
+
+    border: 1px solid rgba(255,255,255,0.10);
+    border-radius: 14px;
+
+    box-shadow:
+        0 20px 55px rgba(0,0,0,0.32),
+        inset 0 0 0 1px rgba(255,255,255,0.018);
+}
+
+/* =========================
    TABS
 ========================= */
 
@@ -69,14 +91,14 @@
 
     margin-bottom: 18px;
 
-    background: rgba(8, 14, 28, 0.48);
+    background: rgba(8, 14, 28, 0.60);
     border: 1px solid rgba(255,255,255,0.09);
-    border-radius: 8px;
+    border-radius: 9px;
     overflow: hidden;
 }
 
 #configuracion .config-admin-tab {
-    height: 54px;
+    height: 56px;
     margin: 0 !important;
 
     display: flex;
@@ -107,14 +129,48 @@
     color: #fff !important;
 }
 
+#configuracion .config-admin-tab:hover .material-symbols-outlined {
+    color: #75b7ff;
+}
+
 #configuracion .config-admin-tab.active {
     color: #5ba7ff !important;
-    background: rgba(91,167,255,0.10) !important;
+    background: rgba(91,167,255,0.12) !important;
     box-shadow: inset 0 -2px 0 rgba(91,167,255,0.95) !important;
 }
 
 #configuracion .config-admin-tab.active .material-symbols-outlined {
     color: #5ba7ff;
+}
+
+/* =========================
+   CONTENIDO TABS
+========================= */
+
+#configuracion .config-tab-content {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+#configuracion .config-tab-panel {
+    display: none;
+    animation: configPanelFade 0.20s ease;
+}
+
+#configuracion .config-tab-panel.active {
+    display: block;
+}
+
+@keyframes configPanelFade {
+    from {
+        opacity: 0;
+        transform: translateY(6px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 /* =========================
@@ -201,21 +257,8 @@
 }
 
 /* =========================
-   LAYOUT PRINCIPAL
+   CARDS INTERNAS
 ========================= */
-
-#configuracion .config-admin-layout {
-    display: grid;
-    grid-template-columns: 1.15fr 0.85fr;
-    gap: 16px;
-}
-
-#configuracion .config-admin-left,
-#configuracion .config-admin-right {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-}
 
 #configuracion .config-admin-card {
     padding: 18px;
@@ -228,6 +271,11 @@
     border-radius: 10px;
 
     box-shadow: 0 14px 32px rgba(0,0,0,0.23);
+}
+
+#configuracion .config-permisos-card {
+    max-width: 1040px;
+    margin: 0 auto;
 }
 
 /* =========================
@@ -320,7 +368,7 @@
 
 #configuracion .config-btn-save {
     width: 100%;
-    margin-top: 12px !important;
+    margin-top: 14px !important;
 }
 
 #configuracion .config-btn-table {
@@ -510,6 +558,11 @@
     background: rgba(91,167,255,0.045);
 }
 
+#configuracion .config-users-table tbody tr.config-row-selected {
+    background: rgba(91,167,255,0.08);
+    box-shadow: inset 3px 0 0 rgba(91,167,255,0.95);
+}
+
 #configuracion .config-user-cell {
     display: flex;
     align-items: center;
@@ -609,6 +662,182 @@
 }
 
 /* =========================
+   USUARIO SELECCIONADO
+========================= */
+
+#configuracion .config-selected-user {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    padding: 12px 13px;
+    margin-bottom: 14px;
+
+    background: rgba(8, 14, 28, 0.45);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 8px;
+}
+
+#configuracion .config-selected-user strong {
+    display: block;
+    color: #fff;
+    font-size: 14px;
+    font-weight: 900;
+}
+
+#configuracion .config-selected-user span:not(.material-symbols-outlined) {
+    display: block;
+    margin-top: 2px;
+    color: #9fb0d0;
+    font-size: 12px;
+}
+
+#configuracion .config-security-selected-user {
+    max-width: 520px;
+}
+
+/* =========================
+   MATRIZ DE PERMISOS DETALLADOS
+========================= */
+
+#configuracion .config-permission-matrix {
+    width: 100%;
+    margin-top: 8px;
+
+    display: grid;
+    gap: 6px;
+
+    overflow-x: auto;
+    padding-bottom: 4px;
+}
+
+#configuracion .config-permission-head {
+    min-width: 760px;
+    display: grid;
+    grid-template-columns: 1.9fr repeat(5, 82px);
+    align-items: center;
+
+    padding: 10px 12px;
+
+    background: rgba(8, 14, 28, 0.70);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 7px;
+
+    color: #9fb0d0;
+    font-size: 11px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+}
+
+#configuracion .config-permission-head span:not(:first-child) {
+    text-align: center;
+}
+
+#configuracion .config-permission-row {
+    min-width: 760px;
+    min-height: 46px;
+
+    display: grid;
+    grid-template-columns: 1.9fr repeat(5, 82px);
+    align-items: center;
+
+    padding: 8px 12px;
+
+    background: rgba(8, 14, 28, 0.42);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 7px;
+
+    transition: 0.18s ease;
+}
+
+#configuracion .config-permission-row:hover {
+    background: rgba(91,167,255,0.055);
+    border-color: rgba(91,167,255,0.18);
+}
+
+#configuracion .config-permission-module {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    color: #fff;
+    font-size: 13px;
+    font-weight: 900;
+}
+
+#configuracion .config-permission-module .material-symbols-outlined {
+    color: #9fb0d0;
+    font-size: 20px;
+}
+
+#configuracion .config-permission-row label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#configuracion .config-permission-row input[type="checkbox"] {
+    appearance: none;
+    -webkit-appearance: none;
+
+    width: 18px !important;
+    height: 18px !important;
+    min-width: 18px !important;
+
+    margin: 0 !important;
+    padding: 0 !important;
+
+    background: rgba(8, 14, 28, 0.72) !important;
+    border: 1px solid rgba(255,255,255,0.18) !important;
+    border-radius: 4px !important;
+
+    cursor: pointer;
+    position: relative;
+
+    transition: 0.18s ease;
+}
+
+#configuracion .config-permission-row input[type="checkbox"]:hover {
+    border-color: rgba(91,167,255,0.55) !important;
+    box-shadow: 0 0 0 3px rgba(91,167,255,0.10);
+}
+
+#configuracion .config-permission-row input[type="checkbox"]:checked {
+    background: #3b82f6 !important;
+    border-color: #3b82f6 !important;
+}
+
+#configuracion .config-permission-row input[type="checkbox"]:checked::after {
+    content: "✓";
+    position: absolute;
+    inset: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    color: #fff;
+    font-size: 13px;
+    font-weight: 900;
+}
+
+#configuracion .config-permission-row input[type="checkbox"]:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+#configuracion .config-permission-row input[type="checkbox"]:disabled:hover {
+    border-color: rgba(255,255,255,0.18) !important;
+    box-shadow: none;
+}
+
+#configuracion .config-permission-row[data-modulo="perfil"] {
+    border-color: rgba(91,167,255,0.13);
+}
+
+/* =========================
    SEGURIDAD
 ========================= */
 
@@ -619,12 +848,13 @@
 }
 
 #configuracion .config-security-action {
-    min-height: 118px;
-    padding: 14px;
+    min-height: 150px;
+    padding: 16px;
 
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    justify-content: space-between;
+    gap: 12px;
 
     background: rgba(8, 14, 28, 0.40);
     border: 1px solid rgba(255,255,255,0.08);
@@ -676,120 +906,18 @@
 }
 
 /* =========================
-   USUARIO SELECCIONADO / PERMISOS
-========================= */
-
-#configuracion .config-selected-user {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-
-    padding: 12px 13px;
-    margin-bottom: 12px;
-
-    background: rgba(8, 14, 28, 0.45);
-    border: 1px solid rgba(255,255,255,0.08);
-    border-radius: 8px;
-}
-
-#configuracion .config-selected-user strong {
-    display: block;
-    color: #fff;
-    font-size: 14px;
-    font-weight: 900;
-}
-
-#configuracion .config-selected-user span:not(.material-symbols-outlined) {
-    display: block;
-    margin-top: 2px;
-    color: #9fb0d0;
-    font-size: 12px;
-}
-
-#configuracion .config-permission-list {
-    display: grid;
-    gap: 2px;
-
-    padding: 6px 0;
-    border-top: 1px solid rgba(255,255,255,0.06);
-    border-bottom: 1px solid rgba(255,255,255,0.06);
-}
-
-#configuracion .config-permission-item {
-    height: 34px;
-
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-
-    color: #dce7ff;
-    font-size: 13px;
-    font-weight: 800;
-
-    cursor: pointer;
-}
-
-#configuracion .config-permission-item > span {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-#configuracion .config-permission-item .material-symbols-outlined {
-    color: #aab7d0;
-    font-size: 19px;
-}
-
-#configuracion .config-permission-item input[type="checkbox"] {
-    appearance: none;
-    -webkit-appearance: none;
-
-    width: 18px !important;
-    height: 18px !important;
-    min-width: 18px !important;
-
-    margin: 0 !important;
-    padding: 0 !important;
-
-    background: rgba(8, 14, 28, 0.65) !important;
-    border: 1px solid rgba(255,255,255,0.18) !important;
-    border-radius: 4px !important;
-
-    cursor: pointer;
-    position: relative;
-}
-
-#configuracion .config-permission-item input[type="checkbox"]:checked {
-    background: #3b82f6 !important;
-    border-color: #3b82f6 !important;
-}
-
-#configuracion .config-permission-item input[type="checkbox"]:checked::after {
-    content: "✓";
-    position: absolute;
-    inset: 0;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    color: #fff;
-    font-size: 13px;
-    font-weight: 900;
-}
-
-/* =========================
    SISTEMA
 ========================= */
 
 #configuracion .config-system-list {
     display: grid;
-    gap: 10px;
+    grid-template-columns: repeat(2, minmax(220px, 1fr));
+    gap: 12px;
 }
 
 #configuracion .config-system-list p {
     margin: 0 !important;
+    padding: 14px 15px;
 
     display: flex;
     align-items: center;
@@ -797,6 +925,10 @@
 
     color: #cbd5e1 !important;
     font-size: 13px !important;
+
+    background: rgba(8, 14, 28, 0.40);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 8px;
 }
 
 #configuracion .config-system-list .material-symbols-outlined {
@@ -818,7 +950,7 @@
 
 #configuracion .config-admin-note {
     max-width: 760px;
-    margin: 14px auto 0;
+    margin: 16px auto 0;
     padding: 12px 14px;
 
     display: flex;
@@ -843,16 +975,28 @@
 }
 
 /* =========================
+   FOCO PANEL PERMISOS
+========================= */
+
+#configuracion .config-permisos-focus {
+    border-color: rgba(91,167,255,0.70) !important;
+    box-shadow:
+        0 0 0 2px rgba(91,167,255,0.18),
+        0 18px 45px rgba(0,0,0,0.35) !important;
+    transition: 0.25s ease;
+}
+
+/* =========================
    RESPONSIVE
 ========================= */
 
 @media (max-width: 1200px) {
-    #configuracion .config-admin-layout {
+    #configuracion .config-security-grid {
         grid-template-columns: 1fr;
     }
 
-    #configuracion .config-security-grid {
-        grid-template-columns: 1fr;
+    #configuracion .config-permisos-card {
+        max-width: 100%;
     }
 }
 
@@ -878,6 +1022,10 @@
     #configuracion .config-search-box {
         width: 100%;
     }
+
+    #configuracion .config-system-list {
+        grid-template-columns: 1fr;
+    }
 }
 
 @media (max-width: 600px) {
@@ -890,6 +1038,10 @@
         justify-content: center;
     }
 
+    #configuracion .config-admin-shell {
+        padding: 14px;
+    }
+
     #configuracion .config-admin-tabs {
         grid-template-columns: 1fr;
     }
@@ -900,172 +1052,5 @@
 
     #configuracion .config-admin-card {
         padding: 14px;
-    }
-}
-
-/* =========================
-   FOCO PANEL PERMISOS
-========================= */
-
-#configuracion .config-permisos-focus {
-    border-color: rgba(91,167,255,0.70) !important;
-    box-shadow:
-        0 0 0 2px rgba(91,167,255,0.18),
-        0 18px 45px rgba(0,0,0,0.35) !important;
-    transition: 0.25s ease;
-}
-
-/* =========================
-   MATRIZ DE PERMISOS DETALLADOS
-========================= */
-
-#configuracion .config-permission-matrix {
-    width: 100%;
-    margin-top: 8px;
-
-    display: grid;
-    gap: 6px;
-
-    overflow-x: auto;
-    padding-bottom: 4px;
-}
-
-/* Encabezado */
-#configuracion .config-permission-head {
-    min-width: 620px;
-    display: grid;
-    grid-template-columns: 1.8fr repeat(5, 72px);
-    align-items: center;
-
-    padding: 10px 12px;
-
-    background: rgba(8, 14, 28, 0.70);
-    border: 1px solid rgba(255,255,255,0.08);
-    border-radius: 7px;
-
-    color: #9fb0d0;
-    font-size: 11px;
-    font-weight: 900;
-    text-transform: uppercase;
-    letter-spacing: 0.4px;
-}
-
-#configuracion .config-permission-head span:not(:first-child) {
-    text-align: center;
-}
-
-/* Fila */
-#configuracion .config-permission-row {
-    min-width: 620px;
-    min-height: 44px;
-
-    display: grid;
-    grid-template-columns: 1.8fr repeat(5, 72px);
-    align-items: center;
-
-    padding: 8px 12px;
-
-    background: rgba(8, 14, 28, 0.42);
-    border: 1px solid rgba(255,255,255,0.07);
-    border-radius: 7px;
-
-    transition: 0.18s ease;
-}
-
-#configuracion .config-permission-row:hover {
-    background: rgba(91,167,255,0.055);
-    border-color: rgba(91,167,255,0.18);
-}
-
-/* Nombre módulo */
-#configuracion .config-permission-module {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-
-    color: #fff;
-    font-size: 13px;
-    font-weight: 900;
-}
-
-#configuracion .config-permission-module .material-symbols-outlined {
-    color: #9fb0d0;
-    font-size: 20px;
-}
-
-/* Celdas checkbox */
-#configuracion .config-permission-row label {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-/* Checkbox */
-#configuracion .config-permission-row input[type="checkbox"] {
-    appearance: none;
-    -webkit-appearance: none;
-
-    width: 18px !important;
-    height: 18px !important;
-    min-width: 18px !important;
-
-    margin: 0 !important;
-    padding: 0 !important;
-
-    background: rgba(8, 14, 28, 0.72) !important;
-    border: 1px solid rgba(255,255,255,0.18) !important;
-    border-radius: 4px !important;
-
-    cursor: pointer;
-    position: relative;
-
-    transition: 0.18s ease;
-}
-
-#configuracion .config-permission-row input[type="checkbox"]:hover {
-    border-color: rgba(91,167,255,0.55) !important;
-    box-shadow: 0 0 0 3px rgba(91,167,255,0.10);
-}
-
-#configuracion .config-permission-row input[type="checkbox"]:checked {
-    background: #3b82f6 !important;
-    border-color: #3b82f6 !important;
-}
-
-#configuracion .config-permission-row input[type="checkbox"]:checked::after {
-    content: "✓";
-    position: absolute;
-    inset: 0;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    color: #fff;
-    font-size: 13px;
-    font-weight: 900;
-}
-
-/* Disabled */
-#configuracion .config-permission-row input[type="checkbox"]:disabled {
-    opacity: 0.35;
-    cursor: not-allowed;
-    box-shadow: none;
-}
-
-#configuracion .config-permission-row input[type="checkbox"]:disabled:hover {
-    border-color: rgba(255,255,255,0.18) !important;
-    box-shadow: none;
-}
-
-/* Fila perfil protegida */
-#configuracion .config-permission-row[data-modulo="perfil"] {
-    border-color: rgba(91,167,255,0.13);
-}
-
-/* Responsive */
-@media (max-width: 900px) {
-    #configuracion .config-permission-matrix {
-        overflow-x: auto;
     }
 }

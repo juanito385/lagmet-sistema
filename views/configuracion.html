@@ -14,272 +14,417 @@
         </div>
     </div>
 
-    <!-- TABS SUPERIORES -->
-    <div class="config-admin-tabs">
+    <!-- CARD PRINCIPAL -->
+    <div class="config-admin-shell">
 
-        <button class="config-admin-tab active" data-config-tab="usuarios">
-            <span class="material-symbols-outlined">group</span>
-            Usuarios
-        </button>
+        <!-- TABS SUPERIORES -->
+        <div class="config-admin-tabs">
 
-        <button class="config-admin-tab" data-config-tab="permisos">
-            <span class="material-symbols-outlined">admin_panel_settings</span>
-            Permisos
-        </button>
+            <button class="config-admin-tab active" data-config-tab="usuarios" type="button">
+                <span class="material-symbols-outlined">group</span>
+                Usuarios
+            </button>
 
-        <button class="config-admin-tab" data-config-tab="seguridad">
-            <span class="material-symbols-outlined">lock</span>
-            Seguridad
-        </button>
+            <button class="config-admin-tab" data-config-tab="permisos" type="button">
+                <span class="material-symbols-outlined">admin_panel_settings</span>
+                Permisos
+            </button>
 
-        <button class="config-admin-tab" data-config-tab="sistema">
-            <span class="material-symbols-outlined">desktop_windows</span>
-            Sistema
-        </button>
-
-    </div>
-
-    <!-- RESUMEN SUPERIOR -->
-    <div class="config-admin-summary">
-
-        <div class="config-summary-card">
-            <div class="config-summary-icon blue">
-                <span class="material-symbols-outlined">groups</span>
-            </div>
-
-            <div>
-                <span>Usuarios registrados</span>
-                <strong id="configTotalUsuarios">2</strong>
-                <p>1 administrador · 1 usuario</p>
-            </div>
-        </div>
-
-        <div class="config-summary-card">
-            <div class="config-summary-icon green">
-                <span class="material-symbols-outlined">verified_user</span>
-            </div>
-
-            <div>
-                <span>Usuarios activos</span>
-                <strong id="configUsuariosActivos">2</strong>
-                <p>Todos los usuarios activos</p>
-            </div>
-        </div>
-
-        <div class="config-summary-card">
-            <div class="config-summary-icon purple">
+            <button class="config-admin-tab" data-config-tab="seguridad" type="button">
                 <span class="material-symbols-outlined">lock</span>
-            </div>
+                Seguridad
+            </button>
 
-            <div>
-                <span>Módulos restringidos</span>
-                <strong id="configModulosRestringidos">4</strong>
-                <p>Controlados por permisos</p>
-            </div>
+            <button class="config-admin-tab" data-config-tab="sistema" type="button">
+                <span class="material-symbols-outlined">desktop_windows</span>
+                Sistema
+            </button>
+
         </div>
 
-    </div>
+        <!-- CONTENIDO TABS -->
+        <div class="config-tab-content">
 
-    <!-- CONTENIDO PRINCIPAL -->
-    <div class="config-admin-layout">
+            <!-- TAB USUARIOS -->
+            <div class="config-tab-panel active" data-config-panel="usuarios">
 
-        <!-- COLUMNA IZQUIERDA -->
-        <div class="config-admin-left">
+                <!-- RESUMEN SUPERIOR -->
+                <div class="config-admin-summary">
 
-            <!-- GESTIÓN DE USUARIOS -->
-            <div class="config-admin-card">
+                    <div class="config-summary-card">
+                        <div class="config-summary-icon blue">
+                            <span class="material-symbols-outlined">groups</span>
+                        </div>
 
-                <div class="config-card-header">
-                    <div>
-                        <h3>
-                            <span class="material-symbols-outlined">group</span>
-                            Gestión de usuarios
-                        </h3>
-                        <p>Administra usuarios, roles y estado de cuenta</p>
-                    </div>
-
-                    <div class="config-card-actions">
-                        <button id="btnNuevoUsuarioConfig" class="config-btn-primary" type="button">
-                            <span class="material-symbols-outlined">add</span>
-                            Nuevo usuario
-                        </button>
-
-                        <div class="config-search-box">
-                            <span class="material-symbols-outlined">search</span>
-                            <input 
-                                type="text" 
-                                id="configBuscarUsuario"
-                                placeholder="Buscar usuario..."
-                            >
+                        <div>
+                            <span>Usuarios registrados</span>
+                            <strong id="configTotalUsuarios">0</strong>
+                            <p>0 administrador · 0 usuario</p>
                         </div>
                     </div>
-                </div>
 
-                <div class="config-users-table-wrap">
-                    <table class="config-users-table">
-                        <thead>
-                            <tr>
-                                <th>Nombre</th>
-                                <th>Correo</th>
-                                <th>Rol</th>
-                                <th>Estado</th>
-                                <th>Acciones</th>
-                            </tr>
-                        </thead>
+                    <div class="config-summary-card">
+                        <div class="config-summary-icon green">
+                            <span class="material-symbols-outlined">verified_user</span>
+                        </div>
 
-                        <tbody id="configUsuariosBody">
+                        <div>
+                            <span>Usuarios activos</span>
+                            <strong id="configUsuariosActivos">0</strong>
+                            <p>Sin usuarios activos</p>
+                        </div>
+                    </div>
 
-                            <!-- Ejemplo visual inicial: luego JS lo reemplaza -->
-                            <tr data-usuario-id="1">
-                                <td>
-                                    <div class="config-user-cell">
-                                        <div class="config-user-avatar">A</div>
-                                        <div>
-                                            <strong>Admin</strong>
-                                            <span>ID 1</span>
-                                        </div>
-                                    </div>
-                                </td>
-
-                                <td>admin@gmail.com</td>
-
-                                <td>
-                                    <span class="config-role-badge admin">admin</span>
-                                </td>
-
-                                <td>
-                                    <span class="config-status-dot active"></span>
-                                    Activa
-                                </td>
-
-                                <td>
-                                    <div class="config-table-actions">
-                                        <button class="config-btn-table" type="button">
-                                            <span class="material-symbols-outlined">edit</span>
-                                            Editar
-                                        </button>
-
-                                        <button class="config-btn-table" type="button">
-                                            <span class="material-symbols-outlined">shield</span>
-                                            Permisos
-                                        </button>
-
-                                        <button class="config-btn-icon" type="button">
-                                            <span class="material-symbols-outlined">more_vert</span>
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-
-                            <tr data-usuario-id="2">
-                                <td>
-                                    <div class="config-user-cell">
-                                        <div class="config-user-avatar">P</div>
-                                        <div>
-                                            <strong>Patricio Muena</strong>
-                                            <span>ID 2</span>
-                                        </div>
-                                    </div>
-                                </td>
-
-                                <td>user@gmail.com</td>
-
-                                <td>
-                                    <span class="config-role-badge usuario">usuario</span>
-                                </td>
-
-                                <td>
-                                    <span class="config-status-dot active"></span>
-                                    Activa
-                                </td>
-
-                                <td>
-                                    <div class="config-table-actions">
-                                        <button class="config-btn-table" type="button">
-                                            <span class="material-symbols-outlined">edit</span>
-                                            Editar
-                                        </button>
-
-                                        <button class="config-btn-table" type="button">
-                                            <span class="material-symbols-outlined">shield</span>
-                                            Permisos
-                                        </button>
-
-                                        <button class="config-btn-icon" type="button">
-                                            <span class="material-symbols-outlined">more_vert</span>
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-
-                        </tbody>
-                    </table>
-                </div>
-
-                <p class="config-table-footer" id="configUsuariosFooter">
-                    Mostrando 2 de 2 usuarios
-                </p>
-
-            </div>
-
-            <!-- SEGURIDAD -->
-            <div class="config-admin-card">
-
-                <div class="config-card-header compact">
-                    <div>
-                        <h3>
+                    <div class="config-summary-card">
+                        <div class="config-summary-icon purple">
                             <span class="material-symbols-outlined">lock</span>
-                            Seguridad
-                        </h3>
-                        <p>Acciones administrativas sobre usuarios seleccionados</p>
+                        </div>
+
+                        <div>
+                            <span>Módulos restringidos</span>
+                            <strong id="configModulosRestringidos">0</strong>
+                            <p>Controlados por permisos</p>
+                        </div>
                     </div>
+
                 </div>
 
-                <div class="config-security-grid">
+                <!-- GESTIÓN DE USUARIOS -->
+                <div class="config-admin-card">
 
-                    <div class="config-security-action">
-                        <div class="config-security-icon danger">
-                            <span class="material-symbols-outlined">person_off</span>
-                        </div>
-
+                    <div class="config-card-header">
                         <div>
-                            <h4>Bloquear usuario</h4>
-                            <p>Bloquea el acceso del usuario sin eliminar su información.</p>
+                            <h3>
+                                <span class="material-symbols-outlined">group</span>
+                                Gestión de usuarios
+                            </h3>
+                            <p>Administra usuarios, roles y estado de cuenta</p>
                         </div>
 
-                        <button id="btnBloquearUsuarioConfig" class="config-btn-danger" type="button">
-                            Bloquear
-                        </button>
+                        <div class="config-card-actions">
+                            <button id="btnNuevoUsuarioConfig" class="config-btn-primary" type="button">
+                                <span class="material-symbols-outlined">add</span>
+                                Nuevo usuario
+                            </button>
+
+                            <div class="config-search-box">
+                                <span class="material-symbols-outlined">search</span>
+                                <input 
+                                    type="text" 
+                                    id="configBuscarUsuario"
+                                    placeholder="Buscar usuario..."
+                                >
+                            </div>
+                        </div>
                     </div>
 
-                    <div class="config-security-action">
-                        <div class="config-security-icon warning">
-                            <span class="material-symbols-outlined">person_remove</span>
-                        </div>
+                    <div class="config-users-table-wrap">
+                        <table class="config-users-table">
+                            <thead>
+                                <tr>
+                                    <th>Nombre</th>
+                                    <th>Correo</th>
+                                    <th>Rol</th>
+                                    <th>Estado</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
 
-                        <div>
-                            <h4>Desactivar usuario</h4>
-                            <p>Desactiva la cuenta temporalmente.</p>
-                        </div>
-
-                        <button id="btnDesactivarUsuarioConfig" class="config-btn-warning" type="button">
-                            Desactivar
-                        </button>
+                            <tbody id="configUsuariosBody">
+                                <tr>
+                                    <td colspan="5">
+                                        <div style="padding:16px; color:#9fb0d0;">
+                                            Cargando usuarios...
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
 
-                    <div class="config-security-action">
-                        <div class="config-security-icon purple">
-                            <span class="material-symbols-outlined">lock_reset</span>
+                    <p class="config-table-footer" id="configUsuariosFooter">
+                        Mostrando 0 usuarios
+                    </p>
+
+                </div>
+
+            </div>
+
+            <!-- TAB PERMISOS -->
+            <div class="config-tab-panel" data-config-panel="permisos">
+
+                <div class="config-admin-card config-permisos-card">
+
+                    <div class="config-card-header compact">
+                        <div>
+                            <h3>
+                                <span class="material-symbols-outlined">shield</span>
+                                Permisos detallados
+                            </h3>
+                            <p>Define qué puede ver y qué puede hacer el usuario seleccionado dentro del sistema</p>
                         </div>
+                    </div>
+
+                    <div class="config-selected-user" id="configUsuarioSeleccionado">
+                        <div class="config-user-avatar">U</div>
 
                         <div>
-                            <h4>Restablecer contraseña</h4>
-                            <p>Prepara el restablecimiento de acceso del usuario.</p>
+                            <strong id="configPermisoNombre">Usuario seleccionado</strong>
+                            <span id="configPermisoCorreo">correo@empresa.cl</span>
+                        </div>
+                    </div>
+
+                    <!-- MATRIZ DE PERMISOS -->
+                    <div class="config-permission-matrix">
+
+                        <div class="config-permission-head">
+                            <span>Módulo</span>
+                            <span>Ver</span>
+                            <span>Crear</span>
+                            <span>Editar</span>
+                            <span>Eliminar</span>
+                            <span>Exportar</span>
                         </div>
 
-                        <button id="btnResetPasswordUsuarioConfig" class="config-btn-purple" type="button">
-                            Restablecer
-                        </button>
+                        <!-- DASHBOARD -->
+                        <div class="config-permission-row" data-modulo="dashboard">
+                            <div class="config-permission-module">
+                                <span class="material-symbols-outlined">dashboard</span>
+                                Dashboard
+                            </div>
+
+                            <label><input type="checkbox" data-modulo="dashboard" data-accion="ver"></label>
+                            <label><input type="checkbox" data-modulo="dashboard" data-accion="crear" disabled></label>
+                            <label><input type="checkbox" data-modulo="dashboard" data-accion="editar" disabled></label>
+                            <label><input type="checkbox" data-modulo="dashboard" data-accion="eliminar" disabled></label>
+                            <label><input type="checkbox" data-modulo="dashboard" data-accion="exportar" disabled></label>
+                        </div>
+
+                        <!-- MONITOREO -->
+                        <div class="config-permission-row" data-modulo="monitoreo">
+                            <div class="config-permission-module">
+                                <span class="material-symbols-outlined">monitor_heart</span>
+                                Monitoreo
+                            </div>
+
+                            <label><input type="checkbox" data-modulo="monitoreo" data-accion="ver"></label>
+                            <label><input type="checkbox" data-modulo="monitoreo" data-accion="crear"></label>
+                            <label><input type="checkbox" data-modulo="monitoreo" data-accion="editar"></label>
+                            <label><input type="checkbox" data-modulo="monitoreo" data-accion="eliminar"></label>
+                            <label><input type="checkbox" data-modulo="monitoreo" data-accion="exportar"></label>
+                        </div>
+
+                        <!-- PRODUCTOS -->
+                        <div class="config-permission-row" data-modulo="productos">
+                            <div class="config-permission-module">
+                                <span class="material-symbols-outlined">inventory_2</span>
+                                Productos
+                            </div>
+
+                            <label><input type="checkbox" data-modulo="productos" data-accion="ver"></label>
+                            <label><input type="checkbox" data-modulo="productos" data-accion="crear"></label>
+                            <label><input type="checkbox" data-modulo="productos" data-accion="editar"></label>
+                            <label><input type="checkbox" data-modulo="productos" data-accion="eliminar"></label>
+                            <label><input type="checkbox" data-modulo="productos" data-accion="exportar"></label>
+                        </div>
+
+                        <!-- DOCUMENTACIÓN -->
+                        <div class="config-permission-row" data-modulo="documentacion">
+                            <div class="config-permission-module">
+                                <span class="material-symbols-outlined">description</span>
+                                Documentación
+                            </div>
+
+                            <label><input type="checkbox" data-modulo="documentacion" data-accion="ver"></label>
+                            <label><input type="checkbox" data-modulo="documentacion" data-accion="crear" disabled></label>
+                            <label><input type="checkbox" data-modulo="documentacion" data-accion="editar" disabled></label>
+                            <label><input type="checkbox" data-modulo="documentacion" data-accion="eliminar" disabled></label>
+                            <label><input type="checkbox" data-modulo="documentacion" data-accion="exportar"></label>
+                        </div>
+
+                        <!-- FLUJO PROCESO -->
+                        <div class="config-permission-row" data-modulo="flujo-proceso">
+                            <div class="config-permission-module">
+                                <span class="material-symbols-outlined">share</span>
+                                Flujo Proceso
+                            </div>
+
+                            <label><input type="checkbox" data-modulo="flujo-proceso" data-accion="ver"></label>
+                            <label><input type="checkbox" data-modulo="flujo-proceso" data-accion="crear"></label>
+                            <label><input type="checkbox" data-modulo="flujo-proceso" data-accion="editar"></label>
+                            <label><input type="checkbox" data-modulo="flujo-proceso" data-accion="eliminar"></label>
+                            <label><input type="checkbox" data-modulo="flujo-proceso" data-accion="exportar"></label>
+                        </div>
+
+                        <!-- ESTADOS -->
+                        <div class="config-permission-row" data-modulo="estados">
+                            <div class="config-permission-module">
+                                <span class="material-symbols-outlined">assignment_turned_in</span>
+                                Estados
+                            </div>
+
+                            <label><input type="checkbox" data-modulo="estados" data-accion="ver"></label>
+                            <label><input type="checkbox" data-modulo="estados" data-accion="crear" disabled></label>
+                            <label><input type="checkbox" data-modulo="estados" data-accion="editar"></label>
+                            <label><input type="checkbox" data-modulo="estados" data-accion="eliminar" disabled></label>
+                            <label><input type="checkbox" data-modulo="estados" data-accion="exportar"></label>
+                        </div>
+
+                        <!-- PERFIL -->
+                        <div class="config-permission-row" data-modulo="perfil">
+                            <div class="config-permission-module">
+                                <span class="material-symbols-outlined">person</span>
+                                Perfil
+                            </div>
+
+                            <label><input type="checkbox" data-modulo="perfil" data-accion="ver" checked disabled></label>
+                            <label><input type="checkbox" data-modulo="perfil" data-accion="crear" disabled></label>
+                            <label><input type="checkbox" data-modulo="perfil" data-accion="editar"></label>
+                            <label><input type="checkbox" data-modulo="perfil" data-accion="eliminar" disabled></label>
+                            <label><input type="checkbox" data-modulo="perfil" data-accion="exportar" disabled></label>
+                        </div>
+
+                        <!-- CONFIGURACIÓN -->
+                        <div class="config-permission-row" data-modulo="configuracion">
+                            <div class="config-permission-module">
+                                <span class="material-symbols-outlined">settings</span>
+                                Configuración
+                            </div>
+
+                            <label><input type="checkbox" data-modulo="configuracion" data-accion="ver"></label>
+                            <label><input type="checkbox" data-modulo="configuracion" data-accion="crear"></label>
+                            <label><input type="checkbox" data-modulo="configuracion" data-accion="editar"></label>
+                            <label><input type="checkbox" data-modulo="configuracion" data-accion="eliminar"></label>
+                            <label><input type="checkbox" data-modulo="configuracion" data-accion="exportar"></label>
+                        </div>
+
+                    </div>
+
+                    <button id="btnGuardarPermisosConfig" class="config-btn-save" type="button">
+                        <span class="material-symbols-outlined">lock</span>
+                        Guardar permisos detallados
+                    </button>
+
+                </div>
+
+            </div>
+
+            <!-- TAB SEGURIDAD -->
+            <div class="config-tab-panel" data-config-panel="seguridad">
+
+                <div class="config-admin-card">
+
+                    <div class="config-card-header compact">
+                        <div>
+                            <h3>
+                                <span class="material-symbols-outlined">lock</span>
+                                Seguridad
+                            </h3>
+                            <p>Acciones administrativas sobre el usuario seleccionado</p>
+                        </div>
+                    </div>
+
+                    <div class="config-selected-user config-security-selected-user">
+                        <div class="config-user-avatar">U</div>
+
+                        <div>
+                            <strong id="configSeguridadNombre">Usuario seleccionado</strong>
+                            <span id="configSeguridadCorreo">correo@empresa.cl</span>
+                        </div>
+                    </div>
+
+                    <div class="config-security-grid">
+
+                        <div class="config-security-action">
+                            <div class="config-security-icon danger">
+                                <span class="material-symbols-outlined">person_off</span>
+                            </div>
+
+                            <div>
+                                <h4>Bloquear usuario</h4>
+                                <p>Bloquea el acceso del usuario sin eliminar su información.</p>
+                            </div>
+
+                            <button id="btnBloquearUsuarioConfig" class="config-btn-danger" type="button">
+                                Bloquear
+                            </button>
+                        </div>
+
+                        <div class="config-security-action">
+                            <div class="config-security-icon warning">
+                                <span class="material-symbols-outlined">person_remove</span>
+                            </div>
+
+                            <div>
+                                <h4>Desactivar usuario</h4>
+                                <p>Desactiva la cuenta temporalmente.</p>
+                            </div>
+
+                            <button id="btnDesactivarUsuarioConfig" class="config-btn-warning" type="button">
+                                Desactivar
+                            </button>
+                        </div>
+
+                        <div class="config-security-action">
+                            <div class="config-security-icon purple">
+                                <span class="material-symbols-outlined">lock_reset</span>
+                            </div>
+
+                            <div>
+                                <h4>Restablecer contraseña</h4>
+                                <p>Define una nueva contraseña para el usuario seleccionado.</p>
+                            </div>
+
+                            <button id="btnResetPasswordUsuarioConfig" class="config-btn-purple" type="button">
+                                Restablecer
+                            </button>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- TAB SISTEMA -->
+            <div class="config-tab-panel" data-config-panel="sistema">
+
+                <div class="config-admin-card">
+
+                    <div class="config-card-header compact">
+                        <div>
+                            <h3>
+                                <span class="material-symbols-outlined">desktop_windows</span>
+                                Sistema
+                            </h3>
+                            <p>Estado general de IRONIX</p>
+                        </div>
+                    </div>
+
+                    <div class="config-system-list">
+                        <p>
+                            <span class="material-symbols-outlined">domain</span>
+                            <strong>Empresa:</strong>
+                            LAGMET
+                        </p>
+
+                        <p>
+                            <span class="material-symbols-outlined">verified</span>
+                            <strong>Versión:</strong>
+                            1.0
+                        </p>
+
+                        <p>
+                            <span class="material-symbols-outlined">database</span>
+                            <strong>Base de datos:</strong>
+                            <span class="config-ok">Conectada</span>
+                        </p>
+
+                        <p>
+                            <span class="material-symbols-outlined">monitoring</span>
+                            <strong>Estado general:</strong>
+                            <span class="config-ok">Operativo</span>
+                        </p>
                     </div>
 
                 </div>
@@ -288,216 +433,16 @@
 
         </div>
 
-        <!-- COLUMNA DERECHA -->
-        <div class="config-admin-right">
-
-            <!-- PERMISOS RÁPIDOS -->
-            <div class="config-admin-card">
-
-                <div class="config-card-header compact">
-                    <div>
-                        <h3>
-                            <span class="material-symbols-outlined">shield</span>
-                            Permisos rápidos
-                        </h3>
-                        <p>Define qué puede ver el usuario seleccionado</p>
-                    </div>
-                </div>
-
-                <div class="config-selected-user" id="configUsuarioSeleccionado">
-                    <div class="config-user-avatar">P</div>
-
-                    <div>
-                        <strong id="configPermisoNombre">Patricio Muena</strong>
-                        <span id="configPermisoCorreo">user@gmail.com</span>
-                    </div>
-                </div>
-
-                <!-- MATRIZ DE PERMISOS -->
-<div class="config-permission-matrix">
-
-    <div class="config-permission-head">
-        <span>Módulo</span>
-        <span>Ver</span>
-        <span>Crear</span>
-        <span>Editar</span>
-        <span>Eliminar</span>
-        <span>Exportar</span>
-    </div>
-
-    <!-- DASHBOARD -->
-    <div class="config-permission-row" data-modulo="dashboard">
-        <div class="config-permission-module">
-            <span class="material-symbols-outlined">dashboard</span>
-            Dashboard
-        </div>
-
-        <label><input type="checkbox" data-modulo="dashboard" data-accion="ver"></label>
-        <label><input type="checkbox" data-modulo="dashboard" data-accion="crear" disabled></label>
-        <label><input type="checkbox" data-modulo="dashboard" data-accion="editar" disabled></label>
-        <label><input type="checkbox" data-modulo="dashboard" data-accion="eliminar" disabled></label>
-        <label><input type="checkbox" data-modulo="dashboard" data-accion="exportar" disabled></label>
-    </div>
-
-    <!-- MONITOREO -->
-    <div class="config-permission-row" data-modulo="monitoreo">
-        <div class="config-permission-module">
-            <span class="material-symbols-outlined">monitor_heart</span>
-            Monitoreo
-        </div>
-
-        <label><input type="checkbox" data-modulo="monitoreo" data-accion="ver"></label>
-        <label><input type="checkbox" data-modulo="monitoreo" data-accion="crear"></label>
-        <label><input type="checkbox" data-modulo="monitoreo" data-accion="editar"></label>
-        <label><input type="checkbox" data-modulo="monitoreo" data-accion="eliminar"></label>
-        <label><input type="checkbox" data-modulo="monitoreo" data-accion="exportar"></label>
-    </div>
-
-    <!-- PRODUCTOS -->
-    <div class="config-permission-row" data-modulo="productos">
-        <div class="config-permission-module">
-            <span class="material-symbols-outlined">inventory_2</span>
-            Productos
-        </div>
-
-        <label><input type="checkbox" data-modulo="productos" data-accion="ver"></label>
-        <label><input type="checkbox" data-modulo="productos" data-accion="crear"></label>
-        <label><input type="checkbox" data-modulo="productos" data-accion="editar"></label>
-        <label><input type="checkbox" data-modulo="productos" data-accion="eliminar"></label>
-        <label><input type="checkbox" data-modulo="productos" data-accion="exportar"></label>
-    </div>
-
-    <!-- DOCUMENTACIÓN -->
-    <div class="config-permission-row" data-modulo="documentacion">
-        <div class="config-permission-module">
-            <span class="material-symbols-outlined">description</span>
-            Documentación
-        </div>
-
-        <label><input type="checkbox" data-modulo="documentacion" data-accion="ver"></label>
-        <label><input type="checkbox" data-modulo="documentacion" data-accion="crear" disabled></label>
-        <label><input type="checkbox" data-modulo="documentacion" data-accion="editar" disabled></label>
-        <label><input type="checkbox" data-modulo="documentacion" data-accion="eliminar" disabled></label>
-        <label><input type="checkbox" data-modulo="documentacion" data-accion="exportar"></label>
-    </div>
-
-    <!-- FLUJO PROCESO -->
-    <div class="config-permission-row" data-modulo="flujo-proceso">
-        <div class="config-permission-module">
-            <span class="material-symbols-outlined">share</span>
-            Flujo Proceso
-        </div>
-
-        <label><input type="checkbox" data-modulo="flujo-proceso" data-accion="ver"></label>
-        <label><input type="checkbox" data-modulo="flujo-proceso" data-accion="crear"></label>
-        <label><input type="checkbox" data-modulo="flujo-proceso" data-accion="editar"></label>
-        <label><input type="checkbox" data-modulo="flujo-proceso" data-accion="eliminar"></label>
-        <label><input type="checkbox" data-modulo="flujo-proceso" data-accion="exportar"></label>
-    </div>
-
-    <!-- ESTADOS -->
-    <div class="config-permission-row" data-modulo="estados">
-        <div class="config-permission-module">
-            <span class="material-symbols-outlined">assignment_turned_in</span>
-            Estados
-        </div>
-
-        <label><input type="checkbox" data-modulo="estados" data-accion="ver"></label>
-        <label><input type="checkbox" data-modulo="estados" data-accion="crear" disabled></label>
-        <label><input type="checkbox" data-modulo="estados" data-accion="editar"></label>
-        <label><input type="checkbox" data-modulo="estados" data-accion="eliminar" disabled></label>
-        <label><input type="checkbox" data-modulo="estados" data-accion="exportar"></label>
-    </div>
-
-    <!-- PERFIL -->
-    <div class="config-permission-row" data-modulo="perfil">
-        <div class="config-permission-module">
-            <span class="material-symbols-outlined">person</span>
-            Perfil
-        </div>
-
-        <label><input type="checkbox" data-modulo="perfil" data-accion="ver" checked disabled></label>
-        <label><input type="checkbox" data-modulo="perfil" data-accion="crear" disabled></label>
-        <label><input type="checkbox" data-modulo="perfil" data-accion="editar"></label>
-        <label><input type="checkbox" data-modulo="perfil" data-accion="eliminar" disabled></label>
-        <label><input type="checkbox" data-modulo="perfil" data-accion="exportar" disabled></label>
-    </div>
-
-    <!-- CONFIGURACIÓN -->
-    <div class="config-permission-row" data-modulo="configuracion">
-        <div class="config-permission-module">
-            <span class="material-symbols-outlined">settings</span>
-            Configuración
-        </div>
-
-        <label><input type="checkbox" data-modulo="configuracion" data-accion="ver"></label>
-        <label><input type="checkbox" data-modulo="configuracion" data-accion="crear"></label>
-        <label><input type="checkbox" data-modulo="configuracion" data-accion="editar"></label>
-        <label><input type="checkbox" data-modulo="configuracion" data-accion="eliminar"></label>
-        <label><input type="checkbox" data-modulo="configuracion" data-accion="exportar"></label>
-    </div>
-
-</div>
-
-<button id="btnGuardarPermisosConfig" class="config-btn-save" type="button">
-    <span class="material-symbols-outlined">lock</span>
-    Guardar permisos detallados
-</button>
-
-            </div>
-
-            <!-- SISTEMA -->
-            <div class="config-admin-card">
-
-                <div class="config-card-header compact">
-                    <div>
-                        <h3>
-                            <span class="material-symbols-outlined">desktop_windows</span>
-                            Sistema
-                        </h3>
-                        <p>Estado general de IRONIX</p>
-                    </div>
-                </div>
-
-                <div class="config-system-list">
-                    <p>
-                        <span class="material-symbols-outlined">domain</span>
-                        <strong>Empresa:</strong>
-                        LAGMET
-                    </p>
-
-                    <p>
-                        <span class="material-symbols-outlined">verified</span>
-                        <strong>Versión:</strong>
-                        1.0
-                    </p>
-
-                    <p>
-                        <span class="material-symbols-outlined">database</span>
-                        <strong>Base de datos:</strong>
-                        <span class="config-ok">Conectada</span>
-                    </p>
-
-                    <p>
-                        <span class="material-symbols-outlined">monitoring</span>
-                        <strong>Estado general:</strong>
-                        <span class="config-ok">Operativo</span>
-                    </p>
-                </div>
-
-            </div>
-
+        <!-- MENSAJE INFERIOR -->
+        <div class="config-admin-note">
+            <span class="material-symbols-outlined">info</span>
+            <p>
+                La sección Configuración solo es visible para administradores o usuarios con permiso temporal.
+            </p>
         </div>
 
     </div>
 
-    <!-- MENSAJE INFERIOR -->
-    <div class="config-admin-note">
-        <span class="material-symbols-outlined">info</span>
-        <p>
-            La sección Configuración solo es visible para administradores o usuarios con permiso temporal.
-        </p>
-    </div>
     <!-- MODAL CREAR / EDITAR USUARIO -->
     <div id="modalNuevoUsuarioConfig" class="config-modal-overlay" hidden>
 
@@ -625,83 +570,81 @@
     </div>
 
     <!-- MODAL RESTABLECER CONTRASEÑA -->
-<div id="modalResetPasswordConfig" class="config-modal-overlay" hidden>
+    <div id="modalResetPasswordConfig" class="config-modal-overlay" hidden>
 
-    <div class="config-modal-card config-modal-small">
+        <div class="config-modal-card config-modal-small">
 
-        <div class="config-modal-header">
-            <div>
-                <h3>
-                    <span class="material-symbols-outlined">lock_reset</span>
-                    Restablecer contraseña
-                </h3>
-                <p>
-                    Define una nueva contraseña para el usuario seleccionado.
-                </p>
-            </div>
-
-            <button id="btnCerrarModalResetPassword" class="config-modal-close" type="button">
-                <span class="material-symbols-outlined">close</span>
-            </button>
-        </div>
-
-        <div class="config-modal-body">
-
-            <div class="config-reset-user-box">
-                <div class="config-user-avatar" id="resetPasswordAvatar">U</div>
-
+            <div class="config-modal-header">
                 <div>
-                    <strong id="resetPasswordNombre">Usuario seleccionado</strong>
-                    <span id="resetPasswordCorreo">correo@empresa.cl</span>
-                </div>
-            </div>
-
-            <div class="config-modal-grid config-modal-grid-one">
-
-                <div class="config-modal-field">
-                    <label for="resetPasswordNueva">Nueva contraseña</label>
-                    <input 
-                        type="password" 
-                        id="resetPasswordNueva"
-                        placeholder="Mínimo 6 caracteres"
-                    >
+                    <h3>
+                        <span class="material-symbols-outlined">lock_reset</span>
+                        Restablecer contraseña
+                    </h3>
+                    <p>
+                        Define una nueva contraseña para el usuario seleccionado.
+                    </p>
                 </div>
 
-                <div class="config-modal-field">
-                    <label for="resetPasswordConfirmar">Confirmar contraseña</label>
-                    <input 
-                        type="password" 
-                        id="resetPasswordConfirmar"
-                        placeholder="Repite la nueva contraseña"
-                    >
+                <button id="btnCerrarModalResetPassword" class="config-modal-close" type="button">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+
+            <div class="config-modal-body">
+
+                <div class="config-reset-user-box">
+                    <div class="config-user-avatar" id="resetPasswordAvatar">U</div>
+
+                    <div>
+                        <strong id="resetPasswordNombre">Usuario seleccionado</strong>
+                        <span id="resetPasswordCorreo">correo@empresa.cl</span>
+                    </div>
+                </div>
+
+                <div class="config-modal-grid config-modal-grid-one">
+
+                    <div class="config-modal-field">
+                        <label for="resetPasswordNueva">Nueva contraseña</label>
+                        <input 
+                            type="password" 
+                            id="resetPasswordNueva"
+                            placeholder="Mínimo 6 caracteres"
+                        >
+                    </div>
+
+                    <div class="config-modal-field">
+                        <label for="resetPasswordConfirmar">Confirmar contraseña</label>
+                        <input 
+                            type="password" 
+                            id="resetPasswordConfirmar"
+                            placeholder="Repite la nueva contraseña"
+                        >
+                    </div>
+
+                </div>
+
+                <div class="config-modal-alert">
+                    <span class="material-symbols-outlined">warning</span>
+                    <p>
+                        La contraseña anterior dejará de funcionar inmediatamente después de guardar el cambio.
+                    </p>
                 </div>
 
             </div>
 
-            <div class="config-modal-alert">
-                <span class="material-symbols-outlined">warning</span>
-                <p>
-                    La contraseña anterior dejará de funcionar inmediatamente después de guardar el cambio.
-                </p>
+            <div class="config-modal-footer">
+                <button id="btnCancelarResetPassword" class="config-btn-modal-secondary" type="button">
+                    Cancelar
+                </button>
+
+                <button id="btnGuardarResetPassword" class="config-btn-modal-primary" type="button">
+                    <span class="material-symbols-outlined">save</span>
+                    Restablecer contraseña
+                </button>
             </div>
 
-        </div>
-
-        <div class="config-modal-footer">
-            <button id="btnCancelarResetPassword" class="config-btn-modal-secondary" type="button">
-                Cancelar
-            </button>
-
-            <button id="btnGuardarResetPassword" class="config-btn-modal-primary" type="button">
-                <span class="material-symbols-outlined">save</span>
-                Restablecer contraseña
-            </button>
         </div>
 
     </div>
-
-</div>
-
-</div>
 
 </div>

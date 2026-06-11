@@ -291,17 +291,32 @@ async function seleccionarUsuarioConfiguracion(usuarioId) {
 ========================= */
 
 function pintarUsuarioSeleccionadoConfig(usuario) {
-    const contenedor = document.getElementById("configUsuarioSeleccionado");
+    const contenedorPermisos = document.getElementById("configUsuarioSeleccionado");
 
-    if (!contenedor || !usuario) return;
+    if (contenedorPermisos && usuario) {
+        const avatarPermisos = contenedorPermisos.querySelector(".config-user-avatar");
+        const nombrePermisos = document.getElementById("configPermisoNombre");
+        const correoPermisos = document.getElementById("configPermisoCorreo");
 
-    const avatar = contenedor.querySelector(".config-user-avatar");
-    const nombre = document.getElementById("configPermisoNombre");
-    const correo = document.getElementById("configPermisoCorreo");
+        if (avatarPermisos) avatarPermisos.textContent = obtenerInicialUsuarioConfig(usuario.nombre);
+        if (nombrePermisos) nombrePermisos.textContent = usuario.nombre || "Usuario";
+        if (correoPermisos) correoPermisos.textContent = usuario.correo || "Sin correo";
+    }
 
-    if (avatar) avatar.textContent = obtenerInicialUsuarioConfig(usuario.nombre);
-    if (nombre) nombre.textContent = usuario.nombre || "Usuario";
-    if (correo) correo.textContent = usuario.correo || "Sin correo";
+    /*
+        También actualiza el usuario seleccionado del tab Seguridad.
+    */
+    const contenedorSeguridad = document.querySelector(".config-security-selected-user");
+
+    if (contenedorSeguridad && usuario) {
+        const avatarSeguridad = contenedorSeguridad.querySelector(".config-user-avatar");
+        const nombreSeguridad = document.getElementById("configSeguridadNombre");
+        const correoSeguridad = document.getElementById("configSeguridadCorreo");
+
+        if (avatarSeguridad) avatarSeguridad.textContent = obtenerInicialUsuarioConfig(usuario.nombre);
+        if (nombreSeguridad) nombreSeguridad.textContent = usuario.nombre || "Usuario";
+        if (correoSeguridad) correoSeguridad.textContent = usuario.correo || "Sin correo";
+    }
 }
 
 /* =========================
@@ -979,29 +994,30 @@ async function restablecerPasswordUsuarioConfig() {
 ========================= */
 
 function enfocarPanelPermisosConfig() {
-    const usuarioSeleccionado = document.getElementById("configUsuarioSeleccionado");
-
-    if (!usuarioSeleccionado) return;
-
-    const panelPermisos = usuarioSeleccionado.closest(".config-admin-card");
-
-    if (!panelPermisos) return;
-
     activarTabConfiguracion("permisos");
 
-    panelPermisos.scrollIntoView({
-        behavior: "smooth",
-        block: "center",
-        inline: "nearest"
-    });
-
-    panelPermisos.classList.add("config-permisos-focus");
-
     setTimeout(() => {
-        panelPermisos.classList.remove("config-permisos-focus");
-    }, 1300);
-}
+        const usuarioSeleccionado = document.getElementById("configUsuarioSeleccionado");
 
+        if (!usuarioSeleccionado) return;
+
+        const panelPermisos = usuarioSeleccionado.closest(".config-admin-card");
+
+        if (!panelPermisos) return;
+
+        panelPermisos.scrollIntoView({
+            behavior: "smooth",
+            block: "center",
+            inline: "nearest"
+        });
+
+        panelPermisos.classList.add("config-permisos-focus");
+
+        setTimeout(() => {
+            panelPermisos.classList.remove("config-permisos-focus");
+        }, 1300);
+    }, 80);
+}
 /* =========================
    ACTIVAR TAB VISUAL
 ========================= */
@@ -1197,11 +1213,21 @@ function enfocarPanelPermisosConfig() {
 }
 
 function activarTabConfiguracion(tabNombre) {
+    if (!tabNombre) return;
+
     document.querySelectorAll(".config-admin-tab").forEach(tab => {
         tab.classList.remove("active");
 
         if (tab.dataset.configTab === tabNombre) {
             tab.classList.add("active");
+        }
+    });
+
+    document.querySelectorAll(".config-tab-panel").forEach(panel => {
+        panel.classList.remove("active");
+
+        if (panel.dataset.configPanel === tabNombre) {
+            panel.classList.add("active");
         }
     });
 }
@@ -1385,7 +1411,7 @@ document.addEventListener("keydown", function(e) {
 });
 
 /* =========================
-   TABS VISUALES
+   TABS CONFIGURACIÓN
 ========================= */
 
 document.addEventListener("click", function(e) {
@@ -1393,11 +1419,9 @@ document.addEventListener("click", function(e) {
 
     if (!tab) return;
 
-    document.querySelectorAll(".config-admin-tab").forEach(item => {
-        item.classList.remove("active");
-    });
+    const tabNombre = tab.dataset.configTab;
 
-    tab.classList.add("active");
+    activarTabConfiguracion(tabNombre);
 });
 
 /* =========================
@@ -1477,7 +1501,6 @@ window.abrirModalEditarUsuarioConfig = abrirModalEditarUsuarioConfig;
 window.cerrarModalNuevoUsuarioConfig = cerrarModalNuevoUsuarioConfig;
 window.crearUsuarioConfiguracion = crearUsuarioConfiguracion;
 window.actualizarUsuarioAdminConfiguracion = actualizarUsuarioAdminConfiguracion;
-window.enfocarPanelPermisosConfig = enfocarPanelPermisosConfig;
 window.enfocarPanelPermisosConfig = enfocarPanelPermisosConfig;
 window.abrirModalResetPasswordConfig = abrirModalResetPasswordConfig;
 window.cerrarModalResetPasswordConfig = cerrarModalResetPasswordConfig;
