@@ -523,23 +523,80 @@ async function actualizarEstadoUsuarioConfiguracion(nuevoEstado) {
 }
 
 /* =========================
-   MODAL NUEVO USUARIO
+   MODAL CREAR / EDITAR USUARIO
 ========================= */
 
-function abrirModalNuevoUsuarioConfig() {
+function prepararModalUsuarioConfig(modo, usuario = null) {
     const modal = document.getElementById("modalNuevoUsuarioConfig");
+    const inputModo = document.getElementById("modalUsuarioModo");
+    const inputId = document.getElementById("modalUsuarioId");
 
-    if (!modal) {
-        alert("No se encontró el modal de nuevo usuario");
-        return;
+    if (!modal || !inputModo || !inputId) {
+        alert("No se encontró la estructura del modal de usuario");
+        return false;
     }
 
-    limpiarFormularioNuevoUsuarioConfig();
+    const esEditar = modo === "editar";
+
+    inputModo.value = esEditar ? "editar" : "crear";
+    inputId.value = esEditar && usuario ? usuario.id : "";
+
+    actualizarTextoConfig("modalUsuarioTitulo", esEditar ? "Editar usuario" : "Nuevo usuario");
+    actualizarTextoConfig(
+        "modalUsuarioDescripcion",
+        esEditar
+            ? "Modifica los datos administrativos del usuario seleccionado."
+            : "Crea una nueva cuenta de acceso para IRONIX."
+    );
+    actualizarTextoConfig(
+        "modalUsuarioInfo",
+        esEditar
+            ? "Si cambias el rol del usuario, sus permisos base se recalcularán automáticamente."
+            : "Al crear un usuario, se generarán automáticamente sus permisos iniciales según el rol seleccionado."
+    );
+    actualizarTextoConfig("modalUsuarioBotonTexto", esEditar ? "Guardar cambios" : "Crear usuario");
+
+    const campoPassword = document.getElementById("campoPasswordNuevoUsuario");
+
+    if (campoPassword) {
+        campoPassword.hidden = esEditar;
+    }
+
+    if (esEditar && usuario) {
+        asignarValorConfig("nuevoUsuarioNombre", usuario.nombre || "");
+        asignarValorConfig("nuevoUsuarioCorreo", usuario.correo || "");
+        asignarValorConfig("nuevoUsuarioPassword", "");
+        asignarValorConfig("nuevoUsuarioRol", usuario.rol || "usuario");
+        asignarValorConfig("nuevoUsuarioEstado", usuario.estado || "activa");
+        asignarValorConfig("nuevoUsuarioTelefono", usuario.telefono || "");
+        asignarValorConfig("nuevoUsuarioArea", usuario.area || "Producción");
+        asignarValorConfig("nuevoUsuarioIdioma", usuario.idioma || "Español / Chile");
+    } else {
+        limpiarFormularioUsuarioConfig();
+    }
+
     modal.hidden = false;
 
     setTimeout(() => {
         document.getElementById("nuevoUsuarioNombre")?.focus();
     }, 80);
+
+    return true;
+}
+
+function abrirModalNuevoUsuarioConfig() {
+    prepararModalUsuarioConfig("crear");
+}
+
+function abrirModalEditarUsuarioConfig(usuarioId) {
+    const usuario = configUsuarios.find(item => Number(item.id) === Number(usuarioId));
+
+    if (!usuario) {
+        alert("No se encontró el usuario seleccionado");
+        return;
+    }
+
+    prepararModalUsuarioConfig("editar", usuario);
 }
 
 function cerrarModalNuevoUsuarioConfig() {
@@ -550,7 +607,7 @@ function cerrarModalNuevoUsuarioConfig() {
     modal.hidden = true;
 }
 
-function limpiarFormularioNuevoUsuarioConfig() {
+function limpiarFormularioUsuarioConfig() {
     asignarValorConfig("nuevoUsuarioNombre", "");
     asignarValorConfig("nuevoUsuarioCorreo", "");
     asignarValorConfig("nuevoUsuarioPassword", "");
@@ -561,8 +618,10 @@ function limpiarFormularioNuevoUsuarioConfig() {
     asignarValorConfig("nuevoUsuarioIdioma", "Español / Chile");
 }
 
-function obtenerDatosNuevoUsuarioConfig() {
+function obtenerDatosModalUsuarioConfig() {
     return {
+        modo: obtenerValorConfig("modalUsuarioModo") || "crear",
+        usuarioId: obtenerValorConfig("modalUsuarioId"),
         nombre: obtenerValorConfig("nuevoUsuarioNombre"),
         correo: obtenerValorConfig("nuevoUsuarioCorreo"),
         password: obtenerValorConfig("nuevoUsuarioPassword"),
@@ -574,9 +633,14 @@ function obtenerDatosNuevoUsuarioConfig() {
     };
 }
 
-function validarNuevoUsuarioConfig(datos) {
-    if (!datos.nombre || !datos.correo || !datos.password) {
-        alert("Completa nombre, correo y contraseña");
+function validarDatosModalUsuarioConfig(datos) {
+    if (!datos.nombre || !datos.correo) {
+        alert("Completa nombre y correo");
+        return false;
+    }
+
+    if (datos.modo === "crear" && !datos.password) {
+        alert("Completa la contraseña inicial");
         return false;
     }
 
@@ -585,7 +649,7 @@ function validarNuevoUsuarioConfig(datos) {
         return false;
     }
 
-    if (datos.password.length < 6) {
+    if (datos.modo === "crear" && datos.password.length < 6) {
         alert("La contraseña debe tener al menos 6 caracteres");
         return false;
     }
@@ -613,7 +677,21 @@ function validarNuevoUsuarioConfig(datos) {
     return true;
 }
 
-async function crearUsuarioConfiguracion() {
+async function guardarModalUsuarioConfig() {
+    const datos = obtenerDatosModalUsuarioConfig();
+
+    if (datos.modo === "editar") {
+        await actualizarUsuarioAdminConfiguracion(datos);
+    } else {
+        await crearUsuarioConfiguracion(datos);
+    }
+}
+
+/* =========================
+   CREAR USUARIO
+========================= */
+
+async function crearUsuarioConfiguracion(datosExternos = null) {
     const admin = obtenerUsuarioConfiguracion();
 
     if (!admin || !admin.id || admin.rol !== "admin") {
@@ -621,9 +699,9 @@ async function crearUsuarioConfiguracion() {
         return;
     }
 
-    const datos = obtenerDatosNuevoUsuarioConfig();
+    const datos = datosExternos || obtenerDatosModalUsuarioConfig();
 
-    if (!validarNuevoUsuarioConfig(datos)) return;
+    if (!validarDatosModalUsuarioConfig({ ...datos, modo: "crear" })) return;
 
     const confirmar = confirm(`¿Deseas crear el usuario "${datos.nombre}"?`);
 
@@ -666,6 +744,99 @@ async function crearUsuarioConfiguracion() {
     } catch (error) {
         console.error("Error creando usuario:", error);
         alert("Error al crear usuario");
+    }
+}
+
+/* =========================
+   EDITAR USUARIO
+========================= */
+
+async function actualizarUsuarioAdminConfiguracion(datos) {
+    const admin = obtenerUsuarioConfiguracion();
+
+    if (!admin || !admin.id || admin.rol !== "admin") {
+        alert("No tienes permisos para editar usuarios");
+        return;
+    }
+
+    if (!datos.usuarioId) {
+        alert("No se recibió el usuario a editar");
+        return;
+    }
+
+    if (!validarDatosModalUsuarioConfig({ ...datos, modo: "editar" })) return;
+
+    const confirmar = confirm(`¿Deseas guardar los cambios de "${datos.nombre}"?`);
+
+    if (!confirmar) return;
+
+    const formData = new FormData();
+    formData.append("admin_id", admin.id);
+    formData.append("usuario_id", datos.usuarioId);
+    formData.append("nombre", datos.nombre);
+    formData.append("correo", datos.correo);
+    formData.append("rol", datos.rol);
+    formData.append("estado", datos.estado);
+    formData.append("telefono", datos.telefono);
+    formData.append("area", datos.area);
+    formData.append("idioma", datos.idioma);
+
+    try {
+        const response = await fetch("php/usuarios/actualizar_usuario_admin.php", {
+            method: "POST",
+            body: formData
+        });
+
+        const data = await response.json();
+
+        console.log("Editar usuario:", data);
+
+        if (!data.success) {
+            alert(data.message || "No se pudo actualizar el usuario");
+            return;
+        }
+
+        alert(data.message || "Usuario actualizado correctamente");
+
+        cerrarModalNuevoUsuarioConfig();
+
+        const usuarioActualizadoId = data.usuario?.id || datos.usuarioId;
+
+        actualizarLocalStorageSiEsUsuarioActualConfig(data.usuario);
+        await listarUsuariosConfiguracion(usuarioActualizadoId);
+
+    } catch (error) {
+        console.error("Error actualizando usuario:", error);
+        alert("Error al actualizar usuario");
+    }
+}
+
+function actualizarLocalStorageSiEsUsuarioActualConfig(usuarioActualizado) {
+    if (!usuarioActualizado) return;
+
+    const user = obtenerUsuarioConfiguracion();
+
+    if (!user || Number(user.id) !== Number(usuarioActualizado.id)) return;
+
+    const actualizado = {
+        ...user,
+        nombre: usuarioActualizado.nombre,
+        email: usuarioActualizado.correo,
+        rol: usuarioActualizado.rol,
+        estado: usuarioActualizado.estado,
+        telefono: usuarioActualizado.telefono,
+        area: usuarioActualizado.area,
+        idioma: usuarioActualizado.idioma
+    };
+
+    localStorage.setItem("user", JSON.stringify(actualizado));
+
+    if (typeof actualizarUsuarioSidebar === "function") {
+        actualizarUsuarioSidebar();
+    }
+
+    if (typeof aplicarPermisosNavegacion === "function") {
+        aplicarPermisosNavegacion();
     }
 }
 
@@ -715,7 +886,7 @@ document.addEventListener("click", async function(e) {
 
     if (btnEditar) {
         await seleccionarUsuarioConfiguracion(btnEditar.dataset.usuarioId);
-        alert("La edición administrativa de usuarios se implementará en el siguiente paso.");
+        abrirModalEditarUsuarioConfig(btnEditar.dataset.usuarioId);
         return;
     }
 
@@ -737,7 +908,7 @@ document.addEventListener("click", async function(e) {
     const btnGuardarNuevo = e.target.closest("#btnGuardarNuevoUsuario");
 
     if (btnGuardarNuevo) {
-        await crearUsuarioConfiguracion();
+        await guardarModalUsuarioConfig();
         return;
     }
 
@@ -897,8 +1068,10 @@ window.seleccionarUsuarioConfiguracion = seleccionarUsuarioConfiguracion;
 window.guardarPermisosConfiguracion = guardarPermisosConfiguracion;
 window.actualizarEstadoUsuarioConfiguracion = actualizarEstadoUsuarioConfiguracion;
 window.abrirModalNuevoUsuarioConfig = abrirModalNuevoUsuarioConfig;
+window.abrirModalEditarUsuarioConfig = abrirModalEditarUsuarioConfig;
 window.cerrarModalNuevoUsuarioConfig = cerrarModalNuevoUsuarioConfig;
 window.crearUsuarioConfiguracion = crearUsuarioConfiguracion;
+window.actualizarUsuarioAdminConfiguracion = actualizarUsuarioAdminConfiguracion;
 
 /* =========================
    DETECTAR CARGA DINÁMICA

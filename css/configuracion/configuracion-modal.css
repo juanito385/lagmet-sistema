@@ -323,3 +323,11 @@
         width: 100%;
     }
 }
+
+/* =========================
+   MODAL - CAMPOS OCULTOS
+========================= */
+
+#configuracion .config-modal-field[hidden] {
+    display: none !important;
+}
