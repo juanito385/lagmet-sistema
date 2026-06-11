@@ -1,3 +1,109 @@
+/* =========================
+   NAVEGACIÓN CON PERMISOS
+========================= */
+
+/* =========================
+   OBTENER USUARIO ACTUAL
+========================= */
+function obtenerUsuarioNavegacion() {
+    try {
+        return JSON.parse(localStorage.getItem("user"));
+    } catch (error) {
+        console.error("Error leyendo usuario en navegación:", error);
+        return null;
+    }
+}
+
+/* =========================
+   VALIDAR PERMISO DE MÓDULO
+========================= */
+function usuarioPuedeVerSeccion(seccion) {
+    const user = obtenerUsuarioNavegacion();
+
+    if (!user) return false;
+
+    /*
+        El admin siempre tiene acceso total.
+    */
+    if (user.rol === "admin") return true;
+
+    /*
+        Perfil siempre debe estar disponible para el usuario logueado,
+        salvo que más adelante decidas bloquearlo explícitamente.
+    */
+    if (seccion === "perfil") return true;
+
+    if (!user.permisos) return false;
+
+    const permiso = user.permisos[seccion];
+
+    if (!permiso) return false;
+
+    return permiso.ver === true;
+}
+
+/* =========================
+   OCULTAR BOTONES SIN PERMISO
+========================= */
+function aplicarPermisosNavegacion() {
+    const user = obtenerUsuarioNavegacion();
+
+    if (!user) return;
+
+    const botones = document.querySelectorAll("button[onclick^=\"showSection\"]");
+
+    botones.forEach(boton => {
+        const onclick = boton.getAttribute("onclick") || "";
+
+        const match = onclick.match(/showSection\('(.+?)'\)/);
+
+        if (!match) return;
+
+        const seccion = match[1];
+
+        if (usuarioPuedeVerSeccion(seccion)) {
+            boton.style.display = "";
+        } else {
+            boton.style.display = "none";
+        }
+    });
+
+    console.log("Permisos de navegación aplicados correctamente:", user.permisos || {});
+}
+
+/* =========================
+   MENSAJE ACCESO DENEGADO
+========================= */
+function mostrarAccesoDenegado(seccion) {
+    const contenido = document.getElementById("contenido");
+
+    if (!contenido) return;
+
+    contenido.innerHTML = `
+        <div class="section active">
+            <div style="
+                padding: 28px;
+                border-radius: 16px;
+                background: rgba(255,255,255,0.06);
+                border: 1px solid rgba(255,70,70,0.35);
+                box-shadow: 0 15px 35px rgba(0,0,0,0.25);
+                color: #fff;
+            ">
+                <h2 style="margin:0 0 10px; color:#ff6b6b;">
+                    Acceso denegado
+                </h2>
+                <p style="margin:0; color:#cfd6e6;">
+                    No tienes permiso para acceder a la sección 
+                    <strong>${seccion}</strong>.
+                </p>
+            </div>
+        </div>
+    `;
+}
+
+/* =========================
+   CARGAR SECCIÓN
+========================= */
 async function showSection(seccion) {
 
     console.log("Cargando sección:", seccion);
@@ -6,6 +112,15 @@ async function showSection(seccion) {
 
     if (!contenido) {
         console.error("No existe el contenedor #contenido");
+        return;
+    }
+
+    /*
+        Bloqueo por permisos antes de cargar la vista.
+    */
+    if (!usuarioPuedeVerSeccion(seccion)) {
+        console.warn("Acceso bloqueado por permisos:", seccion);
+        mostrarAccesoDenegado(seccion);
         return;
     }
 
@@ -43,17 +158,17 @@ async function showSection(seccion) {
 
         if (seccion === "dashboard") {
 
-        if (typeof inicializarFiltrosDashboard === "function") {
+            if (typeof inicializarFiltrosDashboard === "function") {
                 inicializarFiltrosDashboard();
-        }
+            }
 
-        if (typeof inicializarCalendarioDashboard === "function") {
+            if (typeof inicializarCalendarioDashboard === "function") {
                 inicializarCalendarioDashboard();
-        }
+            }
 
-        if (typeof cargarDashboard === "function") {
+            if (typeof cargarDashboard === "function") {
                 await cargarDashboard();
-        }
+            }
 
         }
 
@@ -125,3 +240,24 @@ async function showSection(seccion) {
         `;
     }
 }
+
+/* =========================
+   INICIAR PERMISOS VISUALES
+========================= */
+document.addEventListener("DOMContentLoaded", () => {
+    setTimeout(() => {
+        aplicarPermisosNavegacion();
+    }, 100);
+});
+
+/* =========================
+   REAPLICAR PERMISOS VISUALES
+========================= */
+function refrescarPermisosNavegacion() {
+    setTimeout(() => {
+        aplicarPermisosNavegacion();
+    }, 150);
+}
+
+window.aplicarPermisosNavegacion = aplicarPermisosNavegacion;
+window.refrescarPermisosNavegacion = refrescarPermisosNavegacion;

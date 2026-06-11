@@ -102,6 +102,10 @@ function iniciarApp(cargarDashboard = false) {
 
     actualizarUsuarioSidebar();
 
+    if (typeof aplicarPermisosNavegacion === "function") {
+        aplicarPermisosNavegacion();
+    }
+
     const userTexto = document.getElementById("user");
 
     if (userTexto) {
