@@ -313,70 +313,136 @@
                     </div>
                 </div>
 
-                <div class="config-permission-list">
+                <!-- MATRIZ DE PERMISOS -->
+<div class="config-permission-matrix">
 
-                    <label class="config-permission-item">
-                        <span>
-                            <span class="material-symbols-outlined">dashboard</span>
-                            Dashboard
-                        </span>
-                        <input type="checkbox" data-modulo="dashboard" checked>
-                    </label>
+    <div class="config-permission-head">
+        <span>Módulo</span>
+        <span>Ver</span>
+        <span>Crear</span>
+        <span>Editar</span>
+        <span>Eliminar</span>
+        <span>Exportar</span>
+    </div>
 
-                    <label class="config-permission-item">
-                        <span>
-                            <span class="material-symbols-outlined">monitor_heart</span>
-                            Monitoreo
-                        </span>
-                        <input type="checkbox" data-modulo="monitoreo" checked>
-                    </label>
+    <!-- DASHBOARD -->
+    <div class="config-permission-row" data-modulo="dashboard">
+        <div class="config-permission-module">
+            <span class="material-symbols-outlined">dashboard</span>
+            Dashboard
+        </div>
 
-                    <label class="config-permission-item">
-                        <span>
-                            <span class="material-symbols-outlined">inventory_2</span>
-                            Productos
-                        </span>
-                        <input type="checkbox" data-modulo="productos" checked>
-                    </label>
+        <label><input type="checkbox" data-modulo="dashboard" data-accion="ver"></label>
+        <label><input type="checkbox" data-modulo="dashboard" data-accion="crear" disabled></label>
+        <label><input type="checkbox" data-modulo="dashboard" data-accion="editar" disabled></label>
+        <label><input type="checkbox" data-modulo="dashboard" data-accion="eliminar" disabled></label>
+        <label><input type="checkbox" data-modulo="dashboard" data-accion="exportar" disabled></label>
+    </div>
 
-                    <label class="config-permission-item">
-                        <span>
-                            <span class="material-symbols-outlined">description</span>
-                            Documentación
-                        </span>
-                        <input type="checkbox" data-modulo="documentacion">
-                    </label>
+    <!-- MONITOREO -->
+    <div class="config-permission-row" data-modulo="monitoreo">
+        <div class="config-permission-module">
+            <span class="material-symbols-outlined">monitor_heart</span>
+            Monitoreo
+        </div>
 
-                    <label class="config-permission-item">
-                        <span>
-                            <span class="material-symbols-outlined">share</span>
-                            Flujo Proceso
-                        </span>
-                        <input type="checkbox" data-modulo="flujo-proceso" checked>
-                    </label>
+        <label><input type="checkbox" data-modulo="monitoreo" data-accion="ver"></label>
+        <label><input type="checkbox" data-modulo="monitoreo" data-accion="crear"></label>
+        <label><input type="checkbox" data-modulo="monitoreo" data-accion="editar"></label>
+        <label><input type="checkbox" data-modulo="monitoreo" data-accion="eliminar"></label>
+        <label><input type="checkbox" data-modulo="monitoreo" data-accion="exportar"></label>
+    </div>
 
-                    <label class="config-permission-item">
-                        <span>
-                            <span class="material-symbols-outlined">assignment_turned_in</span>
-                            Estados
-                        </span>
-                        <input type="checkbox" data-modulo="estados" checked>
-                    </label>
+    <!-- PRODUCTOS -->
+    <div class="config-permission-row" data-modulo="productos">
+        <div class="config-permission-module">
+            <span class="material-symbols-outlined">inventory_2</span>
+            Productos
+        </div>
 
-                    <label class="config-permission-item">
-                        <span>
-                            <span class="material-symbols-outlined">settings</span>
-                            Configuración
-                        </span>
-                        <input type="checkbox" data-modulo="configuracion">
-                    </label>
+        <label><input type="checkbox" data-modulo="productos" data-accion="ver"></label>
+        <label><input type="checkbox" data-modulo="productos" data-accion="crear"></label>
+        <label><input type="checkbox" data-modulo="productos" data-accion="editar"></label>
+        <label><input type="checkbox" data-modulo="productos" data-accion="eliminar"></label>
+        <label><input type="checkbox" data-modulo="productos" data-accion="exportar"></label>
+    </div>
 
-                </div>
+    <!-- DOCUMENTACIÓN -->
+    <div class="config-permission-row" data-modulo="documentacion">
+        <div class="config-permission-module">
+            <span class="material-symbols-outlined">description</span>
+            Documentación
+        </div>
 
-                <button id="btnGuardarPermisosConfig" class="config-btn-save" type="button">
-                    <span class="material-symbols-outlined">lock</span>
-                    Guardar permisos
-                </button>
+        <label><input type="checkbox" data-modulo="documentacion" data-accion="ver"></label>
+        <label><input type="checkbox" data-modulo="documentacion" data-accion="crear" disabled></label>
+        <label><input type="checkbox" data-modulo="documentacion" data-accion="editar" disabled></label>
+        <label><input type="checkbox" data-modulo="documentacion" data-accion="eliminar" disabled></label>
+        <label><input type="checkbox" data-modulo="documentacion" data-accion="exportar"></label>
+    </div>
+
+    <!-- FLUJO PROCESO -->
+    <div class="config-permission-row" data-modulo="flujo-proceso">
+        <div class="config-permission-module">
+            <span class="material-symbols-outlined">share</span>
+            Flujo Proceso
+        </div>
+
+        <label><input type="checkbox" data-modulo="flujo-proceso" data-accion="ver"></label>
+        <label><input type="checkbox" data-modulo="flujo-proceso" data-accion="crear"></label>
+        <label><input type="checkbox" data-modulo="flujo-proceso" data-accion="editar"></label>
+        <label><input type="checkbox" data-modulo="flujo-proceso" data-accion="eliminar"></label>
+        <label><input type="checkbox" data-modulo="flujo-proceso" data-accion="exportar"></label>
+    </div>
+
+    <!-- ESTADOS -->
+    <div class="config-permission-row" data-modulo="estados">
+        <div class="config-permission-module">
+            <span class="material-symbols-outlined">assignment_turned_in</span>
+            Estados
+        </div>
+
+        <label><input type="checkbox" data-modulo="estados" data-accion="ver"></label>
+        <label><input type="checkbox" data-modulo="estados" data-accion="crear" disabled></label>
+        <label><input type="checkbox" data-modulo="estados" data-accion="editar"></label>
+        <label><input type="checkbox" data-modulo="estados" data-accion="eliminar" disabled></label>
+        <label><input type="checkbox" data-modulo="estados" data-accion="exportar"></label>
+    </div>
+
+    <!-- PERFIL -->
+    <div class="config-permission-row" data-modulo="perfil">
+        <div class="config-permission-module">
+            <span class="material-symbols-outlined">person</span>
+            Perfil
+        </div>
+
+        <label><input type="checkbox" data-modulo="perfil" data-accion="ver" checked disabled></label>
+        <label><input type="checkbox" data-modulo="perfil" data-accion="crear" disabled></label>
+        <label><input type="checkbox" data-modulo="perfil" data-accion="editar"></label>
+        <label><input type="checkbox" data-modulo="perfil" data-accion="eliminar" disabled></label>
+        <label><input type="checkbox" data-modulo="perfil" data-accion="exportar" disabled></label>
+    </div>
+
+    <!-- CONFIGURACIÓN -->
+    <div class="config-permission-row" data-modulo="configuracion">
+        <div class="config-permission-module">
+            <span class="material-symbols-outlined">settings</span>
+            Configuración
+        </div>
+
+        <label><input type="checkbox" data-modulo="configuracion" data-accion="ver"></label>
+        <label><input type="checkbox" data-modulo="configuracion" data-accion="crear"></label>
+        <label><input type="checkbox" data-modulo="configuracion" data-accion="editar"></label>
+        <label><input type="checkbox" data-modulo="configuracion" data-accion="eliminar"></label>
+        <label><input type="checkbox" data-modulo="configuracion" data-accion="exportar"></label>
+    </div>
+
+</div>
+
+<button id="btnGuardarPermisosConfig" class="config-btn-save" type="button">
+    <span class="material-symbols-outlined">lock</span>
+    Guardar permisos detallados
+</button>
 
             </div>
 

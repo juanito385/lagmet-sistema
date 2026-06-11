@@ -389,23 +389,52 @@ async function cargarPermisosUsuarioConfiguracion(usuarioId) {
 function pintarPermisosRapidosReales(usuario, permisos) {
     if (!usuario) return;
 
-    const checks = document.querySelectorAll(".config-permission-item input[type='checkbox']");
+    const checks = document.querySelectorAll(
+        ".config-permission-row input[type='checkbox']"
+    );
 
     checks.forEach(check => {
         const modulo = check.dataset.modulo;
+        const accion = check.dataset.accion;
 
+        if (!modulo || !accion) return;
+
+        /*
+            Admin siempre mantiene permisos completos.
+        */
         if (usuario.rol === "admin") {
             check.checked = true;
             check.disabled = true;
             return;
         }
 
+        const accionDisponible = accionDisponiblePermisosConfig(modulo, accion);
+
+        /*
+            Acciones no aplicables quedan bloqueadas.
+        */
+        if (!accionDisponible) {
+            check.checked = false;
+            check.disabled = true;
+            return;
+        }
+
+        /*
+            Perfil siempre debe estar visible.
+        */
+        if (modulo === "perfil" && accion === "ver") {
+            check.checked = true;
+            check.disabled = true;
+            return;
+        }
+
+        const permisoModulo = permisos[modulo] || {};
+
+        check.checked = permisoModulo[accion] === true;
         check.disabled = false;
-
-        const permisoModulo = permisos[modulo];
-
-        check.checked = permisoModulo && permisoModulo.ver === true;
     });
+
+    actualizarEstadoTodasFilasPermisosConfig();
 }
 
 /* =========================
@@ -423,15 +452,7 @@ async function guardarPermisosConfiguracion() {
         return;
     }
 
-    const checks = document.querySelectorAll(".config-permission-item input[type='checkbox']");
-    const permisos = {};
-
-    checks.forEach(check => {
-        const modulo = check.dataset.modulo;
-        permisos[modulo] = check.checked === true;
-    });
-
-    permisos["perfil"] = true;
+    const permisos = obtenerPermisosDetalladosDesdeMatrizConfig();
 
     const formData = new FormData();
     formData.append("usuario_id", configUsuarioSeleccionado.id);
@@ -461,7 +482,6 @@ async function guardarPermisosConfiguracion() {
         alert("Error al guardar permisos");
     }
 }
-
 /* =========================
    ACTUALIZAR ESTADO USUARIO
 ========================= */
@@ -955,6 +975,238 @@ async function restablecerPasswordUsuarioConfig() {
 }
 
 /* =========================
+   ENFOCAR PANEL DE PERMISOS
+========================= */
+
+function enfocarPanelPermisosConfig() {
+    const usuarioSeleccionado = document.getElementById("configUsuarioSeleccionado");
+
+    if (!usuarioSeleccionado) return;
+
+    const panelPermisos = usuarioSeleccionado.closest(".config-admin-card");
+
+    if (!panelPermisos) return;
+
+    activarTabConfiguracion("permisos");
+
+    panelPermisos.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+        inline: "nearest"
+    });
+
+    panelPermisos.classList.add("config-permisos-focus");
+
+    setTimeout(() => {
+        panelPermisos.classList.remove("config-permisos-focus");
+    }, 1300);
+}
+
+/* =========================
+   ACTIVAR TAB VISUAL
+========================= */
+
+function activarTabConfiguracion(tabNombre) {
+    document.querySelectorAll(".config-admin-tab").forEach(tab => {
+        tab.classList.remove("active");
+
+        if (tab.dataset.configTab === tabNombre) {
+            tab.classList.add("active");
+        }
+    });
+}
+
+/* =========================
+   PERMISOS DETALLADOS - REGLAS
+========================= */
+
+function accionesDisponiblesModuloConfig(modulo) {
+    const reglas = {
+        "dashboard": ["ver"],
+
+        "monitoreo": ["ver", "crear", "editar", "eliminar", "exportar"],
+
+        "productos": ["ver", "crear", "editar", "eliminar", "exportar"],
+
+        "documentacion": ["ver", "exportar"],
+
+        "flujo-proceso": ["ver", "crear", "editar", "eliminar", "exportar"],
+
+        "estados": ["ver", "editar", "exportar"],
+
+        "perfil": ["ver", "editar"],
+
+        "configuracion": ["ver", "crear", "editar", "eliminar", "exportar"]
+    };
+
+    return reglas[modulo] || ["ver"];
+}
+
+function accionDisponiblePermisosConfig(modulo, accion) {
+    return accionesDisponiblesModuloConfig(modulo).includes(accion);
+}
+
+/* =========================
+   OBTENER PERMISOS DESDE MATRIZ
+========================= */
+
+function obtenerPermisosDetalladosDesdeMatrizConfig() {
+    const modulos = [
+        "dashboard",
+        "monitoreo",
+        "productos",
+        "documentacion",
+        "flujo-proceso",
+        "estados",
+        "perfil",
+        "configuracion"
+    ];
+
+    const acciones = [
+        "ver",
+        "crear",
+        "editar",
+        "eliminar",
+        "exportar"
+    ];
+
+    const permisos = {};
+
+    modulos.forEach(modulo => {
+        permisos[modulo] = {};
+
+        acciones.forEach(accion => {
+            const check = document.querySelector(
+                `.config-permission-row input[data-modulo="${modulo}"][data-accion="${accion}"]`
+            );
+
+            if (!check) {
+                permisos[modulo][accion] = false;
+                return;
+            }
+
+            if (!accionDisponiblePermisosConfig(modulo, accion)) {
+                permisos[modulo][accion] = false;
+                return;
+            }
+
+            permisos[modulo][accion] = check.checked === true;
+        });
+
+        /*
+            Si no puede ver el módulo, tampoco puede ejecutar acciones internas.
+        */
+        if (!permisos[modulo].ver) {
+            permisos[modulo].crear = false;
+            permisos[modulo].editar = false;
+            permisos[modulo].eliminar = false;
+            permisos[modulo].exportar = false;
+        }
+    });
+
+    /*
+        Perfil siempre visible para el usuario logueado.
+    */
+    permisos["perfil"].ver = true;
+
+    return permisos;
+}
+
+/* =========================
+   ESTADO VISUAL DE FILAS
+========================= */
+
+function actualizarEstadoTodasFilasPermisosConfig() {
+    document.querySelectorAll(".config-permission-row").forEach(row => {
+        actualizarEstadoFilaPermisosConfig(row.dataset.modulo);
+    });
+}
+
+function actualizarEstadoFilaPermisosConfig(modulo) {
+    if (!modulo) return;
+
+    if (configUsuarioSeleccionado && configUsuarioSeleccionado.rol === "admin") {
+        return;
+    }
+
+    const checkVer = document.querySelector(
+        `.config-permission-row input[data-modulo="${modulo}"][data-accion="ver"]`
+    );
+
+    const puedeVer = checkVer ? checkVer.checked === true : false;
+
+    const checksAcciones = document.querySelectorAll(
+        `.config-permission-row input[data-modulo="${modulo}"]`
+    );
+
+    checksAcciones.forEach(check => {
+        const accion = check.dataset.accion;
+
+        if (!accion) return;
+
+        const accionDisponible = accionDisponiblePermisosConfig(modulo, accion);
+
+        if (!accionDisponible) {
+            check.checked = false;
+            check.disabled = true;
+            return;
+        }
+
+        if (modulo === "perfil" && accion === "ver") {
+            check.checked = true;
+            check.disabled = true;
+            return;
+        }
+
+        if (accion !== "ver" && !puedeVer) {
+            check.checked = false;
+            check.disabled = true;
+            return;
+        }
+
+        check.disabled = false;
+    });
+}
+
+/* =========================
+   ENFOCAR PANEL PERMISOS
+========================= */
+
+function enfocarPanelPermisosConfig() {
+    const usuarioSeleccionado = document.getElementById("configUsuarioSeleccionado");
+
+    if (!usuarioSeleccionado) return;
+
+    const panelPermisos = usuarioSeleccionado.closest(".config-admin-card");
+
+    if (!panelPermisos) return;
+
+    activarTabConfiguracion("permisos");
+
+    panelPermisos.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+        inline: "nearest"
+    });
+
+    panelPermisos.classList.add("config-permisos-focus");
+
+    setTimeout(() => {
+        panelPermisos.classList.remove("config-permisos-focus");
+    }, 1300);
+}
+
+function activarTabConfiguracion(tabNombre) {
+    document.querySelectorAll(".config-admin-tab").forEach(tab => {
+        tab.classList.remove("active");
+
+        if (tab.dataset.configTab === tabNombre) {
+            tab.classList.add("active");
+        }
+    });
+}
+
+/* =========================
    BUSCADOR
 ========================= */
 
@@ -993,6 +1245,7 @@ document.addEventListener("click", async function(e) {
 
     if (btnPermisos) {
         await seleccionarUsuarioConfiguracion(btnPermisos.dataset.usuarioId);
+        enfocarPanelPermisosConfig();
         return;
     }
 
@@ -1109,6 +1362,21 @@ document.addEventListener("input", function(e) {
     }
 });
 
+document.addEventListener("change", function(e) {
+    const checkPermiso = e.target.closest(
+        ".config-permission-row input[type='checkbox']"
+    );
+
+    if (!checkPermiso) return;
+
+    const modulo = checkPermiso.dataset.modulo;
+    const accion = checkPermiso.dataset.accion;
+
+    if (accion === "ver") {
+        actualizarEstadoFilaPermisosConfig(modulo);
+    }
+});
+
 document.addEventListener("keydown", function(e) {
     if (e.key === "Escape") {
         cerrarModalNuevoUsuarioConfig();
@@ -1209,6 +1477,8 @@ window.abrirModalEditarUsuarioConfig = abrirModalEditarUsuarioConfig;
 window.cerrarModalNuevoUsuarioConfig = cerrarModalNuevoUsuarioConfig;
 window.crearUsuarioConfiguracion = crearUsuarioConfiguracion;
 window.actualizarUsuarioAdminConfiguracion = actualizarUsuarioAdminConfiguracion;
+window.enfocarPanelPermisosConfig = enfocarPanelPermisosConfig;
+window.enfocarPanelPermisosConfig = enfocarPanelPermisosConfig;
 window.abrirModalResetPasswordConfig = abrirModalResetPasswordConfig;
 window.cerrarModalResetPasswordConfig = cerrarModalResetPasswordConfig;
 window.restablecerPasswordUsuarioConfig = restablecerPasswordUsuarioConfig;

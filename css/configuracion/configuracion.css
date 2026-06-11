@@ -902,3 +902,170 @@
         padding: 14px;
     }
 }
+
+/* =========================
+   FOCO PANEL PERMISOS
+========================= */
+
+#configuracion .config-permisos-focus {
+    border-color: rgba(91,167,255,0.70) !important;
+    box-shadow:
+        0 0 0 2px rgba(91,167,255,0.18),
+        0 18px 45px rgba(0,0,0,0.35) !important;
+    transition: 0.25s ease;
+}
+
+/* =========================
+   MATRIZ DE PERMISOS DETALLADOS
+========================= */
+
+#configuracion .config-permission-matrix {
+    width: 100%;
+    margin-top: 8px;
+
+    display: grid;
+    gap: 6px;
+
+    overflow-x: auto;
+    padding-bottom: 4px;
+}
+
+/* Encabezado */
+#configuracion .config-permission-head {
+    min-width: 620px;
+    display: grid;
+    grid-template-columns: 1.8fr repeat(5, 72px);
+    align-items: center;
+
+    padding: 10px 12px;
+
+    background: rgba(8, 14, 28, 0.70);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 7px;
+
+    color: #9fb0d0;
+    font-size: 11px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+}
+
+#configuracion .config-permission-head span:not(:first-child) {
+    text-align: center;
+}
+
+/* Fila */
+#configuracion .config-permission-row {
+    min-width: 620px;
+    min-height: 44px;
+
+    display: grid;
+    grid-template-columns: 1.8fr repeat(5, 72px);
+    align-items: center;
+
+    padding: 8px 12px;
+
+    background: rgba(8, 14, 28, 0.42);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 7px;
+
+    transition: 0.18s ease;
+}
+
+#configuracion .config-permission-row:hover {
+    background: rgba(91,167,255,0.055);
+    border-color: rgba(91,167,255,0.18);
+}
+
+/* Nombre módulo */
+#configuracion .config-permission-module {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    color: #fff;
+    font-size: 13px;
+    font-weight: 900;
+}
+
+#configuracion .config-permission-module .material-symbols-outlined {
+    color: #9fb0d0;
+    font-size: 20px;
+}
+
+/* Celdas checkbox */
+#configuracion .config-permission-row label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Checkbox */
+#configuracion .config-permission-row input[type="checkbox"] {
+    appearance: none;
+    -webkit-appearance: none;
+
+    width: 18px !important;
+    height: 18px !important;
+    min-width: 18px !important;
+
+    margin: 0 !important;
+    padding: 0 !important;
+
+    background: rgba(8, 14, 28, 0.72) !important;
+    border: 1px solid rgba(255,255,255,0.18) !important;
+    border-radius: 4px !important;
+
+    cursor: pointer;
+    position: relative;
+
+    transition: 0.18s ease;
+}
+
+#configuracion .config-permission-row input[type="checkbox"]:hover {
+    border-color: rgba(91,167,255,0.55) !important;
+    box-shadow: 0 0 0 3px rgba(91,167,255,0.10);
+}
+
+#configuracion .config-permission-row input[type="checkbox"]:checked {
+    background: #3b82f6 !important;
+    border-color: #3b82f6 !important;
+}
+
+#configuracion .config-permission-row input[type="checkbox"]:checked::after {
+    content: "✓";
+    position: absolute;
+    inset: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    color: #fff;
+    font-size: 13px;
+    font-weight: 900;
+}
+
+/* Disabled */
+#configuracion .config-permission-row input[type="checkbox"]:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+#configuracion .config-permission-row input[type="checkbox"]:disabled:hover {
+    border-color: rgba(255,255,255,0.18) !important;
+    box-shadow: none;
+}
+
+/* Fila perfil protegida */
+#configuracion .config-permission-row[data-modulo="perfil"] {
+    border-color: rgba(91,167,255,0.13);
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+    #configuracion .config-permission-matrix {
+        overflow-x: auto;
+    }
+}
