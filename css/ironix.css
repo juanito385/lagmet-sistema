@@ -1,0 +1,62 @@
+/* ==================================================
+   IRONIX - CSS PRINCIPAL
+   Archivo agrupador general
+   Ruta: css/ironix.css
+================================================== */
+
+/* =========================
+   BASE GLOBAL
+========================= */
+@import url("base.css");
+@import url("layout.css");
+@import url("botones.css");
+
+/* =========================
+   AUTH / LOGIN
+========================= */
+@import url("auth/login.css");
+
+/* =========================
+   SIDEBAR
+========================= */
+@import url("sidebar/sidebar.css");
+
+/* =========================
+   TABLAS
+========================= */
+@import url("tablas/tablas.css");
+
+/* =========================
+   DASHBOARD / MONITOREO
+========================= */
+@import url("dashboard/dashboard.css");
+
+/* =========================
+   DOCUMENTACIÓN / GANTT
+========================= */
+@import url("documentacion/documentacion.css");
+
+/* =========================
+   CONFIGURACIÓN
+========================= */
+@import url("configuracion/configuracion.css");
+
+/* =========================
+   FLUJO PROCESO
+========================= */
+@import url("Flujo/flujo-proceso.css");
+
+/* =========================
+   ESTADOS
+========================= */
+@import url("estados/estados.css");
+
+/* =========================
+   PERFIL
+========================= */
+@import url("Perfil/perfil.css");
+
+/* =========================
+   RESPONSIVE GLOBAL
+========================= */
+@import url("responsive.css");

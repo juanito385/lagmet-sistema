@@ -1,7 +1,7 @@
 /* =========================
    FLUJO PROCESO - ARCHIVO AGRUPADOR
    Ruta: css/flujo/archivos nuevos/flujo-proceso.css
-========================= 
+========================= */
 
 @import url("flujo-base.css");
 @import url("flujo-panel.css");
@@ -19,4 +19,3 @@
 @import url("flujo-footer.css");
 @import url("flujo-responsive.css");
 
-*/

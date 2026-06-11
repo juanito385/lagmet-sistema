@@ -1,0 +1,18 @@
+/* ==================================================
+   ESTADOS - ARCHIVO AGRUPADOR
+   Ruta: css/estados/estados.css
+================================================== */
+
+@import url("estados-base.css");
+@import url("estados-cards.css");
+@import url("estados-panel-filtros.css");
+@import url("estados-tablas.css");
+@import url("estados-produccion-detalle.css");
+@import url("estados-maquinas.css");
+@import url("estados-modal-maquinas.css");
+@import url("estados-modal-produccion.css");
+@import url("estados-historial-compacto.css");
+@import url("estados-historial-completo-modal.css");
+@import url("estados-filtros-extra.css");
+@import url("estados-layout-ajustes.css");
+@import url("estados-responsive.css");

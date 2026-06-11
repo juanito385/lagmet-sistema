@@ -1,0 +1,30 @@
+/* ==================================================
+   DASHBOARD / MONITOREO - ARCHIVO AGRUPADOR
+   Ruta: css/dashboard/dashboard.css
+================================================== */
+
+/* =========================
+   DASHBOARD
+========================= */
+@import url("dashboard-base.css");
+@import url("dashboard-cards.css");
+@import url("dashboard-charts.css");
+@import url("dashboard-panels.css");
+@import url("dashboard-table.css");
+@import url("dashboard-dropdown.css");
+
+/* =========================
+   MONITOREO
+========================= */
+@import url("monitoreo-base.css");
+@import url("monitoreo-tabs.css");
+@import url("monitoreo-form.css");
+@import url("monitoreo-extra.css");
+@import url("monitoreo-modal.css");
+@import url("monitoreo-maquinas.css");
+@import url("monitoreo-selects.css");
+
+/* =========================
+   RESPONSIVE
+========================= */
+@import url("dashboard-responsive.css");

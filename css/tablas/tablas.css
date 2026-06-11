@@ -1,0 +1,11 @@
+/* ==================================================
+   TABLAS - ARCHIVO AGRUPADOR
+   Ruta: css/tablas/tablas.css
+================================================== */
+
+@import url("tablas-base.css");
+@import url("productos-tabla.css");
+@import url("productos-filtros.css");
+@import url("productos-paginacion.css");
+@import url("productos-estados.css");
+@import url("maquinas-estados.css");

@@ -1,0 +1,17 @@
+/* ==================================================
+   DOCUMENTACIÓN / GANTT - ARCHIVO AGRUPADOR
+   Ruta: css/documentacion/documentacion.css
+================================================== */
+
+@import url("documentacion-base.css");
+@import url("documentacion-header.css");
+@import url("documentacion-actions.css");
+
+@import url("documentacion-gantt.css");
+@import url("documentacion-gantt-machine.css");
+@import url("documentation-gantt-alertas.css");
+@import url("documentation-gantt-panel.css");
+@import url("documentation-gantt-exportar.css");
+
+@import url("documentacion-modal.css");
+@import url("documentacion-responsive.css");

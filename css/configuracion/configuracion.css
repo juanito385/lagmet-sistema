@@ -1,7 +1,7 @@
 /* =========================
    CONFIGURACIÓN - ÍNDICE MODULAR
    Carga los archivos separados en el orden correcto.
-========================= 
+========================= */
 
 @import url("./configuracion-base.css");
 @import url("./configuracion-tabs.css");
@@ -15,5 +15,3 @@
 @import url("./configuracion-nota.css");
 @import url("./configuracion-focus.css");
 @import url("./configuracion-responsive.css");
-
-*/
