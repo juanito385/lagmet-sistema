@@ -1,0 +1,461 @@
+/* ===============================
+   PANTALLA DE CARGA SISTEMA IRONIX
+================================ */
+
+.ironix-loader-sistema {
+    position: fixed;
+    inset: 0;
+    z-index: 999999;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    overflow: hidden;
+
+    background:
+        radial-gradient(circle at center, rgba(0, 174, 255, 0.16), transparent 34%),
+        radial-gradient(circle at top left, rgba(0, 132, 255, 0.14), transparent 28%),
+        linear-gradient(135deg, #010711 0%, #020b17 48%, #01040b 100%);
+
+    color: #ffffff;
+}
+
+.ironix-loader-sistema.oculto {
+    display: none;
+}
+
+/* Fondo técnico */
+.ironix-loader-sistema::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+
+    background:
+        linear-gradient(rgba(56, 189, 248, 0.035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(56, 189, 248, 0.035) 1px, transparent 1px);
+
+    background-size: 42px 42px;
+
+    opacity: 0.32;
+    pointer-events: none;
+}
+
+.ironix-loader-sistema::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+
+    background:
+        linear-gradient(90deg, transparent, rgba(56, 189, 248, 0.07), transparent);
+
+    transform: translateX(-100%);
+    animation: ironixScanLoader 3.8s linear infinite;
+
+    pointer-events: none;
+}
+
+/* ===============================
+   CONTENIDO CENTRAL
+================================ */
+
+.ironix-loader-contenido {
+    position: relative;
+    z-index: 2;
+
+    width: min(760px, calc(100% - 42px));
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    text-align: center;
+}
+
+.ironix-loader-brand h1 {
+    margin: 0;
+
+    font-size: clamp(56px, 8vw, 112px);
+    font-weight: 900;
+    letter-spacing: 8px;
+
+    color: #f8fbff;
+
+    text-shadow:
+        0 0 12px rgba(56, 189, 248, 0.65),
+        0 0 32px rgba(14, 165, 233, 0.38),
+        0 0 58px rgba(2, 132, 199, 0.32);
+}
+
+.ironix-loader-brand p {
+    margin: 8px 0 36px;
+
+    font-size: clamp(15px, 2vw, 22px);
+    letter-spacing: 0.6px;
+
+    color: rgba(255, 255, 255, 0.82);
+}
+
+/* ===============================
+   SPINNER CENTRAL
+================================ */
+
+.ironix-loader-spinner {
+    width: 128px;
+    height: 128px;
+
+    position: relative;
+
+    margin-bottom: 28px;
+
+    border-radius: 50%;
+
+    background:
+        conic-gradient(
+            from 0deg,
+            rgba(56, 189, 248, 0.08),
+            #38bdf8,
+            #0ea5e9,
+            rgba(56, 189, 248, 0.08),
+            transparent
+        );
+
+    box-shadow:
+        0 0 28px rgba(56, 189, 248, 0.35),
+        inset 0 0 20px rgba(56, 189, 248, 0.16);
+
+    animation: ironixGirarLoader 1.25s linear infinite;
+}
+
+.ironix-loader-spinner::before {
+    content: "";
+    position: absolute;
+    inset: 13px;
+
+    border-radius: 50%;
+
+    background: #020b17;
+}
+
+.ironix-loader-spinner::after {
+    content: "";
+    position: absolute;
+    inset: 28px;
+
+    border-radius: 50%;
+    border: 2px solid rgba(56, 189, 248, 0.5);
+
+    box-shadow:
+        0 0 18px rgba(56, 189, 248, 0.32),
+        inset 0 0 16px rgba(56, 189, 248, 0.18);
+}
+
+.ironix-loader-spinner-inner {
+    position: absolute;
+    inset: 45px;
+    z-index: 2;
+
+    border-radius: 50%;
+
+    background: rgba(56, 189, 248, 0.12);
+    box-shadow: 0 0 20px rgba(56, 189, 248, 0.45);
+}
+
+/* ===============================
+   TEXTOS
+================================ */
+
+#ironixLoaderTitulo {
+    margin: 0 0 8px;
+
+    font-size: clamp(28px, 4vw, 42px);
+    font-weight: 800;
+    letter-spacing: 1px;
+
+    color: #ffffff;
+}
+
+#ironixLoaderTexto {
+    margin: 0 0 28px;
+
+    font-size: clamp(16px, 2vw, 22px);
+
+    color: rgba(255, 255, 255, 0.72);
+}
+
+/* ===============================
+   BARRA DE PROGRESO
+================================ */
+
+.ironix-loader-progreso-wrapper {
+    width: min(640px, 100%);
+
+    display: grid;
+    grid-template-columns: 1fr 72px;
+    align-items: center;
+    gap: 16px;
+
+    margin-bottom: 30px;
+}
+
+.ironix-loader-progreso-barra {
+    width: 100%;
+    height: 15px;
+
+    overflow: hidden;
+
+    border-radius: 999px;
+    border: 1px solid rgba(148, 163, 184, 0.22);
+
+    background: rgba(15, 23, 42, 0.88);
+
+    box-shadow:
+        inset 0 0 14px rgba(0, 0, 0, 0.45),
+        0 0 20px rgba(56, 189, 248, 0.1);
+}
+
+.ironix-loader-progreso {
+    width: 0%;
+    height: 100%;
+
+    border-radius: 999px;
+
+    background: linear-gradient(90deg, #0284c7, #38bdf8, #60a5fa);
+
+    box-shadow:
+        0 0 16px rgba(56, 189, 248, 0.7),
+        0 0 34px rgba(14, 165, 233, 0.4);
+
+    transition: width 0.35s ease;
+}
+
+#ironixLoaderPorcentaje {
+    font-size: 24px;
+    font-weight: 800;
+
+    color: #38bdf8;
+
+    text-shadow: 0 0 14px rgba(56, 189, 248, 0.52);
+}
+
+/* ===============================
+   PASOS
+================================ */
+
+.ironix-loader-pasos {
+    width: min(640px, 100%);
+
+    display: flex;
+    flex-direction: column;
+}
+
+.ironix-loader-paso {
+    display: grid;
+    grid-template-columns: 34px 1fr 130px;
+    align-items: center;
+    gap: 14px;
+
+    padding: 13px 0;
+
+    border-bottom: 1px solid rgba(148, 163, 184, 0.14);
+
+    color: rgba(255, 255, 255, 0.62);
+}
+
+.ironix-loader-paso strong {
+    text-align: left;
+
+    font-size: 17px;
+    font-weight: 500;
+}
+
+.ironix-loader-paso em {
+    font-style: normal;
+    text-align: right;
+
+    font-size: 15px;
+
+    color: rgba(255, 255, 255, 0.48);
+}
+
+.loader-paso-icono {
+    width: 18px;
+    height: 18px;
+
+    border-radius: 50%;
+    border: 2px solid rgba(148, 163, 184, 0.45);
+}
+
+.ironix-loader-paso.active {
+    color: #ffffff;
+}
+
+.ironix-loader-paso.active .loader-paso-icono {
+    border-color: #38bdf8;
+    border-top-color: transparent;
+
+    box-shadow: 0 0 12px rgba(56, 189, 248, 0.5);
+
+    animation: ironixGirarLoader 0.75s linear infinite;
+}
+
+.ironix-loader-paso.active em {
+    color: rgba(255, 255, 255, 0.72);
+}
+
+.ironix-loader-paso.done {
+    color: rgba(255, 255, 255, 0.86);
+}
+
+.ironix-loader-paso.done .loader-paso-icono {
+    border-color: #22c55e;
+    background: #22c55e;
+
+    box-shadow: 0 0 12px rgba(34, 197, 94, 0.55);
+}
+
+.ironix-loader-paso.done .loader-paso-icono::after {
+    content: "✓";
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    height: 100%;
+
+    font-size: 12px;
+    font-weight: 900;
+
+    color: #02130a;
+}
+
+.ironix-loader-paso.done em {
+    color: #22c55e;
+}
+
+/* ===============================
+   HUD DECORATIVO
+================================ */
+
+.ironix-loader-hud {
+    position: absolute;
+    z-index: 2;
+
+    color: rgba(56, 189, 248, 0.78);
+
+    font-size: 12px;
+    letter-spacing: 1px;
+
+    pointer-events: none;
+}
+
+.ironix-loader-hud-top-left {
+    top: 34px;
+    left: 42px;
+
+    padding-left: 78px;
+}
+
+.ironix-loader-hud-top-left::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: -9px;
+
+    width: 52px;
+    height: 52px;
+
+    border-radius: 50%;
+    border: 1px solid rgba(56, 189, 248, 0.6);
+
+    box-shadow:
+        0 0 18px rgba(56, 189, 248, 0.24),
+        inset 0 0 16px rgba(56, 189, 248, 0.12);
+}
+
+.ironix-loader-hud-top-left span {
+    display: block;
+    margin-bottom: 8px;
+}
+
+.ironix-loader-hud-bottom-left {
+    left: 42px;
+    bottom: 34px;
+}
+
+.ironix-loader-hud-bottom-right {
+    right: 42px;
+    bottom: 34px;
+}
+
+.ironix-loader-hud-bottom-left::before,
+.ironix-loader-hud-bottom-right::before {
+    content: "";
+    position: absolute;
+    bottom: -12px;
+
+    width: 220px;
+    height: 1px;
+
+    background: linear-gradient(90deg, rgba(56, 189, 248, 0.65), transparent);
+}
+
+.ironix-loader-hud-bottom-right::before {
+    right: 0;
+    background: linear-gradient(270deg, rgba(56, 189, 248, 0.65), transparent);
+}
+
+/* ===============================
+   ANIMACIONES
+================================ */
+
+@keyframes ironixGirarLoader {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes ironixScanLoader {
+    from {
+        transform: translateX(-100%);
+    }
+    to {
+        transform: translateX(100%);
+    }
+}
+
+/* ===============================
+   RESPONSIVE
+================================ */
+
+@media (max-width: 768px) {
+    .ironix-loader-paso {
+        grid-template-columns: 30px 1fr;
+    }
+
+    .ironix-loader-paso em {
+        grid-column: 2;
+        text-align: left;
+    }
+
+    .ironix-loader-hud {
+        display: none;
+    }
+}
+
+@media (max-width: 480px) {
+    .ironix-loader-progreso-wrapper {
+        grid-template-columns: 1fr;
+    }
+
+    #ironixLoaderPorcentaje {
+        text-align: center;
+    }
+
+    .ironix-loader-brand h1 {
+        letter-spacing: 4px;
+    }
+}

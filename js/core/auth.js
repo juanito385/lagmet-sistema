@@ -1,7 +1,12 @@
 /* ===============================
    LOGIN
 ================================ */
+
+let loginIronixEnProceso = false;
+
 async function login() {
+    if (loginIronixEnProceso) return;
+
     const email = document.getElementById("email")?.value.trim();
     const pass = document.getElementById("password")?.value.trim();
     const error = document.getElementById("error");
@@ -12,6 +17,8 @@ async function login() {
         if (error) error.textContent = "Completa correo y contraseña";
         return;
     }
+
+    loginIronixEnProceso = true;
 
     try {
         console.log("Enviando login...");
@@ -36,17 +43,32 @@ async function login() {
             data = JSON.parse(text);
         } catch (jsonError) {
             console.error("Respuesta no válida desde login.php:", text);
-            if (error) error.textContent = "Respuesta inválida del servidor";
+
+            if (error) {
+                error.textContent = "Respuesta inválida del servidor";
+            }
+
             return;
         }
 
         if (data.success) {
             localStorage.setItem("user", JSON.stringify(data.user));
 
-            iniciarApp(true);
+            /*
+                Carga del sistema usando pantalla completa IRONIX.
+                Si el loader existe, se usa.
+                Si no existe, inicia la app normal como respaldo.
+            */
+            if (typeof iniciarAppConLoaderIronix === "function") {
+                await iniciarAppConLoaderIronix(true);
+            } else {
+                await iniciarApp(true);
+            }
 
         } else {
-            if (error) error.textContent = data.message || "Datos incorrectos";
+            if (error) {
+                error.textContent = data.message || "Datos incorrectos";
+            }
         }
 
     } catch (err) {
@@ -55,6 +77,9 @@ async function login() {
         if (error) {
             error.textContent = "Error al conectar con el servidor";
         }
+
+    } finally {
+        loginIronixEnProceso = false;
     }
 }
 
@@ -62,7 +87,8 @@ async function login() {
 /* ===============================
    INICIAR APP
 ================================ */
-function iniciarApp(cargarDashboard = false) {
+
+async function iniciarApp(cargarDashboard = false) {
     const user = obtenerUsuarioActual();
 
     if (!user) return;
@@ -112,10 +138,14 @@ function iniciarApp(cargarDashboard = false) {
         userTexto.textContent = "Hola " + (user.nombre || "Usuario") + " 👋";
     }
 
+    /*
+        Cargar Dashboard antes de ocultar el loader.
+        Si showSection es async, se espera.
+        Si no es async, igual funciona.
+    */
     if (cargarDashboard && typeof showSection === "function") {
-        setTimeout(() => {
-            showSection("dashboard");
-        }, 100);
+        await esperarInicioDashboardIronix();
+        await showSection("dashboard");
     }
 
     console.log("APP INICIADA:", {
@@ -129,8 +159,18 @@ function iniciarApp(cargarDashboard = false) {
 
 
 /* ===============================
+   ESPERA BREVE PARA LAYOUT
+================================ */
+
+function esperarInicioDashboardIronix(ms = 120) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+
+/* ===============================
    OBTENER USUARIO ACTUAL
 ================================ */
+
 function obtenerUsuarioActual() {
     try {
         return JSON.parse(localStorage.getItem("user"));
@@ -145,6 +185,7 @@ function obtenerUsuarioActual() {
 /* ===============================
    ACTUALIZAR USUARIO SIDEBAR
 ================================ */
+
 function actualizarUsuarioSidebar() {
     const user = obtenerUsuarioActual();
 
@@ -171,6 +212,7 @@ function actualizarUsuarioSidebar() {
 /* ===============================
    INICIALES USUARIO
 ================================ */
+
 function obtenerInicialesUsuario(nombre, rol) {
     if (rol === "admin") return "ADM";
 
@@ -191,6 +233,7 @@ function obtenerInicialesUsuario(nombre, rol) {
 /* ===============================
    FORMATEAR ROL
 ================================ */
+
 function formatearRolUsuario(rol) {
     if (rol === "admin") return "Administrador";
     if (rol === "usuario") return "Usuario";
@@ -202,6 +245,7 @@ function formatearRolUsuario(rol) {
 /* ===============================
    VALIDAR ROL
 ================================ */
+
 function usuarioEsAdmin() {
     const user = obtenerUsuarioActual();
 
@@ -218,6 +262,7 @@ function usuarioEsNormal() {
 /* ===============================
    LOGOUT
 ================================ */
+
 function logout() {
     localStorage.removeItem("user");
     document.body.classList.remove("usuario-logueado");

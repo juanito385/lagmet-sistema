@@ -12,7 +12,7 @@ console.log("IRONIX Loader iniciado...");
     Cambia esta versión cuando hagas modificaciones grandes en JS.
     Sirve para evitar problemas de caché en el navegador.
 */
-const IRONIX_JS_VERSION = "2026-06-12-01";
+const IRONIX_JS_VERSION = "2026-06-12-03";
 
 /* =========================
    LIBRERÍAS EXTERNAS
@@ -35,6 +35,11 @@ const IRONIX_LIBRERIAS = [
 ========================= */
 
 const IRONIX_SCRIPTS = [
+
+   /* =========================
+       LOADER SISTEMA POST-LOGIN
+    ========================= */
+    "js/login/loader-sistema.js",
 
     /* =========================
        FLUJO PROCESO

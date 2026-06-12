@@ -16,8 +16,8 @@ async function cargarAuthIronix() {
 
     try {
         const [loginResponse, recuperarResponse] = await Promise.all([
-            fetch("views/auth/login.html"),
-            fetch("views/auth/recuperar.html")
+            fetch("views/auth/login.html", { cache: "no-store" }),
+            fetch("views/auth/recuperar.html", { cache: "no-store" })
         ]);
 
         if (!loginResponse.ok) {
@@ -37,10 +37,14 @@ async function cargarAuthIronix() {
 
         console.log("Auth IRONIX cargado correctamente");
 
+        /*
+            Si ya existe sesión guardada, se carga el sistema
+            usando también la pantalla de carga.
+        */
         const user = localStorage.getItem("user");
 
         if (user && typeof iniciarApp === "function") {
-            iniciarApp(true);
+            await iniciarAppConLoaderIronix(true);
         }
 
     } catch (error) {
@@ -51,6 +55,42 @@ async function cargarAuthIronix() {
                 Error cargando Auth IRONIX
             </div>
         `;
+    }
+}
+
+
+/* ===============================
+   INICIAR APP CON LOADER IRONIX
+   Esta función será usada por:
+   - sesión ya iniciada
+   - login exitoso
+================================ */
+
+async function iniciarAppConLoaderIronix(mantenerSesion = false) {
+    /*
+        Si el loader existe, se usa la pantalla completa.
+        Si por algún motivo no existe, inicia la app normal.
+    */
+    if (typeof ejecutarCargaSistemaConLoader === "function") {
+        await ejecutarCargaSistemaConLoader(async function () {
+            if (typeof iniciarApp === "function") {
+                await iniciarApp(mantenerSesion);
+            } else {
+                console.error("No existe la función iniciarApp()");
+            }
+        });
+
+        return;
+    }
+
+    /*
+        Fallback de seguridad:
+        evita que el sistema quede bloqueado si el loader falla.
+    */
+    if (typeof iniciarApp === "function") {
+        await iniciarApp(mantenerSesion);
+    } else {
+        console.error("No existe la función iniciarApp()");
     }
 }
 
