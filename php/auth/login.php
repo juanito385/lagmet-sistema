@@ -1,6 +1,9 @@
 <?php
+
 header('Content-Type: application/json; charset=utf-8');
+
 require_once __DIR__ . "/../conexion.php";
+require_once __DIR__ . "/session_config.php";
 
 if ($_SERVER["REQUEST_METHOD"] !== "POST") {
     echo json_encode([
@@ -26,6 +29,7 @@ if ($email === "" || $password === "") {
 /* ===============================
    BUSCAR USUARIO
 ================================ */
+
 $stmt = $conn->prepare("
     SELECT 
         id, 
@@ -57,6 +61,7 @@ if ($result->num_rows === 0) {
         "success" => false,
         "message" => "Usuario no encontrado"
     ]);
+
     $stmt->close();
     $conn->close();
     exit;
@@ -68,6 +73,7 @@ $stmt->close();
 /* ===============================
    VALIDAR ESTADO DE CUENTA
 ================================ */
+
 $estadoUsuario = $user["estado"] ?? "activa";
 
 if ($estadoUsuario === "inactiva") {
@@ -75,6 +81,7 @@ if ($estadoUsuario === "inactiva") {
         "success" => false,
         "message" => "Tu cuenta está inactiva. Contacta al administrador."
     ]);
+
     $conn->close();
     exit;
 }
@@ -84,6 +91,7 @@ if ($estadoUsuario === "bloqueada") {
         "success" => false,
         "message" => "Tu cuenta está bloqueada. Contacta al administrador."
     ]);
+
     $conn->close();
     exit;
 }
@@ -91,11 +99,13 @@ if ($estadoUsuario === "bloqueada") {
 /* ===============================
    VALIDAR CONTRASEÑA ENCRIPTADA
 ================================ */
+
 if (!password_verify($password, $user["password"])) {
     echo json_encode([
         "success" => false,
         "message" => "Contraseña incorrecta"
     ]);
+
     $conn->close();
     exit;
 }
@@ -103,6 +113,7 @@ if (!password_verify($password, $user["password"])) {
 /* ===============================
    OBTENER PERMISOS
 ================================ */
+
 $permisos = [];
 
 $stmtPermisos = $conn->prepare("
@@ -139,10 +150,23 @@ if ($stmtPermisos) {
 }
 
 /* ===============================
+   CREAR SESIÓN PHP REAL
+================================ */
+
+ironixCrearSesionUsuario([
+    "id" => $user["id"],
+    "nombre" => $user["nombre"],
+    "correo" => $user["correo"],
+    "rol" => $user["rol"]
+]);
+
+/* ===============================
    LOGIN CORRECTO
 ================================ */
+
 echo json_encode([
     "success" => true,
+    "message" => "Login correcto",
     "user" => [
         "id" => $user["id"],
         "nombre" => $user["nombre"],
@@ -154,4 +178,5 @@ echo json_encode([
 ]);
 
 $conn->close();
+
 ?>
