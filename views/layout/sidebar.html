@@ -1,0 +1,79 @@
+<div class="sidebar">
+
+    <button class="sidebar-toggle" onclick="toggleSidebar()">
+        <span class="material-symbols-outlined">menu</span>
+    </button>
+
+    <div class="sidebar-top">
+        <div class="logo-sidebar">
+            <img src="./assets/img/logo-ironix.png" alt="Logo IRONIX">
+        </div>
+
+        <div class="menu">
+            <button onclick="showSection('dashboard')">
+                <span class="material-symbols-outlined">bar_chart</span>
+                Dashboard
+            </button>
+
+            <button onclick="showSection('monitoreo')">
+                <span class="material-symbols-outlined">monitor_heart</span>
+                Monitoreo
+            </button>
+
+            <button onclick="showSection('productos')">
+                <span class="material-symbols-outlined">inventory_2</span>
+                Productos
+            </button>
+
+            <button onclick="showSection('documentacion')">
+                <span class="material-symbols-outlined">description</span>
+                Documentación
+            </button>
+
+            <button onclick="showSection('flujo-proceso')">
+                <span class="material-symbols-outlined">share</span>
+                Flujo Proceso
+            </button>
+
+            <button onclick="showSection('estados')">
+                <span class="material-symbols-outlined">assignment_turned_in</span>
+                Estados
+            </button>
+        </div>
+    </div>
+
+    <div class="sidebar-bottom">
+        <div class="sidebar-user">
+
+            <button class="sidebar-user-btn">
+                <div class="sidebar-user-avatar" id="sidebarUserAvatar">ADM</div>
+
+                <div class="sidebar-user-info">
+                    <strong id="sidebarUserNombre">Admin</strong>
+                    <span id="sidebarUserRol">Administrador</span>
+                </div>
+
+                <span class="material-symbols-outlined">expand_more</span>
+            </button>
+
+            <div class="sidebar-user-menu">
+                <button onclick="showSection('perfil')">
+                    <span class="material-symbols-outlined">person</span>
+                    Ver perfil
+                </button>
+
+                <button onclick="showSection('configuracion')">
+                    <span class="material-symbols-outlined">settings</span>
+                    Configuración
+                </button>
+
+                <button class="sidebar-user-logout" onclick="logout()">
+                    <span class="material-symbols-outlined">logout</span>
+                    Cerrar sesión
+                </button>
+            </div>
+
+        </div>
+    </div>
+
+</div>

@@ -61,6 +61,7 @@ const IRONIX_SCRIPTS = [
     "js/core/auth.js",
     "js/core/recuperacion.js",
     "js/core/navigation.js",
+    "js/core/layout-loader.js",
 
     /* =========================
      SIDEBAR
