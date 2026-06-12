@@ -1,19 +1,27 @@
 <?php
-header('Content-Type: application/json; charset=utf-8');
+
+/* ==================================================
+   PERFIL - OBTENER USUARIO
+   Ruta: php/perfil/obtener_usuario.php
+================================================== */
+
+require_once __DIR__ . "/../core/request.php";
 require_once __DIR__ . "/../conexion.php";
+
+/* =========================
+   VALIDAR MÉTODO
+========================= */
+
+validarMetodo("GET");
 
 /* =========================
    OBTENER ID USUARIO
 ========================= */
 
-$id = isset($_GET["usuario_id"]) ? intval($_GET["usuario_id"]) : 0;
+$id = intval(obtenerGet("usuario_id", 0));
 
 if ($id <= 0) {
-    echo json_encode([
-        "success" => false,
-        "message" => "ID de usuario no recibido"
-    ]);
-    exit;
+    responderError("ID de usuario no recibido", 422);
 }
 
 /* =========================
@@ -39,30 +47,31 @@ $sql = "
 $stmt = $conn->prepare($sql);
 
 if (!$stmt) {
-    echo json_encode([
-        "success" => false,
-        "message" => "Error al preparar consulta"
-    ]);
-    exit;
+    responderError("Error al preparar consulta", 500);
 }
 
 $stmt->bind_param("i", $id);
-$stmt->execute();
+
+if (!$stmt->execute()) {
+    $stmt->close();
+    responderError("Error al ejecutar consulta", 500);
+}
 
 $result = $stmt->get_result();
 
 if ($result && $result->num_rows > 0) {
-    echo json_encode([
+    $usuario = $result->fetch_assoc();
+
+    $stmt->close();
+    $conn->close();
+
+    responderJSON([
         "success" => true,
-        "usuario" => $result->fetch_assoc()
-    ]);
-} else {
-    echo json_encode([
-        "success" => false,
-        "message" => "Usuario no encontrado"
+        "usuario" => $usuario
     ]);
 }
 
 $stmt->close();
 $conn->close();
-?>
+
+responderError("Usuario no encontrado", 404);

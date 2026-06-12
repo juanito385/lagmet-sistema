@@ -1,47 +1,49 @@
 <?php
-header('Content-Type: application/json; charset=utf-8');
+
+/* ==================================================
+   PERFIL - CAMBIAR CONTRASEÑA
+   Ruta: php/perfil/cambiar_password.php
+================================================== */
+
+require_once __DIR__ . "/../core/request.php";
 require_once __DIR__ . "/../conexion.php";
+
+/* =========================
+   VALIDAR MÉTODO
+========================= */
+
+validarMetodo("POST");
+
 
 /* =========================
    RECIBIR DATOS
 ========================= */
 
-$id = isset($_POST["usuario_id"]) ? intval($_POST["usuario_id"]) : 0;
-$actual = isset($_POST["actual"]) ? trim($_POST["actual"]) : "";
-$nueva = isset($_POST["nueva"]) ? trim($_POST["nueva"]) : "";
-$confirmar = isset($_POST["confirmar"]) ? trim($_POST["confirmar"]) : "";
+$id = intval(obtenerPost("usuario_id", 0));
+$actual = trim((string) obtenerPost("actual", ""));
+$nueva = trim((string) obtenerPost("nueva", ""));
+$confirmar = trim((string) obtenerPost("confirmar", ""));
 
 if ($id <= 0) {
-    echo json_encode([
-        "success" => false,
-        "message" => "ID de usuario no recibido"
-    ]);
-    exit;
+    responderError("ID de usuario no recibido", 422);
 }
 
 if ($actual === "" || $nueva === "" || $confirmar === "") {
-    echo json_encode([
-        "success" => false,
-        "message" => "Completa todos los campos"
-    ]);
-    exit;
+    responderError("Completa todos los campos", 422);
 }
 
 if ($nueva !== $confirmar) {
-    echo json_encode([
-        "success" => false,
-        "message" => "Las contraseñas no coinciden"
-    ]);
-    exit;
+    responderError("Las contraseñas no coinciden", 422);
 }
 
 if (strlen($nueva) < 6) {
-    echo json_encode([
-        "success" => false,
-        "message" => "La nueva contraseña debe tener al menos 6 caracteres"
-    ]);
-    exit;
+    responderError("La nueva contraseña debe tener al menos 6 caracteres", 422);
 }
+
+if ($actual === $nueva) {
+    responderError("La nueva contraseña debe ser distinta a la actual", 422);
+}
+
 
 /* =========================
    OBTENER CONTRASEÑA ACTUAL
@@ -57,44 +59,42 @@ $sql = "
 $stmt = $conn->prepare($sql);
 
 if (!$stmt) {
-    echo json_encode([
-        "success" => false,
-        "message" => "Error al preparar consulta"
-    ]);
-    exit;
+    responderError("Error al preparar consulta", 500);
 }
 
 $stmt->bind_param("i", $id);
-$stmt->execute();
+
+if (!$stmt->execute()) {
+    $stmt->close();
+    $conn->close();
+
+    responderError("Error al ejecutar consulta", 500);
+}
 
 $result = $stmt->get_result();
 
 if (!$result || $result->num_rows === 0) {
-    echo json_encode([
-        "success" => false,
-        "message" => "Usuario no encontrado"
-    ]);
     $stmt->close();
     $conn->close();
-    exit;
+
+    responderError("Usuario no encontrado", 404);
 }
 
 $usuario = $result->fetch_assoc();
 
 $stmt->close();
 
+
 /* =========================
    VALIDAR CONTRASEÑA ACTUAL
 ========================= */
 
 if (!password_verify($actual, $usuario["password"])) {
-    echo json_encode([
-        "success" => false,
-        "message" => "Contraseña actual incorrecta"
-    ]);
     $conn->close();
-    exit;
+
+    responderError("Contraseña actual incorrecta", 401);
 }
+
 
 /* =========================
    ACTUALIZAR CONTRASEÑA
@@ -111,28 +111,24 @@ $sqlUpdate = "
 $stmtUpdate = $conn->prepare($sqlUpdate);
 
 if (!$stmtUpdate) {
-    echo json_encode([
-        "success" => false,
-        "message" => "Error al preparar actualización"
-    ]);
     $conn->close();
-    exit;
+
+    responderError("Error al preparar actualización", 500);
 }
 
 $stmtUpdate->bind_param("si", $nuevaHash, $id);
 
-if ($stmtUpdate->execute()) {
-    echo json_encode([
-        "success" => true,
-        "message" => "Contraseña actualizada correctamente"
-    ]);
-} else {
-    echo json_encode([
-        "success" => false,
-        "message" => "Error al actualizar contraseña"
-    ]);
+if (!$stmtUpdate->execute()) {
+    $stmtUpdate->close();
+    $conn->close();
+
+    responderError("Error al actualizar contraseña", 500);
 }
 
 $stmtUpdate->close();
 $conn->close();
-?>
+
+responderJSON([
+    "success" => true,
+    "message" => "Contraseña actualizada correctamente"
+]);
