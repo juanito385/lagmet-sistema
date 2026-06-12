@@ -56,8 +56,27 @@ if (!$result || $result->num_rows === 0) {
 
 $usuario = $result->fetch_assoc();
 
-$codigo = (string) random_int(100000, 999999);
+/* =========================
+   GENERAR CÓDIGO
+========================= */
+
+/*
+    Este es el código visible para el usuario.
+    Este código se envía por correo.
+*/
+$codigoPlano = (string) random_int(100000, 999999);
+
+/*
+    Este es el código protegido.
+    Este hash se guarda en la base de datos.
+*/
+$codigoHash = password_hash($codigoPlano, PASSWORD_DEFAULT);
+
 $expira = date("Y-m-d H:i:s", strtotime("+10 minutes"));
+
+/* =========================
+   GUARDAR HASH DEL CÓDIGO
+========================= */
 
 $stmtUpdate = $conn->prepare("
     UPDATE usuarios 
@@ -76,8 +95,12 @@ if (!$stmtUpdate) {
     exit;
 }
 
-$stmtUpdate->bind_param("sss", $codigo, $expira, $email);
+$stmtUpdate->bind_param("sss", $codigoHash, $expira, $email);
 $stmtUpdate->execute();
+
+/* =========================
+   ENVIAR CÓDIGO POR GMAIL
+========================= */
 
 $html = "
     <div style='font-family: Arial, sans-serif; color:#222;'>
@@ -98,7 +121,7 @@ $html = "
             border-radius: 8px;
             margin: 12px 0;
         '>
-            {$codigo}
+            {$codigoPlano}
         </div>
 
         <p>Este código expirará en 10 minutos.</p>
@@ -116,7 +139,7 @@ $resultadoCorreo = enviarCorreoIronix(
     "Usuario IRONIX",
     "Código de recuperación - IRONIX",
     $html,
-    "Tu código de recuperación IRONIX es: {$codigo}"
+    "Tu código de recuperación IRONIX es: {$codigoPlano}"
 );
 
 if (!$resultadoCorreo["success"]) {
