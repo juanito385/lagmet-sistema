@@ -22,7 +22,7 @@ function activarEdicionPerfil() {
     const idioma = document.getElementById("perfilEditIdioma");
 
     if (nombre) nombre.value = user.nombre || "";
-    if (correo) correo.value = user.email || "";
+    if (correo) correo.value = user.email || user.correo || "";
     if (telefono) telefono.value = user.telefono || "";
     if (area) area.value = user.area || "Producción";
     if (idioma) idioma.value = user.idioma || "Español / Chile";
@@ -97,7 +97,7 @@ function guardarInformacionPerfil() {
     formData.append("area", area);
     formData.append("idioma", idioma);
 
-    fetch("php/config/actualizar_usuario.php", {
+    fetch("php/perfil/actualizar_usuario.php", {
         method: "POST",
         body: formData
     })
@@ -114,6 +114,7 @@ function guardarInformacionPerfil() {
             ...user,
             nombre,
             correo,
+            email: correo,
             telefono,
             area,
             idioma

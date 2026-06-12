@@ -44,7 +44,7 @@ function cambiarPasswordPerfil() {
     formData.append("nueva", nueva);
     formData.append("confirmar", confirmar);
 
-    fetch("php/config/cambiar_password.php", {
+    fetch("php/perfil/cambiar_password.php", {
         method: "POST",
         body: formData
     })

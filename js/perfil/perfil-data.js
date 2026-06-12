@@ -7,7 +7,7 @@ function cargarDatosPerfilUsuario() {
 
     if (!user || !user.id) return;
 
-    fetch(`php/config/obtener_usuario.php?usuario_id=${user.id}`)
+    fetch(`php/perfil/obtener_usuario.php?usuario_id=${encodeURIComponent(user.id)}`)
         .then(res => res.json())
         .then(data => {
             console.log("Datos perfil:", data);

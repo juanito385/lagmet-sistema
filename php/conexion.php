@@ -1,18 +1,23 @@
 <?php
-$host = "localhost";
-$user = "root";
-$pass = "";
-$db = "lagmet_db";
 
-$conn = new mysqli($host, $user, $pass, $db);
+$config = require __DIR__ . "/config/env.php";
 
-if ($conn->connect_error) {
+$conexion = new mysqli(
+    $config["DB_HOST"],
+    $config["DB_USER"],
+    $config["DB_PASS"],
+    $config["DB_NAME"]
+);
+
+if ($conexion->connect_error) {
+    http_response_code(500);
+
     echo json_encode([
         "success" => false,
         "message" => "Error de conexión a la base de datos"
     ]);
+
     exit;
 }
 
-$conn->set_charset("utf8");
-?>
+$conexion->set_charset("utf8mb4");

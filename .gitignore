@@ -1,0 +1,16 @@
+# =========================
+# CONFIGURACIÓN LOCAL SENSIBLE
+# =========================
+php/config/env.php
+
+# =========================
+# ARCHIVOS TEMPORALES
+# =========================
+*.log
+*.tmp
+
+# =========================
+# SISTEMA OPERATIVO
+# =========================
+.DS_Store
+Thumbs.db
