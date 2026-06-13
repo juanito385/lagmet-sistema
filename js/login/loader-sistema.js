@@ -46,14 +46,16 @@ async function inicializarLoaderSistema() {
 ================================ */
 
 function cargarCSSLoaderSistema() {
-    const cssExistente = document.querySelector('link[href="css/login/loader-sistema.css"]');
+    const cssExistente = document.querySelector('link[href*="css/login/loader-sistema.css"]');
 
-    if (cssExistente) return;
+    if (cssExistente) {
+        cssExistente.remove();
+    }
 
     const link = document.createElement("link");
 
     link.rel = "stylesheet";
-    link.href = "css/login/loader-sistema.css";
+    link.href = "css/login/loader-sistema.css?v=2026-06-12-04";
 
     document.head.appendChild(link);
 }

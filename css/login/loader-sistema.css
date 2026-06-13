@@ -97,68 +97,173 @@
 }
 
 /* ===============================
-   SPINNER CENTRAL
+   SPINNER CENTRAL - SEGMENTADO HUD
 ================================ */
 
 .ironix-loader-spinner {
-    width: 128px;
-    height: 128px;
+    width: 190px;
+    height: 190px;
 
     position: relative;
 
-    margin-bottom: 28px;
+    margin-bottom: 32px;
 
     border-radius: 50%;
 
     background:
-        conic-gradient(
-            from 0deg,
-            rgba(56, 189, 248, 0.08),
-            #38bdf8,
-            #0ea5e9,
-            rgba(56, 189, 248, 0.08),
-            transparent
+        radial-gradient(circle at center,
+            rgba(2, 6, 23, 0.95) 0%,
+            rgba(2, 12, 27, 0.95) 38%,
+            rgba(14, 165, 233, 0.10) 39%,
+            rgba(14, 165, 233, 0.04) 100%
         );
 
     box-shadow:
-        0 0 28px rgba(56, 189, 248, 0.35),
-        inset 0 0 20px rgba(56, 189, 248, 0.16);
+        0 0 26px rgba(56, 189, 248, 0.24),
+        0 0 70px rgba(14, 165, 233, 0.16),
+        inset 0 0 28px rgba(56, 189, 248, 0.10);
 
-    animation: ironixGirarLoader 1.25s linear infinite;
+    animation: none;
 }
 
-.ironix-loader-spinner::before {
-    content: "";
-    position: absolute;
-    inset: 13px;
-
-    border-radius: 50%;
-
-    background: #020b17;
-}
-
+/* Anillo externo técnico */
 .ironix-loader-spinner::after {
     content: "";
     position: absolute;
-    inset: 28px;
+    inset: 4px;
 
     border-radius: 50%;
-    border: 2px solid rgba(56, 189, 248, 0.5);
+
+    border: 2px solid rgba(37, 99, 235, 0.45);
+
+    background:
+        conic-gradient(
+            from 0deg,
+            rgba(56, 189, 248, 0.0) 0deg,
+            rgba(56, 189, 248, 0.65) 12deg,
+            rgba(56, 189, 248, 0.0) 24deg,
+            transparent 70deg,
+            rgba(59, 130, 246, 0.55) 95deg,
+            transparent 120deg,
+            transparent 210deg,
+            rgba(56, 189, 248, 0.45) 235deg,
+            transparent 260deg,
+            transparent 360deg
+        );
 
     box-shadow:
-        0 0 18px rgba(56, 189, 248, 0.32),
-        inset 0 0 16px rgba(56, 189, 248, 0.18);
+        0 0 18px rgba(37, 99, 235, 0.35),
+        inset 0 0 18px rgba(37, 99, 235, 0.18);
+
+    opacity: 0.95;
 }
 
-.ironix-loader-spinner-inner {
+/* Segmentos luminosos */
+.ironix-loader-spinner::before {
+    content: "";
     position: absolute;
-    inset: 45px;
-    z-index: 2;
+    inset: 24px;
 
     border-radius: 50%;
 
-    background: rgba(56, 189, 248, 0.12);
-    box-shadow: 0 0 20px rgba(56, 189, 248, 0.45);
+    background:
+        repeating-conic-gradient(
+            from 0deg,
+            #67e8f9 0deg,
+            #38bdf8 5deg,
+            #2563eb 8deg,
+            transparent 9deg,
+            transparent 15deg
+        );
+
+    -webkit-mask:
+        radial-gradient(circle,
+            transparent 0%,
+            transparent 48%,
+            #000 50%,
+            #000 72%,
+            transparent 74%,
+            transparent 100%
+        );
+
+    mask:
+        radial-gradient(circle,
+            transparent 0%,
+            transparent 48%,
+            #000 50%,
+            #000 72%,
+            transparent 74%,
+            transparent 100%
+        );
+
+    filter:
+        drop-shadow(0 0 8px rgba(56, 189, 248, 0.75))
+        drop-shadow(0 0 18px rgba(14, 165, 233, 0.42));
+
+    animation: ironixSegmentosLoader 3.5s linear infinite;  /* lento */
+}
+
+/* Centro oscuro */
+.ironix-loader-spinner-inner {
+    position: absolute;
+    inset: 61px;
+    z-index: 3;
+
+    border-radius: 50%;
+
+    background:
+        radial-gradient(circle,
+            rgba(15, 23, 42, 0.88) 0%,
+            rgba(2, 12, 27, 0.98) 58%,
+            rgba(2, 6, 23, 1) 100%
+        );
+
+    border: 2px solid rgba(56, 189, 248, 0.30);
+
+    box-shadow:
+        0 0 24px rgba(56, 189, 248, 0.20),
+        inset 0 0 24px rgba(56, 189, 248, 0.10);
+}
+
+.ironix-loader-spinner-inner::before {
+    content: "";
+    position: absolute;
+    inset: 15px;
+
+    border-radius: 50%;
+
+    border: 1px solid rgba(56, 189, 248, 0.24);
+
+    box-shadow:
+        0 0 12px rgba(56, 189, 248, 0.18),
+        inset 0 0 14px rgba(56, 189, 248, 0.08);
+}
+
+/* Puntos técnicos del anillo */
+.ironix-loader-spinner-inner::after {
+    content: "";
+    position: absolute;
+    inset: -61px;
+
+    border-radius: 50%;
+
+    background:
+        radial-gradient(circle at 50% 0%, #38bdf8 0 3px, transparent 4px),
+        radial-gradient(circle at 100% 50%, #1d4ed8 0 3px, transparent 4px),
+        radial-gradient(circle at 50% 100%, #38bdf8 0 3px, transparent 4px),
+        radial-gradient(circle at 0% 50%, #1d4ed8 0 3px, transparent 4px);
+
+    opacity: 0.85;
+}
+
+/* Animación de segmentos */
+@keyframes ironixSegmentosLoader {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
 }
 
 /* ===============================
