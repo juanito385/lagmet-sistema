@@ -61,13 +61,40 @@ async function verificarSesionInicialIronix() {
 function mostrarAuthIronix() {
     const authContainer = document.getElementById("authContainer");
     const app = document.getElementById("app");
+    const login = document.getElementById("login");
+    const recuperar = document.getElementById("recuperar");
+
+    document.body.classList.remove("usuario-logueado");
 
     if (app) {
-        app.style.display = "none";
+        app.style.setProperty("display", "none", "important");
+        app.style.setProperty("visibility", "hidden", "important");
+        app.style.setProperty("opacity", "0", "important");
     }
 
     if (authContainer) {
-        authContainer.style.display = "block";
+        authContainer.style.setProperty("display", "block", "important");
+        authContainer.style.setProperty("visibility", "visible", "important");
+        authContainer.style.setProperty("opacity", "1", "important");
+    }
+
+    /*
+        IMPORTANTE:
+        iniciarApp() oculta #login con !important.
+        Al cerrar sesión hay que restaurarlo explícitamente.
+    */
+    if (login) {
+        login.style.setProperty("display", "flex", "important");
+        login.style.setProperty("visibility", "visible", "important");
+        login.style.setProperty("opacity", "1", "important");
+        login.style.setProperty("pointer-events", "auto", "important");
+    }
+
+    if (recuperar) {
+        recuperar.style.setProperty("display", "none", "important");
+        recuperar.style.setProperty("visibility", "hidden", "important");
+        recuperar.style.setProperty("opacity", "0", "important");
+        recuperar.style.setProperty("pointer-events", "none", "important");
     }
 }
 

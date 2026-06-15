@@ -132,6 +132,20 @@ async function iniciarApp(cargarDashboard = false) {
         contenido.style.setProperty("opacity", "1", "important");
     }
 
+    /*
+    Si el sidebar fue limpiado al cerrar sesión,
+    se vuelve a cargar antes de actualizar usuario y permisos.
+    */
+    const sidebarContainer = document.getElementById("sidebarContainer");
+
+    if (
+        sidebarContainer &&
+        sidebarContainer.innerHTML.trim() === "" &&
+        typeof cargarSidebarIronix === "function"
+    ) {
+        await cargarSidebarIronix();
+    }
+
     actualizarUsuarioSidebar();
 
     if (typeof aplicarPermisosNavegacion === "function") {

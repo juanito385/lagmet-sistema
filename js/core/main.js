@@ -1,27 +1,14 @@
-window.addEventListener("DOMContentLoaded", async () => {
-
+window.addEventListener("DOMContentLoaded", () => {
     /*
-        Validamos si existe usuario logueado.
-        Esto evita cargar Dashboard cuando todavía está visible el login.
+        IMPORTANTE:
+        El inicio real de IRONIX lo controla login-loader.js,
+        porque ese archivo valida la sesión PHP real usando:
+
+        php/auth/verificar_sesion.php
+
+        Este archivo ya no debe iniciar la app usando solo localStorage.
     */
-    const user = typeof obtenerUsuarioActual === "function"
-        ? obtenerUsuarioActual()
-        : JSON.parse(localStorage.getItem("user"));
-
-    if (!user) {
-        console.log("Sin usuario logueado. Esperando login...");
-        return;
-    }
-
-    iniciarApp();
-
-    /*
-        Cargar dashboard inicial solo si existe showSection.
-    */
-    if (typeof showSection === "function") {
-        await showSection("dashboard");
-    }
-
+    console.log("main.js cargado. Inicio de app controlado por login-loader.js");
 });
 
 
