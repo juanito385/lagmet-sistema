@@ -26,11 +26,23 @@ async function cargarSidebarIronix() {
 
         console.log("Sidebar IRONIX cargado correctamente");
 
+        /*
+            Después de cargar el sidebar dinámico:
+            1. Actualiza avatar, nombre y rol.
+            2. Aplica permisos visuales a los botones del menú.
+        */
+        if (typeof actualizarUsuarioSidebar === "function") {
+            actualizarUsuarioSidebar();
+        }
+
+        if (typeof aplicarPermisosNavegacion === "function") {
+            aplicarPermisosNavegacion();
+        }
+
     } catch (error) {
         console.error("Error cargando Sidebar IRONIX:", error);
     }
 }
-
 async function cargarLayoutIronix() {
     await cargarSidebarIronix();
 }
