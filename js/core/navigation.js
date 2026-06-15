@@ -14,6 +14,32 @@
 ================================================== */
 
 /* =========================
+   CONFIGURACIÓN DE SECCIONES
+========================= */
+
+/*
+    Mapa de alias para evitar problemas si el nombre del módulo
+    en BD no coincide exactamente con el nombre de la vista.
+*/
+const IRONIX_ALIAS_PERMISOS_SECCIONES = {
+    "dashboard": ["dashboard"],
+    "monitoreo": ["monitoreo", "produccion"],
+    "productos": ["productos"],
+    "documentacion": ["documentacion", "documentación", "gantt"],
+    "flujo-proceso": ["flujo-proceso", "flujo_proceso", "flujo"],
+    "estados": ["estados", "estado"],
+    "configuracion": ["configuracion", "configuración", "usuarios", "permisos"],
+    "perfil": ["perfil"]
+};
+
+/*
+    Secciones que siempre puede ver un usuario logueado.
+*/
+const IRONIX_SECCIONES_SIEMPRE_PERMITIDAS = [
+    "perfil"
+];
+
+/* =========================
    NAVEGACIÓN CON PERMISOS
 ========================= */
 
@@ -22,11 +48,45 @@
 ========================= */
 function obtenerUsuarioNavegacion() {
     try {
-        return JSON.parse(localStorage.getItem("user"));
+        const userRaw = localStorage.getItem("user");
+
+        if (!userRaw) {
+            return null;
+        }
+
+        const user = JSON.parse(userRaw);
+
+        if (!user || !user.id) {
+            localStorage.removeItem("user");
+            return null;
+        }
+
+        return user;
+
     } catch (error) {
         console.error("Error leyendo usuario en navegación:", error);
+        localStorage.removeItem("user");
         return null;
     }
+}
+
+/* =========================
+   OBTENER PERMISO POR SECCIÓN
+========================= */
+function obtenerPermisoSeccionIronix(user, seccion) {
+    if (!user || !user.permisos) {
+        return null;
+    }
+
+    const alias = IRONIX_ALIAS_PERMISOS_SECCIONES[seccion] || [seccion];
+
+    for (const nombreModulo of alias) {
+        if (user.permisos[nombreModulo]) {
+            return user.permisos[nombreModulo];
+        }
+    }
+
+    return null;
 }
 
 /* =========================
@@ -43,16 +103,17 @@ function usuarioPuedeVerSeccion(seccion) {
     if (user.rol === "admin") return true;
 
     /*
-        Perfil siempre debe estar disponible para el usuario logueado,
-        salvo que más adelante decidas bloquearlo explícitamente.
+        Secciones base disponibles para cualquier usuario logueado.
     */
-    if (seccion === "perfil") return true;
+    if (IRONIX_SECCIONES_SIEMPRE_PERMITIDAS.includes(seccion)) {
+        return true;
+    }
 
-    if (!user.permisos) return false;
+    const permiso = obtenerPermisoSeccionIronix(user, seccion);
 
-    const permiso = user.permisos[seccion];
-
-    if (!permiso) return false;
+    if (!permiso) {
+        return false;
+    }
 
     return permiso.ver === true;
 }
