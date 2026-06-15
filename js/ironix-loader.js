@@ -12,7 +12,7 @@ console.log("IRONIX Loader iniciado...");
     Cambia esta versión cuando hagas modificaciones grandes en JS.
     Sirve para evitar problemas de caché en el navegador.
 */
-const IRONIX_JS_VERSION = "2026-06-15-02";
+const IRONIX_JS_VERSION = "2026-06-15-03";
 
 /* =========================
    LIBRERÍAS EXTERNAS
@@ -36,10 +36,32 @@ const IRONIX_LIBRERIAS = [
 
 const IRONIX_SCRIPTS = [
 
-   /* =========================
+    /* =========================
        LOADER SISTEMA POST-LOGIN
+       Debe cargar antes de login-loader.js
     ========================= */
     "js/login/loader-sistema.js",
+
+    /* =========================
+       CORE / AUTH / NAVEGACIÓN
+       Base funcional del sistema
+    ========================= */
+    "js/core/auth.js",
+    "js/core/recuperacion.js",
+    "js/core/navigation.js",
+    "js/core/layout-loader.js",
+
+    /* =========================
+       SIDEBAR
+       Control dinámico del menú lateral
+    ========================= */
+    "js/sidebar/sidebar.js",
+
+    /* =========================
+       LOGIN / RECUPERACIÓN DINÁMICA
+       Controla carga de login y validación inicial de sesión PHP
+    ========================= */
+    "js/auth/login-loader.js",
 
     /* =========================
        FLUJO PROCESO
@@ -61,19 +83,6 @@ const IRONIX_SCRIPTS = [
     "js/flujo/flujo-proceso-export.js",
 
     /* =========================
-       CORE
-    ========================= */
-    "js/core/auth.js",
-    "js/core/recuperacion.js",
-    "js/core/navigation.js",
-    "js/core/layout-loader.js",
-
-    /* =========================
-     SIDEBAR
-    ========================= */
-    "js/sidebar/sidebar.js",
-
-    /* =========================
        PERFIL
     ========================= */
     "js/perfil/perfil-state.js",
@@ -85,11 +94,6 @@ const IRONIX_SCRIPTS = [
     "js/perfil/perfil-tabs.js",
     "js/perfil/perfil-events.js",
     "js/perfil/perfil-main.js",
-
-    /* =========================
-       LOGIN / RECUPERACIÓN DINÁMICA
-    ========================= */
-    "js/auth/login-loader.js",
 
     /* =========================
        PRODUCCIÓN
@@ -158,6 +162,8 @@ const IRONIX_SCRIPTS = [
 
     /* =========================
        MAIN
+       Actualmente queda neutral.
+       No debe iniciar la app por localStorage.
     ========================= */
     "js/core/main.js",
 
