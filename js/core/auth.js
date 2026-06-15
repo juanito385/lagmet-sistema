@@ -95,6 +95,24 @@ async function iniciarApp(cargarDashboard = false) {
         return;
     }
 
+    /*
+        Seguridad:
+        iniciarApp() no debe abrir el sistema solo porque exista localStorage.
+        La sesión PHP real debe haber sido validada antes por login-loader.js
+        usando php/auth/verificar_sesion.php.
+    */
+    if (window.IRONIX_SESION_PHP_VERIFICADA !== true) {
+        console.warn("Inicio de app bloqueado: sesión PHP no verificada");
+
+        localStorage.removeItem("user");
+
+        if (typeof mostrarAuthIronix === "function") {
+            mostrarAuthIronix();
+        }
+
+        return;
+    }
+
     const user = obtenerUsuarioActual();
 
     if (!user) return;
@@ -295,6 +313,7 @@ async function cerrarSesionIronix() {
         mientras se está cerrando la sesión.
     */
     window.IRONIX_CERRANDO_SESION = true;
+    window.IRONIX_SESION_PHP_VERIFICADA = false;
 
     /*
         Limpiar sesión local inmediatamente.

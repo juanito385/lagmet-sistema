@@ -22,6 +22,7 @@ async function verificarSesionInicialIronix() {
         const datos = await respuesta.json();
 
         if (!respuesta.ok || !datos.success || !datos.auth || !datos.user) {
+            window.IRONIX_SESION_PHP_VERIFICADA = false;
             localStorage.removeItem("user");
 
             return {
@@ -31,6 +32,7 @@ async function verificarSesionInicialIronix() {
             };
         }
 
+        window.IRONIX_SESION_PHP_VERIFICADA = true;
         localStorage.setItem("user", JSON.stringify(datos.user));
 
         return {
@@ -42,6 +44,7 @@ async function verificarSesionInicialIronix() {
     } catch (error) {
         console.error("Error verificando sesión inicial:", error);
 
+        window.IRONIX_SESION_PHP_VERIFICADA = false;
         localStorage.removeItem("user");
 
         return {
