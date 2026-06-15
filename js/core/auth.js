@@ -52,6 +52,7 @@ async function login() {
         }
 
         if (data.success) {
+            window.IRONIX_CERRANDO_SESION = false;
             localStorage.setItem("user", JSON.stringify(data.user));
 
             /*
@@ -89,6 +90,11 @@ async function login() {
 ================================ */
 
 async function iniciarApp(cargarDashboard = false) {
+    if (window.IRONIX_CERRANDO_SESION === true) {
+        console.warn("Inicio de app bloqueado: cierre de sesión en proceso");
+        return;
+    }
+
     const user = obtenerUsuarioActual();
 
     if (!user) return;
@@ -263,8 +269,91 @@ function usuarioEsNormal() {
    LOGOUT
 ================================ */
 
-function logout() {
+async function logout() {
+    await cerrarSesionIronix();
+}
+
+async function cerrarSesionIronix() {
+    console.log("Cerrando sesión IRONIX...");
+
+    /*
+        Evita que el loader o iniciarApp vuelvan a abrir el sistema
+        mientras se está cerrando la sesión.
+    */
+    window.IRONIX_CERRANDO_SESION = true;
+
+    /*
+        Limpiar sesión local inmediatamente.
+    */
     localStorage.removeItem("user");
     document.body.classList.remove("usuario-logueado");
-    location.reload();
+
+    try {
+        const respuesta = await fetch("php/auth/logout.php", {
+            method: "POST",
+            credentials: "same-origin",
+            cache: "no-store"
+        });
+
+        const datos = await respuesta.json();
+        console.log("Respuesta logout.php:", datos);
+
+    } catch (error) {
+        console.error("Error cerrando sesión en servidor:", error);
+    }
+
+    /*
+        Asegurar limpieza local.
+    */
+    localStorage.removeItem("user");
+
+    /*
+        Ocultar aplicación.
+    */
+    const app = document.getElementById("app");
+    if (app) {
+        app.style.setProperty("display", "none", "important");
+        app.style.setProperty("visibility", "hidden", "important");
+        app.style.setProperty("opacity", "0", "important");
+    }
+
+    /*
+        Limpiar contenido dinámico para que no quede Dashboard visible.
+    */
+    const contenido = document.getElementById("contenido");
+    if (contenido) {
+        contenido.innerHTML = "";
+    }
+
+    const sidebarContainer = document.getElementById("sidebarContainer");
+    if (sidebarContainer) {
+        sidebarContainer.innerHTML = "";
+    }
+
+    /*
+        Ocultar loader si quedó activo.
+    */
+    const loaderSistema = document.getElementById("ironixLoaderSistema");
+    if (loaderSistema) {
+        loaderSistema.style.setProperty("display", "none", "important");
+        loaderSistema.style.setProperty("visibility", "hidden", "important");
+        loaderSistema.style.setProperty("opacity", "0", "important");
+    }
+
+    /*
+        Mostrar login.
+    */
+    if (typeof mostrarAuthIronix === "function") {
+        mostrarAuthIronix();
+    } else {
+        const authContainer = document.getElementById("authContainer");
+
+        if (authContainer) {
+            authContainer.style.setProperty("display", "block", "important");
+            authContainer.style.setProperty("visibility", "visible", "important");
+            authContainer.style.setProperty("opacity", "1", "important");
+        }
+    }
+
+    console.log("Sesión IRONIX cerrada correctamente");
 }

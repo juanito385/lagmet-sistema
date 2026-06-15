@@ -6,6 +6,94 @@ document.addEventListener("DOMContentLoaded", () => {
     cargarAuthIronix();
 });
 
+
+/* ===============================
+   VALIDAR SESIÓN PHP REAL
+================================ */
+
+async function verificarSesionInicialIronix() {
+    try {
+        const respuesta = await fetch("php/auth/verificar_sesion.php", {
+            method: "GET",
+            credentials: "same-origin",
+            cache: "no-store"
+        });
+
+        const datos = await respuesta.json();
+
+        if (!respuesta.ok || !datos.success || !datos.auth || !datos.user) {
+            localStorage.removeItem("user");
+
+            return {
+                success: false,
+                auth: false,
+                message: datos.message || "Sesión no iniciada o expirada"
+            };
+        }
+
+        localStorage.setItem("user", JSON.stringify(datos.user));
+
+        return {
+            success: true,
+            auth: true,
+            user: datos.user
+        };
+
+    } catch (error) {
+        console.error("Error verificando sesión inicial:", error);
+
+        localStorage.removeItem("user");
+
+        return {
+            success: false,
+            auth: false,
+            message: "No se pudo verificar la sesión inicial",
+            error: error.message
+        };
+    }
+}
+
+
+/* ===============================
+   MOSTRAR AUTH
+================================ */
+
+function mostrarAuthIronix() {
+    const authContainer = document.getElementById("authContainer");
+    const app = document.getElementById("app");
+
+    if (app) {
+        app.style.display = "none";
+    }
+
+    if (authContainer) {
+        authContainer.style.display = "block";
+    }
+}
+
+
+/* ===============================
+   MOSTRAR APP
+================================ */
+
+function mostrarAppIronix() {
+    const authContainer = document.getElementById("authContainer");
+    const app = document.getElementById("app");
+
+    if (authContainer) {
+        authContainer.style.display = "none";
+    }
+
+    if (app) {
+        app.style.display = "block";
+    }
+}
+
+
+/* ===============================
+   CARGAR AUTH IRONIX
+================================ */
+
 async function cargarAuthIronix() {
     const authContainer = document.getElementById("authContainer");
 
@@ -38,14 +126,28 @@ async function cargarAuthIronix() {
         console.log("Auth IRONIX cargado correctamente");
 
         /*
-            Si ya existe sesión guardada, se carga el sistema
-            usando también la pantalla de carga.
+            VALIDACIÓN REAL:
+            Ya no se confía solo en localStorage.
+            Primero se consulta la sesión PHP real.
         */
-        const user = localStorage.getItem("user");
+        const sesion = await verificarSesionInicialIronix();
 
-        if (user && typeof iniciarApp === "function") {
-            await iniciarAppConLoaderIronix(true);
+        if (sesion.success && sesion.auth) {
+            console.log("Sesión PHP activa. Cargando sistema IRONIX...");
+
+            mostrarAppIronix();
+
+            if (typeof iniciarAppConLoaderIronix === "function") {
+                await iniciarAppConLoaderIronix(true);
+            }
+
+            return;
         }
+
+        console.warn("No hay sesión PHP activa. Mostrando login.");
+
+        localStorage.removeItem("user");
+        mostrarAuthIronix();
 
     } catch (error) {
         console.error("Error cargando Auth IRONIX:", error);
@@ -67,6 +169,26 @@ async function cargarAuthIronix() {
 ================================ */
 
 async function iniciarAppConLoaderIronix(mantenerSesion = false) {
+    /*
+        Seguridad extra:
+        si se intenta iniciar manteniendo sesión,
+        confirmamos que la sesión PHP real siga activa.
+    */
+    if (mantenerSesion) {
+        const sesion = await verificarSesionInicialIronix();
+
+        if (!sesion.success || !sesion.auth) {
+            console.warn("No se puede iniciar la app: sesión PHP inválida");
+
+            localStorage.removeItem("user");
+            mostrarAuthIronix();
+
+            return;
+        }
+    }
+
+    mostrarAppIronix();
+
     /*
         Si el loader existe, se usa la pantalla completa.
         Si por algún motivo no existe, inicia la app normal.

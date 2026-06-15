@@ -6,8 +6,9 @@
     Este archivo protege visualmente el sistema desde el frontend.
 
     IMPORTANTE:
-    Esto NO reemplaza el guard PHP.
-    El guard real de seguridad será php/auth/guard.php.
+    - localStorage NO es la fuente real de seguridad.
+    - La sesión real se valida contra PHP usando:
+      php/auth/verificar_sesion.php
 */
 
 
@@ -33,6 +34,29 @@ function obtenerUsuarioIronix() {
 
 
 /* ===============================
+   GUARDAR USUARIO LOCAL
+================================ */
+
+function guardarUsuarioIronix(usuario) {
+    if (!usuario || !usuario.id) {
+        localStorage.removeItem("user");
+        return;
+    }
+
+    localStorage.setItem("user", JSON.stringify(usuario));
+}
+
+
+/* ===============================
+   LIMPIAR SESIÓN LOCAL
+================================ */
+
+function limpiarSesionLocalIronix() {
+    localStorage.removeItem("user");
+}
+
+
+/* ===============================
    VALIDAR SI HAY SESIÓN LOCAL
 ================================ */
 
@@ -40,6 +64,54 @@ function existeSesionLocalIronix() {
     const usuario = obtenerUsuarioIronix();
 
     return usuario !== null && usuario.id;
+}
+
+
+/* ===============================
+   VALIDAR SESIÓN REAL EN PHP
+================================ */
+
+async function verificarSesionServidorIronix() {
+    try {
+        const respuesta = await fetch("php/auth/verificar_sesion.php", {
+            method: "GET",
+            credentials: "same-origin",
+            cache: "no-store"
+        });
+
+        const datos = await respuesta.json();
+
+        if (!respuesta.ok || !datos.success || !datos.auth || !datos.user) {
+            limpiarSesionLocalIronix();
+
+            return {
+                success: false,
+                auth: false,
+                message: datos.message || "Sesión no iniciada o expirada"
+            };
+        }
+
+        guardarUsuarioIronix(datos.user);
+
+        return {
+            success: true,
+            auth: true,
+            user: datos.user,
+            message: datos.message || "Sesión activa"
+        };
+
+    } catch (error) {
+        console.error("Error verificando sesión en servidor:", error);
+
+        limpiarSesionLocalIronix();
+
+        return {
+            success: false,
+            auth: false,
+            message: "No se pudo verificar la sesión en el servidor",
+            error: error.message
+        };
+    }
 }
 
 
@@ -63,16 +135,54 @@ function usuarioTieneRolIronix(rolesPermitidos = []) {
 
 
 /* ===============================
-   PROTEGER APP
+   MOSTRAR APP
+================================ */
+
+function mostrarAppIronix() {
+    const app = document.getElementById("app");
+    const authContainer = document.getElementById("authContainer");
+
+    if (authContainer) {
+        authContainer.style.display = "none";
+    }
+
+    if (app) {
+        app.style.display = "block";
+    }
+}
+
+
+/* ===============================
+   OCULTAR APP
+================================ */
+
+function ocultarAppIronix() {
+    const app = document.getElementById("app");
+    const authContainer = document.getElementById("authContainer");
+
+    if (app) {
+        app.style.display = "none";
+    }
+
+    if (authContainer) {
+        authContainer.style.display = "block";
+    }
+}
+
+
+/* ===============================
+   PROTEGER APP - VALIDACIÓN LOCAL
+   Mantiene compatibilidad con código antiguo
 ================================ */
 
 function protegerAppIronix() {
     const usuario = obtenerUsuarioIronix();
 
     if (!usuario || !usuario.id) {
-        console.warn("Acceso bloqueado: usuario no autenticado");
+        console.warn("Acceso bloqueado: usuario no autenticado localmente");
 
-        localStorage.removeItem("user");
+        limpiarSesionLocalIronix();
+        ocultarAppIronix();
 
         if (typeof mostrarAuthIronix === "function") {
             mostrarAuthIronix();
@@ -80,6 +190,32 @@ function protegerAppIronix() {
 
         return false;
     }
+
+    return true;
+}
+
+
+/* ===============================
+   PROTEGER APP - VALIDACIÓN REAL PHP
+================================ */
+
+async function protegerAppServidorIronix() {
+    const sesion = await verificarSesionServidorIronix();
+
+    if (!sesion.success || !sesion.auth) {
+        console.warn("Acceso bloqueado: sesión PHP inválida");
+
+        limpiarSesionLocalIronix();
+        ocultarAppIronix();
+
+        if (typeof mostrarAuthIronix === "function") {
+            mostrarAuthIronix();
+        }
+
+        return false;
+    }
+
+    mostrarAppIronix();
 
     return true;
 }
@@ -95,7 +231,8 @@ function protegerRolIronix(rolesPermitidos = []) {
     if (!usuario || !usuario.id) {
         console.warn("Acceso bloqueado: usuario no autenticado");
 
-        localStorage.removeItem("user");
+        limpiarSesionLocalIronix();
+        ocultarAppIronix();
 
         if (typeof mostrarAuthIronix === "function") {
             mostrarAuthIronix();
@@ -125,19 +262,45 @@ function protegerRolIronix(rolesPermitidos = []) {
 ================================ */
 
 async function cerrarSesionIronix() {
+    /*
+        Bandera temporal:
+        evita que otro módulo intente iniciar la app
+        mientras se está cerrando sesión.
+    */
+    sessionStorage.setItem("ironix_logout_en_proceso", "1");
+
+    localStorage.removeItem("user");
+
     try {
         await fetch("php/auth/logout.php", {
-            method: "POST"
+            method: "POST",
+            credentials: "same-origin",
+            cache: "no-store"
         });
+
     } catch (error) {
         console.error("Error cerrando sesión en servidor:", error);
     }
 
     localStorage.removeItem("user");
 
+    const app = document.getElementById("app");
+    const authContainer = document.getElementById("authContainer");
+
+    if (app) {
+        app.style.display = "none";
+    }
+
+    if (authContainer) {
+        authContainer.style.display = "block";
+    }
+
     if (typeof mostrarAuthIronix === "function") {
         mostrarAuthIronix();
-    } else {
-        location.reload();
     }
+
+    setTimeout(() => {
+        sessionStorage.removeItem("ironix_logout_en_proceso");
+    }, 500);
 }
+
