@@ -2,6 +2,20 @@
    ELIMINAR PRODUCTO
 ========================= */
 async function eliminarProducto(id) {
+
+    /*
+        Guardia visual/frontend:
+        aunque el botón esté oculto, alguien podría intentar ejecutar
+        eliminarProducto(id) desde consola. Por eso también validamos aquí.
+    */
+    if (
+        typeof usuarioPuedeAccionIronix === "function" &&
+        !usuarioPuedeAccionIronix("productos", "eliminar")
+    ) {
+        alert("No tienes permisos para eliminar productos");
+        return;
+    }
+
     const confirmar = confirm("¿Deseas eliminar este registro?");
 
     if (!confirmar) return;

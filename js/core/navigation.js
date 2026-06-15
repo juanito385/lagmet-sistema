@@ -90,6 +90,74 @@ function obtenerPermisoSeccionIronix(user, seccion) {
 }
 
 /* =========================
+   VALIDAR ACCIÓN POR SECCIÓN
+========================= */
+function usuarioPuedeAccionIronix(seccion, accion) {
+    const user = obtenerUsuarioNavegacion();
+
+    if (!user) {
+        return false;
+    }
+
+    /*
+        El admin siempre puede ejecutar acciones.
+    */
+    if (user.rol === "admin") {
+        return true;
+    }
+
+    const permiso = obtenerPermisoSeccionIronix(user, seccion);
+
+    if (!permiso) {
+        return false;
+    }
+
+    /*
+        Acciones soportadas:
+        ver, crear, editar, eliminar, exportar
+    */
+    if (!Object.prototype.hasOwnProperty.call(permiso, accion)) {
+        console.warn("Acción de permiso no reconocida:", {
+            seccion,
+            accion,
+            permiso
+        });
+
+        return false;
+    }
+
+    return permiso[accion] === true;
+}
+
+/* =========================
+   APLICAR PERMISOS POR ACCIÓN
+========================= */
+function aplicarPermisosAccionesIronix() {
+    const elementos = document.querySelectorAll("[data-permiso-modulo][data-permiso-accion]");
+
+    elementos.forEach(elemento => {
+        const modulo = elemento.dataset.permisoModulo;
+        const accion = elemento.dataset.permisoAccion;
+
+        if (!modulo || !accion) {
+            return;
+        }
+
+        if (usuarioPuedeAccionIronix(modulo, accion)) {
+            elemento.style.display = "";
+            elemento.disabled = false;
+            elemento.classList.remove("permiso-bloqueado");
+        } else {
+            elemento.style.display = "none";
+            elemento.disabled = true;
+            elemento.classList.add("permiso-bloqueado");
+        }
+    });
+
+    console.log("Permisos por acción aplicados:", elementos.length);
+}
+
+/* =========================
    VALIDAR PERMISO DE MÓDULO
 ========================= */
 function usuarioPuedeVerSeccion(seccion) {
@@ -304,6 +372,16 @@ async function showSection(seccion) {
             }
         }
 
+                /*
+            Aplicar permisos por acción después de cargar e inicializar la sección.
+            Esto afectará botones marcados con:
+            data-permiso-modulo
+            data-permiso-accion
+        */
+        if (typeof aplicarPermisosAccionesIronix === "function") {
+            aplicarPermisosAccionesIronix();
+        }
+
     } catch (error) {
 
         console.error("Error cargando sección:", error);
@@ -337,3 +415,6 @@ function refrescarPermisosNavegacion() {
 
 window.aplicarPermisosNavegacion = aplicarPermisosNavegacion;
 window.refrescarPermisosNavegacion = refrescarPermisosNavegacion;
+window.usuarioPuedeVerSeccion = usuarioPuedeVerSeccion;
+window.usuarioPuedeAccionIronix = usuarioPuedeAccionIronix;
+window.aplicarPermisosAccionesIronix = aplicarPermisosAccionesIronix;

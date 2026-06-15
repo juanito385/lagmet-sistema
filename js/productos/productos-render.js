@@ -73,7 +73,13 @@ async function renderProductos() {
                             <span class="material-icons">edit</span>
                         </button>
 
-                        <button class="btn-action eliminar" onclick="eliminarProducto(${item.id})" title="Eliminar">
+                        <button 
+                            class="btn-action eliminar" 
+                            onclick="eliminarProducto(${item.id})" 
+                            title="Eliminar"
+                            data-permiso-modulo="productos"
+                            data-permiso-accion="eliminar"
+                        >
                             <span class="material-icons">delete</span>
                         </button>
                     </div>
@@ -85,6 +91,10 @@ async function renderProductos() {
         });
 
         ordenarProductos();
+
+        if (typeof aplicarPermisosAccionesIronix === "function") {
+            aplicarPermisosAccionesIronix();
+        }
 
         const documentacion = document.getElementById("documentacion");
 
