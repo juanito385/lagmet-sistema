@@ -1,6 +1,24 @@
 /* ===============================
    IRONIX - AUTH GUARD FRONTEND
+   ESTADO ACTUAL: INACTIVO
+
+   IMPORTANTE:
+   Este archivo NO está cargado actualmente en ironix-loader.js.
+
+   El flujo activo de autenticación está repartido en:
+   - js/auth/login-loader.js
+   - js/core/auth.js
+   - js/core/navigation.js
+
+   No cargar este archivo todavía para evitar duplicidad de funciones como:
+   - verificar sesión
+   - mostrar app/login
+   - cerrar sesión
+   - limpiar localStorage
+
+   Se conserva como referencia para una futura consolidación.
 ================================ */
+
 
 /*
     Este archivo protege visualmente el sistema desde el frontend.
