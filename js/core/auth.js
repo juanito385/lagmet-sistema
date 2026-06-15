@@ -177,13 +177,31 @@ async function iniciarApp(cargarDashboard = false) {
     }
 
     /*
-        Cargar Dashboard antes de ocultar el loader.
-        Si showSection es async, se espera.
-        Si no es async, igual funciona.
+    Cargar Dashboard inicial una sola vez.
+    Esto evita dobles cargas si login-loader.js, el loader o alguna función
+    intentan iniciar la app más de una vez en la misma sesión.
     */
     if (cargarDashboard && typeof showSection === "function") {
-        await esperarInicioDashboardIronix();
-        await showSection("dashboard");
+
+        if (window.IRONIX_DASHBOARD_INICIAL_CARGANDO === true) {
+            console.warn("Carga inicial del Dashboard ya está en proceso");
+
+        } else if (window.IRONIX_DASHBOARD_INICIAL_CARGADO === true) {
+            console.log("Dashboard inicial ya fue cargado en esta sesión");
+
+        } else {
+            window.IRONIX_DASHBOARD_INICIAL_CARGANDO = true;
+
+            try {
+                await esperarInicioDashboardIronix();
+                await showSection("dashboard");
+
+                window.IRONIX_DASHBOARD_INICIAL_CARGADO = true;
+
+            } finally {
+                window.IRONIX_DASHBOARD_INICIAL_CARGANDO = false;
+            }
+        }
     }
 
     console.log("APP INICIADA:", {
@@ -314,6 +332,8 @@ async function cerrarSesionIronix() {
     */
     window.IRONIX_CERRANDO_SESION = true;
     window.IRONIX_SESION_PHP_VERIFICADA = false;
+    window.IRONIX_DASHBOARD_INICIAL_CARGADO = false;
+    window.IRONIX_DASHBOARD_INICIAL_CARGANDO = false;
 
     /*
         Limpiar sesión local inmediatamente.
