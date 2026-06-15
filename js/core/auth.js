@@ -1,3 +1,19 @@
+/* ==================================================
+   IRONIX - AUTH CORE
+
+   Responsabilidad de este archivo:
+   - Ejecutar login contra php/auth/login.php.
+   - Guardar usuario local solo después de login correcto.
+   - Iniciar la app únicamente si la sesión PHP fue verificada.
+   - Actualizar datos visuales del usuario.
+   - Ejecutar logout contra php/auth/logout.php.
+   - Limpiar app, sidebar, loader y localStorage al cerrar sesión.
+
+   IMPORTANTE:
+   iniciarApp() no debe abrir el sistema si:
+   window.IRONIX_SESION_PHP_VERIFICADA !== true
+================================================== */
+
 /* ===============================
    LOGIN
 ================================ */

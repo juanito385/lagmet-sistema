@@ -1,3 +1,17 @@
+/* ==================================================
+   IRONIX - MAIN NEUTRAL
+
+   Responsabilidad actual:
+   - No iniciar la app.
+   - No cargar Dashboard.
+   - No depender de localStorage.
+   - Dejar que login-loader.js controle el inicio real.
+
+   IMPORTANTE:
+   Este archivo se mantiene neutral para evitar doble carga
+   de la app o del Dashboard.
+================================================== */
+
 window.addEventListener("DOMContentLoaded", () => {
     /*
         IMPORTANTE:
@@ -10,5 +24,3 @@ window.addEventListener("DOMContentLoaded", () => {
     */
     console.log("main.js cargado. Inicio de app controlado por login-loader.js");
 });
-
-

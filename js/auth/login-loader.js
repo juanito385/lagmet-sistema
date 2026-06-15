@@ -1,3 +1,18 @@
+/* ==================================================
+   IRONIX - LOGIN LOADER / GUARD DE SESIÓN INICIAL
+
+   Responsabilidad de este archivo:
+   - Cargar vistas de login y recuperación.
+   - Verificar sesión PHP real con php/auth/verificar_sesion.php.
+   - Activar window.IRONIX_SESION_PHP_VERIFICADA.
+   - Mostrar login si no hay sesión.
+   - Iniciar app con loader si la sesión PHP es válida.
+
+   IMPORTANTE:
+   Este archivo es la entrada principal del sistema.
+   No debe confiar solo en localStorage.
+================================================== */
+
 /* ===============================
    CARGAR AUTH IRONIX
 ================================ */

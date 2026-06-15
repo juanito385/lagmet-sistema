@@ -1,3 +1,18 @@
+/* ==================================================
+   IRONIX - NAVEGACIÓN / GUARD VISUAL POR PERMISOS
+
+   Responsabilidad de este archivo:
+   - Leer permisos visuales del usuario guardado localmente.
+   - Permitir acceso total al rol admin.
+   - Permitir perfil al usuario logueado.
+   - Bloquear secciones sin permiso de visualización.
+   - Ocultar botones del sidebar según permisos.
+
+   IMPORTANTE:
+   Este archivo protege la interfaz visual.
+   La seguridad real de endpoints debe hacerse en PHP.
+================================================== */
+
 /* =========================
    NAVEGACIÓN CON PERMISOS
 ========================= */
