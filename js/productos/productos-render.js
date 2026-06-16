@@ -69,7 +69,13 @@ async function renderProductos() {
                 </td>
                 <td>
                     <div class="acciones-producto">
-                        <button class="btn-action editar" onclick="editarProducto(${item.id})" title="Editar">
+                        <button 
+                            class="btn-action editar" 
+                            onclick="editarProducto(${item.id})" 
+                            title="Editar"
+                            data-permiso-modulo="productos"
+                            data-permiso-accion="editar"
+                        >
                             <span class="material-icons">edit</span>
                         </button>
 

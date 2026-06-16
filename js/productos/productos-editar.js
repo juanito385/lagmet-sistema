@@ -2,6 +2,20 @@
    EDITAR PRODUCTO
 ========================= */
 async function editarProducto(id) {
+
+    /*
+        Guardia visual/frontend:
+        aunque el botón esté oculto, alguien podría intentar ejecutar
+        editarProducto(id) desde consola. Por eso también validamos aquí.
+    */
+    if (
+        typeof usuarioPuedeAccionIronix === "function" &&
+        !usuarioPuedeAccionIronix("productos", "editar")
+    ) {
+        alert("No tienes permisos para editar productos");
+        return;
+    }
+
     localStorage.setItem("editandoId", id);
 
     if (typeof showSection === "function") {
@@ -132,6 +146,19 @@ async function cargarMaquinasGuardadasProducto(id) {
    CARGAR DATOS AL FORMULARIO
 ========================= */
 async function cargarProductoParaEditar(id) {
+
+    /*
+        Guardia extra:
+        evita cargar datos de edición si alguien llama esta función directamente.
+    */
+    if (
+        typeof usuarioPuedeAccionIronix === "function" &&
+        !usuarioPuedeAccionIronix("productos", "editar")
+    ) {
+        alert("No tienes permisos para cargar productos en modo edición");
+        return;
+    }
+
     try {
     const response = await fetch(`php/produccion/obtener_produccion.php`);
     const data = await response.json();
