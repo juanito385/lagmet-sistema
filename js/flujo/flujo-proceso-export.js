@@ -16,10 +16,41 @@ console.log("ARCHIVO flujo-proceso-export.js CARGADO CORRECTAMENTE");
         sistema: "IRONIX"
     };
 
+        /* =========================
+       GUARD EXPORTACIÓN FLUJO
+    ========================= */
+    function validarPermisoExportarFlujoIronix() {
+        /*
+            Guardia frontend:
+            bloquea exportación de Flujo Proceso si el usuario
+            no tiene permiso flujo-proceso.exportar.
+
+            La seguridad real se cerrará después en backend.
+        */
+
+        if (typeof usuarioPuedeAccionIronix !== "function") {
+            console.warn("No existe usuarioPuedeAccionIronix para validar exportación de flujo");
+
+            alert("No se pudo validar el permiso de exportación");
+            return false;
+        }
+
+        if (!usuarioPuedeAccionIronix("flujo-proceso", "exportar")) {
+            alert("No tienes permisos para exportar Flujo Proceso");
+            return false;
+        }
+
+        return true;
+    }
+
     /* =========================
        EXPORTAR IMAGEN PNG
     ========================= */
     async function exportarImagen() {
+        if (!validarPermisoExportarFlujoIronix()) {
+            return;
+        }
+
         cerrarPanelOpcionesExportFlujo();
 
         if (!validarHtml2CanvasFlujo()) return;
@@ -52,6 +83,10 @@ console.log("ARCHIVO flujo-proceso-export.js CARGADO CORRECTAMENTE");
        EXPORTAR PDF
     ========================= */
     async function exportarPdf() {
+        if (!validarPermisoExportarFlujoIronix()) {
+            return;
+        }
+
         cerrarPanelOpcionesExportFlujo();
 
         if (!validarHtml2CanvasFlujo()) return;

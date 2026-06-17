@@ -16,6 +16,21 @@ function configurarEventosFlujoProceso() {
     const btnExportarPdf = document.getElementById("btnExportarPdfFlujo");
     const btnRestablecer = document.getElementById("btnRestablecerFlujo");
 
+    /*
+    Permisos visuales para exportación de Flujo Proceso.
+    Se agregan por JS porque los botones ya existen en la vista
+    y este archivo centraliza sus eventos.
+    */
+    if (btnExportarImagen) {
+        btnExportarImagen.setAttribute("data-permiso-modulo", "flujo-proceso");
+        btnExportarImagen.setAttribute("data-permiso-accion", "exportar");
+    }
+
+    if (btnExportarPdf) {
+        btnExportarPdf.setAttribute("data-permiso-modulo", "flujo-proceso");
+        btnExportarPdf.setAttribute("data-permiso-accion", "exportar");
+    }
+
     const board = document.getElementById("flujoBoard");
 
     if (inputBuscarProducto) {
@@ -75,11 +90,31 @@ function configurarEventosFlujoProceso() {
     }
 
     if (btnExportarImagen) {
-        btnExportarImagen.onclick = exportarImagenFlujo;
+        btnExportarImagen.onclick = () => {
+            if (
+                typeof usuarioPuedeAccionIronix === "function" &&
+                !usuarioPuedeAccionIronix("flujo-proceso", "exportar")
+            ) {
+                alert("No tienes permisos para exportar Flujo Proceso");
+                return;
+            }
+
+            exportarImagenFlujo();
+        };
     }
 
     if (btnExportarPdf) {
-        btnExportarPdf.onclick = exportarPdfFlujo;
+        btnExportarPdf.onclick = () => {
+            if (
+                typeof usuarioPuedeAccionIronix === "function" &&
+                !usuarioPuedeAccionIronix("flujo-proceso", "exportar")
+            ) {
+                alert("No tienes permisos para exportar Flujo Proceso");
+                return;
+            }
+
+            exportarPdfFlujo();
+        };
     }
 
     if (btnRestablecer) {
@@ -169,5 +204,12 @@ function configurarEventosFlujoProceso() {
                 dibujarConectoresDinamicosFlujo();
             }, 120);
         });
+    }
+
+    /*
+    Aplicar permisos visuales después de configurar los botones.
+    */
+    if (typeof aplicarPermisosAccionesIronix === "function") {
+        aplicarPermisosAccionesIronix();
     }
 }
