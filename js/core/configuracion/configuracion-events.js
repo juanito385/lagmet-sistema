@@ -1,4 +1,34 @@
 /* =========================
+   GUARD CONFIGURACIÓN
+========================= */
+
+function validarAccionConfiguracionIronix(accion, mensaje) {
+    /*
+        Guardia frontend:
+        valida acciones internas de Configuración.
+
+        Acciones esperadas:
+        - crear
+        - editar
+        - eliminar
+    */
+
+    if (typeof usuarioPuedeAccionIronix !== "function") {
+        console.warn("No existe usuarioPuedeAccionIronix para validar configuración");
+
+        alert("No se pudo validar el permiso de configuración");
+        return false;
+    }
+
+    if (!usuarioPuedeAccionIronix("configuracion", accion)) {
+        alert(mensaje || "No tienes permisos para realizar esta acción en configuración");
+        return false;
+    }
+
+    return true;
+}
+
+/* =========================
    EVENTOS
 ========================= */
 
@@ -13,6 +43,13 @@ document.addEventListener("click", async function(e) {
     const btnPermisos = e.target.closest(".btn-config-permisos-usuario");
 
     if (btnPermisos) {
+        if (!validarAccionConfiguracionIronix(
+            "editar",
+            "No tienes permisos para editar permisos de usuarios"
+        )) {
+            return;
+        }
+
         await seleccionarUsuarioConfiguracion(btnPermisos.dataset.usuarioId);
         enfocarPanelPermisosConfig();
         return;
@@ -21,6 +58,13 @@ document.addEventListener("click", async function(e) {
     const btnEditar = e.target.closest(".btn-config-editar-usuario");
 
     if (btnEditar) {
+        if (!validarAccionConfiguracionIronix(
+            "editar",
+            "No tienes permisos para editar usuarios"
+        )) {
+            return;
+        }
+
         await seleccionarUsuarioConfiguracion(btnEditar.dataset.usuarioId);
         abrirModalEditarUsuarioConfig(btnEditar.dataset.usuarioId);
         return;
@@ -29,6 +73,13 @@ document.addEventListener("click", async function(e) {
     const btnNuevo = e.target.closest("#btnNuevoUsuarioConfig");
 
     if (btnNuevo) {
+        if (!validarAccionConfiguracionIronix(
+            "crear",
+            "No tienes permisos para crear usuarios"
+        )) {
+            return;
+        }
+
         abrirModalNuevoUsuarioConfig();
         return;
     }
@@ -44,6 +95,13 @@ document.addEventListener("click", async function(e) {
     const btnGuardarNuevo = e.target.closest("#btnGuardarNuevoUsuario");
 
     if (btnGuardarNuevo) {
+        if (!validarAccionConfiguracionIronix(
+            "crear",
+            "No tienes permisos para guardar nuevos usuarios"
+        )) {
+            return;
+        }
+
         await guardarModalUsuarioConfig();
         return;
     }
@@ -58,6 +116,13 @@ document.addEventListener("click", async function(e) {
     const btnGuardarPermisos = e.target.closest("#btnGuardarPermisosConfig");
 
     if (btnGuardarPermisos) {
+        if (!validarAccionConfiguracionIronix(
+            "editar",
+            "No tienes permisos para guardar permisos de usuarios"
+        )) {
+            return;
+        }
+
         await guardarPermisosConfiguracion();
         return;
     }
@@ -65,6 +130,13 @@ document.addEventListener("click", async function(e) {
     const btnBloquear = e.target.closest("#btnBloquearUsuarioConfig");
 
     if (btnBloquear) {
+        if (!validarAccionConfiguracionIronix(
+            "editar",
+            "No tienes permisos para bloquear usuarios"
+        )) {
+            return;
+        }
+
         if (!configUsuarioSeleccionado) {
             alert("Selecciona un usuario primero");
             return;
@@ -77,6 +149,13 @@ document.addEventListener("click", async function(e) {
     const btnDesactivar = e.target.closest("#btnDesactivarUsuarioConfig");
 
     if (btnDesactivar) {
+        if (!validarAccionConfiguracionIronix(
+            "editar",
+            "No tienes permisos para activar o desactivar usuarios"
+        )) {
+            return;
+        }
+
         if (!configUsuarioSeleccionado) {
             alert("Selecciona un usuario primero");
             return;
@@ -93,6 +172,13 @@ document.addEventListener("click", async function(e) {
     const btnReset = e.target.closest("#btnResetPasswordUsuarioConfig");
 
     if (btnReset) {
+        if (!validarAccionConfiguracionIronix(
+            "editar",
+            "No tienes permisos para restablecer contraseñas de usuarios"
+        )) {
+            return;
+        }
+
         if (!configUsuarioSeleccionado) {
             alert("Selecciona un usuario primero");
             return;
@@ -113,6 +199,13 @@ document.addEventListener("click", async function(e) {
     const btnGuardarReset = e.target.closest("#btnGuardarResetPassword");
 
     if (btnGuardarReset) {
+        if (!validarAccionConfiguracionIronix(
+            "editar",
+            "No tienes permisos para guardar el restablecimiento de contraseña"
+        )) {
+            return;
+        }
+
         await restablecerPasswordUsuarioConfig();
         return;
     }
@@ -137,6 +230,14 @@ document.addEventListener("change", function(e) {
     );
 
     if (!checkPermiso) return;
+
+    if (!validarAccionConfiguracionIronix(
+        "editar",
+        "No tienes permisos para modificar permisos de usuarios"
+    )) {
+        checkPermiso.checked = !checkPermiso.checked;
+        return;
+    }
 
     const modulo = checkPermiso.dataset.modulo;
     const accion = checkPermiso.dataset.accion;

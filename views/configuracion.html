@@ -102,7 +102,13 @@
                         </div>
 
                         <div class="config-card-actions">
-                            <button id="btnNuevoUsuarioConfig" class="config-btn-primary" type="button">
+                            <button 
+                                id="btnNuevoUsuarioConfig" 
+                                class="config-btn-primary" 
+                                type="button"
+                                data-permiso-modulo="configuracion"
+                                data-permiso-accion="crear"
+                            >
                                 <span class="material-symbols-outlined">add</span>
                                 Nuevo usuario
                             </button>
@@ -309,6 +315,7 @@
 
             </div>
 
+            
             <!-- TAB SEGURIDAD -->
             <div class="config-tab-panel" data-config-panel="seguridad">
 
@@ -345,7 +352,13 @@
                                 <p>Bloquea el acceso del usuario sin eliminar su información.</p>
                             </div>
 
-                            <button id="btnBloquearUsuarioConfig" class="config-btn-danger" type="button">
+                            <button 
+                                id="btnBloquearUsuarioConfig" 
+                                class="config-btn-danger" 
+                                type="button"
+                                data-permiso-modulo="configuracion"
+                                data-permiso-accion="editar"
+                            >
                                 Bloquear
                             </button>
                         </div>
@@ -360,7 +373,13 @@
                                 <p>Desactiva la cuenta temporalmente.</p>
                             </div>
 
-                            <button id="btnDesactivarUsuarioConfig" class="config-btn-warning" type="button">
+                            <button 
+                                id="btnDesactivarUsuarioConfig" 
+                                class="config-btn-warning" 
+                                type="button"
+                                data-permiso-modulo="configuracion"
+                                data-permiso-accion="editar"
+                            >
                                 Desactivar
                             </button>
                         </div>
@@ -375,7 +394,13 @@
                                 <p>Define una nueva contraseña para el usuario seleccionado.</p>
                             </div>
 
-                            <button id="btnResetPasswordUsuarioConfig" class="config-btn-purple" type="button">
+                            <button 
+                                id="btnResetPasswordUsuarioConfig" 
+                                class="config-btn-purple" 
+                                type="button"
+                                data-permiso-modulo="configuracion"
+                                data-permiso-accion="editar"
+                            >
                                 Restablecer
                             </button>
                         </div>
@@ -559,7 +584,13 @@
                     Cancelar
                 </button>
 
-                <button id="btnGuardarNuevoUsuario" class="config-btn-modal-primary" type="button">
+                <button 
+                    id="btnGuardarNuevoUsuario" 
+                    class="config-btn-modal-primary" 
+                    type="button"
+                    data-permiso-modulo="configuracion"
+                    data-permiso-accion="crear"
+                >
                     <span class="material-symbols-outlined">save</span>
                     <span id="modalUsuarioBotonTexto">Crear usuario</span>
                 </button>
@@ -637,7 +668,13 @@
                     Cancelar
                 </button>
 
-                <button id="btnGuardarResetPassword" class="config-btn-modal-primary" type="button">
+                <button 
+                    id="btnGuardarResetPassword" 
+                    class="config-btn-modal-primary" 
+                    type="button"
+                    data-permiso-modulo="configuracion"
+                    data-permiso-accion="editar"
+                >
                     <span class="material-symbols-outlined">save</span>
                     Restablecer contraseña
                 </button>

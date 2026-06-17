@@ -151,6 +151,8 @@ function renderTablaUsuariosConfiguracion() {
                             class="config-btn-table btn-config-editar-usuario" 
                             type="button"
                             data-usuario-id="${usuario.id}"
+                            data-permiso-modulo="configuracion"
+                            data-permiso-accion="editar"
                         >
                             <span class="material-symbols-outlined">edit</span>
                             Editar
@@ -160,6 +162,8 @@ function renderTablaUsuariosConfiguracion() {
                             class="config-btn-table btn-config-permisos-usuario" 
                             type="button"
                             data-usuario-id="${usuario.id}"
+                            data-permiso-modulo="configuracion"
+                            data-permiso-accion="editar"
                         >
                             <span class="material-symbols-outlined">shield</span>
                             Permisos
@@ -180,6 +184,10 @@ function renderTablaUsuariosConfiguracion() {
 
     if (footer) {
         footer.textContent = `Mostrando ${configUsuariosFiltrados.length} de ${configUsuarios.length} usuarios`;
+    }
+
+    if (typeof aplicarPermisosAccionesIronix === "function") {
+        aplicarPermisosAccionesIronix();
     }
 }
 
