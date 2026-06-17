@@ -1,37 +1,17 @@
 <?php
 
 /* =========================
-   IRONIX - ACTUALIZAR USUARIO
+   IRONIX - ACTUALIZAR USUARIO ADMIN
 ========================= */
-
-header('Content-Type: application/json; charset=utf-8');
 
 require_once __DIR__ . "/../auth/guard.php";
 
 /* =========================
-   GUARD BACKEND - FASE 3
+   GUARD BACKEND - FASE 4
 ========================= */
 
+ironixRequerirMetodo("POST");
 ironixRequerirPermiso("configuracion", "editar_usuario");
-
-
-require_once __DIR__ . "/../conexion.php";
-
-
-/* =========================
-   VALIDAR MÉTODO
-========================= */
-
-if ($_SERVER["REQUEST_METHOD"] !== "POST") {
-    http_response_code(405);
-
-    echo json_encode([
-        "success" => false,
-        "message" => "Método no permitido"
-    ], JSON_UNESCAPED_UNICODE);
-
-    exit;
-}
 
 
 /* =========================
@@ -39,28 +19,44 @@ if ($_SERVER["REQUEST_METHOD"] !== "POST") {
 ========================= */
 
 /*
-    Seguridad Fase 3:
+    Seguridad Fase 4:
     No se recibe admin_id desde el frontend.
     Se usa el usuario autenticado por guard.php.
 */
 
-$adminId = intval($IRONIX_USER_ID);
+$adminId = intval($IRONIX_USER_ID ?? ($_SESSION["ironix_usuario_id"] ?? 0));
+
+if ($adminId <= 0) {
+    ironixResponderNoAutorizado("Administrador autenticado no válido");
+}
 
 
 /* =========================
    RECIBIR DATOS
 ========================= */
 
-$usuarioId = isset($_POST["usuario_id"]) ? intval($_POST["usuario_id"]) : 0;
+/*
+    Compatible con:
+    - JSON enviado por fetch
+    - FormData / POST tradicional
+*/
 
-$nombre = isset($_POST["nombre"]) ? trim($_POST["nombre"]) : "";
-$correo = isset($_POST["correo"]) ? trim($_POST["correo"]) : "";
-$rol = isset($_POST["rol"]) ? trim($_POST["rol"]) : "usuario";
-$estado = isset($_POST["estado"]) ? trim($_POST["estado"]) : "activa";
+$input = json_decode(file_get_contents("php://input"), true);
 
-$telefono = isset($_POST["telefono"]) ? trim($_POST["telefono"]) : "";
-$area = isset($_POST["area"]) ? trim($_POST["area"]) : "Producción";
-$idioma = isset($_POST["idioma"]) ? trim($_POST["idioma"]) : "Español / Chile";
+if (!is_array($input)) {
+    $input = $_POST;
+}
+
+$usuarioId = isset($input["usuario_id"]) ? intval($input["usuario_id"]) : 0;
+
+$nombre = isset($input["nombre"]) ? trim((string) $input["nombre"]) : "";
+$correo = isset($input["correo"]) ? trim((string) $input["correo"]) : "";
+$rol = isset($input["rol"]) ? trim((string) $input["rol"]) : "usuario";
+$estado = isset($input["estado"]) ? trim((string) $input["estado"]) : "activa";
+
+$telefono = isset($input["telefono"]) ? trim((string) $input["telefono"]) : "";
+$area = isset($input["area"]) ? trim((string) $input["area"]) : "Producción";
+$idioma = isset($input["idioma"]) ? trim((string) $input["idioma"]) : "Español / Chile";
 
 $rolesPermitidos = ["admin", "usuario"];
 $estadosPermitidos = ["activa", "inactiva", "bloqueada"];
@@ -70,299 +66,235 @@ $estadosPermitidos = ["activa", "inactiva", "bloqueada"];
    VALIDACIONES BÁSICAS
 ========================= */
 
-if ($adminId <= 0) {
-    http_response_code(401);
-
-    echo json_encode([
-        "success" => false,
-        "message" => "Administrador autenticado no válido"
-    ], JSON_UNESCAPED_UNICODE);
-
-    exit;
-}
-
 if ($usuarioId <= 0) {
-    http_response_code(400);
-
-    echo json_encode([
+    ironixResponderJson([
         "success" => false,
         "message" => "ID de usuario no recibido"
-    ], JSON_UNESCAPED_UNICODE);
-
-    exit;
+    ], 400);
 }
 
 if ($nombre === "" || $correo === "") {
-    http_response_code(400);
-
-    echo json_encode([
+    ironixResponderJson([
         "success" => false,
         "message" => "Completa nombre y correo"
-    ], JSON_UNESCAPED_UNICODE);
-
-    exit;
+    ], 400);
 }
 
 if (!filter_var($correo, FILTER_VALIDATE_EMAIL)) {
-    http_response_code(400);
-
-    echo json_encode([
+    ironixResponderJson([
         "success" => false,
         "message" => "Correo electrónico no válido"
-    ], JSON_UNESCAPED_UNICODE);
-
-    exit;
+    ], 400);
 }
 
 if (!in_array($rol, $rolesPermitidos, true)) {
-    http_response_code(400);
-
-    echo json_encode([
+    ironixResponderJson([
         "success" => false,
         "message" => "Rol no válido"
-    ], JSON_UNESCAPED_UNICODE);
-
-    exit;
+    ], 400);
 }
 
 if (!in_array($estado, $estadosPermitidos, true)) {
-    http_response_code(400);
-
-    echo json_encode([
+    ironixResponderJson([
         "success" => false,
         "message" => "Estado no válido"
-    ], JSON_UNESCAPED_UNICODE);
-
-    exit;
+    ], 400);
 }
 
 if ($area === "") {
-    http_response_code(400);
-
-    echo json_encode([
+    ironixResponderJson([
         "success" => false,
         "message" => "El área no puede quedar vacía"
-    ], JSON_UNESCAPED_UNICODE);
-
-    exit;
+    ], 400);
 }
 
 if ($idioma === "") {
-    http_response_code(400);
-
-    echo json_encode([
+    ironixResponderJson([
         "success" => false,
         "message" => "El idioma no puede quedar vacío"
-    ], JSON_UNESCAPED_UNICODE);
-
-    exit;
+    ], 400);
 }
 
 
-/* =========================
-   VALIDAR USUARIO OBJETIVO
-========================= */
+require_once __DIR__ . "/../conexion.php";
 
-$sqlUsuario = "
-    SELECT 
-        id, 
-        nombre, 
-        correo, 
-        rol,
-        estado
-    FROM usuarios
-    WHERE id = ?
-    LIMIT 1
-";
-
-$stmtUsuario = $conn->prepare($sqlUsuario);
-
-if (!$stmtUsuario) {
-    http_response_code(500);
-
-    echo json_encode([
-        "success" => false,
-        "message" => "Error al validar usuario"
-    ], JSON_UNESCAPED_UNICODE);
-
-    $conn->close();
-    exit;
-}
-
-$stmtUsuario->bind_param("i", $usuarioId);
-$stmtUsuario->execute();
-
-$resultUsuario = $stmtUsuario->get_result();
-
-if (!$resultUsuario || $resultUsuario->num_rows === 0) {
-    http_response_code(404);
-
-    echo json_encode([
-        "success" => false,
-        "message" => "Usuario no encontrado"
-    ], JSON_UNESCAPED_UNICODE);
-
-    $stmtUsuario->close();
-    $conn->close();
-    exit;
-}
-
-$usuarioActual = $resultUsuario->fetch_assoc();
-$stmtUsuario->close();
-
-
-/* =========================
-   PROTECCIONES ADMIN
-========================= */
-
-/*
-    Evita que el admin se quite su propio rol.
-*/
-
-if ($adminId === $usuarioId && $rol !== "admin") {
-    http_response_code(403);
-
-    echo json_encode([
-        "success" => false,
-        "message" => "No puedes quitarte tu propio rol de administrador"
-    ], JSON_UNESCAPED_UNICODE);
-
-    $conn->close();
-    exit;
-}
-
-/*
-    Evita que el admin se bloquee o desactive a sí mismo.
-*/
-
-if ($adminId === $usuarioId && $estado !== "activa") {
-    http_response_code(403);
-
-    echo json_encode([
-        "success" => false,
-        "message" => "No puedes bloquear o desactivar tu propia cuenta"
-    ], JSON_UNESCAPED_UNICODE);
-
-    $conn->close();
-    exit;
-}
-
-/*
-    Evita dejar el sistema sin ningún administrador activo.
-*/
-
-$seEstaQuitandoAdminActivo = (
-    $usuarioActual["rol"] === "admin" &&
-    (
-        $rol !== "admin" ||
-        $estado !== "activa"
-    )
-);
-
-if ($seEstaQuitandoAdminActivo) {
-    $sqlAdminsActivos = "
-        SELECT COUNT(*) AS total
-        FROM usuarios
-        WHERE rol = 'admin'
-        AND estado = 'activa'
-        AND id <> ?
-    ";
-
-    $stmtAdminsActivos = $conn->prepare($sqlAdminsActivos);
-
-    if (!$stmtAdminsActivos) {
-        http_response_code(500);
-
-        echo json_encode([
-            "success" => false,
-            "message" => "Error al validar administradores activos"
-        ], JSON_UNESCAPED_UNICODE);
-
-        $conn->close();
-        exit;
-    }
-
-    $stmtAdminsActivos->bind_param("i", $usuarioId);
-    $stmtAdminsActivos->execute();
-
-    $resultAdminsActivos = $stmtAdminsActivos->get_result();
-    $rowAdminsActivos = $resultAdminsActivos->fetch_assoc();
-
-    $totalAdminsActivos = intval($rowAdminsActivos["total"] ?? 0);
-
-    $stmtAdminsActivos->close();
-
-    if ($totalAdminsActivos <= 0) {
-        http_response_code(403);
-
-        echo json_encode([
-            "success" => false,
-            "message" => "No puedes dejar el sistema sin administradores activos"
-        ], JSON_UNESCAPED_UNICODE);
-
-        $conn->close();
-        exit;
-    }
-}
-
-
-/* =========================
-   VALIDAR CORREO DUPLICADO
-========================= */
-
-$sqlCorreo = "
-    SELECT id
-    FROM usuarios
-    WHERE correo = ?
-    AND id <> ?
-    LIMIT 1
-";
-
-$stmtCorreo = $conn->prepare($sqlCorreo);
-
-if (!$stmtCorreo) {
-    http_response_code(500);
-
-    echo json_encode([
-        "success" => false,
-        "message" => "Error al validar correo"
-    ], JSON_UNESCAPED_UNICODE);
-
-    $conn->close();
-    exit;
-}
-
-$stmtCorreo->bind_param("si", $correo, $usuarioId);
-$stmtCorreo->execute();
-
-$resultCorreo = $stmtCorreo->get_result();
-
-if ($resultCorreo && $resultCorreo->num_rows > 0) {
-    http_response_code(409);
-
-    echo json_encode([
-        "success" => false,
-        "message" => "El correo ya está registrado por otro usuario"
-    ], JSON_UNESCAPED_UNICODE);
-
-    $stmtCorreo->close();
-    $conn->close();
-    exit;
-}
-
-$stmtCorreo->close();
-
-
-/* =========================
-   ACTUALIZAR USUARIO
-========================= */
+$conn->set_charset("utf8mb4");
 
 $transaccionIniciada = false;
 
-$conn->begin_transaction();
-$transaccionIniciada = true;
 
 try {
+
+    /* =========================
+       VALIDAR USUARIO OBJETIVO
+    ========================= */
+
+    $sqlUsuario = "
+        SELECT 
+            id, 
+            nombre, 
+            correo, 
+            rol,
+            estado
+        FROM usuarios
+        WHERE id = ?
+        LIMIT 1
+    ";
+
+    $stmtUsuario = $conn->prepare($sqlUsuario);
+
+    if (!$stmtUsuario) {
+        throw new Exception("Error al validar usuario: " . $conn->error);
+    }
+
+    $stmtUsuario->bind_param("i", $usuarioId);
+
+    if (!$stmtUsuario->execute()) {
+        throw new Exception("Error al ejecutar validación de usuario: " . $stmtUsuario->error);
+    }
+
+    $resultUsuario = $stmtUsuario->get_result();
+
+    if (!$resultUsuario || $resultUsuario->num_rows === 0) {
+        $stmtUsuario->close();
+        $conn->close();
+
+        ironixResponderJson([
+            "success" => false,
+            "message" => "Usuario no encontrado"
+        ], 404);
+    }
+
+    $usuarioActual = $resultUsuario->fetch_assoc();
+    $stmtUsuario->close();
+
+
+    /* =========================
+       PROTECCIONES ADMIN
+    ========================= */
+
+    /*
+        Evita que el admin se quite su propio rol.
+    */
+
+    if ($adminId === $usuarioId && $rol !== "admin") {
+        $conn->close();
+
+        ironixResponderJson([
+            "success" => false,
+            "message" => "No puedes quitarte tu propio rol de administrador"
+        ], 403);
+    }
+
+    /*
+        Evita que el admin se bloquee o desactive a sí mismo.
+    */
+
+    if ($adminId === $usuarioId && $estado !== "activa") {
+        $conn->close();
+
+        ironixResponderJson([
+            "success" => false,
+            "message" => "No puedes bloquear o desactivar tu propia cuenta"
+        ], 403);
+    }
+
+    /*
+        Evita dejar el sistema sin ningún administrador activo.
+    */
+
+    $seEstaQuitandoAdminActivo = (
+        $usuarioActual["rol"] === "admin" &&
+        (
+            $rol !== "admin" ||
+            $estado !== "activa"
+        )
+    );
+
+    if ($seEstaQuitandoAdminActivo) {
+        $sqlAdminsActivos = "
+            SELECT COUNT(*) AS total
+            FROM usuarios
+            WHERE rol = 'admin'
+            AND estado = 'activa'
+            AND id <> ?
+        ";
+
+        $stmtAdminsActivos = $conn->prepare($sqlAdminsActivos);
+
+        if (!$stmtAdminsActivos) {
+            throw new Exception("Error al validar administradores activos: " . $conn->error);
+        }
+
+        $stmtAdminsActivos->bind_param("i", $usuarioId);
+
+        if (!$stmtAdminsActivos->execute()) {
+            throw new Exception("Error al ejecutar validación de administradores activos: " . $stmtAdminsActivos->error);
+        }
+
+        $resultAdminsActivos = $stmtAdminsActivos->get_result();
+        $rowAdminsActivos = $resultAdminsActivos ? $resultAdminsActivos->fetch_assoc() : null;
+
+        $totalAdminsActivos = intval($rowAdminsActivos["total"] ?? 0);
+
+        $stmtAdminsActivos->close();
+
+        if ($totalAdminsActivos <= 0) {
+            $conn->close();
+
+            ironixResponderJson([
+                "success" => false,
+                "message" => "No puedes dejar el sistema sin administradores activos"
+            ], 403);
+        }
+    }
+
+
+    /* =========================
+       VALIDAR CORREO DUPLICADO
+    ========================= */
+
+    $sqlCorreo = "
+        SELECT id
+        FROM usuarios
+        WHERE correo = ?
+        AND id <> ?
+        LIMIT 1
+    ";
+
+    $stmtCorreo = $conn->prepare($sqlCorreo);
+
+    if (!$stmtCorreo) {
+        throw new Exception("Error al validar correo: " . $conn->error);
+    }
+
+    $stmtCorreo->bind_param("si", $correo, $usuarioId);
+
+    if (!$stmtCorreo->execute()) {
+        throw new Exception("Error al ejecutar validación de correo: " . $stmtCorreo->error);
+    }
+
+    $resultCorreo = $stmtCorreo->get_result();
+
+    if ($resultCorreo && $resultCorreo->num_rows > 0) {
+        $stmtCorreo->close();
+        $conn->close();
+
+        ironixResponderJson([
+            "success" => false,
+            "message" => "El correo ya está registrado por otro usuario"
+        ], 409);
+    }
+
+    $stmtCorreo->close();
+
+
+    /* =========================
+       ACTUALIZAR USUARIO
+    ========================= */
+
+    $conn->begin_transaction();
+    $transaccionIniciada = true;
 
     $sqlUpdate = "
         UPDATE usuarios
@@ -380,7 +312,7 @@ try {
     $stmtUpdate = $conn->prepare($sqlUpdate);
 
     if (!$stmtUpdate) {
-        throw new Exception("Error al preparar actualización");
+        throw new Exception("Error al preparar actualización: " . $conn->error);
     }
 
     $stmtUpdate->bind_param(
@@ -396,7 +328,7 @@ try {
     );
 
     if (!$stmtUpdate->execute()) {
-        throw new Exception("Error al actualizar usuario");
+        throw new Exception("Error al actualizar usuario: " . $stmtUpdate->error);
     }
 
     $stmtUpdate->close();
@@ -407,6 +339,12 @@ try {
     ========================= */
 
     if ($usuarioActual["rol"] !== $rol) {
+
+        /*
+            Nota:
+            Se mantienen los nombres de módulos actuales de la tabla usuario_permisos.
+            En frontend ya se usa "flujo-proceso" con guion.
+        */
 
         $modulosSistema = [
             "dashboard",
@@ -466,7 +404,7 @@ try {
         $stmtPermiso = $conn->prepare($sqlPermiso);
 
         if (!$stmtPermiso) {
-            throw new Exception("Error al preparar actualización de permisos");
+            throw new Exception("Error al preparar actualización de permisos: " . $conn->error);
         }
 
         foreach ($modulosSistema as $modulo) {
@@ -496,11 +434,22 @@ try {
             );
 
             if (!$stmtPermiso->execute()) {
-                throw new Exception("Error al actualizar permisos del módulo: " . $modulo);
+                throw new Exception("Error al actualizar permisos del módulo: " . $modulo . " - " . $stmtPermiso->error);
             }
         }
 
         $stmtPermiso->close();
+    }
+
+
+    /* =========================
+       ACTUALIZAR SESIÓN SI EL ADMIN SE EDITÓ A SÍ MISMO
+    ========================= */
+
+    if ($adminId === $usuarioId) {
+        $_SESSION["ironix_usuario_nombre"] = $nombre;
+        $_SESSION["ironix_usuario_correo"] = $correo;
+        $_SESSION["ironix_usuario_rol"] = $rol;
     }
 
 
@@ -511,12 +460,14 @@ try {
     $conn->commit();
     $transaccionIniciada = false;
 
+    $conn->close();
+
 
     /* =========================
        RESPUESTA
     ========================= */
 
-    echo json_encode([
+    ironixResponderJson([
         "success" => true,
         "message" => "Usuario actualizado correctamente",
         "usuario" => [
@@ -529,20 +480,20 @@ try {
             "idioma" => $idioma,
             "estado" => $estado
         ]
-    ], JSON_UNESCAPED_UNICODE);
+    ], 200);
 
-} catch (Exception $e) {
+} catch (Throwable $e) {
 
-    if ($transaccionIniciada) {
+    if ($transaccionIniciada && isset($conn) && $conn instanceof mysqli) {
         $conn->rollback();
     }
 
-    http_response_code(500);
+    if (isset($conn) && $conn instanceof mysqli) {
+        $conn->close();
+    }
 
-    echo json_encode([
+    ironixResponderJson([
         "success" => false,
         "message" => $e->getMessage()
-    ], JSON_UNESCAPED_UNICODE);
+    ], 500);
 }
-
-$conn->close();

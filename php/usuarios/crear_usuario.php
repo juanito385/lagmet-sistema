@@ -4,34 +4,14 @@
    IRONIX - CREAR USUARIO
 ========================= */
 
-header('Content-Type: application/json; charset=utf-8');
-
 require_once __DIR__ . "/../auth/guard.php";
 
 /* =========================
-   GUARD BACKEND - FASE 3
+   GUARD BACKEND - FASE 4
 ========================= */
 
+ironixRequerirMetodo("POST");
 ironixRequerirPermiso("configuracion", "crear_usuario");
-
-
-require_once __DIR__ . "/../conexion.php";
-
-
-/* =========================
-   VALIDAR MÉTODO
-========================= */
-
-if ($_SERVER["REQUEST_METHOD"] !== "POST") {
-    http_response_code(405);
-
-    echo json_encode([
-        "success" => false,
-        "message" => "Método no permitido"
-    ], JSON_UNESCAPED_UNICODE);
-
-    exit;
-}
 
 
 /* =========================
@@ -39,28 +19,44 @@ if ($_SERVER["REQUEST_METHOD"] !== "POST") {
 ========================= */
 
 /*
-    Seguridad Fase 3:
+    Seguridad Fase 4:
     No se recibe admin_id desde el frontend.
     Se usa el usuario autenticado por guard.php.
 */
 
-$adminId = intval($IRONIX_USER_ID);
+$adminId = intval($IRONIX_USER_ID ?? ($_SESSION["ironix_usuario_id"] ?? 0));
+
+if ($adminId <= 0) {
+    ironixResponderNoAutorizado("Administrador autenticado no válido");
+}
 
 
 /* =========================
    RECIBIR DATOS
 ========================= */
 
-$nombre = isset($_POST["nombre"]) ? trim($_POST["nombre"]) : "";
-$correo = isset($_POST["correo"]) ? trim($_POST["correo"]) : "";
-$password = isset($_POST["password"]) ? trim($_POST["password"]) : "";
+/*
+    Compatible con:
+    - JSON enviado por fetch
+    - FormData / POST tradicional
+*/
 
-$rol = isset($_POST["rol"]) ? trim($_POST["rol"]) : "usuario";
-$estado = isset($_POST["estado"]) ? trim($_POST["estado"]) : "activa";
+$input = json_decode(file_get_contents("php://input"), true);
 
-$telefono = isset($_POST["telefono"]) ? trim($_POST["telefono"]) : "";
-$area = isset($_POST["area"]) ? trim($_POST["area"]) : "Producción";
-$idioma = isset($_POST["idioma"]) ? trim($_POST["idioma"]) : "Español / Chile";
+if (!is_array($input)) {
+    $input = $_POST;
+}
+
+$nombre = isset($input["nombre"]) ? trim((string) $input["nombre"]) : "";
+$correo = isset($input["correo"]) ? trim((string) $input["correo"]) : "";
+$password = isset($input["password"]) ? trim((string) $input["password"]) : "";
+
+$rol = isset($input["rol"]) ? trim((string) $input["rol"]) : "usuario";
+$estado = isset($input["estado"]) ? trim((string) $input["estado"]) : "activa";
+
+$telefono = isset($input["telefono"]) ? trim((string) $input["telefono"]) : "";
+$area = isset($input["area"]) ? trim((string) $input["area"]) : "Producción";
+$idioma = isset($input["idioma"]) ? trim((string) $input["idioma"]) : "Español / Chile";
 
 $rolesPermitidos = ["admin", "usuario"];
 $estadosPermitidos = ["activa", "inactiva", "bloqueada"];
@@ -70,150 +66,112 @@ $estadosPermitidos = ["activa", "inactiva", "bloqueada"];
    VALIDACIONES
 ========================= */
 
-if ($adminId <= 0) {
-    http_response_code(401);
-
-    echo json_encode([
-        "success" => false,
-        "message" => "Administrador autenticado no válido"
-    ], JSON_UNESCAPED_UNICODE);
-
-    exit;
-}
-
 if ($nombre === "" || $correo === "" || $password === "") {
-    http_response_code(400);
-
-    echo json_encode([
+    ironixResponderJson([
         "success" => false,
         "message" => "Completa nombre, correo y contraseña"
-    ], JSON_UNESCAPED_UNICODE);
-
-    exit;
+    ], 400);
 }
 
 if (!filter_var($correo, FILTER_VALIDATE_EMAIL)) {
-    http_response_code(400);
-
-    echo json_encode([
+    ironixResponderJson([
         "success" => false,
         "message" => "Correo electrónico no válido"
-    ], JSON_UNESCAPED_UNICODE);
-
-    exit;
+    ], 400);
 }
 
 if (strlen($password) < 6) {
-    http_response_code(400);
-
-    echo json_encode([
+    ironixResponderJson([
         "success" => false,
         "message" => "La contraseña debe tener al menos 6 caracteres"
-    ], JSON_UNESCAPED_UNICODE);
-
-    exit;
+    ], 400);
 }
 
 if (!in_array($rol, $rolesPermitidos, true)) {
-    http_response_code(400);
-
-    echo json_encode([
+    ironixResponderJson([
         "success" => false,
         "message" => "Rol no válido"
-    ], JSON_UNESCAPED_UNICODE);
-
-    exit;
+    ], 400);
 }
 
 if (!in_array($estado, $estadosPermitidos, true)) {
-    http_response_code(400);
-
-    echo json_encode([
+    ironixResponderJson([
         "success" => false,
         "message" => "Estado no válido"
-    ], JSON_UNESCAPED_UNICODE);
-
-    exit;
+    ], 400);
 }
 
 if ($area === "") {
-    http_response_code(400);
-
-    echo json_encode([
+    ironixResponderJson([
         "success" => false,
         "message" => "El área no puede quedar vacía"
-    ], JSON_UNESCAPED_UNICODE);
-
-    exit;
+    ], 400);
 }
 
 if ($idioma === "") {
-    http_response_code(400);
-
-    echo json_encode([
+    ironixResponderJson([
         "success" => false,
         "message" => "El idioma no puede quedar vacío"
-    ], JSON_UNESCAPED_UNICODE);
-
-    exit;
+    ], 400);
 }
 
 
-/* =========================
-   VALIDAR CORREO DUPLICADO
-========================= */
+require_once __DIR__ . "/../conexion.php";
 
-$sqlCorreo = "
-    SELECT id
-    FROM usuarios
-    WHERE correo = ?
-    LIMIT 1
-";
+$conn->set_charset("utf8mb4");
 
-$stmtCorreo = $conn->prepare($sqlCorreo);
+$transaccionIniciada = false;
 
-if (!$stmtCorreo) {
-    http_response_code(500);
-
-    echo json_encode([
-        "success" => false,
-        "message" => "Error al validar correo"
-    ], JSON_UNESCAPED_UNICODE);
-
-    $conn->close();
-    exit;
-}
-
-$stmtCorreo->bind_param("s", $correo);
-$stmtCorreo->execute();
-
-$resultCorreo = $stmtCorreo->get_result();
-
-if ($resultCorreo && $resultCorreo->num_rows > 0) {
-    http_response_code(409);
-
-    echo json_encode([
-        "success" => false,
-        "message" => "El correo ya está registrado"
-    ], JSON_UNESCAPED_UNICODE);
-
-    $stmtCorreo->close();
-    $conn->close();
-    exit;
-}
-
-$stmtCorreo->close();
-
-
-/* =========================
-   CREAR USUARIO + PERMISOS
-========================= */
-
-$passwordHash = password_hash($password, PASSWORD_DEFAULT);
-
-$conn->begin_transaction();
 
 try {
+
+    /* =========================
+       VALIDAR CORREO DUPLICADO
+    ========================= */
+
+    $sqlCorreo = "
+        SELECT id
+        FROM usuarios
+        WHERE correo = ?
+        LIMIT 1
+    ";
+
+    $stmtCorreo = $conn->prepare($sqlCorreo);
+
+    if (!$stmtCorreo) {
+        throw new Exception("Error al validar correo: " . $conn->error);
+    }
+
+    $stmtCorreo->bind_param("s", $correo);
+
+    if (!$stmtCorreo->execute()) {
+        throw new Exception("Error al ejecutar validación de correo: " . $stmtCorreo->error);
+    }
+
+    $resultCorreo = $stmtCorreo->get_result();
+
+    if ($resultCorreo && $resultCorreo->num_rows > 0) {
+        $stmtCorreo->close();
+        $conn->close();
+
+        ironixResponderJson([
+            "success" => false,
+            "message" => "El correo ya está registrado"
+        ], 409);
+    }
+
+    $stmtCorreo->close();
+
+
+    /* =========================
+       CREAR USUARIO + PERMISOS
+    ========================= */
+
+    $passwordHash = password_hash($password, PASSWORD_DEFAULT);
+
+    $conn->begin_transaction();
+    $transaccionIniciada = true;
+
 
     /* =========================
        INSERTAR USUARIO
@@ -237,7 +195,7 @@ try {
     $stmtInsert = $conn->prepare($sqlInsert);
 
     if (!$stmtInsert) {
-        throw new Exception("Error al preparar creación de usuario");
+        throw new Exception("Error al preparar creación de usuario: " . $conn->error);
     }
 
     $stmtInsert->bind_param(
@@ -253,16 +211,26 @@ try {
     );
 
     if (!$stmtInsert->execute()) {
-        throw new Exception("Error al crear usuario");
+        throw new Exception("Error al crear usuario: " . $stmtInsert->error);
     }
 
     $nuevoUsuarioId = $stmtInsert->insert_id;
     $stmtInsert->close();
 
+    if ($nuevoUsuarioId <= 0) {
+        throw new Exception("No se pudo obtener el ID del usuario creado");
+    }
+
 
     /* =========================
        PERMISOS INICIALES
     ========================= */
+
+    /*
+        Nota:
+        Se mantienen los nombres de módulos actuales de la tabla usuario_permisos.
+        En frontend ya se usa "flujo-proceso" con guion.
+    */
 
     $modulosSistema = [
         "dashboard",
@@ -316,7 +284,7 @@ try {
     $stmtPermiso = $conn->prepare($sqlPermiso);
 
     if (!$stmtPermiso) {
-        throw new Exception("Error al preparar permisos iniciales");
+        throw new Exception("Error al preparar permisos iniciales: " . $conn->error);
     }
 
     foreach ($modulosSistema as $modulo) {
@@ -346,7 +314,7 @@ try {
         );
 
         if (!$stmtPermiso->execute()) {
-            throw new Exception("Error al crear permisos del módulo: " . $modulo);
+            throw new Exception("Error al crear permisos del módulo: " . $modulo . " - " . $stmtPermiso->error);
         }
     }
 
@@ -358,8 +326,11 @@ try {
     ========================= */
 
     $conn->commit();
+    $transaccionIniciada = false;
 
-    echo json_encode([
+    $conn->close();
+
+    ironixResponderJson([
         "success" => true,
         "message" => "Usuario creado correctamente",
         "usuario" => [
@@ -372,18 +343,32 @@ try {
             "idioma" => $idioma,
             "estado" => $estado
         ]
-    ], JSON_UNESCAPED_UNICODE);
+    ], 200);
 
-} catch (Exception $e) {
+} catch (Throwable $e) {
 
-    $conn->rollback();
+    if ($transaccionIniciada && isset($conn) && $conn instanceof mysqli) {
+        $conn->rollback();
+    }
 
-    http_response_code(500);
+    if (isset($stmtCorreo) && $stmtCorreo instanceof mysqli_stmt) {
+        $stmtCorreo->close();
+    }
 
-    echo json_encode([
+    if (isset($stmtInsert) && $stmtInsert instanceof mysqli_stmt) {
+        $stmtInsert->close();
+    }
+
+    if (isset($stmtPermiso) && $stmtPermiso instanceof mysqli_stmt) {
+        $stmtPermiso->close();
+    }
+
+    if (isset($conn) && $conn instanceof mysqli) {
+        $conn->close();
+    }
+
+    ironixResponderJson([
         "success" => false,
         "message" => $e->getMessage()
-    ], JSON_UNESCAPED_UNICODE);
+    ], 500);
 }
-
-$conn->close();

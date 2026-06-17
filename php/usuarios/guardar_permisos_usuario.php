@@ -4,34 +4,14 @@
    IRONIX - GUARDAR PERMISOS DE USUARIO
 ========================= */
 
-header('Content-Type: application/json; charset=utf-8');
-
 require_once __DIR__ . "/../auth/guard.php";
 
 /* =========================
-   GUARD BACKEND - FASE 3
+   GUARD BACKEND - FASE 4
 ========================= */
 
+ironixRequerirMetodo("POST");
 ironixRequerirPermiso("configuracion", "permisos");
-
-
-require_once __DIR__ . "/../conexion.php";
-
-
-/* =========================
-   VALIDAR MÉTODO
-========================= */
-
-if ($_SERVER["REQUEST_METHOD"] !== "POST") {
-    http_response_code(405);
-
-    echo json_encode([
-        "success" => false,
-        "message" => "Método no permitido"
-    ], JSON_UNESCAPED_UNICODE);
-
-    exit;
-}
 
 
 /* =========================
@@ -39,65 +19,67 @@ if ($_SERVER["REQUEST_METHOD"] !== "POST") {
 ========================= */
 
 /*
-    Seguridad Fase 3:
+    Seguridad Fase 4:
     No se recibe admin_id desde frontend.
     El usuario autorizado ya fue validado por guard.php.
 */
 
-$adminId = intval($IRONIX_USER_ID);
+$adminId = intval($IRONIX_USER_ID ?? ($_SESSION["ironix_usuario_id"] ?? 0));
+
+if ($adminId <= 0) {
+    ironixResponderNoAutorizado("Administrador autenticado no válido");
+}
 
 
 /* =========================
    RECIBIR DATOS
 ========================= */
 
-$usuarioId = isset($_POST["usuario_id"]) ? intval($_POST["usuario_id"]) : 0;
-$permisosJson = isset($_POST["permisos"]) ? $_POST["permisos"] : "";
+/*
+    Compatible con:
+    - JSON enviado por fetch
+    - FormData / POST tradicional
+*/
 
-if ($adminId <= 0) {
-    http_response_code(401);
+$input = json_decode(file_get_contents("php://input"), true);
 
-    echo json_encode([
-        "success" => false,
-        "message" => "Administrador autenticado no válido"
-    ], JSON_UNESCAPED_UNICODE);
-
-    exit;
+if (!is_array($input)) {
+    $input = $_POST;
 }
+
+$usuarioId = isset($input["usuario_id"]) ? intval($input["usuario_id"]) : 0;
+$permisosRaw = $input["permisos"] ?? "";
+
+
+/* =========================
+   VALIDACIONES BASE
+========================= */
 
 if ($usuarioId <= 0) {
-    http_response_code(400);
-
-    echo json_encode([
+    ironixResponderJson([
         "success" => false,
         "message" => "ID de usuario no recibido"
-    ], JSON_UNESCAPED_UNICODE);
-
-    exit;
+    ], 400);
 }
 
-if ($permisosJson === "") {
-    http_response_code(400);
-
-    echo json_encode([
+if ($permisosRaw === "" || $permisosRaw === null) {
+    ironixResponderJson([
         "success" => false,
         "message" => "Permisos no recibidos"
-    ], JSON_UNESCAPED_UNICODE);
-
-    exit;
+    ], 400);
 }
 
-$permisosRecibidos = json_decode($permisosJson, true);
+if (is_array($permisosRaw)) {
+    $permisosRecibidos = $permisosRaw;
+} else {
+    $permisosRecibidos = json_decode((string) $permisosRaw, true);
+}
 
 if (!is_array($permisosRecibidos)) {
-    http_response_code(400);
-
-    echo json_encode([
+    ironixResponderJson([
         "success" => false,
         "message" => "Formato de permisos inválido"
-    ], JSON_UNESCAPED_UNICODE);
-
-    exit;
+    ], 400);
 }
 
 
@@ -136,161 +118,144 @@ $accionesDisponibles = [
 
 
 /* =========================
-   VALIDAR USUARIO OBJETIVO
-========================= */
-
-$sqlUsuario = "
-    SELECT 
-        id, 
-        nombre,
-        correo,
-        rol,
-        estado
-    FROM usuarios
-    WHERE id = ?
-    LIMIT 1
-";
-
-$stmtUsuario = $conn->prepare($sqlUsuario);
-
-if (!$stmtUsuario) {
-    http_response_code(500);
-
-    echo json_encode([
-        "success" => false,
-        "message" => "Error al preparar validación de usuario"
-    ], JSON_UNESCAPED_UNICODE);
-
-    $conn->close();
-    exit;
-}
-
-$stmtUsuario->bind_param("i", $usuarioId);
-
-if (!$stmtUsuario->execute()) {
-    http_response_code(500);
-
-    echo json_encode([
-        "success" => false,
-        "message" => "Error al ejecutar validación de usuario"
-    ], JSON_UNESCAPED_UNICODE);
-
-    $stmtUsuario->close();
-    $conn->close();
-    exit;
-}
-
-$resultUsuario = $stmtUsuario->get_result();
-
-if (!$resultUsuario || $resultUsuario->num_rows === 0) {
-    http_response_code(404);
-
-    echo json_encode([
-        "success" => false,
-        "message" => "Usuario no encontrado"
-    ], JSON_UNESCAPED_UNICODE);
-
-    $stmtUsuario->close();
-    $conn->close();
-    exit;
-}
-
-$usuario = $resultUsuario->fetch_assoc();
-$stmtUsuario->close();
-
-
-/* =========================
    HELPERS
 ========================= */
 
-function permisoRecibido($permisos, $modulo, $accion) {
-    if (!isset($permisos[$modulo])) {
-        return false;
-    }
-
-    /*
-        Compatibilidad con formato antiguo:
-        "dashboard": true
-    */
-    if (is_bool($permisos[$modulo])) {
-        return $accion === "ver" ? $permisos[$modulo] : false;
-    }
-
-    /*
-        Formato nuevo:
-        "productos": {
-            "ver": true,
-            "crear": true,
-            "editar": true,
-            "eliminar": false,
-            "exportar": false
+if (!function_exists("permisoRecibido")) {
+    function permisoRecibido($permisos, $modulo, $accion)
+    {
+        if (!isset($permisos[$modulo])) {
+            return false;
         }
-    */
-    if (is_array($permisos[$modulo])) {
-        return !empty($permisos[$modulo][$accion]);
-    }
 
-    return false;
-}
+        /*
+            Compatibilidad con formato antiguo:
+            "dashboard": true
+        */
+        if (is_bool($permisos[$modulo])) {
+            return $accion === "ver" ? $permisos[$modulo] : false;
+        }
 
-function accionDisponible($accionesDisponibles, $modulo, $accion) {
-    if (!isset($accionesDisponibles[$modulo])) {
+        /*
+            Formato nuevo:
+            "productos": {
+                "ver": true,
+                "crear": true,
+                "editar": true,
+                "eliminar": false,
+                "exportar": false
+            }
+        */
+        if (is_array($permisos[$modulo])) {
+            return !empty($permisos[$modulo][$accion]);
+        }
+
         return false;
     }
+}
 
-    return in_array($accion, $accionesDisponibles[$modulo], true);
+if (!function_exists("accionDisponible")) {
+    function accionDisponible($accionesDisponibles, $modulo, $accion)
+    {
+        if (!isset($accionesDisponibles[$modulo])) {
+            return false;
+        }
+
+        return in_array($accion, $accionesDisponibles[$modulo], true);
+    }
 }
 
 
-/* =========================
-   PREPARAR GUARDADO
-========================= */
+require_once __DIR__ . "/../conexion.php";
 
-$sql = "
-    INSERT INTO usuario_permisos
-    (
-        usuario_id,
-        modulo,
-        puede_ver,
-        puede_crear,
-        puede_editar,
-        puede_eliminar,
-        puede_exportar
-    )
-    VALUES (?, ?, ?, ?, ?, ?, ?)
-    ON DUPLICATE KEY UPDATE
-        puede_ver = VALUES(puede_ver),
-        puede_crear = VALUES(puede_crear),
-        puede_editar = VALUES(puede_editar),
-        puede_eliminar = VALUES(puede_eliminar),
-        puede_exportar = VALUES(puede_exportar)
-";
-
-$stmt = $conn->prepare($sql);
-
-if (!$stmt) {
-    http_response_code(500);
-
-    echo json_encode([
-        "success" => false,
-        "message" => "Error al preparar guardado de permisos"
-    ], JSON_UNESCAPED_UNICODE);
-
-    $conn->close();
-    exit;
-}
-
-
-/* =========================
-   GUARDAR PERMISOS
-========================= */
+$conn->set_charset("utf8mb4");
 
 $transaccionIniciada = false;
 
-$conn->begin_transaction();
-$transaccionIniciada = true;
 
 try {
+
+    /* =========================
+       VALIDAR USUARIO OBJETIVO
+    ========================= */
+
+    $sqlUsuario = "
+        SELECT 
+            id, 
+            nombre,
+            correo,
+            rol,
+            estado
+        FROM usuarios
+        WHERE id = ?
+        LIMIT 1
+    ";
+
+    $stmtUsuario = $conn->prepare($sqlUsuario);
+
+    if (!$stmtUsuario) {
+        throw new Exception("Error al preparar validación de usuario: " . $conn->error);
+    }
+
+    $stmtUsuario->bind_param("i", $usuarioId);
+
+    if (!$stmtUsuario->execute()) {
+        throw new Exception("Error al ejecutar validación de usuario: " . $stmtUsuario->error);
+    }
+
+    $resultUsuario = $stmtUsuario->get_result();
+
+    if (!$resultUsuario || $resultUsuario->num_rows === 0) {
+        $stmtUsuario->close();
+        $conn->close();
+
+        ironixResponderJson([
+            "success" => false,
+            "message" => "Usuario no encontrado"
+        ], 404);
+    }
+
+    $usuario = $resultUsuario->fetch_assoc();
+    $stmtUsuario->close();
+
+
+    /* =========================
+       PREPARAR GUARDADO
+    ========================= */
+
+    $sql = "
+        INSERT INTO usuario_permisos
+        (
+            usuario_id,
+            modulo,
+            puede_ver,
+            puede_crear,
+            puede_editar,
+            puede_eliminar,
+            puede_exportar
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+        ON DUPLICATE KEY UPDATE
+            puede_ver = VALUES(puede_ver),
+            puede_crear = VALUES(puede_crear),
+            puede_editar = VALUES(puede_editar),
+            puede_eliminar = VALUES(puede_eliminar),
+            puede_exportar = VALUES(puede_exportar)
+    ";
+
+    $stmt = $conn->prepare($sql);
+
+    if (!$stmt) {
+        throw new Exception("Error al preparar guardado de permisos: " . $conn->error);
+    }
+
+
+    /* =========================
+       GUARDAR PERMISOS
+    ========================= */
+
+    $conn->begin_transaction();
+    $transaccionIniciada = true;
 
     foreach ($modulosSistema as $modulo) {
 
@@ -298,7 +263,7 @@ try {
             Admin siempre mantiene acceso total.
             Esto evita dejar administradores sin acceso por error.
         */
-        if ($usuario["rol"] === "admin") {
+        if (($usuario["rol"] ?? "") === "admin") {
             $puedeVer = 1;
             $puedeCrear = 1;
             $puedeEditar = 1;
@@ -361,14 +326,18 @@ try {
         );
 
         if (!$stmt->execute()) {
-            throw new Exception("Error al guardar permiso del módulo: " . $modulo);
+            throw new Exception("Error al guardar permiso del módulo: " . $modulo . " - " . $stmt->error);
         }
     }
+
+    $stmt->close();
 
     $conn->commit();
     $transaccionIniciada = false;
 
-    echo json_encode([
+    $conn->close();
+
+    ironixResponderJson([
         "success" => true,
         "message" => "Permisos detallados actualizados correctamente",
         "usuario" => [
@@ -378,21 +347,28 @@ try {
             "rol" => $usuario["rol"],
             "estado" => $usuario["estado"]
         ]
-    ], JSON_UNESCAPED_UNICODE);
+    ], 200);
 
-} catch (Exception $e) {
+} catch (Throwable $e) {
 
-    if ($transaccionIniciada) {
+    if ($transaccionIniciada && isset($conn) && $conn instanceof mysqli) {
         $conn->rollback();
     }
 
-    http_response_code(500);
+    if (isset($stmtUsuario) && $stmtUsuario instanceof mysqli_stmt) {
+        $stmtUsuario->close();
+    }
 
-    echo json_encode([
+    if (isset($stmt) && $stmt instanceof mysqli_stmt) {
+        $stmt->close();
+    }
+
+    if (isset($conn) && $conn instanceof mysqli) {
+        $conn->close();
+    }
+
+    ironixResponderJson([
         "success" => false,
         "message" => $e->getMessage()
-    ], JSON_UNESCAPED_UNICODE);
+    ], 500);
 }
-
-$stmt->close();
-$conn->close();

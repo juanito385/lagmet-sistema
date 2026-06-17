@@ -5,15 +5,41 @@
    Ruta: php/auth/recuperar_password_confirmar.php
 ================================ */
 
-header('Content-Type: application/json; charset=utf-8');
-header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
-header('Pragma: no-cache');
-
 date_default_timezone_set("America/Santiago");
 
-require_once __DIR__ . "/../conexion.php";
 
-$conn->set_charset("utf8mb4");
+/* ===============================
+   HELPERS LOCALES AUTH
+================================ */
+
+/*
+    Este archivo NO usa guard.php porque debe funcionar
+    sin sesión iniciada.
+
+    Por eso usa helpers locales para responder JSON.
+*/
+
+if (!function_exists("ironixAuthAplicarHeadersJson")) {
+    function ironixAuthAplicarHeadersJson()
+    {
+        header("Content-Type: application/json; charset=utf-8");
+        header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
+        header("Pragma: no-cache");
+    }
+}
+
+if (!function_exists("ironixAuthResponderJson")) {
+    function ironixAuthResponderJson($data, $httpCode = 200)
+    {
+        ironixAuthAplicarHeadersJson();
+        http_response_code($httpCode);
+
+        echo json_encode($data, JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+}
+
+ironixAuthAplicarHeadersJson();
 
 
 /* ===============================
@@ -21,14 +47,10 @@ $conn->set_charset("utf8mb4");
 ================================ */
 
 if ($_SERVER["REQUEST_METHOD"] !== "POST") {
-    http_response_code(405);
-
-    echo json_encode([
+    ironixAuthResponderJson([
         "success" => false,
         "message" => "Método no permitido"
-    ], JSON_UNESCAPED_UNICODE);
-
-    exit;
+    ], 405);
 }
 
 
@@ -36,21 +58,27 @@ if ($_SERVER["REQUEST_METHOD"] !== "POST") {
    RECIBIR DATOS
 ================================ */
 
+/*
+    Compatible con:
+    - JSON enviado por fetch
+    - FormData / POST tradicional
+*/
+
 $input = json_decode(file_get_contents("php://input"), true);
 
 if (!is_array($input)) {
     $input = $_POST;
 }
 
-$email = trim($input["email"] ?? "");
-$codigo = trim($input["codigo"] ?? "");
+$email = trim((string) ($input["email"] ?? ""));
+$codigo = trim((string) ($input["codigo"] ?? ""));
 
-$password = trim($input["password"] ?? "");
-$confirmarPassword = trim(
+$password = trim((string) ($input["password"] ?? ""));
+$confirmarPassword = trim((string) (
     $input["confirmar_password"]
     ?? $input["confirmar"]
     ?? ""
-);
+));
 
 
 /* ===============================
@@ -58,276 +86,235 @@ $confirmarPassword = trim(
 ================================ */
 
 if ($email === "" || $codigo === "" || $password === "" || $confirmarPassword === "") {
-    http_response_code(400);
-
-    echo json_encode([
+    ironixAuthResponderJson([
         "success" => false,
         "message" => "Correo, código y contraseña son obligatorios"
-    ], JSON_UNESCAPED_UNICODE);
-
-    exit;
+    ], 400);
 }
 
 if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-    http_response_code(400);
-
-    echo json_encode([
+    ironixAuthResponderJson([
         "success" => false,
         "message" => "Correo inválido"
-    ], JSON_UNESCAPED_UNICODE);
-
-    exit;
+    ], 400);
 }
 
 if (!preg_match('/^\d{6}$/', $codigo)) {
-    http_response_code(400);
-
-    echo json_encode([
+    ironixAuthResponderJson([
         "success" => false,
         "message" => "Código inválido"
-    ], JSON_UNESCAPED_UNICODE);
-
-    exit;
+    ], 400);
 }
 
 if ($password !== $confirmarPassword) {
-    http_response_code(400);
-
-    echo json_encode([
+    ironixAuthResponderJson([
         "success" => false,
         "message" => "Las contraseñas no coinciden"
-    ], JSON_UNESCAPED_UNICODE);
-
-    exit;
+    ], 400);
 }
 
 if (strlen($password) < 6) {
-    http_response_code(400);
-
-    echo json_encode([
+    ironixAuthResponderJson([
         "success" => false,
         "message" => "La contraseña debe tener al menos 6 caracteres"
-    ], JSON_UNESCAPED_UNICODE);
-
-    exit;
+    ], 400);
 }
 
 
-/* ===============================
-   BUSCAR USUARIO Y CÓDIGO ACTIVO
-================================ */
+require_once __DIR__ . "/../conexion.php";
 
-$stmt = $conn->prepare("
-    SELECT 
-        id,
-        correo,
-        estado,
-        password,
-        codigo_recuperacion,
-        codigo_expira
-    FROM usuarios
-    WHERE correo = ?
-    LIMIT 1
-");
+$conn->set_charset("utf8mb4");
 
-if (!$stmt) {
-    http_response_code(500);
-
-    echo json_encode([
-        "success" => false,
-        "message" => "Error interno al preparar la consulta"
-    ], JSON_UNESCAPED_UNICODE);
-
-    $conn->close();
-    exit;
-}
-
-$stmt->bind_param("s", $email);
-
-if (!$stmt->execute()) {
-    http_response_code(500);
-
-    echo json_encode([
-        "success" => false,
-        "message" => "Error interno al ejecutar la consulta"
-    ], JSON_UNESCAPED_UNICODE);
-
-    $stmt->close();
-    $conn->close();
-    exit;
-}
-
-$result = $stmt->get_result();
+$stmt = null;
+$stmtUpdate = null;
 
 $mensajeCodigoInvalido = "Código inválido o expirado";
 
-if (!$result || $result->num_rows === 0) {
-    http_response_code(400);
 
-    echo json_encode([
-        "success" => false,
-        "message" => $mensajeCodigoInvalido
-    ], JSON_UNESCAPED_UNICODE);
+try {
+
+    /* ===============================
+       BUSCAR USUARIO Y CÓDIGO ACTIVO
+    ================================ */
+
+    $stmt = $conn->prepare("
+        SELECT 
+            id,
+            correo,
+            estado,
+            password,
+            codigo_recuperacion,
+            codigo_expira
+        FROM usuarios
+        WHERE correo = ?
+        LIMIT 1
+    ");
+
+    if (!$stmt) {
+        throw new Exception("Error interno al preparar la consulta: " . $conn->error);
+    }
+
+    $stmt->bind_param("s", $email);
+
+    if (!$stmt->execute()) {
+        throw new Exception("Error interno al ejecutar la consulta: " . $stmt->error);
+    }
+
+    $result = $stmt->get_result();
+
+    if (!$result || $result->num_rows === 0) {
+        $stmt->close();
+        $stmt = null;
+
+        $conn->close();
+
+        ironixAuthResponderJson([
+            "success" => false,
+            "message" => $mensajeCodigoInvalido
+        ], 400);
+    }
+
+    $usuario = $result->fetch_assoc();
 
     $stmt->close();
-    $conn->close();
-    exit;
-}
+    $stmt = null;
 
-$usuario = $result->fetch_assoc();
-$stmt->close();
-
-$usuarioId = intval($usuario["id"]);
-$estadoUsuario = $usuario["estado"] ?? "activa";
-$passwordActualHash = $usuario["password"] ?? "";
-$codigoHashGuardado = trim((string)($usuario["codigo_recuperacion"] ?? ""));
-$codigoExpira = $usuario["codigo_expira"] ?? null;
+    $usuarioId = intval($usuario["id"]);
+    $estadoUsuario = $usuario["estado"] ?? "activa";
+    $passwordActualHash = $usuario["password"] ?? "";
+    $codigoHashGuardado = trim((string) ($usuario["codigo_recuperacion"] ?? ""));
+    $codigoExpira = $usuario["codigo_expira"] ?? null;
 
 
-/* ===============================
-   VALIDAR ESTADO DE CUENTA
-================================ */
+    /* ===============================
+       VALIDAR ESTADO DE CUENTA
+    ================================ */
 
-if ($estadoUsuario !== "activa") {
-    http_response_code(403);
+    /*
+        Seguridad:
+        No se revela si la cuenta está inactiva o bloqueada.
+    */
 
-    echo json_encode([
-        "success" => false,
-        "message" => "La cuenta no está disponible para recuperación."
-    ], JSON_UNESCAPED_UNICODE);
+    if ($estadoUsuario !== "activa") {
+        $conn->close();
 
-    $conn->close();
-    exit;
-}
-
-
-/* ===============================
-   VALIDAR CÓDIGO ACTIVO
-================================ */
-
-if ($codigoHashGuardado === "" || empty($codigoExpira)) {
-    http_response_code(400);
-
-    echo json_encode([
-        "success" => false,
-        "message" => $mensajeCodigoInvalido
-    ], JSON_UNESCAPED_UNICODE);
-
-    $conn->close();
-    exit;
-}
-
-$timestampExpira = strtotime($codigoExpira);
-
-if ($timestampExpira === false || $timestampExpira <= time()) {
-    http_response_code(400);
-
-    echo json_encode([
-        "success" => false,
-        "message" => $mensajeCodigoInvalido
-    ], JSON_UNESCAPED_UNICODE);
-
-    $conn->close();
-    exit;
-}
-
-if (!password_verify($codigo, $codigoHashGuardado)) {
-    http_response_code(400);
-
-    echo json_encode([
-        "success" => false,
-        "message" => $mensajeCodigoInvalido
-    ], JSON_UNESCAPED_UNICODE);
-
-    $conn->close();
-    exit;
-}
+        ironixAuthResponderJson([
+            "success" => false,
+            "message" => $mensajeCodigoInvalido
+        ], 400);
+    }
 
 
-/* ===============================
-   VALIDAR CONTRASEÑA DISTINTA
-================================ */
+    /* ===============================
+       VALIDAR CÓDIGO ACTIVO
+    ================================ */
 
-if ($passwordActualHash !== "" && password_verify($password, $passwordActualHash)) {
-    http_response_code(400);
+    if ($codigoHashGuardado === "" || empty($codigoExpira)) {
+        $conn->close();
 
-    echo json_encode([
-        "success" => false,
-        "message" => "La nueva contraseña debe ser distinta a la anterior"
-    ], JSON_UNESCAPED_UNICODE);
+        ironixAuthResponderJson([
+            "success" => false,
+            "message" => $mensajeCodigoInvalido
+        ], 400);
+    }
 
-    $conn->close();
-    exit;
-}
+    $timestampExpira = strtotime($codigoExpira);
+
+    if ($timestampExpira === false || $timestampExpira <= time()) {
+        $conn->close();
+
+        ironixAuthResponderJson([
+            "success" => false,
+            "message" => $mensajeCodigoInvalido
+        ], 400);
+    }
+
+    if (!password_verify($codigo, $codigoHashGuardado)) {
+        $conn->close();
+
+        ironixAuthResponderJson([
+            "success" => false,
+            "message" => $mensajeCodigoInvalido
+        ], 400);
+    }
 
 
-/* ===============================
-   ACTUALIZAR CONTRASEÑA
-================================ */
+    /* ===============================
+       VALIDAR CONTRASEÑA DISTINTA
+    ================================ */
 
-$nuevoHash = password_hash($password, PASSWORD_DEFAULT);
+    if ($passwordActualHash !== "" && password_verify($password, $passwordActualHash)) {
+        $conn->close();
 
-$stmtUpdate = $conn->prepare("
-    UPDATE usuarios 
-    SET 
-        password = ?,
-        codigo_recuperacion = NULL,
-        codigo_expira = NULL
-    WHERE id = ?
-    LIMIT 1
-");
+        ironixAuthResponderJson([
+            "success" => false,
+            "message" => "La nueva contraseña debe ser distinta a la anterior"
+        ], 400);
+    }
 
-if (!$stmtUpdate) {
-    http_response_code(500);
 
-    echo json_encode([
-        "success" => false,
-        "message" => "Error interno al preparar actualización"
-    ], JSON_UNESCAPED_UNICODE);
+    /* ===============================
+       ACTUALIZAR CONTRASEÑA
+    ================================ */
 
-    $conn->close();
-    exit;
-}
+    $nuevoHash = password_hash($password, PASSWORD_DEFAULT);
 
-$stmtUpdate->bind_param("si", $nuevoHash, $usuarioId);
+    $stmtUpdate = $conn->prepare("
+        UPDATE usuarios 
+        SET 
+            password = ?,
+            codigo_recuperacion = NULL,
+            codigo_expira = NULL
+        WHERE id = ?
+        LIMIT 1
+    ");
 
-if (!$stmtUpdate->execute()) {
-    http_response_code(500);
+    if (!$stmtUpdate) {
+        throw new Exception("Error interno al preparar actualización: " . $conn->error);
+    }
 
-    echo json_encode([
-        "success" => false,
-        "message" => "Error al actualizar contraseña"
-    ], JSON_UNESCAPED_UNICODE);
+    $stmtUpdate->bind_param("si", $nuevoHash, $usuarioId);
+
+    if (!$stmtUpdate->execute()) {
+        throw new Exception("Error al actualizar contraseña: " . $stmtUpdate->error);
+    }
+
+    if ($stmtUpdate->affected_rows < 0) {
+        throw new Exception("No se pudo actualizar la contraseña");
+    }
 
     $stmtUpdate->close();
+    $stmtUpdate = null;
+
+
+    /* ===============================
+       RESPUESTA FINAL
+    ================================ */
+
     $conn->close();
-    exit;
-}
 
-if ($stmtUpdate->affected_rows < 0) {
-    http_response_code(500);
+    ironixAuthResponderJson([
+        "success" => true,
+        "message" => "Contraseña actualizada correctamente"
+    ], 200);
 
-    echo json_encode([
+} catch (Throwable $e) {
+
+    if ($stmt instanceof mysqli_stmt) {
+        $stmt->close();
+    }
+
+    if ($stmtUpdate instanceof mysqli_stmt) {
+        $stmtUpdate->close();
+    }
+
+    if (isset($conn) && $conn instanceof mysqli) {
+        $conn->close();
+    }
+
+    ironixAuthResponderJson([
         "success" => false,
-        "message" => "No se pudo actualizar la contraseña"
-    ], JSON_UNESCAPED_UNICODE);
-
-    $stmtUpdate->close();
-    $conn->close();
-    exit;
+        "message" => "Error al confirmar recuperación de contraseña",
+        "error" => $e->getMessage()
+    ], 500);
 }
-
-$stmtUpdate->close();
-
-
-/* ===============================
-   RESPUESTA FINAL
-================================ */
-
-echo json_encode([
-    "success" => true,
-    "message" => "Contraseña actualizada correctamente"
-], JSON_UNESCAPED_UNICODE);
-
-$conn->close();
-exit;

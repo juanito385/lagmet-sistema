@@ -4,15 +4,14 @@
    IRONIX - ACTUALIZAR ESTADO DE MÁQUINA
 ========================= */
 
-header('Content-Type: application/json; charset=utf-8');
-
 require_once __DIR__ . "/../auth/guard.php";
 
 /* =========================
-   GUARD BACKEND - FASE 3
+   GUARD BACKEND - FASE 4
 ========================= */
 
-ironixRequerirPermiso("monitoreo", "editar");
+ironixRequerirMetodo("POST");
+ironixRequerirPermiso("maquinas", "actualizar_estado");
 
 
 require_once __DIR__ . "/../conexion.php";
@@ -21,22 +20,6 @@ $conn->set_charset("utf8mb4");
 
 
 try {
-
-    /* =========================
-       VALIDAR MÉTODO
-    ========================= */
-
-    if ($_SERVER["REQUEST_METHOD"] !== "POST") {
-        http_response_code(405);
-
-        echo json_encode([
-            "success" => false,
-            "message" => "Método no permitido"
-        ], JSON_UNESCAPED_UNICODE);
-
-        exit;
-    }
-
 
     /* =========================
        RECIBIR DATOS
@@ -54,11 +37,13 @@ try {
     $observacion = trim($data["observacion"] ?? "");
 
     /*
-        Seguridad Fase 3:
+        Seguridad Fase 4:
         No se recibe actualizado_por desde frontend.
         Se usa el usuario autenticado por guard.php.
     */
-    $actualizadoPor = trim($IRONIX_USER_NAME) !== "" ? trim($IRONIX_USER_NAME) : "Usuario IRONIX";
+    $actualizadoPor = trim($IRONIX_USER_NAME ?? "") !== ""
+        ? trim($IRONIX_USER_NAME)
+        : "Usuario IRONIX";
 
     $estadosPermitidos = ["Si", "No", "Mantencion"];
 
@@ -68,25 +53,21 @@ try {
     ========================= */
 
     if ($id <= 0) {
-        http_response_code(400);
+        $conn->close();
 
-        echo json_encode([
+        ironixResponderJson([
             "success" => false,
             "message" => "ID de máquina inválido"
-        ], JSON_UNESCAPED_UNICODE);
-
-        exit;
+        ], 400);
     }
 
     if (!in_array($estado, $estadosPermitidos, true)) {
-        http_response_code(400);
+        $conn->close();
 
-        echo json_encode([
+        ironixResponderJson([
             "success" => false,
             "message" => "Estado de máquina inválido"
-        ], JSON_UNESCAPED_UNICODE);
-
-        exit;
+        ], 400);
     }
 
     if ($observacion === "") {
@@ -126,15 +107,12 @@ try {
 
     if (!$resultCheck || $resultCheck->num_rows === 0) {
         $stmtCheck->close();
+        $conn->close();
 
-        http_response_code(404);
-
-        echo json_encode([
+        ironixResponderJson([
             "success" => false,
             "message" => "Máquina no encontrada"
-        ], JSON_UNESCAPED_UNICODE);
-
-        exit;
+        ], 404);
     }
 
     $maquinaActual = $resultCheck->fetch_assoc();
@@ -180,7 +158,9 @@ try {
        RESPUESTA
     ========================= */
 
-    echo json_encode([
+    $conn->close();
+
+    ironixResponderJson([
         "success" => true,
         "message" => "Estado de máquina actualizado correctamente",
         "maquina" => [
@@ -193,22 +173,17 @@ try {
             "observacion" => $observacion,
             "actualizado_por" => $actualizadoPor
         ]
-    ], JSON_UNESCAPED_UNICODE);
+    ], 200);
 
 } catch (Throwable $e) {
 
-    if (http_response_code() === 200) {
-        http_response_code(500);
+    if (isset($conn) && $conn instanceof mysqli) {
+        $conn->close();
     }
 
-    echo json_encode([
+    ironixResponderJson([
         "success" => false,
         "message" => "Error al actualizar estado de máquina",
         "error" => $e->getMessage()
-    ], JSON_UNESCAPED_UNICODE);
-}
-
-
-if (isset($conn) && $conn instanceof mysqli) {
-    $conn->close();
+    ], 500);
 }

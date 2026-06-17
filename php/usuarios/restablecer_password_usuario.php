@@ -4,34 +4,14 @@
    IRONIX - RESTABLECER CONTRASEÑA DE USUARIO
 ========================= */
 
-header('Content-Type: application/json; charset=utf-8');
-
 require_once __DIR__ . "/../auth/guard.php";
 
 /* =========================
-   GUARD BACKEND - FASE 3
+   GUARD BACKEND - FASE 4
 ========================= */
 
+ironixRequerirMetodo("POST");
 ironixRequerirPermiso("configuracion", "seguridad");
-
-
-require_once __DIR__ . "/../conexion.php";
-
-
-/* =========================
-   VALIDAR MÉTODO
-========================= */
-
-if ($_SERVER["REQUEST_METHOD"] !== "POST") {
-    http_response_code(405);
-
-    echo json_encode([
-        "success" => false,
-        "message" => "Método no permitido"
-    ], JSON_UNESCAPED_UNICODE);
-
-    exit;
-}
 
 
 /* =========================
@@ -39,48 +19,49 @@ if ($_SERVER["REQUEST_METHOD"] !== "POST") {
 ========================= */
 
 /*
-    Seguridad Fase 3:
+    Seguridad Fase 4:
     No se recibe admin_id desde frontend.
     Se usa el usuario autenticado por guard.php.
 */
 
-$adminId = intval($IRONIX_USER_ID);
+$adminId = intval($IRONIX_USER_ID ?? ($_SESSION["ironix_usuario_id"] ?? 0));
+
+if ($adminId <= 0) {
+    ironixResponderNoAutorizado("Administrador autenticado no válido");
+}
 
 
 /* =========================
    RECIBIR DATOS
 ========================= */
 
-$usuarioId = isset($_POST["usuario_id"]) ? intval($_POST["usuario_id"]) : 0;
+/*
+    Compatible con:
+    - JSON enviado por fetch
+    - FormData / POST tradicional
+*/
 
-$nuevaPassword = isset($_POST["nueva_password"]) ? trim($_POST["nueva_password"]) : "";
-$confirmarPassword = isset($_POST["confirmar_password"]) ? trim($_POST["confirmar_password"]) : "";
+$input = json_decode(file_get_contents("php://input"), true);
+
+if (!is_array($input)) {
+    $input = $_POST;
+}
+
+$usuarioId = isset($input["usuario_id"]) ? intval($input["usuario_id"]) : 0;
+
+$nuevaPassword = isset($input["nueva_password"]) ? trim((string) $input["nueva_password"]) : "";
+$confirmarPassword = isset($input["confirmar_password"]) ? trim((string) $input["confirmar_password"]) : "";
 
 
 /* =========================
    VALIDACIONES
 ========================= */
 
-if ($adminId <= 0) {
-    http_response_code(401);
-
-    echo json_encode([
-        "success" => false,
-        "message" => "Administrador autenticado no válido"
-    ], JSON_UNESCAPED_UNICODE);
-
-    exit;
-}
-
 if ($usuarioId <= 0) {
-    http_response_code(400);
-
-    echo json_encode([
+    ironixResponderJson([
         "success" => false,
         "message" => "ID de usuario no recibido"
-    ], JSON_UNESCAPED_UNICODE);
-
-    exit;
+    ], 400);
 }
 
 /*
@@ -88,173 +69,156 @@ if ($usuarioId <= 0) {
     Si el admin quiere cambiar su propia contraseña,
     debe hacerlo desde Perfil, donde se pide contraseña actual.
 */
-if ($adminId === $usuarioId) {
-    http_response_code(403);
 
-    echo json_encode([
+if ($adminId === $usuarioId) {
+    ironixResponderJson([
         "success" => false,
         "message" => "No puedes restablecer tu propia contraseña desde Configuración. Usa la sección Perfil."
-    ], JSON_UNESCAPED_UNICODE);
-
-    exit;
+    ], 403);
 }
 
 if ($nuevaPassword === "" || $confirmarPassword === "") {
-    http_response_code(400);
-
-    echo json_encode([
+    ironixResponderJson([
         "success" => false,
         "message" => "Completa la nueva contraseña y su confirmación"
-    ], JSON_UNESCAPED_UNICODE);
-
-    exit;
+    ], 400);
 }
 
 if ($nuevaPassword !== $confirmarPassword) {
-    http_response_code(400);
-
-    echo json_encode([
+    ironixResponderJson([
         "success" => false,
         "message" => "Las contraseñas no coinciden"
-    ], JSON_UNESCAPED_UNICODE);
-
-    exit;
+    ], 400);
 }
 
 if (strlen($nuevaPassword) < 6) {
-    http_response_code(400);
-
-    echo json_encode([
+    ironixResponderJson([
         "success" => false,
         "message" => "La contraseña debe tener al menos 6 caracteres"
-    ], JSON_UNESCAPED_UNICODE);
-
-    exit;
+    ], 400);
 }
 
 
-/* =========================
-   VALIDAR USUARIO OBJETIVO
-========================= */
+require_once __DIR__ . "/../conexion.php";
 
-$sqlUsuario = "
-    SELECT 
-        id, 
-        nombre, 
-        correo, 
-        rol,
-        estado
-    FROM usuarios
-    WHERE id = ?
-    LIMIT 1
-";
+$conn->set_charset("utf8mb4");
 
-$stmtUsuario = $conn->prepare($sqlUsuario);
+$stmtUsuario = null;
+$stmtUpdate = null;
 
-if (!$stmtUsuario) {
-    http_response_code(500);
 
-    echo json_encode([
-        "success" => false,
-        "message" => "Error al validar usuario"
-    ], JSON_UNESCAPED_UNICODE);
+try {
 
-    $conn->close();
-    exit;
-}
+    /* =========================
+       VALIDAR USUARIO OBJETIVO
+    ========================= */
 
-$stmtUsuario->bind_param("i", $usuarioId);
+    $sqlUsuario = "
+        SELECT 
+            id, 
+            nombre, 
+            correo, 
+            rol,
+            estado
+        FROM usuarios
+        WHERE id = ?
+        LIMIT 1
+    ";
 
-if (!$stmtUsuario->execute()) {
-    http_response_code(500);
+    $stmtUsuario = $conn->prepare($sqlUsuario);
 
-    echo json_encode([
-        "success" => false,
-        "message" => "Error al ejecutar validación de usuario"
-    ], JSON_UNESCAPED_UNICODE);
+    if (!$stmtUsuario) {
+        throw new Exception("Error al validar usuario: " . $conn->error);
+    }
+
+    $stmtUsuario->bind_param("i", $usuarioId);
+
+    if (!$stmtUsuario->execute()) {
+        throw new Exception("Error al ejecutar validación de usuario: " . $stmtUsuario->error);
+    }
+
+    $resultUsuario = $stmtUsuario->get_result();
+
+    if (!$resultUsuario || $resultUsuario->num_rows === 0) {
+        $stmtUsuario->close();
+        $stmtUsuario = null;
+
+        $conn->close();
+
+        ironixResponderJson([
+            "success" => false,
+            "message" => "Usuario no encontrado"
+        ], 404);
+    }
+
+    $usuario = $resultUsuario->fetch_assoc();
 
     $stmtUsuario->close();
-    $conn->close();
-    exit;
-}
-
-$resultUsuario = $stmtUsuario->get_result();
-
-if (!$resultUsuario || $resultUsuario->num_rows === 0) {
-    http_response_code(404);
-
-    echo json_encode([
-        "success" => false,
-        "message" => "Usuario no encontrado"
-    ], JSON_UNESCAPED_UNICODE);
-
-    $stmtUsuario->close();
-    $conn->close();
-    exit;
-}
-
-$usuario = $resultUsuario->fetch_assoc();
-$stmtUsuario->close();
+    $stmtUsuario = null;
 
 
-/* =========================
-   ACTUALIZAR CONTRASEÑA
-========================= */
+    /* =========================
+       ACTUALIZAR CONTRASEÑA
+    ========================= */
 
-$passwordHash = password_hash($nuevaPassword, PASSWORD_DEFAULT);
+    $passwordHash = password_hash($nuevaPassword, PASSWORD_DEFAULT);
 
-$sqlUpdate = "
-    UPDATE usuarios
-    SET password = ?
-    WHERE id = ?
-";
+    $sqlUpdate = "
+        UPDATE usuarios
+        SET password = ?
+        WHERE id = ?
+    ";
 
-$stmtUpdate = $conn->prepare($sqlUpdate);
+    $stmtUpdate = $conn->prepare($sqlUpdate);
 
-if (!$stmtUpdate) {
-    http_response_code(500);
+    if (!$stmtUpdate) {
+        throw new Exception("Error al preparar actualización de contraseña: " . $conn->error);
+    }
 
-    echo json_encode([
-        "success" => false,
-        "message" => "Error al preparar actualización de contraseña"
-    ], JSON_UNESCAPED_UNICODE);
+    $stmtUpdate->bind_param("si", $passwordHash, $usuarioId);
 
-    $conn->close();
-    exit;
-}
-
-$stmtUpdate->bind_param("si", $passwordHash, $usuarioId);
-
-if (!$stmtUpdate->execute()) {
-    http_response_code(500);
-
-    echo json_encode([
-        "success" => false,
-        "message" => "Error al restablecer contraseña"
-    ], JSON_UNESCAPED_UNICODE);
+    if (!$stmtUpdate->execute()) {
+        throw new Exception("Error al restablecer contraseña: " . $stmtUpdate->error);
+    }
 
     $stmtUpdate->close();
+    $stmtUpdate = null;
+
+
+    /* =========================
+       RESPUESTA
+    ========================= */
+
     $conn->close();
-    exit;
+
+    ironixResponderJson([
+        "success" => true,
+        "message" => "Contraseña restablecida correctamente",
+        "usuario" => [
+            "id" => intval($usuario["id"]),
+            "nombre" => $usuario["nombre"],
+            "correo" => $usuario["correo"],
+            "rol" => $usuario["rol"],
+            "estado" => $usuario["estado"]
+        ]
+    ], 200);
+
+} catch (Throwable $e) {
+
+    if ($stmtUsuario instanceof mysqli_stmt) {
+        $stmtUsuario->close();
+    }
+
+    if ($stmtUpdate instanceof mysqli_stmt) {
+        $stmtUpdate->close();
+    }
+
+    if (isset($conn) && $conn instanceof mysqli) {
+        $conn->close();
+    }
+
+    ironixResponderJson([
+        "success" => false,
+        "message" => $e->getMessage()
+    ], 500);
 }
-
-$stmtUpdate->close();
-
-
-/* =========================
-   RESPUESTA
-========================= */
-
-echo json_encode([
-    "success" => true,
-    "message" => "Contraseña restablecida correctamente",
-    "usuario" => [
-        "id" => intval($usuario["id"]),
-        "nombre" => $usuario["nombre"],
-        "correo" => $usuario["correo"],
-        "rol" => $usuario["rol"],
-        "estado" => $usuario["estado"]
-    ]
-], JSON_UNESCAPED_UNICODE);
-
-$conn->close();

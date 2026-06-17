@@ -4,14 +4,13 @@
    IRONIX - OBTENER PRODUCCIÓN
 ========================= */
 
-header('Content-Type: application/json; charset=utf-8');
-
 require_once __DIR__ . "/../auth/guard.php";
 
 /* =========================
-   GUARD BACKEND - FASE 3
+   GUARD BACKEND - FASE 4
 ========================= */
 
+ironixRequerirMetodo("GET");
 ironixRequerirPermiso("produccion", "ver");
 
 
@@ -162,18 +161,20 @@ if ($result) {
         $datos[] = $row;
     }
 
-    echo json_encode([
+    $conn->close();
+
+    ironixResponderJson([
         "success" => true,
         "data" => $datos
-    ], JSON_UNESCAPED_UNICODE);
+    ], 200);
 
 } else {
-    http_response_code(500);
 
-    echo json_encode([
+    $error = $conn->error;
+    $conn->close();
+
+    ironixResponderJson([
         "success" => false,
-        "message" => "Error al obtener producción: " . $conn->error
-    ], JSON_UNESCAPED_UNICODE);
+        "message" => "Error al obtener producción: " . $error
+    ], 500);
 }
-
-$conn->close();

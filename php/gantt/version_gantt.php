@@ -7,14 +7,24 @@
 
 /*
     Este archivo NO lleva guard directamente.
-    La protección debe estar en los endpoints que llaman
-    a actualizarVersionGantt($conn).
+
+    Motivo:
+    - No es un endpoint público.
+    - No recibe peticiones directas desde JavaScript.
+    - Solo expone la función actualizarVersionGantt($conn).
+
+    La protección debe estar en los endpoints que llaman a esta función:
+    - guardar_produccion.php
+    - actualizar_produccion.php
+    - eliminar_produccion.php
+    - cambiar_estado.php
 */
+
 
 if (!function_exists("actualizarVersionGantt")) {
 
-    function actualizarVersionGantt($conn) {
-
+    function actualizarVersionGantt($conn)
+    {
         if (!$conn instanceof mysqli) {
             throw new Exception("Conexión inválida al actualizar versión del Gantt");
         }

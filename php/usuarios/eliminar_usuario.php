@@ -4,34 +4,14 @@
    IRONIX - ELIMINAR USUARIO
 ========================= */
 
-header('Content-Type: application/json; charset=utf-8');
-
 require_once __DIR__ . "/../auth/guard.php";
 
 /* =========================
-   GUARD BACKEND - FASE 3
+   GUARD BACKEND - FASE 4
 ========================= */
 
+ironixRequerirMetodo("POST");
 ironixRequerirPermiso("configuracion", "eliminar_usuario");
-
-
-require_once __DIR__ . "/../conexion.php";
-
-
-/* =========================
-   VALIDAR MÉTODO
-========================= */
-
-if ($_SERVER["REQUEST_METHOD"] !== "POST") {
-    http_response_code(405);
-
-    echo json_encode([
-        "success" => false,
-        "message" => "Método no permitido"
-    ], JSON_UNESCAPED_UNICODE);
-
-    exit;
-}
 
 
 /* =========================
@@ -39,17 +19,27 @@ if ($_SERVER["REQUEST_METHOD"] !== "POST") {
 ========================= */
 
 /*
-    Seguridad Fase 3:
+    Seguridad Fase 4:
     No se recibe admin_id desde el frontend.
     Se usa el usuario autenticado por guard.php.
 */
 
-$adminId = intval($IRONIX_USER_ID);
+$adminId = intval($IRONIX_USER_ID ?? ($_SESSION["ironix_usuario_id"] ?? 0));
+
+if ($adminId <= 0) {
+    ironixResponderNoAutorizado("Administrador autenticado no válido");
+}
 
 
 /* =========================
    RECIBIR DATOS
 ========================= */
+
+/*
+    Compatible con:
+    - JSON enviado por fetch
+    - FormData / POST tradicional
+*/
 
 $input = json_decode(file_get_contents("php://input"), true);
 
@@ -64,153 +54,124 @@ $usuarioId = isset($input["usuario_id"]) ? intval($input["usuario_id"]) : 0;
    VALIDACIONES BÁSICAS
 ========================= */
 
-if ($adminId <= 0) {
-    http_response_code(401);
-
-    echo json_encode([
-        "success" => false,
-        "message" => "Administrador autenticado no válido"
-    ], JSON_UNESCAPED_UNICODE);
-
-    exit;
-}
-
 if ($usuarioId <= 0) {
-    http_response_code(400);
-
-    echo json_encode([
+    ironixResponderJson([
         "success" => false,
         "message" => "ID de usuario no recibido"
-    ], JSON_UNESCAPED_UNICODE);
-
-    exit;
+    ], 400);
 }
 
 if ($adminId === $usuarioId) {
-    http_response_code(403);
-
-    echo json_encode([
+    ironixResponderJson([
         "success" => false,
         "message" => "No puedes eliminar tu propia cuenta"
-    ], JSON_UNESCAPED_UNICODE);
-
-    exit;
+    ], 403);
 }
 
 
-/* =========================
-   VALIDAR USUARIO OBJETIVO
-========================= */
+require_once __DIR__ . "/../conexion.php";
 
-$sqlUsuario = "
-    SELECT 
-        id,
-        nombre,
-        correo,
-        rol,
-        estado
-    FROM usuarios
-    WHERE id = ?
-    LIMIT 1
-";
-
-$stmtUsuario = $conn->prepare($sqlUsuario);
-
-if (!$stmtUsuario) {
-    http_response_code(500);
-
-    echo json_encode([
-        "success" => false,
-        "message" => "Error al preparar validación de usuario"
-    ], JSON_UNESCAPED_UNICODE);
-
-    $conn->close();
-    exit;
-}
-
-$stmtUsuario->bind_param("i", $usuarioId);
-$stmtUsuario->execute();
-
-$resultUsuario = $stmtUsuario->get_result();
-
-if (!$resultUsuario || $resultUsuario->num_rows === 0) {
-    http_response_code(404);
-
-    echo json_encode([
-        "success" => false,
-        "message" => "Usuario no encontrado"
-    ], JSON_UNESCAPED_UNICODE);
-
-    $stmtUsuario->close();
-    $conn->close();
-    exit;
-}
-
-$usuario = $resultUsuario->fetch_assoc();
-$stmtUsuario->close();
-
-
-/* =========================
-   PROTEGER ÚLTIMO ADMIN ACTIVO
-========================= */
-
-if ($usuario["rol"] === "admin" && $usuario["estado"] === "activa") {
-    $sqlAdminsActivos = "
-        SELECT COUNT(*) AS total
-        FROM usuarios
-        WHERE rol = 'admin'
-        AND estado = 'activa'
-        AND id <> ?
-    ";
-
-    $stmtAdmins = $conn->prepare($sqlAdminsActivos);
-
-    if (!$stmtAdmins) {
-        http_response_code(500);
-
-        echo json_encode([
-            "success" => false,
-            "message" => "Error al validar administradores activos"
-        ], JSON_UNESCAPED_UNICODE);
-
-        $conn->close();
-        exit;
-    }
-
-    $stmtAdmins->bind_param("i", $usuarioId);
-    $stmtAdmins->execute();
-
-    $resultAdmins = $stmtAdmins->get_result();
-    $rowAdmins = $resultAdmins->fetch_assoc();
-
-    $totalAdminsActivos = intval($rowAdmins["total"] ?? 0);
-
-    $stmtAdmins->close();
-
-    if ($totalAdminsActivos <= 0) {
-        http_response_code(403);
-
-        echo json_encode([
-            "success" => false,
-            "message" => "No puedes eliminar el último administrador activo del sistema"
-        ], JSON_UNESCAPED_UNICODE);
-
-        $conn->close();
-        exit;
-    }
-}
-
-
-/* =========================
-   ELIMINAR USUARIO
-========================= */
+$conn->set_charset("utf8mb4");
 
 $transaccionIniciada = false;
 
-$conn->begin_transaction();
-$transaccionIniciada = true;
 
 try {
+
+    /* =========================
+       VALIDAR USUARIO OBJETIVO
+    ========================= */
+
+    $sqlUsuario = "
+        SELECT 
+            id,
+            nombre,
+            correo,
+            rol,
+            estado
+        FROM usuarios
+        WHERE id = ?
+        LIMIT 1
+    ";
+
+    $stmtUsuario = $conn->prepare($sqlUsuario);
+
+    if (!$stmtUsuario) {
+        throw new Exception("Error al preparar validación de usuario: " . $conn->error);
+    }
+
+    $stmtUsuario->bind_param("i", $usuarioId);
+
+    if (!$stmtUsuario->execute()) {
+        throw new Exception("Error al ejecutar validación de usuario: " . $stmtUsuario->error);
+    }
+
+    $resultUsuario = $stmtUsuario->get_result();
+
+    if (!$resultUsuario || $resultUsuario->num_rows === 0) {
+        $stmtUsuario->close();
+        $conn->close();
+
+        ironixResponderJson([
+            "success" => false,
+            "message" => "Usuario no encontrado"
+        ], 404);
+    }
+
+    $usuario = $resultUsuario->fetch_assoc();
+    $stmtUsuario->close();
+
+
+    /* =========================
+       PROTEGER ÚLTIMO ADMIN ACTIVO
+    ========================= */
+
+    if (($usuario["rol"] ?? "") === "admin" && ($usuario["estado"] ?? "") === "activa") {
+        $sqlAdminsActivos = "
+            SELECT COUNT(*) AS total
+            FROM usuarios
+            WHERE rol = 'admin'
+            AND estado = 'activa'
+            AND id <> ?
+        ";
+
+        $stmtAdmins = $conn->prepare($sqlAdminsActivos);
+
+        if (!$stmtAdmins) {
+            throw new Exception("Error al validar administradores activos: " . $conn->error);
+        }
+
+        $stmtAdmins->bind_param("i", $usuarioId);
+
+        if (!$stmtAdmins->execute()) {
+            throw new Exception("Error al ejecutar validación de administradores activos: " . $stmtAdmins->error);
+        }
+
+        $resultAdmins = $stmtAdmins->get_result();
+        $rowAdmins = $resultAdmins ? $resultAdmins->fetch_assoc() : null;
+
+        $totalAdminsActivos = intval($rowAdmins["total"] ?? 0);
+
+        $stmtAdmins->close();
+
+        if ($totalAdminsActivos <= 0) {
+            $conn->close();
+
+            ironixResponderJson([
+                "success" => false,
+                "message" => "No puedes eliminar el último administrador activo del sistema"
+            ], 403);
+        }
+    }
+
+
+    /* =========================
+       ELIMINAR USUARIO
+    ========================= */
+
+    $conn->begin_transaction();
+    $transaccionIniciada = true;
+
 
     /* =========================
        ELIMINAR PERMISOS ASOCIADOS
@@ -224,13 +185,13 @@ try {
     $stmtPermisos = $conn->prepare($sqlDeletePermisos);
 
     if (!$stmtPermisos) {
-        throw new Exception("Error al preparar eliminación de permisos");
+        throw new Exception("Error al preparar eliminación de permisos: " . $conn->error);
     }
 
     $stmtPermisos->bind_param("i", $usuarioId);
 
     if (!$stmtPermisos->execute()) {
-        throw new Exception("Error al eliminar permisos del usuario");
+        throw new Exception("Error al eliminar permisos del usuario: " . $stmtPermisos->error);
     }
 
     $stmtPermisos->close();
@@ -249,13 +210,13 @@ try {
     $stmtDelete = $conn->prepare($sqlDeleteUsuario);
 
     if (!$stmtDelete) {
-        throw new Exception("Error al preparar eliminación de usuario");
+        throw new Exception("Error al preparar eliminación de usuario: " . $conn->error);
     }
 
     $stmtDelete->bind_param("i", $usuarioId);
 
     if (!$stmtDelete->execute()) {
-        throw new Exception("Error al eliminar usuario");
+        throw new Exception("Error al eliminar usuario: " . $stmtDelete->error);
     }
 
     if ($stmtDelete->affected_rows <= 0) {
@@ -272,8 +233,9 @@ try {
     $conn->commit();
     $transaccionIniciada = false;
 
+    $conn->close();
 
-    echo json_encode([
+    ironixResponderJson([
         "success" => true,
         "message" => "Usuario eliminado correctamente",
         "usuario" => [
@@ -283,21 +245,20 @@ try {
             "rol" => $usuario["rol"],
             "estado" => $usuario["estado"]
         ]
-    ], JSON_UNESCAPED_UNICODE);
+    ], 200);
 
-} catch (Exception $e) {
+} catch (Throwable $e) {
 
-    if ($transaccionIniciada) {
+    if ($transaccionIniciada && isset($conn) && $conn instanceof mysqli) {
         $conn->rollback();
     }
 
-    http_response_code(500);
+    if (isset($conn) && $conn instanceof mysqli) {
+        $conn->close();
+    }
 
-    echo json_encode([
+    ironixResponderJson([
         "success" => false,
         "message" => $e->getMessage()
-    ], JSON_UNESCAPED_UNICODE);
+    ], 500);
 }
-
-
-$conn->close();

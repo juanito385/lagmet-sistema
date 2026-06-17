@@ -4,14 +4,13 @@
    IRONIX - OBTENER FLUJO PROCESO
 ========================= */
 
-header('Content-Type: application/json; charset=utf-8');
-
 require_once __DIR__ . "/../auth/guard.php";
 
 /* =========================
-   GUARD BACKEND - FASE 3
+   GUARD BACKEND - FASE 4
 ========================= */
 
+ironixRequerirMetodo("GET");
 ironixRequerirPermiso("flujo_proceso", "ver");
 
 
@@ -20,23 +19,6 @@ require_once __DIR__ . "/../conexion.php";
 date_default_timezone_set("America/Santiago");
 
 $conn->set_charset("utf8mb4");
-
-
-/* =========================
-   VALIDAR MÉTODO
-========================= */
-
-if ($_SERVER["REQUEST_METHOD"] !== "GET") {
-    http_response_code(405);
-
-    echo json_encode([
-        "success" => false,
-        "message" => "Método no permitido",
-        "productos" => []
-    ], JSON_UNESCAPED_UNICODE);
-
-    exit;
-}
 
 
 try {
@@ -188,25 +170,22 @@ try {
        RESPUESTA
     ========================= */
 
-    echo json_encode([
+    $conn->close();
+
+    ironixResponderJson([
         "success" => true,
         "productos" => array_values($productos)
-    ], JSON_UNESCAPED_UNICODE);
+    ], 200);
 
 } catch (Throwable $e) {
 
-    if (http_response_code() === 200) {
-        http_response_code(500);
+    if (isset($conn) && $conn instanceof mysqli) {
+        $conn->close();
     }
 
-    echo json_encode([
+    ironixResponderJson([
         "success" => false,
         "message" => $e->getMessage(),
         "productos" => []
-    ], JSON_UNESCAPED_UNICODE);
-}
-
-
-if (isset($conn) && $conn instanceof mysqli) {
-    $conn->close();
+    ], 500);
 }

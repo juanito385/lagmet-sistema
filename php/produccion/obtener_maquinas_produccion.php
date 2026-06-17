@@ -4,14 +4,13 @@
    IRONIX - OBTENER MÁQUINAS DE PRODUCCIÓN
 ========================= */
 
-header('Content-Type: application/json; charset=utf-8');
-
 require_once __DIR__ . "/../auth/guard.php";
 
 /* =========================
-   GUARD BACKEND - FASE 3
+   GUARD BACKEND - FASE 4
 ========================= */
 
+ironixRequerirMetodo("GET");
 ironixRequerirPermiso("produccion", "ver");
 
 
@@ -21,38 +20,19 @@ $conn->set_charset("utf8mb4");
 
 
 /* =========================
-   VALIDAR MÉTODO
-========================= */
-
-if ($_SERVER["REQUEST_METHOD"] !== "GET") {
-    http_response_code(405);
-
-    echo json_encode([
-        "success" => false,
-        "message" => "Método no permitido",
-        "data" => []
-    ], JSON_UNESCAPED_UNICODE);
-
-    exit;
-}
-
-
-/* =========================
    RECIBIR ID
 ========================= */
 
 $id = intval($_GET["id"] ?? 0);
 
 if ($id <= 0) {
-    http_response_code(400);
+    $conn->close();
 
-    echo json_encode([
+    ironixResponderJson([
         "success" => false,
         "message" => "ID inválido",
         "data" => []
-    ], JSON_UNESCAPED_UNICODE);
-
-    exit;
+    ], 400);
 }
 
 
@@ -68,48 +48,42 @@ $check = $conn->prepare("
 ");
 
 if (!$check) {
-    http_response_code(500);
-
-    echo json_encode([
-        "success" => false,
-        "message" => "Error al preparar validación de producción",
-        "data" => []
-    ], JSON_UNESCAPED_UNICODE);
-
+    $error = $conn->error;
     $conn->close();
-    exit;
+
+    ironixResponderJson([
+        "success" => false,
+        "message" => "Error al preparar validación de producción: " . $error,
+        "data" => []
+    ], 500);
 }
 
 $check->bind_param("i", $id);
 
 if (!$check->execute()) {
-    http_response_code(500);
-
-    echo json_encode([
-        "success" => false,
-        "message" => "Error al validar producción",
-        "data" => []
-    ], JSON_UNESCAPED_UNICODE);
+    $error = $check->error;
 
     $check->close();
     $conn->close();
-    exit;
+
+    ironixResponderJson([
+        "success" => false,
+        "message" => "Error al validar producción: " . $error,
+        "data" => []
+    ], 500);
 }
 
 $resultCheck = $check->get_result();
 
 if (!$resultCheck || $resultCheck->num_rows === 0) {
-    http_response_code(404);
+    $check->close();
+    $conn->close();
 
-    echo json_encode([
+    ironixResponderJson([
         "success" => false,
         "message" => "Producción no encontrada",
         "data" => []
-    ], JSON_UNESCAPED_UNICODE);
-
-    $check->close();
-    $conn->close();
-    exit;
+    ], 404);
 }
 
 $check->close();
@@ -139,32 +113,29 @@ $stmt = $conn->prepare("
 ");
 
 if (!$stmt) {
-    http_response_code(500);
-
-    echo json_encode([
-        "success" => false,
-        "message" => "Error al preparar consulta de máquinas: " . $conn->error,
-        "data" => []
-    ], JSON_UNESCAPED_UNICODE);
-
+    $error = $conn->error;
     $conn->close();
-    exit;
+
+    ironixResponderJson([
+        "success" => false,
+        "message" => "Error al preparar consulta de máquinas: " . $error,
+        "data" => []
+    ], 500);
 }
 
 $stmt->bind_param("i", $id);
 
 if (!$stmt->execute()) {
-    http_response_code(500);
-
-    echo json_encode([
-        "success" => false,
-        "message" => "Error al ejecutar consulta de máquinas",
-        "data" => []
-    ], JSON_UNESCAPED_UNICODE);
+    $error = $stmt->error;
 
     $stmt->close();
     $conn->close();
-    exit;
+
+    ironixResponderJson([
+        "success" => false,
+        "message" => "Error al ejecutar consulta de máquinas: " . $error,
+        "data" => []
+    ], 500);
 }
 
 $result = $stmt->get_result();
@@ -188,10 +159,10 @@ while ($row = $result->fetch_assoc()) {
    RESPUESTA
 ========================= */
 
-echo json_encode([
-    "success" => true,
-    "data" => $maquinas
-], JSON_UNESCAPED_UNICODE);
-
 $stmt->close();
 $conn->close();
+
+ironixResponderJson([
+    "success" => true,
+    "data" => $maquinas
+], 200);

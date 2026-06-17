@@ -4,14 +4,13 @@
    IRONIX - GUARDAR PRODUCCIÓN
 ========================= */
 
-header('Content-Type: application/json; charset=utf-8');
-
 require_once __DIR__ . "/../auth/guard.php";
 
 /* =========================
-   GUARD BACKEND - FASE 3
+   GUARD BACKEND - FASE 4
 ========================= */
 
+ironixRequerirMetodo("POST");
 ironixRequerirPermiso("produccion", "guardar");
 
 
@@ -25,7 +24,8 @@ date_default_timezone_set("America/Santiago");
    TURNO AUTOMÁTICO
 ========================= */
 
-function calcularTurnoAutomatico() {
+function calcularTurnoAutomatico()
+{
     $horaActual = date("H:i");
 
     if ($horaActual >= "07:30" && $horaActual <= "12:59") {
@@ -41,36 +41,16 @@ function calcularTurnoAutomatico() {
 
 
 /* =========================
-   VALIDAR MÉTODO
-========================= */
-
-if ($_SERVER["REQUEST_METHOD"] !== "POST") {
-    http_response_code(405);
-
-    echo json_encode([
-        "success" => false,
-        "message" => "Método no permitido"
-    ]);
-
-    exit;
-}
-
-
-/* =========================
    RECIBIR DATOS
 ========================= */
 
 $input = json_decode(file_get_contents("php://input"), true);
 
 if (!is_array($input)) {
-    http_response_code(400);
-
-    echo json_encode([
+    ironixResponderJson([
         "success" => false,
         "message" => "JSON inválido"
-    ]);
-
-    exit;
+    ], 400);
 }
 
 $numero_pedido = trim($input["numero_pedido"] ?? "");
@@ -87,11 +67,15 @@ $almuerzo = trim($input["almuerzo"] ?? "no");
 $salida = trim($input["salida"] ?? "--");
 
 /*
-    Seguridad Fase 3:
+    Seguridad Fase 4:
     El usuario_id NO debe venir desde el frontend.
     Se usa el usuario autenticado desde la sesión PHP.
 */
-$usuario_id = intval($IRONIX_USER_ID);
+$usuario_id = intval($IRONIX_USER_ID ?? ($_SESSION["ironix_usuario_id"] ?? 0));
+
+if ($usuario_id <= 0) {
+    ironixResponderNoAutorizado("Sesión inválida");
+}
 
 $maquinas = $input["maquinas"] ?? [];
 
@@ -117,25 +101,17 @@ $turno = calcularTurnoAutomatico();
 ========================= */
 
 if ($numero_pedido === "" || $codigo === "" || $producto === "" || $cantidad <= 0) {
-    http_response_code(400);
-
-    echo json_encode([
+    ironixResponderJson([
         "success" => false,
         "message" => "Faltan datos obligatorios"
-    ]);
-
-    exit;
+    ], 400);
 }
 
 if (!is_array($maquinas)) {
-    http_response_code(400);
-
-    echo json_encode([
+    ironixResponderJson([
         "success" => false,
         "message" => "Formato de máquinas inválido"
-    ]);
-
-    exit;
+    ], 400);
 }
 
 
@@ -146,6 +122,10 @@ if (!is_array($maquinas)) {
 $conn->begin_transaction();
 
 try {
+
+    /* =========================
+       INSERTAR PRODUCCIÓN
+    ========================= */
 
     $stmt = $conn->prepare("
         INSERT INTO produccion
@@ -320,23 +300,21 @@ try {
     ========================= */
 
     $conn->commit();
+    $conn->close();
 
-    echo json_encode([
+    ironixResponderJson([
         "success" => true,
         "message" => "Producción guardada correctamente",
         "turno" => $turno
-    ]);
+    ], 200);
 
 } catch (Exception $e) {
 
     $conn->rollback();
+    $conn->close();
 
-    http_response_code(500);
-
-    echo json_encode([
+    ironixResponderJson([
         "success" => false,
         "message" => "Error al guardar: " . $e->getMessage()
-    ]);
+    ], 500);
 }
-
-$conn->close();

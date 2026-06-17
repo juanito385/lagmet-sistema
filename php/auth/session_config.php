@@ -5,9 +5,23 @@
 ========================= */
 
 /*
-    Este archivo centraliza la configuración de sesión.
-    Debe incluirse antes de usar $_SESSION.
+    Este archivo centraliza:
+    - Configuración de sesión.
+    - Headers JSON / no cache.
+    - Respuestas JSON reutilizables.
+    - Validación de método HTTP.
+    - Creación, validación y cierre de sesión.
+
+    Importante:
+    - Los permisos por módulo/acción se validan en auth/guard.php.
+    - Este archivo NO debe definir ironixTienePermiso()
+      ni ironixRequerirPermiso(), para evitar conflictos con guard.php.
 */
+
+
+/* =========================
+   INICIAR SESIÓN
+========================= */
 
 if (session_status() === PHP_SESSION_NONE) {
 
@@ -48,48 +62,109 @@ if (!defined("IRONIX_SESSION_TIMEOUT")) {
 
 
 /* =========================
-   VALIDAR EXPIRACIÓN DE SESIÓN
+   HEADERS JSON / NO CACHE
 ========================= */
 
-if (!function_exists("ironixValidarSesionActiva")) {
-    function ironixValidarSesionActiva()
+if (!function_exists("ironixAplicarHeadersJson")) {
+    function ironixAplicarHeadersJson()
     {
-        if (!isset($_SESSION["ironix_usuario_id"])) {
-            return false;
+        if (!headers_sent()) {
+            header("Content-Type: application/json; charset=utf-8");
+            header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
+            header("Pragma: no-cache");
         }
-
-        if (!isset($_SESSION["ironix_ultima_actividad"])) {
-            return false;
-        }
-
-        $tiempoInactivo = time() - intval($_SESSION["ironix_ultima_actividad"]);
-
-        if ($tiempoInactivo > IRONIX_SESSION_TIMEOUT) {
-            ironixCerrarSesion();
-            return false;
-        }
-
-        $_SESSION["ironix_ultima_actividad"] = time();
-
-        return true;
     }
 }
 
 
 /* =========================
-   CREAR SESIÓN DE USUARIO
+   RESPUESTA JSON GENERAL
 ========================= */
 
-if (!function_exists("ironixCrearSesionUsuario")) {
-    function ironixCrearSesionUsuario($usuario)
+if (!function_exists("ironixResponderJson")) {
+    function ironixResponderJson($data, $httpCode = 200)
     {
-        session_regenerate_id(true);
+        ironixAplicarHeadersJson();
+        http_response_code($httpCode);
 
-        $_SESSION["ironix_usuario_id"] = intval($usuario["id"]);
-        $_SESSION["ironix_usuario_nombre"] = $usuario["nombre"] ?? "";
-        $_SESSION["ironix_usuario_correo"] = $usuario["correo"] ?? "";
-        $_SESSION["ironix_usuario_rol"] = $usuario["rol"] ?? "usuario";
-        $_SESSION["ironix_ultima_actividad"] = time();
+        echo json_encode($data, JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+}
+
+
+/* =========================
+   RESPUESTA JSON NO AUTORIZADA
+========================= */
+
+if (!function_exists("ironixResponderNoAutorizado")) {
+    function ironixResponderNoAutorizado($mensaje = "No autorizado")
+    {
+        ironixResponderJson([
+            "success" => false,
+            "auth" => false,
+            "message" => $mensaje
+        ], 401);
+    }
+}
+
+
+/* =========================
+   RESPUESTA JSON SIN PERMISOS
+========================= */
+
+if (!function_exists("ironixResponderSinPermisos")) {
+    function ironixResponderSinPermisos($mensaje = "No tienes permisos para realizar esta acción")
+    {
+        ironixResponderJson([
+            "success" => false,
+            "auth" => true,
+            "permission" => false,
+            "permiso" => false,
+            "message" => $mensaje
+        ], 403);
+    }
+}
+
+
+/* =========================
+   RESPUESTA MÉTODO NO PERMITIDO
+========================= */
+
+if (!function_exists("ironixResponderMetodoNoPermitido")) {
+    function ironixResponderMetodoNoPermitido($metodosPermitidos = "POST")
+    {
+        if (is_array($metodosPermitidos)) {
+            $metodosPermitidos = implode(", ", $metodosPermitidos);
+        }
+
+        ironixResponderJson([
+            "success" => false,
+            "message" => "Método no permitido",
+            "allowed_methods" => $metodosPermitidos
+        ], 405);
+    }
+}
+
+
+/* =========================
+   VALIDAR MÉTODO HTTP
+========================= */
+
+if (!function_exists("ironixRequerirMetodo")) {
+    function ironixRequerirMetodo($metodosPermitidos)
+    {
+        if (!is_array($metodosPermitidos)) {
+            $metodosPermitidos = [$metodosPermitidos];
+        }
+
+        $metodoActual = $_SERVER["REQUEST_METHOD"] ?? "";
+
+        if (!in_array($metodoActual, $metodosPermitidos, true)) {
+            ironixResponderMetodoNoPermitido($metodosPermitidos);
+        }
+
+        return true;
     }
 }
 
@@ -124,43 +199,159 @@ if (!function_exists("ironixCerrarSesion")) {
 
 
 /* =========================
-   RESPUESTA JSON NO AUTORIZADA
+   VALIDAR EXPIRACIÓN DE SESIÓN
 ========================= */
 
-if (!function_exists("ironixResponderNoAutorizado")) {
-    function ironixResponderNoAutorizado($mensaje = "No autorizado")
+if (!function_exists("ironixValidarSesionActiva")) {
+    function ironixValidarSesionActiva()
     {
-        http_response_code(401);
-        header("Content-Type: application/json; charset=utf-8");
+        if (!isset($_SESSION["ironix_usuario_id"])) {
+            return false;
+        }
 
-        echo json_encode([
-            "success" => false,
-            "auth" => false,
-            "message" => $mensaje
-        ], JSON_UNESCAPED_UNICODE);
+        if (!isset($_SESSION["ironix_ultima_actividad"])) {
+            return false;
+        }
 
-        exit;
+        $tiempoInactivo = time() - intval($_SESSION["ironix_ultima_actividad"]);
+
+        if ($tiempoInactivo > IRONIX_SESSION_TIMEOUT) {
+            ironixCerrarSesion();
+            return false;
+        }
+
+        $_SESSION["ironix_ultima_actividad"] = time();
+
+        return true;
     }
 }
 
 
 /* =========================
-   RESPUESTA JSON SIN PERMISOS
+   ACTUALIZAR ACTIVIDAD
 ========================= */
 
-if (!function_exists("ironixResponderSinPermisos")) {
-    function ironixResponderSinPermisos($mensaje = "No tienes permisos para realizar esta acción")
+if (!function_exists("ironixActualizarActividadSesion")) {
+    function ironixActualizarActividadSesion()
     {
-        http_response_code(403);
-        header("Content-Type: application/json; charset=utf-8");
+        if (isset($_SESSION["ironix_usuario_id"])) {
+            $_SESSION["ironix_ultima_actividad"] = time();
+        }
+    }
+}
 
-        echo json_encode([
-            "success" => false,
-            "auth" => true,
-            "permission" => false,
-            "message" => $mensaje
-        ], JSON_UNESCAPED_UNICODE);
 
-        exit;
+/* =========================
+   CREAR SESIÓN DE USUARIO
+========================= */
+
+if (!function_exists("ironixCrearSesionUsuario")) {
+    function ironixCrearSesionUsuario($usuario)
+    {
+        session_regenerate_id(true);
+
+        $_SESSION["ironix_usuario_id"] = intval($usuario["id"] ?? 0);
+        $_SESSION["ironix_usuario_nombre"] = $usuario["nombre"] ?? "";
+        $_SESSION["ironix_usuario_correo"] = $usuario["correo"] ?? "";
+        $_SESSION["ironix_usuario_rol"] = $usuario["rol"] ?? "usuario";
+        $_SESSION["ironix_usuario_estado"] = $usuario["estado"] ?? "activa";
+        $_SESSION["ironix_ultima_actividad"] = time();
+
+        /*
+            Permisos opcionales para frontend o uso auxiliar.
+
+            La validación backend principal se hace en guard.php.
+        */
+        if (isset($usuario["permisos"])) {
+            if (is_array($usuario["permisos"])) {
+                $_SESSION["ironix_usuario_permisos"] = $usuario["permisos"];
+            } else {
+                $permisosDecodificados = json_decode($usuario["permisos"], true);
+
+                $_SESSION["ironix_usuario_permisos"] = is_array($permisosDecodificados)
+                    ? $permisosDecodificados
+                    : [];
+            }
+        } else {
+            $_SESSION["ironix_usuario_permisos"] = [];
+        }
+    }
+}
+
+
+/* =========================
+   OBTENER USUARIO DE SESIÓN
+========================= */
+
+if (!function_exists("ironixObtenerUsuarioSesion")) {
+    function ironixObtenerUsuarioSesion()
+    {
+        if (!ironixValidarSesionActiva()) {
+            return null;
+        }
+
+        return [
+            "id" => intval($_SESSION["ironix_usuario_id"] ?? 0),
+            "nombre" => $_SESSION["ironix_usuario_nombre"] ?? "",
+            "correo" => $_SESSION["ironix_usuario_correo"] ?? "",
+            "rol" => $_SESSION["ironix_usuario_rol"] ?? "usuario",
+            "estado" => $_SESSION["ironix_usuario_estado"] ?? "activa",
+            "permisos" => $_SESSION["ironix_usuario_permisos"] ?? []
+        ];
+    }
+}
+
+
+/* =========================
+   GUARD - REQUERIR SESIÓN
+========================= */
+
+if (!function_exists("ironixRequerirSesion")) {
+    function ironixRequerirSesion()
+    {
+        $usuario = ironixObtenerUsuarioSesion();
+
+        if (!$usuario || intval($usuario["id"] ?? 0) <= 0) {
+            ironixResponderNoAutorizado("Sesión no válida o expirada");
+        }
+
+        return $usuario;
+    }
+}
+
+
+/* =========================
+   VALIDAR SI ES ADMIN
+========================= */
+
+if (!function_exists("ironixUsuarioEsAdmin")) {
+    function ironixUsuarioEsAdmin()
+    {
+        return isset($_SESSION["ironix_usuario_rol"])
+            && $_SESSION["ironix_usuario_rol"] === "admin";
+    }
+}
+
+
+/* =========================
+   GUARD - REQUERIR ROL
+========================= */
+
+if (!function_exists("ironixRequerirRol")) {
+    function ironixRequerirRol($rolesPermitidos)
+    {
+        ironixRequerirSesion();
+
+        if (!is_array($rolesPermitidos)) {
+            $rolesPermitidos = [$rolesPermitidos];
+        }
+
+        $rolActual = $_SESSION["ironix_usuario_rol"] ?? "usuario";
+
+        if (!in_array($rolActual, $rolesPermitidos, true)) {
+            ironixResponderSinPermisos("Tu rol no tiene acceso a esta acción");
+        }
+
+        return true;
     }
 }

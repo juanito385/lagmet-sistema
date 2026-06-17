@@ -4,34 +4,14 @@
    IRONIX - CAMBIAR ESTADO DE USUARIO
 ========================= */
 
-header('Content-Type: application/json; charset=utf-8');
-
 require_once __DIR__ . "/../auth/guard.php";
 
 /* =========================
-   GUARD BACKEND - FASE 3
+   GUARD BACKEND - FASE 4
 ========================= */
 
+ironixRequerirMetodo("POST");
 ironixRequerirPermiso("configuracion", "seguridad");
-
-
-require_once __DIR__ . "/../conexion.php";
-
-
-/* =========================
-   VALIDAR MÉTODO
-========================= */
-
-if ($_SERVER["REQUEST_METHOD"] !== "POST") {
-    http_response_code(405);
-
-    echo json_encode([
-        "success" => false,
-        "message" => "Método no permitido"
-    ], JSON_UNESCAPED_UNICODE);
-
-    exit;
-}
 
 
 /* =========================
@@ -39,20 +19,36 @@ if ($_SERVER["REQUEST_METHOD"] !== "POST") {
 ========================= */
 
 /*
-    Seguridad Fase 3:
+    Seguridad Fase 4:
     No se recibe admin_id desde frontend.
     Se usa el usuario autenticado por guard.php.
 */
 
-$adminId = intval($IRONIX_USER_ID);
+$adminId = intval($IRONIX_USER_ID ?? ($_SESSION["ironix_usuario_id"] ?? 0));
+
+if ($adminId <= 0) {
+    ironixResponderNoAutorizado("Administrador autenticado no válido");
+}
 
 
 /* =========================
    RECIBIR DATOS
 ========================= */
 
-$usuarioId = isset($_POST["usuario_id"]) ? intval($_POST["usuario_id"]) : 0;
-$estado = isset($_POST["estado"]) ? trim($_POST["estado"]) : "";
+/*
+    Compatible con:
+    - JSON enviado por fetch
+    - FormData / POST tradicional
+*/
+
+$input = json_decode(file_get_contents("php://input"), true);
+
+if (!is_array($input)) {
+    $input = $_POST;
+}
+
+$usuarioId = isset($input["usuario_id"]) ? intval($input["usuario_id"]) : 0;
+$estado = isset($input["estado"]) ? trim((string) $input["estado"]) : "";
 
 $estadosPermitidos = ["activa", "inactiva", "bloqueada"];
 
@@ -61,200 +57,174 @@ $estadosPermitidos = ["activa", "inactiva", "bloqueada"];
    VALIDACIONES
 ========================= */
 
-if ($adminId <= 0) {
-    http_response_code(401);
-
-    echo json_encode([
-        "success" => false,
-        "message" => "Administrador autenticado no válido"
-    ], JSON_UNESCAPED_UNICODE);
-
-    exit;
-}
-
 if ($usuarioId <= 0) {
-    http_response_code(400);
-
-    echo json_encode([
+    ironixResponderJson([
         "success" => false,
         "message" => "ID de usuario no recibido"
-    ], JSON_UNESCAPED_UNICODE);
-
-    exit;
+    ], 400);
 }
 
 if (!in_array($estado, $estadosPermitidos, true)) {
-    http_response_code(400);
-
-    echo json_encode([
+    ironixResponderJson([
         "success" => false,
         "message" => "Estado no válido"
-    ], JSON_UNESCAPED_UNICODE);
-
-    exit;
+    ], 400);
 }
 
 
-/* =========================
-   VALIDAR USUARIO OBJETIVO
-========================= */
+require_once __DIR__ . "/../conexion.php";
 
-$sqlUsuario = "
-    SELECT 
-        id, 
-        nombre, 
-        correo, 
-        rol, 
-        estado
-    FROM usuarios
-    WHERE id = ?
-    LIMIT 1
-";
+$conn->set_charset("utf8mb4");
 
-$stmtUsuario = $conn->prepare($sqlUsuario);
 
-if (!$stmtUsuario) {
-    http_response_code(500);
+try {
 
-    echo json_encode([
-        "success" => false,
-        "message" => "Error al validar usuario"
-    ], JSON_UNESCAPED_UNICODE);
+    /* =========================
+       VALIDAR USUARIO OBJETIVO
+    ========================= */
 
-    $conn->close();
-    exit;
-}
+    $sqlUsuario = "
+        SELECT 
+            id, 
+            nombre, 
+            correo, 
+            rol, 
+            estado
+        FROM usuarios
+        WHERE id = ?
+        LIMIT 1
+    ";
 
-$stmtUsuario->bind_param("i", $usuarioId);
+    $stmtUsuario = $conn->prepare($sqlUsuario);
 
-if (!$stmtUsuario->execute()) {
-    http_response_code(500);
+    if (!$stmtUsuario) {
+        throw new Exception("Error al validar usuario: " . $conn->error);
+    }
 
-    echo json_encode([
-        "success" => false,
-        "message" => "Error al ejecutar validación de usuario"
-    ], JSON_UNESCAPED_UNICODE);
+    $stmtUsuario->bind_param("i", $usuarioId);
 
+    if (!$stmtUsuario->execute()) {
+        throw new Exception("Error al ejecutar validación de usuario: " . $stmtUsuario->error);
+    }
+
+    $resultUsuario = $stmtUsuario->get_result();
+
+    if (!$resultUsuario || $resultUsuario->num_rows === 0) {
+        $stmtUsuario->close();
+        $conn->close();
+
+        ironixResponderJson([
+            "success" => false,
+            "message" => "Usuario no encontrado"
+        ], 404);
+    }
+
+    $usuario = $resultUsuario->fetch_assoc();
     $stmtUsuario->close();
-    $conn->close();
-    exit;
-}
-
-$resultUsuario = $stmtUsuario->get_result();
-
-if (!$resultUsuario || $resultUsuario->num_rows === 0) {
-    http_response_code(404);
-
-    echo json_encode([
-        "success" => false,
-        "message" => "Usuario no encontrado"
-    ], JSON_UNESCAPED_UNICODE);
-
-    $stmtUsuario->close();
-    $conn->close();
-    exit;
-}
-
-$usuario = $resultUsuario->fetch_assoc();
-$stmtUsuario->close();
 
 
-/* =========================
-   PROTECCIONES DE SEGURIDAD
-========================= */
+    /* =========================
+       PROTECCIONES DE SEGURIDAD
+    ========================= */
 
-/*
-    Protección:
-    El administrador no puede bloquearse o desactivarse a sí mismo.
-*/
+    /*
+        Protección:
+        El administrador no puede bloquearse o desactivarse a sí mismo.
+    */
 
-if ($adminId === $usuarioId && $estado !== "activa") {
-    http_response_code(403);
+    if ($adminId === $usuarioId && $estado !== "activa") {
+        $conn->close();
 
-    echo json_encode([
-        "success" => false,
-        "message" => "No puedes bloquear o desactivar tu propia cuenta"
-    ], JSON_UNESCAPED_UNICODE);
+        ironixResponderJson([
+            "success" => false,
+            "message" => "No puedes bloquear o desactivar tu propia cuenta"
+        ], 403);
+    }
 
-    $conn->close();
-    exit;
-}
+    /*
+        Protección:
+        Se mantiene tu regla actual: no permitir bloquear o desactivar administradores.
+    */
 
-/*
-    Protección:
-    Mantengo tu regla actual: no permitir bloquear o desactivar administradores.
-*/
+    if (($usuario["rol"] ?? "") === "admin" && $estado !== "activa") {
+        $conn->close();
 
-if ($usuario["rol"] === "admin" && $estado !== "activa") {
-    http_response_code(403);
-
-    echo json_encode([
-        "success" => false,
-        "message" => "No se puede bloquear o desactivar un administrador"
-    ], JSON_UNESCAPED_UNICODE);
-
-    $conn->close();
-    exit;
-}
+        ironixResponderJson([
+            "success" => false,
+            "message" => "No se puede bloquear o desactivar un administrador"
+        ], 403);
+    }
 
 
-/* =========================
-   ACTUALIZAR ESTADO
-========================= */
+    /* =========================
+       ACTUALIZAR ESTADO
+    ========================= */
 
-$sqlUpdate = "
-    UPDATE usuarios
-    SET estado = ?
-    WHERE id = ?
-";
+    $sqlUpdate = "
+        UPDATE usuarios
+        SET estado = ?
+        WHERE id = ?
+    ";
 
-$stmtUpdate = $conn->prepare($sqlUpdate);
+    $stmtUpdate = $conn->prepare($sqlUpdate);
 
-if (!$stmtUpdate) {
-    http_response_code(500);
+    if (!$stmtUpdate) {
+        throw new Exception("Error al preparar actualización: " . $conn->error);
+    }
 
-    echo json_encode([
-        "success" => false,
-        "message" => "Error al preparar actualización"
-    ], JSON_UNESCAPED_UNICODE);
+    $stmtUpdate->bind_param("si", $estado, $usuarioId);
 
-    $conn->close();
-    exit;
-}
-
-$stmtUpdate->bind_param("si", $estado, $usuarioId);
-
-if (!$stmtUpdate->execute()) {
-    http_response_code(500);
-
-    echo json_encode([
-        "success" => false,
-        "message" => "Error al actualizar estado del usuario"
-    ], JSON_UNESCAPED_UNICODE);
+    if (!$stmtUpdate->execute()) {
+        throw new Exception("Error al actualizar estado del usuario: " . $stmtUpdate->error);
+    }
 
     $stmtUpdate->close();
+
+
+    /* =========================
+       ACTUALIZAR SESIÓN SI EL ADMIN SE MODIFICÓ A SÍ MISMO
+    ========================= */
+
+    if ($adminId === $usuarioId) {
+        $_SESSION["ironix_usuario_estado"] = $estado;
+    }
+
+
+    /* =========================
+       RESPUESTA
+    ========================= */
+
     $conn->close();
-    exit;
+
+    ironixResponderJson([
+        "success" => true,
+        "message" => "Estado del usuario actualizado correctamente",
+        "usuario" => [
+            "id" => intval($usuario["id"]),
+            "nombre" => $usuario["nombre"],
+            "correo" => $usuario["correo"],
+            "rol" => $usuario["rol"],
+            "estado_anterior" => $usuario["estado"],
+            "estado" => $estado
+        ]
+    ], 200);
+
+} catch (Throwable $e) {
+
+    if (isset($stmtUsuario) && $stmtUsuario instanceof mysqli_stmt) {
+        $stmtUsuario->close();
+    }
+
+    if (isset($stmtUpdate) && $stmtUpdate instanceof mysqli_stmt) {
+        $stmtUpdate->close();
+    }
+
+    if (isset($conn) && $conn instanceof mysqli) {
+        $conn->close();
+    }
+
+    ironixResponderJson([
+        "success" => false,
+        "message" => $e->getMessage()
+    ], 500);
 }
-
-$stmtUpdate->close();
-
-
-/* =========================
-   RESPUESTA
-========================= */
-
-echo json_encode([
-    "success" => true,
-    "message" => "Estado del usuario actualizado correctamente",
-    "usuario" => [
-        "id" => intval($usuario["id"]),
-        "nombre" => $usuario["nombre"],
-        "correo" => $usuario["correo"],
-        "rol" => $usuario["rol"],
-        "estado_anterior" => $usuario["estado"],
-        "estado" => $estado
-    ]
-], JSON_UNESCAPED_UNICODE);
-
-$conn->close();

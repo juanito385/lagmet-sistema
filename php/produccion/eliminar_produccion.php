@@ -4,14 +4,13 @@
    IRONIX - ELIMINAR PRODUCTO / PRODUCCIÓN
 ========================= */
 
-header('Content-Type: application/json; charset=utf-8');
-
 require_once __DIR__ . "/../auth/guard.php";
 
 /* =========================
-   GUARD BACKEND - FASE 3
+   GUARD BACKEND - FASE 4
 ========================= */
 
+ironixRequerirMetodo("POST");
 ironixRequerirPermiso("productos", "eliminar");
 
 
@@ -20,37 +19,22 @@ require_once __DIR__ . "/../gantt/version_gantt.php";
 
 
 /* =========================
-   VALIDAR MÉTODO
-========================= */
-
-if ($_SERVER["REQUEST_METHOD"] !== "POST") {
-    http_response_code(405);
-
-    echo json_encode([
-        "success" => false,
-        "message" => "Método no permitido"
-    ]);
-
-    exit;
-}
-
-
-/* =========================
    RECIBIR DATOS
 ========================= */
 
 $input = json_decode(file_get_contents("php://input"), true);
+
+if (!is_array($input)) {
+    $input = $_POST;
+}
+
 $id = intval($input["id"] ?? 0);
 
 if ($id <= 0) {
-    http_response_code(400);
-
-    echo json_encode([
+    ironixResponderJson([
         "success" => false,
         "message" => "ID inválido"
-    ]);
-
-    exit;
+    ], 400);
 }
 
 
@@ -83,7 +67,6 @@ try {
 
     if ($resultCheck->num_rows === 0) {
         $check->close();
-
         throw new Exception("No existe una producción con el ID indicado");
     }
 
@@ -172,22 +155,20 @@ try {
     ========================= */
 
     $conn->commit();
+    $conn->close();
 
-    echo json_encode([
+    ironixResponderJson([
         "success" => true,
         "message" => "Registro eliminado correctamente"
-    ]);
+    ], 200);
 
-} catch (Exception $e) {
+    } catch (Exception $e) {
 
     $conn->rollback();
+    $conn->close();
 
-    http_response_code(500);
-
-    echo json_encode([
+    ironixResponderJson([
         "success" => false,
         "message" => "Error al eliminar: " . $e->getMessage()
-    ]);
+    ], 500);
 }
-
-$conn->close();

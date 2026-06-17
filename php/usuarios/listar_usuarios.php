@@ -4,121 +4,104 @@
    IRONIX - LISTAR USUARIOS
 ========================= */
 
-header('Content-Type: application/json; charset=utf-8');
-
 require_once __DIR__ . "/../auth/guard.php";
 
 /* =========================
-   GUARD BACKEND - FASE 3
+   GUARD BACKEND - FASE 4
 ========================= */
 
+ironixRequerirMetodo("GET");
 ironixRequerirPermiso("configuracion", "ver");
 
 
 require_once __DIR__ . "/../conexion.php";
 
-
-/* =========================
-   VALIDAR MÉTODO
-========================= */
-
-if ($_SERVER["REQUEST_METHOD"] !== "GET") {
-    http_response_code(405);
-
-    echo json_encode([
-        "success" => false,
-        "message" => "Método no permitido",
-        "usuarios" => [],
-        "total" => 0
-    ], JSON_UNESCAPED_UNICODE);
-
-    exit;
-}
+$conn->set_charset("utf8mb4");
 
 
-/* =========================
-   LISTAR USUARIOS
-========================= */
+try {
 
-$sql = "
-    SELECT
-        id,
-        nombre,
-        correo,
-        rol,
-        telefono,
-        area,
-        idioma,
-        estado,
-        fecha_creacion
-    FROM usuarios
-    ORDER BY 
-        CASE 
-            WHEN rol = 'admin' THEN 0
-            ELSE 1
-        END,
-        id ASC
-";
+    /* =========================
+       LISTAR USUARIOS
+    ========================= */
 
-$stmt = $conn->prepare($sql);
+    $sql = "
+        SELECT
+            id,
+            nombre,
+            correo,
+            rol,
+            telefono,
+            area,
+            idioma,
+            estado,
+            fecha_creacion
+        FROM usuarios
+        ORDER BY 
+            CASE 
+                WHEN rol = 'admin' THEN 0
+                ELSE 1
+            END,
+            id ASC
+    ";
 
-if (!$stmt) {
-    http_response_code(500);
+    $stmt = $conn->prepare($sql);
 
-    echo json_encode([
-        "success" => false,
-        "message" => "Error al preparar consulta de usuarios",
-        "usuarios" => [],
-        "total" => 0
-    ], JSON_UNESCAPED_UNICODE);
+    if (!$stmt) {
+        throw new Exception("Error al preparar consulta de usuarios: " . $conn->error);
+    }
 
-    $conn->close();
-    exit;
-}
+    if (!$stmt->execute()) {
+        throw new Exception("Error al ejecutar consulta de usuarios: " . $stmt->error);
+    }
 
-if (!$stmt->execute()) {
-    http_response_code(500);
+    $result = $stmt->get_result();
 
-    echo json_encode([
-        "success" => false,
-        "message" => "Error al ejecutar consulta de usuarios",
-        "usuarios" => [],
-        "total" => 0
-    ], JSON_UNESCAPED_UNICODE);
+    $usuarios = [];
+
+    while ($row = $result->fetch_assoc()) {
+        $usuarios[] = [
+            "id" => intval($row["id"]),
+            "nombre" => $row["nombre"],
+            "correo" => $row["correo"],
+            "rol" => $row["rol"],
+            "telefono" => $row["telefono"],
+            "area" => $row["area"],
+            "idioma" => $row["idioma"],
+            "estado" => $row["estado"],
+            "fecha_creacion" => $row["fecha_creacion"]
+        ];
+    }
 
     $stmt->close();
     $conn->close();
-    exit;
+
+
+    /* =========================
+       RESPUESTA
+    ========================= */
+
+    ironixResponderJson([
+        "success" => true,
+        "usuarios" => $usuarios,
+        "total" => count($usuarios)
+    ], 200);
+
+} catch (Throwable $e) {
+
+    if (isset($stmt) && $stmt instanceof mysqli_stmt) {
+        $stmt->close();
+    }
+
+    if (isset($conn) && $conn instanceof mysqli) {
+        $conn->close();
+    }
+
+    ironixResponderJson([
+        "success" => false,
+        "message" => "Error al listar usuarios",
+        "error" => $e->getMessage(),
+        "usuarios" => [],
+        "total" => 0
+    ], 500);
 }
-
-$result = $stmt->get_result();
-
-$usuarios = [];
-
-while ($row = $result->fetch_assoc()) {
-    $usuarios[] = [
-        "id" => intval($row["id"]),
-        "nombre" => $row["nombre"],
-        "correo" => $row["correo"],
-        "rol" => $row["rol"],
-        "telefono" => $row["telefono"],
-        "area" => $row["area"],
-        "idioma" => $row["idioma"],
-        "estado" => $row["estado"],
-        "fecha_creacion" => $row["fecha_creacion"]
-    ];
-}
-
-
-/* =========================
-   RESPUESTA
-========================= */
-
-echo json_encode([
-    "success" => true,
-    "usuarios" => $usuarios,
-    "total" => count($usuarios)
-], JSON_UNESCAPED_UNICODE);
-
-$stmt->close();
-$conn->close();

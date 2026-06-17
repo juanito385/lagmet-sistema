@@ -9,10 +9,11 @@ header('Content-Type: application/json; charset=utf-8');
 require_once __DIR__ . "/../auth/guard.php";
 
 /* =========================
-   GUARD BACKEND - FASE 3
+   GUARD BACKEND - FASE 4
 ========================= */
 
-ironixRequerirPermiso("produccion", "editar");
+ironixRequerirMetodo("POST");
+ironixRequerirPermiso("productos", "editar");
 
 
 require_once __DIR__ . "/../conexion.php";

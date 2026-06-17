@@ -4,14 +4,13 @@
    IRONIX - CAMBIAR ESTADO
 ========================= */
 
-header('Content-Type: application/json; charset=utf-8');
-
 require_once __DIR__ . "/../auth/guard.php";
 
 /* =========================
-   GUARD BACKEND - FASE 3
+   GUARD BACKEND - FASE 4
 ========================= */
 
+ironixRequerirMetodo("POST");
 ironixRequerirPermiso("estados", "editar");
 
 
@@ -22,36 +21,16 @@ date_default_timezone_set("America/Santiago");
 
 
 /* =========================
-   VALIDAR MÉTODO
+   VARIABLES DE CONTROL
 ========================= */
-
-if ($_SERVER["REQUEST_METHOD"] !== "POST") {
-    http_response_code(405);
-
-    echo json_encode([
-        "success" => false,
-        "message" => "Método no permitido"
-    ], JSON_UNESCAPED_UNICODE);
-
-    exit;
-}
-
-
-/* =========================
-   RESPUESTA BASE
-========================= */
-
-$response = [
-    "success" => false,
-    "message" => ""
-];
 
 $transaccionIniciada = false;
+$httpCode = 500;
 
 
 try {
 
-    if (!isset($conn)) {
+    if (!isset($conn) || !($conn instanceof mysqli)) {
         throw new Exception("No se encontró la conexión a la base de datos.");
     }
 
@@ -78,7 +57,7 @@ try {
     ========================= */
 
     if ($produccionId <= 0) {
-        http_response_code(400);
+        $httpCode = 400;
         throw new Exception("ID de producción inválido.");
     }
 
@@ -91,7 +70,7 @@ try {
     ];
 
     if (!in_array($nuevoEstado, $estadosPermitidos, true)) {
-        http_response_code(400);
+        $httpCode = 400;
         throw new Exception("Estado no permitido.");
     }
 
@@ -101,13 +80,21 @@ try {
     ========================= */
 
     /*
-        Seguridad Fase 3:
+        Seguridad Fase 4:
         No se usa usuario_id desde POST ni sesiones antiguas.
         Se usa el usuario autenticado validado por guard.php.
     */
 
-    $usuarioId = intval($IRONIX_USER_ID);
-    $usuarioNombre = trim($IRONIX_USER_NAME) !== "" ? trim($IRONIX_USER_NAME) : "Usuario IRONIX";
+    $usuarioId = intval($IRONIX_USER_ID ?? ($_SESSION["ironix_usuario_id"] ?? 0));
+
+    if ($usuarioId <= 0) {
+        $httpCode = 401;
+        throw new Exception("Sesión inválida.");
+    }
+
+    $usuarioNombre = trim($IRONIX_USER_NAME ?? "") !== ""
+        ? trim($IRONIX_USER_NAME)
+        : "Usuario IRONIX";
 
 
     /* =========================
@@ -148,7 +135,7 @@ try {
     $stmt->close();
 
     if (!$produccion) {
-        http_response_code(404);
+        $httpCode = 404;
         throw new Exception("No se encontró la producción.");
     }
 
@@ -252,7 +239,9 @@ try {
     $conn->commit();
     $transaccionIniciada = false;
 
-    $response = [
+    $conn->close();
+
+    ironixResponderJson([
         "success" => true,
         "message" => "Estado actualizado correctamente.",
         "data" => [
@@ -261,7 +250,7 @@ try {
             "estado_nuevo" => $nuevoEstado,
             "usuario" => $usuarioNombre
         ]
-    ];
+    ], 200);
 
 } catch (Throwable $e) {
 
@@ -269,19 +258,12 @@ try {
         $conn->rollback();
     }
 
-    if (http_response_code() === 200) {
-        http_response_code(500);
+    if (isset($conn) && $conn instanceof mysqli) {
+        $conn->close();
     }
 
-    $response = [
+    ironixResponderJson([
         "success" => false,
         "message" => $e->getMessage()
-    ];
-}
-
-
-echo json_encode($response, JSON_UNESCAPED_UNICODE);
-
-if (isset($conn) && $conn instanceof mysqli) {
-    $conn->close();
+    ], $httpCode);
 }

@@ -4,14 +4,41 @@
    IRONIX - LOGIN
 ================================ */
 
-header('Content-Type: application/json; charset=utf-8');
-header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
-header('Pragma: no-cache');
-
-require_once __DIR__ . "/../conexion.php";
 require_once __DIR__ . "/session_config.php";
 
-$conn->set_charset("utf8mb4");
+
+/* ===============================
+   HELPERS LOCALES AUTH
+================================ */
+
+/*
+    Este archivo NO usa guard.php porque login.php debe funcionar
+    antes de que exista una sesión activa.
+
+    Por eso usa helpers locales para responder JSON.
+*/
+
+if (!function_exists("ironixAuthAplicarHeadersJson")) {
+    function ironixAuthAplicarHeadersJson()
+    {
+        header("Content-Type: application/json; charset=utf-8");
+        header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
+        header("Pragma: no-cache");
+    }
+}
+
+if (!function_exists("ironixAuthResponderJson")) {
+    function ironixAuthResponderJson($data, $httpCode = 200)
+    {
+        ironixAuthAplicarHeadersJson();
+        http_response_code($httpCode);
+
+        echo json_encode($data, JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+}
+
+ironixAuthAplicarHeadersJson();
 
 
 /* ===============================
@@ -19,14 +46,10 @@ $conn->set_charset("utf8mb4");
 ================================ */
 
 if ($_SERVER["REQUEST_METHOD"] !== "POST") {
-    http_response_code(405);
-
-    echo json_encode([
+    ironixAuthResponderJson([
         "success" => false,
         "message" => "Método no permitido"
-    ], JSON_UNESCAPED_UNICODE);
-
-    exit;
+    ], 405);
 }
 
 
@@ -34,219 +57,206 @@ if ($_SERVER["REQUEST_METHOD"] !== "POST") {
    RECIBIR DATOS
 ================================ */
 
+/*
+    Compatible con:
+    - JSON enviado por fetch
+    - FormData / POST tradicional
+*/
+
 $input = json_decode(file_get_contents("php://input"), true);
 
 if (!is_array($input)) {
-    http_response_code(400);
-
-    echo json_encode([
-        "success" => false,
-        "message" => "JSON inválido"
-    ], JSON_UNESCAPED_UNICODE);
-
-    exit;
+    $input = $_POST;
 }
 
-$email = isset($input["email"]) ? trim($input["email"]) : "";
-$password = isset($input["password"]) ? trim($input["password"]) : "";
+$email = isset($input["email"]) ? trim((string) $input["email"]) : "";
+$password = isset($input["password"]) ? trim((string) $input["password"]) : "";
+
+
+/* ===============================
+   VALIDACIONES BASE
+================================ */
 
 if ($email === "" || $password === "") {
-    http_response_code(400);
-
-    echo json_encode([
+    ironixAuthResponderJson([
         "success" => false,
         "message" => "Completa todos los campos"
-    ], JSON_UNESCAPED_UNICODE);
-
-    exit;
+    ], 400);
 }
 
 if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-    http_response_code(400);
-
-    echo json_encode([
+    ironixAuthResponderJson([
         "success" => false,
         "message" => "Correo electrónico no válido"
-    ], JSON_UNESCAPED_UNICODE);
-
-    exit;
+    ], 400);
 }
 
 
-/* ===============================
-   BUSCAR USUARIO
-================================ */
+require_once __DIR__ . "/../conexion.php";
 
-$stmt = $conn->prepare("
-    SELECT 
-        id, 
-        nombre, 
-        correo, 
-        password, 
-        rol,
-        estado
-    FROM usuarios
-    WHERE correo = ?
-    LIMIT 1
-");
+$conn->set_charset("utf8mb4");
 
-if (!$stmt) {
-    http_response_code(500);
+$stmt = null;
+$stmtPermisos = null;
 
-    echo json_encode([
-        "success" => false,
-        "message" => "Error interno al preparar el login"
-    ], JSON_UNESCAPED_UNICODE);
 
-    $conn->close();
-    exit;
-}
+try {
 
-$stmt->bind_param("s", $email);
+    /* ===============================
+       BUSCAR USUARIO
+    ================================ */
 
-if (!$stmt->execute()) {
-    http_response_code(500);
+    $stmt = $conn->prepare("
+        SELECT 
+            id, 
+            nombre, 
+            correo, 
+            password, 
+            rol,
+            estado
+        FROM usuarios
+        WHERE correo = ?
+        LIMIT 1
+    ");
 
-    echo json_encode([
-        "success" => false,
-        "message" => "Error interno al ejecutar el login"
-    ], JSON_UNESCAPED_UNICODE);
+    if (!$stmt) {
+        throw new Exception("Error interno al preparar el login: " . $conn->error);
+    }
+
+    $stmt->bind_param("s", $email);
+
+    if (!$stmt->execute()) {
+        throw new Exception("Error interno al ejecutar el login: " . $stmt->error);
+    }
+
+    $result = $stmt->get_result();
+
+    if (!$result || $result->num_rows === 0) {
+        $stmt->close();
+        $stmt = null;
+
+        $conn->close();
+
+        ironixAuthResponderJson([
+            "success" => false,
+            "message" => "Correo o contraseña incorrectos"
+        ], 401);
+    }
+
+    $user = $result->fetch_assoc();
 
     $stmt->close();
-    $conn->close();
-    exit;
-}
-
-$result = $stmt->get_result();
-
-if ($result->num_rows === 0) {
-    http_response_code(401);
-
-    echo json_encode([
-        "success" => false,
-        "message" => "Correo o contraseña incorrectos"
-    ], JSON_UNESCAPED_UNICODE);
-
-    $stmt->close();
-    $conn->close();
-    exit;
-}
-
-$user = $result->fetch_assoc();
-$stmt->close();
+    $stmt = null;
 
 
-/* ===============================
-   VALIDAR ESTADO DE CUENTA
-================================ */
+    /* ===============================
+       VALIDAR ESTADO DE CUENTA
+    ================================ */
 
-$estadoUsuario = $user["estado"] ?? "activa";
+    $estadoUsuario = $user["estado"] ?? "activa";
 
-if ($estadoUsuario === "inactiva") {
-    http_response_code(403);
+    if ($estadoUsuario === "inactiva") {
+        $conn->close();
 
-    echo json_encode([
-        "success" => false,
-        "message" => "Tu cuenta está inactiva. Contacta al administrador."
-    ], JSON_UNESCAPED_UNICODE);
+        ironixAuthResponderJson([
+            "success" => false,
+            "message" => "Tu cuenta está inactiva. Contacta al administrador."
+        ], 403);
+    }
 
-    $conn->close();
-    exit;
-}
+    if ($estadoUsuario === "bloqueada") {
+        $conn->close();
 
-if ($estadoUsuario === "bloqueada") {
-    http_response_code(403);
-
-    echo json_encode([
-        "success" => false,
-        "message" => "Tu cuenta está bloqueada. Contacta al administrador."
-    ], JSON_UNESCAPED_UNICODE);
-
-    $conn->close();
-    exit;
-}
+        ironixAuthResponderJson([
+            "success" => false,
+            "message" => "Tu cuenta está bloqueada. Contacta al administrador."
+        ], 403);
+    }
 
 
-/* ===============================
-   VALIDAR CONTRASEÑA
-================================ */
+    /* ===============================
+       VALIDAR CONTRASEÑA
+    ================================ */
 
-if (!password_verify($password, $user["password"])) {
-    http_response_code(401);
+    if (!password_verify($password, $user["password"])) {
+        $conn->close();
 
-    echo json_encode([
-        "success" => false,
-        "message" => "Correo o contraseña incorrectos"
-    ], JSON_UNESCAPED_UNICODE);
-
-    $conn->close();
-    exit;
-}
+        ironixAuthResponderJson([
+            "success" => false,
+            "message" => "Correo o contraseña incorrectos"
+        ], 401);
+    }
 
 
-/* ===============================
-   PERMISOS BASE FRONTEND
-================================ */
+    /* ===============================
+       PERMISOS BASE FRONTEND
+    ================================ */
 
-$modulosSistema = [
-    "dashboard",
-    "monitoreo",
-    "productos",
-    "documentacion",
-    "flujo-proceso",
-    "estados",
-    "perfil",
-    "configuracion"
-];
-
-$permisos = [];
-
-foreach ($modulosSistema as $modulo) {
-    $permisos[$modulo] = [
-        "ver" => false,
-        "crear" => false,
-        "editar" => false,
-        "eliminar" => false,
-        "exportar" => false
+    $modulosSistema = [
+        "dashboard",
+        "monitoreo",
+        "productos",
+        "documentacion",
+        "flujo-proceso",
+        "estados",
+        "perfil",
+        "configuracion"
     ];
-}
 
-
-/* ===============================
-   OBTENER PERMISOS
-================================ */
-
-if (($user["rol"] ?? "usuario") === "admin") {
+    $permisos = [];
 
     foreach ($modulosSistema as $modulo) {
         $permisos[$modulo] = [
-            "ver" => true,
-            "crear" => true,
-            "editar" => true,
-            "eliminar" => true,
-            "exportar" => true
+            "ver" => false,
+            "crear" => false,
+            "editar" => false,
+            "eliminar" => false,
+            "exportar" => false
         ];
     }
 
-} else {
 
-    $stmtPermisos = $conn->prepare("
-        SELECT 
-            modulo,
-            puede_ver,
-            puede_crear,
-            puede_editar,
-            puede_eliminar,
-            puede_exportar
-        FROM usuario_permisos
-        WHERE usuario_id = ?
-    ");
+    /* ===============================
+       OBTENER PERMISOS
+    ================================ */
 
-    if ($stmtPermisos) {
+    if (($user["rol"] ?? "usuario") === "admin") {
+
+        foreach ($modulosSistema as $modulo) {
+            $permisos[$modulo] = [
+                "ver" => true,
+                "crear" => true,
+                "editar" => true,
+                "eliminar" => true,
+                "exportar" => true
+            ];
+        }
+
+    } else {
+
+        $stmtPermisos = $conn->prepare("
+            SELECT 
+                modulo,
+                puede_ver,
+                puede_crear,
+                puede_editar,
+                puede_eliminar,
+                puede_exportar
+            FROM usuario_permisos
+            WHERE usuario_id = ?
+        ");
+
+        if (!$stmtPermisos) {
+            throw new Exception("Error al preparar consulta de permisos: " . $conn->error);
+        }
+
         $userId = intval($user["id"]);
 
         $stmtPermisos->bind_param("i", $userId);
-        $stmtPermisos->execute();
+
+        if (!$stmtPermisos->execute()) {
+            throw new Exception("Error al consultar permisos: " . $stmtPermisos->error);
+        }
 
         $resultPermisos = $stmtPermisos->get_result();
 
@@ -267,47 +277,69 @@ if (($user["rol"] ?? "usuario") === "admin") {
         }
 
         $stmtPermisos->close();
+        $stmtPermisos = null;
     }
-}
 
 
-/* ===============================
-   PERFIL SIEMPRE DISPONIBLE
-================================ */
+    /* ===============================
+       PERFIL SIEMPRE DISPONIBLE
+    ================================ */
 
-$permisos["perfil"]["ver"] = true;
-$permisos["perfil"]["editar"] = true;
-
-
-/* ===============================
-   CREAR SESIÓN PHP REAL
-================================ */
-
-ironixCrearSesionUsuario([
-    "id" => intval($user["id"]),
-    "nombre" => $user["nombre"],
-    "correo" => $user["correo"],
-    "rol" => $user["rol"]
-]);
+    $permisos["perfil"]["ver"] = true;
+    $permisos["perfil"]["editar"] = true;
 
 
-/* ===============================
-   LOGIN CORRECTO
-================================ */
+    /* ===============================
+       CREAR SESIÓN PHP REAL
+    ================================ */
 
-echo json_encode([
-    "success" => true,
-    "message" => "Login correcto",
-    "user" => [
+    ironixCrearSesionUsuario([
         "id" => intval($user["id"]),
         "nombre" => $user["nombre"],
         "correo" => $user["correo"],
-        "email" => $user["correo"],
-        "rol" => $user["rol"],
-        "estado" => $estadoUsuario,
-        "permisos" => $permisos
-    ]
-], JSON_UNESCAPED_UNICODE);
+        "rol" => $user["rol"]
+    ]);
 
-$conn->close();
-exit;
+    $_SESSION["ironix_usuario_estado"] = $estadoUsuario;
+
+
+    /* ===============================
+       LOGIN CORRECTO
+    ================================ */
+
+    $conn->close();
+
+    ironixAuthResponderJson([
+        "success" => true,
+        "message" => "Login correcto",
+        "user" => [
+            "id" => intval($user["id"]),
+            "nombre" => $user["nombre"],
+            "correo" => $user["correo"],
+            "email" => $user["correo"],
+            "rol" => $user["rol"],
+            "estado" => $estadoUsuario,
+            "permisos" => $permisos
+        ]
+    ], 200);
+
+} catch (Throwable $e) {
+
+    if ($stmt instanceof mysqli_stmt) {
+        $stmt->close();
+    }
+
+    if ($stmtPermisos instanceof mysqli_stmt) {
+        $stmtPermisos->close();
+    }
+
+    if (isset($conn) && $conn instanceof mysqli) {
+        $conn->close();
+    }
+
+    ironixAuthResponderJson([
+        "success" => false,
+        "message" => "Error interno al iniciar sesión",
+        "error" => $e->getMessage()
+    ], 500);
+}

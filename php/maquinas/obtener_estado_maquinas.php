@@ -4,14 +4,13 @@
    IRONIX - OBTENER ESTADOS DE MÁQUINAS
 ========================= */
 
-header('Content-Type: application/json; charset=utf-8');
-
 require_once __DIR__ . "/../auth/guard.php";
 
 /* =========================
-   GUARD BACKEND - FASE 3
+   GUARD BACKEND - FASE 4
 ========================= */
 
+ironixRequerirMetodo("GET");
 ironixRequerirPermiso("monitoreo", "ver");
 
 
@@ -21,23 +20,6 @@ $conn->set_charset("utf8mb4");
 
 
 try {
-
-    /* =========================
-       VALIDAR MÉTODO
-    ========================= */
-
-    if ($_SERVER["REQUEST_METHOD"] !== "GET") {
-        http_response_code(405);
-
-        echo json_encode([
-            "success" => false,
-            "message" => "Método no permitido",
-            "data" => []
-        ], JSON_UNESCAPED_UNICODE);
-
-        exit;
-    }
-
 
     /* =========================
        RECIBIR FILTROS
@@ -235,7 +217,9 @@ try {
        RESPUESTA
     ========================= */
 
-    echo json_encode([
+    $conn->close();
+
+    ironixResponderJson([
         "success" => true,
         "data" => $maquinas,
         "paginacion" => [
@@ -253,23 +237,18 @@ try {
             "porcentaje_no_operativas" => $totalGeneral > 0 ? round(($noOperativas / $totalGeneral) * 100) : 0,
             "porcentaje_mantencion" => $totalGeneral > 0 ? round(($mantencion / $totalGeneral) * 100) : 0
         ]
-    ], JSON_UNESCAPED_UNICODE);
+    ], 200);
 
 } catch (Throwable $e) {
 
-    if (http_response_code() === 200) {
-        http_response_code(500);
+    if (isset($conn) && $conn instanceof mysqli) {
+        $conn->close();
     }
 
-    echo json_encode([
+    ironixResponderJson([
         "success" => false,
         "message" => "Error al obtener estados de máquinas",
         "error" => $e->getMessage(),
         "data" => []
-    ], JSON_UNESCAPED_UNICODE);
-}
-
-
-if (isset($conn) && $conn instanceof mysqli) {
-    $conn->close();
+    ], 500);
 }

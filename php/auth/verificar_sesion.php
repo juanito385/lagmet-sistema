@@ -4,14 +4,42 @@
    IRONIX - VERIFICAR SESIÓN
 ================================ */
 
-header('Content-Type: application/json; charset=utf-8');
-header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
-header('Pragma: no-cache');
-
 require_once __DIR__ . "/session_config.php";
-require_once __DIR__ . "/../conexion.php";
 
-$conn->set_charset("utf8mb4");
+
+/* ===============================
+   HELPERS LOCALES AUTH
+================================ */
+
+/*
+    Este archivo NO usa guard.php directamente porque justamente
+    se encarga de verificar si existe una sesión válida.
+
+    Por eso define helpers locales para responder JSON
+    sin depender del guard general.
+*/
+
+if (!function_exists("ironixAuthAplicarHeadersJson")) {
+    function ironixAuthAplicarHeadersJson()
+    {
+        header("Content-Type: application/json; charset=utf-8");
+        header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
+        header("Pragma: no-cache");
+    }
+}
+
+if (!function_exists("ironixAuthResponderJson")) {
+    function ironixAuthResponderJson($data, $httpCode = 200)
+    {
+        ironixAuthAplicarHeadersJson();
+        http_response_code($httpCode);
+
+        echo json_encode($data, JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+}
+
+ironixAuthAplicarHeadersJson();
 
 
 /* ===============================
@@ -19,15 +47,11 @@ $conn->set_charset("utf8mb4");
 ================================ */
 
 if ($_SERVER["REQUEST_METHOD"] !== "GET") {
-    http_response_code(405);
-
-    echo json_encode([
+    ironixAuthResponderJson([
         "success" => false,
         "auth" => false,
         "message" => "Método no permitido"
-    ], JSON_UNESCAPED_UNICODE);
-
-    exit;
+    ], 405);
 }
 
 
@@ -36,15 +60,11 @@ if ($_SERVER["REQUEST_METHOD"] !== "GET") {
 ================================ */
 
 if (!ironixValidarSesionActiva()) {
-    http_response_code(401);
-
-    echo json_encode([
+    ironixAuthResponderJson([
         "success" => false,
         "auth" => false,
         "message" => "Sesión no iniciada o expirada"
-    ], JSON_UNESCAPED_UNICODE);
-
-    exit;
+    ], 401);
 }
 
 
@@ -59,265 +79,252 @@ $usuarioId = isset($_SESSION["ironix_usuario_id"])
 if ($usuarioId <= 0) {
     ironixCerrarSesion();
 
-    http_response_code(401);
-
-    echo json_encode([
+    ironixAuthResponderJson([
         "success" => false,
         "auth" => false,
         "message" => "Sesión inválida"
-    ], JSON_UNESCAPED_UNICODE);
-
-    exit;
+    ], 401);
 }
 
 
-/* ===============================
-   OBTENER USUARIO ACTUAL DESDE BD
-================================ */
+require_once __DIR__ . "/../conexion.php";
 
-$stmtUsuario = $conn->prepare("
-    SELECT 
-        id,
-        nombre,
-        correo,
-        rol,
-        estado
-    FROM usuarios
-    WHERE id = ?
-    LIMIT 1
-");
+$conn->set_charset("utf8mb4");
 
-if (!$stmtUsuario) {
-    http_response_code(500);
-
-    echo json_encode([
-        "success" => false,
-        "auth" => false,
-        "message" => "Error al preparar validación de usuario"
-    ], JSON_UNESCAPED_UNICODE);
-
-    $conn->close();
-    exit;
-}
-
-$stmtUsuario->bind_param("i", $usuarioId);
-
-if (!$stmtUsuario->execute()) {
-    http_response_code(500);
-
-    echo json_encode([
-        "success" => false,
-        "auth" => false,
-        "message" => "Error al validar usuario"
-    ], JSON_UNESCAPED_UNICODE);
-
-    $stmtUsuario->close();
-    $conn->close();
-    exit;
-}
-
-$resultUsuario = $stmtUsuario->get_result();
-
-if (!$resultUsuario || $resultUsuario->num_rows === 0) {
-    $stmtUsuario->close();
-    $conn->close();
-
-    ironixCerrarSesion();
-
-    http_response_code(401);
-
-    echo json_encode([
-        "success" => false,
-        "auth" => false,
-        "message" => "Usuario no encontrado o sesión inválida"
-    ], JSON_UNESCAPED_UNICODE);
-
-    exit;
-}
-
-$usuarioBD = $resultUsuario->fetch_assoc();
-$stmtUsuario->close();
-
-$nombre = $usuarioBD["nombre"] ?? "Usuario";
-$correo = $usuarioBD["correo"] ?? "";
-$rol = $usuarioBD["rol"] ?? "usuario";
-$estadoUsuario = $usuarioBD["estado"] ?? "activa";
+$stmtUsuario = null;
+$stmtPermisos = null;
 
 
-/* ===============================
-   BLOQUEAR SI USUARIO NO ESTÁ ACTIVO
-================================ */
-
-if ($estadoUsuario !== "activa") {
-    $conn->close();
-
-    ironixCerrarSesion();
-
-    http_response_code(401);
-
-    echo json_encode([
-        "success" => false,
-        "auth" => false,
-        "message" => "Tu cuenta ya no está activa. Contacta al administrador."
-    ], JSON_UNESCAPED_UNICODE);
-
-    exit;
-}
-
-
-/* ===============================
-   SINCRONIZAR SESIÓN CON BD
-================================ */
-
-/*
-    Importante:
-    Si el administrador cambia nombre, correo o rol,
-    la sesión queda actualizada al verificar.
-*/
-
-$_SESSION["ironix_usuario_nombre"] = $nombre;
-$_SESSION["ironix_usuario_correo"] = $correo;
-$_SESSION["ironix_usuario_rol"] = $rol;
-
-
-/* ===============================
-   PERMISOS BASE FRONTEND
-================================ */
-
-$modulosSistema = [
-    "dashboard",
-    "monitoreo",
-    "productos",
-    "documentacion",
-    "flujo-proceso",
-    "estados",
-    "perfil",
-    "configuracion"
-];
-
-$permisos = [];
-
-foreach ($modulosSistema as $modulo) {
-    $permisos[$modulo] = [
-        "ver" => false,
-        "crear" => false,
-        "editar" => false,
-        "eliminar" => false,
-        "exportar" => false
-    ];
-}
-
-
-/* ===============================
-   ADMIN SIEMPRE TOTAL EN FRONTEND
-================================ */
-
-if ($rol === "admin") {
-    foreach ($modulosSistema as $modulo) {
-        $permisos[$modulo] = [
-            "ver" => true,
-            "crear" => true,
-            "editar" => true,
-            "eliminar" => true,
-            "exportar" => true
-        ];
-    }
-} else {
+try {
 
     /* ===============================
-       OBTENER PERMISOS DEL USUARIO
+       OBTENER USUARIO ACTUAL DESDE BD
     ================================ */
 
-    $stmtPermisos = $conn->prepare("
+    $stmtUsuario = $conn->prepare("
         SELECT 
-            modulo,
-            puede_ver,
-            puede_crear,
-            puede_editar,
-            puede_eliminar,
-            puede_exportar
-        FROM usuario_permisos
-        WHERE usuario_id = ?
+            id,
+            nombre,
+            correo,
+            rol,
+            estado
+        FROM usuarios
+        WHERE id = ?
+        LIMIT 1
     ");
 
-    if (!$stmtPermisos) {
-        http_response_code(500);
-
-        echo json_encode([
-            "success" => false,
-            "auth" => false,
-            "message" => "Error al preparar consulta de permisos"
-        ], JSON_UNESCAPED_UNICODE);
-
-        $conn->close();
-        exit;
+    if (!$stmtUsuario) {
+        throw new Exception("Error al preparar validación de usuario: " . $conn->error);
     }
 
-    $stmtPermisos->bind_param("i", $usuarioId);
+    $stmtUsuario->bind_param("i", $usuarioId);
 
-    if (!$stmtPermisos->execute()) {
-        http_response_code(500);
-
-        echo json_encode([
-            "success" => false,
-            "auth" => false,
-            "message" => "Error al consultar permisos"
-        ], JSON_UNESCAPED_UNICODE);
-
-        $stmtPermisos->close();
-        $conn->close();
-        exit;
+    if (!$stmtUsuario->execute()) {
+        throw new Exception("Error al validar usuario: " . $stmtUsuario->error);
     }
 
-    $resultPermisos = $stmtPermisos->get_result();
+    $resultUsuario = $stmtUsuario->get_result();
 
-    while ($permiso = $resultPermisos->fetch_assoc()) {
-        $modulo = $permiso["modulo"];
+    if (!$resultUsuario || $resultUsuario->num_rows === 0) {
+        $stmtUsuario->close();
+        $stmtUsuario = null;
 
-        if (!in_array($modulo, $modulosSistema, true)) {
-            continue;
-        }
+        $conn->close();
 
+        ironixCerrarSesion();
+
+        ironixAuthResponderJson([
+            "success" => false,
+            "auth" => false,
+            "message" => "Usuario no encontrado o sesión inválida"
+        ], 401);
+    }
+
+    $usuarioBD = $resultUsuario->fetch_assoc();
+
+    $stmtUsuario->close();
+    $stmtUsuario = null;
+
+    $nombre = $usuarioBD["nombre"] ?? "Usuario";
+    $correo = $usuarioBD["correo"] ?? "";
+    $rol = $usuarioBD["rol"] ?? "usuario";
+    $estadoUsuario = $usuarioBD["estado"] ?? "activa";
+
+
+    /* ===============================
+       BLOQUEAR SI USUARIO NO ESTÁ ACTIVO
+    ================================ */
+
+    if ($estadoUsuario !== "activa") {
+        $conn->close();
+
+        ironixCerrarSesion();
+
+        ironixAuthResponderJson([
+            "success" => false,
+            "auth" => false,
+            "message" => "Tu cuenta ya no está activa. Contacta al administrador."
+        ], 401);
+    }
+
+
+    /* ===============================
+       SINCRONIZAR SESIÓN CON BD
+    ================================ */
+
+    /*
+        Importante:
+        Si el administrador cambia nombre, correo, rol o estado,
+        la sesión queda actualizada al verificar.
+    */
+
+    $_SESSION["ironix_usuario_nombre"] = $nombre;
+    $_SESSION["ironix_usuario_correo"] = $correo;
+    $_SESSION["ironix_usuario_rol"] = $rol;
+    $_SESSION["ironix_usuario_estado"] = $estadoUsuario;
+
+
+    /* ===============================
+       PERMISOS BASE FRONTEND
+    ================================ */
+
+    $modulosSistema = [
+        "dashboard",
+        "monitoreo",
+        "productos",
+        "documentacion",
+        "flujo-proceso",
+        "estados",
+        "perfil",
+        "configuracion"
+    ];
+
+    $permisos = [];
+
+    foreach ($modulosSistema as $modulo) {
         $permisos[$modulo] = [
-            "ver" => intval($permiso["puede_ver"]) === 1,
-            "crear" => intval($permiso["puede_crear"]) === 1,
-            "editar" => intval($permiso["puede_editar"]) === 1,
-            "eliminar" => intval($permiso["puede_eliminar"]) === 1,
-            "exportar" => intval($permiso["puede_exportar"]) === 1
+            "ver" => false,
+            "crear" => false,
+            "editar" => false,
+            "eliminar" => false,
+            "exportar" => false
         ];
     }
 
-    $stmtPermisos->close();
+
+    /* ===============================
+       ADMIN SIEMPRE TOTAL EN FRONTEND
+    ================================ */
+
+    if ($rol === "admin") {
+        foreach ($modulosSistema as $modulo) {
+            $permisos[$modulo] = [
+                "ver" => true,
+                "crear" => true,
+                "editar" => true,
+                "eliminar" => true,
+                "exportar" => true
+            ];
+        }
+
+    } else {
+
+        /* ===============================
+           OBTENER PERMISOS DEL USUARIO
+        ================================ */
+
+        $stmtPermisos = $conn->prepare("
+            SELECT 
+                modulo,
+                puede_ver,
+                puede_crear,
+                puede_editar,
+                puede_eliminar,
+                puede_exportar
+            FROM usuario_permisos
+            WHERE usuario_id = ?
+        ");
+
+        if (!$stmtPermisos) {
+            throw new Exception("Error al preparar consulta de permisos: " . $conn->error);
+        }
+
+        $stmtPermisos->bind_param("i", $usuarioId);
+
+        if (!$stmtPermisos->execute()) {
+            throw new Exception("Error al consultar permisos: " . $stmtPermisos->error);
+        }
+
+        $resultPermisos = $stmtPermisos->get_result();
+
+        while ($permiso = $resultPermisos->fetch_assoc()) {
+            $modulo = $permiso["modulo"];
+
+            if (!in_array($modulo, $modulosSistema, true)) {
+                continue;
+            }
+
+            $permisos[$modulo] = [
+                "ver" => intval($permiso["puede_ver"]) === 1,
+                "crear" => intval($permiso["puede_crear"]) === 1,
+                "editar" => intval($permiso["puede_editar"]) === 1,
+                "eliminar" => intval($permiso["puede_eliminar"]) === 1,
+                "exportar" => intval($permiso["puede_exportar"]) === 1
+            ];
+        }
+
+        $stmtPermisos->close();
+        $stmtPermisos = null;
+    }
+
+
+    /* ===============================
+       PERFIL SIEMPRE DISPONIBLE
+    ================================ */
+
+    $permisos["perfil"]["ver"] = true;
+    $permisos["perfil"]["editar"] = true;
+
+
+    /* ===============================
+       RESPUESTA SESIÓN VÁLIDA
+    ================================ */
+
+    $conn->close();
+
+    ironixAuthResponderJson([
+        "success" => true,
+        "auth" => true,
+        "message" => "Sesión activa",
+        "user" => [
+            "id" => $usuarioId,
+            "nombre" => $nombre,
+            "correo" => $correo,
+            "email" => $correo,
+            "rol" => $rol,
+            "estado" => $estadoUsuario,
+            "permisos" => $permisos
+        ]
+    ], 200);
+
+} catch (Throwable $e) {
+
+    if ($stmtUsuario instanceof mysqli_stmt) {
+        $stmtUsuario->close();
+    }
+
+    if ($stmtPermisos instanceof mysqli_stmt) {
+        $stmtPermisos->close();
+    }
+
+    if (isset($conn) && $conn instanceof mysqli) {
+        $conn->close();
+    }
+
+    ironixAuthResponderJson([
+        "success" => false,
+        "auth" => false,
+        "message" => "Error al verificar sesión",
+        "error" => $e->getMessage()
+    ], 500);
 }
-
-
-/* ===============================
-   PERFIL SIEMPRE DISPONIBLE
-================================ */
-
-$permisos["perfil"]["ver"] = true;
-$permisos["perfil"]["editar"] = true;
-
-
-/* ===============================
-   RESPUESTA SESIÓN VÁLIDA
-================================ */
-
-echo json_encode([
-    "success" => true,
-    "auth" => true,
-    "message" => "Sesión activa",
-    "user" => [
-        "id" => $usuarioId,
-        "nombre" => $nombre,
-        "correo" => $correo,
-        "email" => $correo,
-        "rol" => $rol,
-        "estado" => $estadoUsuario,
-        "permisos" => $permisos
-    ]
-], JSON_UNESCAPED_UNICODE);
-
-$conn->close();
-
-exit;

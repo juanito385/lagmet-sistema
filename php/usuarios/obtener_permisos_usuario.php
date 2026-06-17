@@ -4,35 +4,14 @@
    IRONIX - OBTENER PERMISOS DE USUARIO
 ========================= */
 
-header('Content-Type: application/json; charset=utf-8');
-
 require_once __DIR__ . "/../auth/guard.php";
 
 /* =========================
-   GUARD BACKEND - FASE 3
+   GUARD BACKEND - FASE 4
 ========================= */
 
+ironixRequerirMetodo("GET");
 ironixRequerirPermiso("configuracion", "permisos");
-
-
-require_once __DIR__ . "/../conexion.php";
-
-
-/* =========================
-   VALIDAR MÉTODO
-========================= */
-
-if ($_SERVER["REQUEST_METHOD"] !== "GET") {
-    http_response_code(405);
-
-    echo json_encode([
-        "success" => false,
-        "message" => "Método no permitido",
-        "permisos" => []
-    ], JSON_UNESCAPED_UNICODE);
-
-    exit;
-}
 
 
 /* =========================
@@ -42,15 +21,11 @@ if ($_SERVER["REQUEST_METHOD"] !== "GET") {
 $usuarioId = isset($_GET["usuario_id"]) ? intval($_GET["usuario_id"]) : 0;
 
 if ($usuarioId <= 0) {
-    http_response_code(400);
-
-    echo json_encode([
+    ironixResponderJson([
         "success" => false,
         "message" => "ID de usuario no recibido",
         "permisos" => []
-    ], JSON_UNESCAPED_UNICODE);
-
-    exit;
+    ], 400);
 }
 
 
@@ -71,73 +46,6 @@ $modulosSistema = [
 
 
 /* =========================
-   VALIDAR USUARIO
-========================= */
-
-$sqlUsuario = "
-    SELECT 
-        id, 
-        nombre, 
-        correo, 
-        rol, 
-        estado
-    FROM usuarios
-    WHERE id = ?
-    LIMIT 1
-";
-
-$stmtUsuario = $conn->prepare($sqlUsuario);
-
-if (!$stmtUsuario) {
-    http_response_code(500);
-
-    echo json_encode([
-        "success" => false,
-        "message" => "Error al preparar validación de usuario",
-        "permisos" => []
-    ], JSON_UNESCAPED_UNICODE);
-
-    $conn->close();
-    exit;
-}
-
-$stmtUsuario->bind_param("i", $usuarioId);
-
-if (!$stmtUsuario->execute()) {
-    http_response_code(500);
-
-    echo json_encode([
-        "success" => false,
-        "message" => "Error al ejecutar validación de usuario",
-        "permisos" => []
-    ], JSON_UNESCAPED_UNICODE);
-
-    $stmtUsuario->close();
-    $conn->close();
-    exit;
-}
-
-$resultUsuario = $stmtUsuario->get_result();
-
-if (!$resultUsuario || $resultUsuario->num_rows === 0) {
-    http_response_code(404);
-
-    echo json_encode([
-        "success" => false,
-        "message" => "Usuario no encontrado",
-        "permisos" => []
-    ], JSON_UNESCAPED_UNICODE);
-
-    $stmtUsuario->close();
-    $conn->close();
-    exit;
-}
-
-$usuario = $resultUsuario->fetch_assoc();
-$stmtUsuario->close();
-
-
-/* =========================
    PERMISOS BASE
 ========================= */
 
@@ -154,29 +62,167 @@ foreach ($modulosSistema as $modulo) {
 }
 
 
-/* =========================
-   ADMIN SIEMPRE TOTAL
-========================= */
+require_once __DIR__ . "/../conexion.php";
 
-/*
-    Seguridad:
-    Si el usuario objetivo es admin, se devuelve acceso total.
-    Esto evita que un admin antiguo sin filas completas en usuario_permisos
-    aparezca visualmente sin permisos.
-*/
+$conn->set_charset("utf8mb4");
 
-if ($usuario["rol"] === "admin") {
-    foreach ($modulosSistema as $modulo) {
+$stmtUsuario = null;
+$stmtPermisos = null;
+
+
+try {
+
+    /* =========================
+       VALIDAR USUARIO
+    ========================= */
+
+    $sqlUsuario = "
+        SELECT 
+            id, 
+            nombre, 
+            correo, 
+            rol, 
+            estado
+        FROM usuarios
+        WHERE id = ?
+        LIMIT 1
+    ";
+
+    $stmtUsuario = $conn->prepare($sqlUsuario);
+
+    if (!$stmtUsuario) {
+        throw new Exception("Error al preparar validación de usuario: " . $conn->error);
+    }
+
+    $stmtUsuario->bind_param("i", $usuarioId);
+
+    if (!$stmtUsuario->execute()) {
+        throw new Exception("Error al ejecutar validación de usuario: " . $stmtUsuario->error);
+    }
+
+    $resultUsuario = $stmtUsuario->get_result();
+
+    if (!$resultUsuario || $resultUsuario->num_rows === 0) {
+        $stmtUsuario->close();
+        $stmtUsuario = null;
+
+        $conn->close();
+
+        ironixResponderJson([
+            "success" => false,
+            "message" => "Usuario no encontrado",
+            "permisos" => []
+        ], 404);
+    }
+
+    $usuario = $resultUsuario->fetch_assoc();
+
+    $stmtUsuario->close();
+    $stmtUsuario = null;
+
+
+    /* =========================
+       ADMIN SIEMPRE TOTAL
+    ========================= */
+
+    /*
+        Seguridad:
+        Si el usuario objetivo es admin, se devuelve acceso total.
+        Esto evita que un admin antiguo sin filas completas en usuario_permisos
+        aparezca visualmente sin permisos.
+    */
+
+    if (($usuario["rol"] ?? "") === "admin") {
+        foreach ($modulosSistema as $modulo) {
+            $permisos[$modulo] = [
+                "ver" => true,
+                "crear" => true,
+                "editar" => true,
+                "eliminar" => true,
+                "exportar" => true
+            ];
+        }
+
+        $conn->close();
+
+        ironixResponderJson([
+            "success" => true,
+            "usuario" => [
+                "id" => intval($usuario["id"]),
+                "nombre" => $usuario["nombre"],
+                "correo" => $usuario["correo"],
+                "rol" => $usuario["rol"],
+                "estado" => $usuario["estado"]
+            ],
+            "permisos" => $permisos
+        ], 200);
+    }
+
+
+    /* =========================
+       CONSULTAR PERMISOS
+    ========================= */
+
+    $sqlPermisos = "
+        SELECT
+            modulo,
+            puede_ver,
+            puede_crear,
+            puede_editar,
+            puede_eliminar,
+            puede_exportar
+        FROM usuario_permisos
+        WHERE usuario_id = ?
+    ";
+
+    $stmtPermisos = $conn->prepare($sqlPermisos);
+
+    if (!$stmtPermisos) {
+        throw new Exception("Error al preparar consulta de permisos: " . $conn->error);
+    }
+
+    $stmtPermisos->bind_param("i", $usuarioId);
+
+    if (!$stmtPermisos->execute()) {
+        throw new Exception("Error al ejecutar consulta de permisos: " . $stmtPermisos->error);
+    }
+
+    $resultPermisos = $stmtPermisos->get_result();
+
+    while ($row = $resultPermisos->fetch_assoc()) {
+        $modulo = $row["modulo"];
+
+        if (!in_array($modulo, $modulosSistema, true)) {
+            continue;
+        }
+
         $permisos[$modulo] = [
-            "ver" => true,
-            "crear" => true,
-            "editar" => true,
-            "eliminar" => true,
-            "exportar" => true
+            "ver" => intval($row["puede_ver"]) === 1,
+            "crear" => intval($row["puede_crear"]) === 1,
+            "editar" => intval($row["puede_editar"]) === 1,
+            "eliminar" => intval($row["puede_eliminar"]) === 1,
+            "exportar" => intval($row["puede_exportar"]) === 1
         ];
     }
 
-    echo json_encode([
+    $stmtPermisos->close();
+    $stmtPermisos = null;
+
+
+    /* =========================
+       PERFIL SIEMPRE VISIBLE
+    ========================= */
+
+    $permisos["perfil"]["ver"] = true;
+
+
+    /* =========================
+       RESPUESTA
+    ========================= */
+
+    $conn->close();
+
+    ironixResponderJson([
         "success" => true,
         "usuario" => [
             "id" => intval($usuario["id"]),
@@ -186,102 +232,25 @@ if ($usuario["rol"] === "admin") {
             "estado" => $usuario["estado"]
         ],
         "permisos" => $permisos
-    ], JSON_UNESCAPED_UNICODE);
+    ], 200);
 
-    $conn->close();
-    exit;
-}
+} catch (Throwable $e) {
 
-
-/* =========================
-   CONSULTAR PERMISOS
-========================= */
-
-$sqlPermisos = "
-    SELECT
-        modulo,
-        puede_ver,
-        puede_crear,
-        puede_editar,
-        puede_eliminar,
-        puede_exportar
-    FROM usuario_permisos
-    WHERE usuario_id = ?
-";
-
-$stmtPermisos = $conn->prepare($sqlPermisos);
-
-if (!$stmtPermisos) {
-    http_response_code(500);
-
-    echo json_encode([
-        "success" => false,
-        "message" => "Error al preparar consulta de permisos",
-        "permisos" => []
-    ], JSON_UNESCAPED_UNICODE);
-
-    $conn->close();
-    exit;
-}
-
-$stmtPermisos->bind_param("i", $usuarioId);
-
-if (!$stmtPermisos->execute()) {
-    http_response_code(500);
-
-    echo json_encode([
-        "success" => false,
-        "message" => "Error al ejecutar consulta de permisos",
-        "permisos" => []
-    ], JSON_UNESCAPED_UNICODE);
-
-    $stmtPermisos->close();
-    $conn->close();
-    exit;
-}
-
-$resultPermisos = $stmtPermisos->get_result();
-
-while ($row = $resultPermisos->fetch_assoc()) {
-    $modulo = $row["modulo"];
-
-    if (!in_array($modulo, $modulosSistema, true)) {
-        continue;
+    if ($stmtUsuario instanceof mysqli_stmt) {
+        $stmtUsuario->close();
     }
 
-    $permisos[$modulo] = [
-        "ver" => intval($row["puede_ver"]) === 1,
-        "crear" => intval($row["puede_crear"]) === 1,
-        "editar" => intval($row["puede_editar"]) === 1,
-        "eliminar" => intval($row["puede_eliminar"]) === 1,
-        "exportar" => intval($row["puede_exportar"]) === 1
-    ];
+    if ($stmtPermisos instanceof mysqli_stmt) {
+        $stmtPermisos->close();
+    }
+
+    if (isset($conn) && $conn instanceof mysqli) {
+        $conn->close();
+    }
+
+    ironixResponderJson([
+        "success" => false,
+        "message" => $e->getMessage(),
+        "permisos" => []
+    ], 500);
 }
-
-$stmtPermisos->close();
-
-
-/* =========================
-   PERFIL SIEMPRE VISIBLE
-========================= */
-
-$permisos["perfil"]["ver"] = true;
-
-
-/* =========================
-   RESPUESTA
-========================= */
-
-echo json_encode([
-    "success" => true,
-    "usuario" => [
-        "id" => intval($usuario["id"]),
-        "nombre" => $usuario["nombre"],
-        "correo" => $usuario["correo"],
-        "rol" => $usuario["rol"],
-        "estado" => $usuario["estado"]
-    ],
-    "permisos" => $permisos
-], JSON_UNESCAPED_UNICODE);
-
-$conn->close();

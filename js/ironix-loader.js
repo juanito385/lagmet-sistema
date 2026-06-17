@@ -12,7 +12,7 @@ console.log("IRONIX Loader iniciado...");
     Cambia esta versión cuando hagas modificaciones grandes en JS.
     Sirve para evitar problemas de caché en el navegador.
 */
-const IRONIX_JS_VERSION = "2026-06-15-20";
+const IRONIX_JS_VERSION = "2026-06-17-01";
 
 /* =========================
    LIBRERÍAS EXTERNAS
@@ -197,27 +197,76 @@ function aplicarVersionIronix(ruta) {
     return `${ruta}${separador}v=${IRONIX_JS_VERSION}`;
 }
 
-function cargarScriptSincronicoIronix(ruta) {
-    const rutaFinal = aplicarVersionIronix(ruta);
+function cargarScriptIronix(ruta) {
+    return new Promise((resolve, reject) => {
+        const rutaFinal = aplicarVersionIronix(ruta);
 
-    document.write(
-        `<script src="${rutaFinal}" onerror="console.error('Error cargando JS:', '${ruta}')"><\/script>`
-    );
+        const script = document.createElement("script");
+        script.src = rutaFinal;
+        script.async = false;
+
+        script.onload = () => {
+            resolve(ruta);
+        };
+
+        script.onerror = () => {
+            console.error("Error cargando JS:", ruta);
+
+            reject(new Error("No se pudo cargar el script: " + ruta));
+        };
+
+        document.head.appendChild(script);
+    });
 }
 
 /* =========================
    CARGA SECUENCIAL
 ========================= */
 
-[...IRONIX_LIBRERIAS, ...IRONIX_SCRIPTS].forEach(cargarScriptSincronicoIronix);
+async function iniciarLoaderIronix() {
+    try {
+        const scripts = [
+            ...IRONIX_LIBRERIAS,
+            ...IRONIX_SCRIPTS
+        ];
 
-/* =========================
-   CONFIRMACIÓN FINAL
-========================= */
+        for (const ruta of scripts) {
+            await cargarScriptIronix(ruta);
+        }
 
-document.write(`
-<script>
-    window.IRONIX_LOADER_LISTO = true;
-    console.log("IRONIX Loader finalizado correctamente.");
-<\/script>
-`);
+        window.IRONIX_LOADER_LISTO = true;
+
+        console.log("IRONIX Loader finalizado correctamente.");
+
+    } catch (error) {
+        window.IRONIX_LOADER_LISTO = false;
+
+        console.error("IRONIX Loader detenido por error:", error);
+
+        const authContainer = document.getElementById("authContainer");
+
+        if (authContainer) {
+            authContainer.innerHTML = `
+                <div style="
+                    min-height: 100vh;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    background: #020617;
+                    color: #ffffff;
+                    font-family: Arial, sans-serif;
+                    text-align: center;
+                    padding: 20px;
+                ">
+                    <div>
+                        <h2>Error al cargar IRONIX</h2>
+                        <p>No se pudo cargar uno de los archivos necesarios del sistema.</p>
+                        <p>Revisa la consola del navegador para más detalles.</p>
+                    </div>
+                </div>
+            `;
+        }
+    }
+}
+
+iniciarLoaderIronix();

@@ -15,14 +15,22 @@ require_once __DIR__ . "/response.php";
 ========================= */
 
 if (!function_exists("validarMetodo")) {
-    function validarMetodo(string $metodoEsperado): void
+    function validarMetodo($metodosEsperados): void
     {
-        $metodoActual = $_SERVER["REQUEST_METHOD"] ?? "";
+        if (!is_array($metodosEsperados)) {
+            $metodosEsperados = [$metodosEsperados];
+        }
 
-        if (strtoupper($metodoActual) !== strtoupper($metodoEsperado)) {
+        $metodoActual = strtoupper($_SERVER["REQUEST_METHOD"] ?? "");
+
+        $metodosNormalizados = array_map(function ($metodo) {
+            return strtoupper(trim((string) $metodo));
+        }, $metodosEsperados);
+
+        if (!in_array($metodoActual, $metodosNormalizados, true)) {
             responderError("Método no permitido", 405, [
                 "metodo_recibido" => $metodoActual,
-                "metodo_esperado" => strtoupper($metodoEsperado)
+                "metodos_permitidos" => $metodosNormalizados
             ]);
         }
     }
@@ -60,10 +68,24 @@ if (!function_exists("obtenerGet")) {
 if (!function_exists("obtenerJson")) {
     function obtenerJson(): array
     {
+        static $jsonCache = null;
+
+        if ($jsonCache !== null) {
+            return $jsonCache;
+        }
+
         $raw = file_get_contents("php://input");
+
+        if ($raw === false || trim($raw) === "") {
+            $jsonCache = [];
+            return $jsonCache;
+        }
+
         $data = json_decode($raw, true);
 
-        return is_array($data) ? $data : [];
+        $jsonCache = is_array($data) ? $data : [];
+
+        return $jsonCache;
     }
 }
 
@@ -83,13 +105,45 @@ if (!function_exists("obtenerJsonCampo")) {
 
 
 /* =========================
+   OBTENER INPUT GENERAL
+========================= */
+
+if (!function_exists("obtenerInput")) {
+    function obtenerInput(): array
+    {
+        $json = obtenerJson();
+
+        if (!empty($json)) {
+            return $json;
+        }
+
+        return $_POST;
+    }
+}
+
+
+/* =========================
+   OBTENER CAMPO DESDE INPUT GENERAL
+========================= */
+
+if (!function_exists("obtenerInputCampo")) {
+    function obtenerInputCampo(string $campo, $valorPorDefecto = null)
+    {
+        $input = obtenerInput();
+
+        return $input[$campo] ?? $valorPorDefecto;
+    }
+}
+
+
+/* =========================
    CAMPO REQUERIDO
 ========================= */
 
 if (!function_exists("campoRequerido")) {
     function campoRequerido($valor, string $nombreCampo): void
     {
-        if ($valor === null || trim((string)$valor) === "") {
+        if ($valor === null || trim((string) $valor) === "") {
             responderError("El campo {$nombreCampo} es obligatorio", 422);
         }
     }

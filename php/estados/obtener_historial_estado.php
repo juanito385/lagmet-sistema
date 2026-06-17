@@ -4,14 +4,13 @@
    IRONIX - OBTENER HISTORIAL DE ESTADOS
 ========================= */
 
-header('Content-Type: application/json; charset=utf-8');
-
 require_once __DIR__ . "/../auth/guard.php";
 
 /* =========================
-   GUARD BACKEND - FASE 3
+   GUARD BACKEND - FASE 4
 ========================= */
 
+ironixRequerirMetodo("GET");
 ironixRequerirPermiso("estados", "ver");
 
 
@@ -21,36 +20,15 @@ date_default_timezone_set("America/Santiago");
 
 
 /* =========================
-   VALIDAR MÉTODO
+   VARIABLES DE CONTROL
 ========================= */
 
-if ($_SERVER["REQUEST_METHOD"] !== "GET") {
-    http_response_code(405);
-
-    echo json_encode([
-        "success" => false,
-        "message" => "Método no permitido",
-        "data" => []
-    ], JSON_UNESCAPED_UNICODE);
-
-    exit;
-}
-
-
-/* =========================
-   RESPUESTA BASE
-========================= */
-
-$response = [
-    "success" => false,
-    "message" => "",
-    "data" => []
-];
+$httpCode = 500;
 
 
 try {
 
-    if (!isset($conn)) {
+    if (!isset($conn) || !($conn instanceof mysqli)) {
         throw new Exception("No se encontró la conexión a la base de datos.");
     }
 
@@ -64,7 +42,7 @@ try {
     $produccionId = isset($_GET["produccion_id"]) ? intval($_GET["produccion_id"]) : 0;
 
     if ($produccionId <= 0) {
-        http_response_code(400);
+        $httpCode = 400;
         throw new Exception("ID de producción inválido.");
     }
 
@@ -100,8 +78,10 @@ try {
 
     $result = $stmt->get_result();
 
+    $historial = [];
+
     while ($row = $result->fetch_assoc()) {
-        $response["data"][] = [
+        $historial[] = [
             "id" => intval($row["id"]),
             "produccion_id" => intval($row["produccion_id"]),
             "estado_anterior" => $row["estado_anterior"],
@@ -120,25 +100,27 @@ try {
        RESPUESTA OK
     ========================= */
 
-    $response["success"] = true;
-    $response["message"] = "Historial obtenido correctamente.";
+    $conn->close();
+
+    ironixResponderJson([
+        "success" => true,
+        "message" => "Historial obtenido correctamente.",
+        "data" => $historial
+    ], 200);
 
 } catch (Throwable $e) {
 
-    if (http_response_code() === 200) {
-        http_response_code(500);
+    if (isset($stmt) && $stmt instanceof mysqli_stmt) {
+        $stmt->close();
     }
 
-    $response = [
+    if (isset($conn) && $conn instanceof mysqli) {
+        $conn->close();
+    }
+
+    ironixResponderJson([
         "success" => false,
         "message" => $e->getMessage(),
         "data" => []
-    ];
-}
-
-
-echo json_encode($response, JSON_UNESCAPED_UNICODE);
-
-if (isset($conn) && $conn instanceof mysqli) {
-    $conn->close();
+    ], $httpCode);
 }

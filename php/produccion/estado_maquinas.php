@@ -4,37 +4,19 @@
    IRONIX - ESTADO USO DE MÁQUINAS
 ========================= */
 
-header('Content-Type: application/json; charset=utf-8');
-
 require_once __DIR__ . "/../auth/guard.php";
 
 /* =========================
-   GUARD BACKEND - FASE 3
+   GUARD BACKEND - FASE 4
 ========================= */
 
+ironixRequerirMetodo("GET");
 ironixRequerirPermiso("monitoreo", "ver");
 
 
 require_once __DIR__ . "/../conexion.php";
 
 $conn->set_charset("utf8mb4");
-
-
-/* =========================
-   VALIDAR MÉTODO
-========================= */
-
-if ($_SERVER["REQUEST_METHOD"] !== "GET") {
-    http_response_code(405);
-
-    echo json_encode([
-        "success" => false,
-        "message" => "Método no permitido",
-        "data" => []
-    ], JSON_UNESCAPED_UNICODE);
-
-    exit;
-}
 
 
 /* =========================
@@ -67,17 +49,15 @@ $sql = "
 $result = $conn->query($sql);
 
 if (!$result) {
-    http_response_code(500);
+    $error = $conn->error;
+    $conn->close();
 
-    echo json_encode([
+    ironixResponderJson([
         "success" => false,
         "message" => "Error al obtener estado de máquinas",
-        "error" => $conn->error,
+        "error" => $error,
         "data" => []
-    ], JSON_UNESCAPED_UNICODE);
-
-    $conn->close();
-    exit;
+    ], 500);
 }
 
 $data = [];
@@ -98,9 +78,9 @@ while ($row = $result->fetch_assoc()) {
    RESPUESTA
 ========================= */
 
-echo json_encode([
+$conn->close();
+
+ironixResponderJson([
     "success" => true,
     "data" => $data
-], JSON_UNESCAPED_UNICODE);
-
-$conn->close();
+], 200);
