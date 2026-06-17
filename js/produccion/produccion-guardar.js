@@ -1,7 +1,91 @@
 /* =========================
+   GUARD PRODUCCIÓN / MONITOREO
+========================= */
+
+function validarPermisoGuardarProduccionIronix(editandoId = null) {
+    /*
+        Guardia frontend:
+        - Si NO hay editandoId, se considera creación de producción.
+        - Si SÍ hay editandoId, se considera actualización/edición.
+
+        La seguridad real se cerrará después en backend.
+    */
+
+    if (typeof usuarioPuedeAccionIronix !== "function") {
+        console.warn("No existe usuarioPuedeAccionIronix para validar producción");
+
+        alert("No se pudo validar el permiso de producción");
+        return false;
+    }
+
+    if (editandoId) {
+        const puedeEditarProducto = usuarioPuedeAccionIronix("productos", "editar");
+        const puedeEditarMonitoreo = usuarioPuedeAccionIronix("monitoreo", "editar");
+
+        if (!puedeEditarProducto && !puedeEditarMonitoreo) {
+            alert("No tienes permisos para actualizar registros de producción");
+            return false;
+        }
+
+        return true;
+    }
+
+    if (!usuarioPuedeAccionIronix("monitoreo", "crear")) {
+        alert("No tienes permisos para crear registros de producción");
+        return false;
+    }
+
+    return true;
+}
+
+/* =========================
+   PERMISO VISUAL BOTÓN GUARDAR
+========================= */
+
+function actualizarBotonGuardarProduccionIronix() {
+    const botonGuardar = document.getElementById("btnGuardarProduccionMonitor");
+
+    if (!botonGuardar) return;
+
+    if (typeof usuarioPuedeAccionIronix !== "function") {
+        botonGuardar.style.display = "none";
+        botonGuardar.disabled = true;
+        return;
+    }
+
+    const editandoId = localStorage.getItem("editandoId");
+
+    let permitido = false;
+
+    if (editandoId) {
+        permitido =
+            usuarioPuedeAccionIronix("productos", "editar") ||
+            usuarioPuedeAccionIronix("monitoreo", "editar");
+    } else {
+        permitido = usuarioPuedeAccionIronix("monitoreo", "crear");
+    }
+
+    if (permitido) {
+        botonGuardar.style.display = "";
+        botonGuardar.disabled = false;
+        botonGuardar.classList.remove("permiso-bloqueado");
+    } else {
+        botonGuardar.style.display = "none";
+        botonGuardar.disabled = true;
+        botonGuardar.classList.add("permiso-bloqueado");
+    }
+}
+
+/* =========================
    GUARDAR / ACTUALIZAR
 ========================= */
 async function guardarDatos() {
+    const editandoId = localStorage.getItem("editandoId");
+
+    if (!validarPermisoGuardarProduccionIronix(editandoId)) {
+        return;
+    }
+
     const pedidoBase = document.getElementById("pedido").value.trim();
     const ot = document.getElementById("ot")?.value.trim() || "";
     const pedido = ot ? `${pedidoBase}-${ot}` : pedidoBase;
@@ -95,7 +179,6 @@ async function guardarDatos() {
         });
     });
 
-    const editandoId = localStorage.getItem("editandoId");
 
     const url = editandoId
         ? "/proyecto_lagmet/php/produccion/actualizar_produccion.php"
@@ -250,6 +333,11 @@ function limpiarFormulario() {
     actualizarGrupoActual();
     aplicarFiltrosMaquinas();
     cambiarTabMonitoreo("info");
+
+    if (typeof actualizarBotonGuardarProduccionIronix === "function") {
+        actualizarBotonGuardarProduccionIronix();
+    }
+
 }
 
 /* =========================
@@ -258,4 +346,10 @@ function limpiarFormulario() {
 function cancelarProduccion() {
     localStorage.removeItem("editandoId");
     limpiarFormulario();
+
+    if (typeof actualizarBotonGuardarProduccionIronix === "function") {
+        actualizarBotonGuardarProduccionIronix();
+    }
 }
+
+window.actualizarBotonGuardarProduccionIronix = actualizarBotonGuardarProduccionIronix;

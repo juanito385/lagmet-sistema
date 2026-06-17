@@ -320,6 +320,10 @@ async function showSection(seccion) {
             if (typeof iniciarMonitoreo === "function") {
                 await iniciarMonitoreo();
             }
+
+            if (typeof actualizarBotonGuardarProduccionIronix === "function") {
+                actualizarBotonGuardarProduccionIronix();
+            }
         }
 
         if (seccion === "productos") {
