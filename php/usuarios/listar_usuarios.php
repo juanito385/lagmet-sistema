@@ -1,6 +1,40 @@
 <?php
+
+/* =========================
+   IRONIX - LISTAR USUARIOS
+========================= */
+
 header('Content-Type: application/json; charset=utf-8');
+
+require_once __DIR__ . "/../auth/guard.php";
+
+/* =========================
+   GUARD BACKEND - FASE 3
+========================= */
+
+ironixRequerirPermiso("configuracion", "ver");
+
+
 require_once __DIR__ . "/../conexion.php";
+
+
+/* =========================
+   VALIDAR MÉTODO
+========================= */
+
+if ($_SERVER["REQUEST_METHOD"] !== "GET") {
+    http_response_code(405);
+
+    echo json_encode([
+        "success" => false,
+        "message" => "Método no permitido",
+        "usuarios" => [],
+        "total" => 0
+    ], JSON_UNESCAPED_UNICODE);
+
+    exit;
+}
+
 
 /* =========================
    LISTAR USUARIOS
@@ -29,21 +63,41 @@ $sql = "
 $stmt = $conn->prepare($sql);
 
 if (!$stmt) {
+    http_response_code(500);
+
     echo json_encode([
         "success" => false,
-        "message" => "Error al preparar consulta de usuarios"
-    ]);
+        "message" => "Error al preparar consulta de usuarios",
+        "usuarios" => [],
+        "total" => 0
+    ], JSON_UNESCAPED_UNICODE);
+
+    $conn->close();
     exit;
 }
 
-$stmt->execute();
+if (!$stmt->execute()) {
+    http_response_code(500);
+
+    echo json_encode([
+        "success" => false,
+        "message" => "Error al ejecutar consulta de usuarios",
+        "usuarios" => [],
+        "total" => 0
+    ], JSON_UNESCAPED_UNICODE);
+
+    $stmt->close();
+    $conn->close();
+    exit;
+}
+
 $result = $stmt->get_result();
 
 $usuarios = [];
 
 while ($row = $result->fetch_assoc()) {
     $usuarios[] = [
-        "id" => (int)$row["id"],
+        "id" => intval($row["id"]),
         "nombre" => $row["nombre"],
         "correo" => $row["correo"],
         "rol" => $row["rol"],
@@ -55,12 +109,16 @@ while ($row = $result->fetch_assoc()) {
     ];
 }
 
+
+/* =========================
+   RESPUESTA
+========================= */
+
 echo json_encode([
     "success" => true,
     "usuarios" => $usuarios,
     "total" => count($usuarios)
-]);
+], JSON_UNESCAPED_UNICODE);
 
 $stmt->close();
 $conn->close();
-?>

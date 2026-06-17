@@ -1,8 +1,28 @@
 <?php
+
+/* =========================
+   IRONIX - OBTENER PRODUCCIÓN
+========================= */
+
 header('Content-Type: application/json; charset=utf-8');
+
+require_once __DIR__ . "/../auth/guard.php";
+
+/* =========================
+   GUARD BACKEND - FASE 3
+========================= */
+
+ironixRequerirPermiso("produccion", "ver");
+
+
 require_once __DIR__ . "/../conexion.php";
 
 $conn->set_charset("utf8mb4");
+
+
+/* =========================
+   CONSULTAR PRODUCCIÓN
+========================= */
 
 $sql = "SELECT 
             p.id, 
@@ -120,6 +140,11 @@ $sql = "SELECT
 
         ORDER BY p.id DESC";
 
+
+/* =========================
+   EJECUTAR CONSULTA
+========================= */
+
 $result = $conn->query($sql);
 
 $datos = [];
@@ -143,6 +168,8 @@ if ($result) {
     ], JSON_UNESCAPED_UNICODE);
 
 } else {
+    http_response_code(500);
+
     echo json_encode([
         "success" => false,
         "message" => "Error al obtener producción: " . $conn->error
@@ -150,4 +177,3 @@ if ($result) {
 }
 
 $conn->close();
-?>

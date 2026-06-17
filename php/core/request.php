@@ -9,6 +9,11 @@
 
 require_once __DIR__ . "/response.php";
 
+
+/* =========================
+   VALIDAR MÉTODO HTTP
+========================= */
+
 if (!function_exists("validarMetodo")) {
     function validarMetodo(string $metodoEsperado): void
     {
@@ -23,6 +28,11 @@ if (!function_exists("validarMetodo")) {
     }
 }
 
+
+/* =========================
+   OBTENER POST
+========================= */
+
 if (!function_exists("obtenerPost")) {
     function obtenerPost(string $campo, $valorPorDefecto = null)
     {
@@ -30,12 +40,51 @@ if (!function_exists("obtenerPost")) {
     }
 }
 
+
+/* =========================
+   OBTENER GET
+========================= */
+
 if (!function_exists("obtenerGet")) {
     function obtenerGet(string $campo, $valorPorDefecto = null)
     {
         return $_GET[$campo] ?? $valorPorDefecto;
     }
 }
+
+
+/* =========================
+   OBTENER JSON
+========================= */
+
+if (!function_exists("obtenerJson")) {
+    function obtenerJson(): array
+    {
+        $raw = file_get_contents("php://input");
+        $data = json_decode($raw, true);
+
+        return is_array($data) ? $data : [];
+    }
+}
+
+
+/* =========================
+   OBTENER CAMPO DESDE JSON
+========================= */
+
+if (!function_exists("obtenerJsonCampo")) {
+    function obtenerJsonCampo(string $campo, $valorPorDefecto = null)
+    {
+        $data = obtenerJson();
+
+        return $data[$campo] ?? $valorPorDefecto;
+    }
+}
+
+
+/* =========================
+   CAMPO REQUERIDO
+========================= */
 
 if (!function_exists("campoRequerido")) {
     function campoRequerido($valor, string $nombreCampo): void

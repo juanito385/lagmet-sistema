@@ -6,8 +6,8 @@
 
 /*
     Este archivo protege endpoints PHP exclusivos para administradores.
-    Primero valida que exista sesión activa.
-    Luego valida que el rol sea admin.
+    Primero valida sesión activa mediante guard.php.
+    Luego exige rol admin.
 */
 
 require_once __DIR__ . "/guard.php";
@@ -17,8 +17,4 @@ require_once __DIR__ . "/guard.php";
    VALIDAR ROL ADMIN
 ========================= */
 
-if ($IRONIX_USER_ROLE !== "admin") {
-    ironixResponderSinPermisos("Acceso restringido solo para administradores");
-}
-
-?>
+ironixRequerirRol("admin");

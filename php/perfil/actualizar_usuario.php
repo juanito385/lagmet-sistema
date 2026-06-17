@@ -6,7 +6,17 @@
 ================================================== */
 
 require_once __DIR__ . "/../core/request.php";
+require_once __DIR__ . "/../auth/guard.php";
+
+/* =========================
+   GUARD BACKEND - FASE 3
+========================= */
+
+ironixRequerirPermiso("perfil", "editar");
+
+
 require_once __DIR__ . "/../conexion.php";
+
 
 /* =========================
    VALIDAR MÉTODO
@@ -19,13 +29,34 @@ validarMetodo("POST");
    RECIBIR DATOS BASE
 ========================= */
 
-$id = intval(obtenerPost("usuario_id", 0));
+$idSesion = intval($IRONIX_USER_ID);
+$idSolicitado = intval(obtenerPost("usuario_id", 0));
+
 $nombre = trim((string) obtenerPost("nombre", ""));
 $correo = trim((string) obtenerPost("correo", ""));
 
-if ($id <= 0) {
+
+/* =========================
+   VALIDACIONES BASE
+========================= */
+
+if ($idSesion <= 0) {
+    responderError("Sesión inválida", 401);
+}
+
+if ($idSolicitado <= 0) {
     responderError("ID de usuario no recibido", 422);
 }
+
+/*
+    Seguridad Fase 3:
+    El usuario solo puede actualizar su propio perfil.
+*/
+if ($idSolicitado !== $idSesion) {
+    responderError("No tienes permisos para actualizar este perfil", 403);
+}
+
+$id = $idSesion;
 
 if ($nombre === "" || $correo === "") {
     responderError("Completa nombre y correo", 422);
@@ -43,12 +74,19 @@ if (!filter_var($correo, FILTER_VALIDATE_EMAIL)) {
 $tieneTelefono = array_key_exists("telefono", $_POST);
 $tieneArea = array_key_exists("area", $_POST);
 $tieneIdioma = array_key_exists("idioma", $_POST);
-$tieneEstado = array_key_exists("estado", $_POST);
+
+/*
+    Seguridad:
+    El estado NO se actualiza desde Perfil.
+    El estado de cuenta se controla desde Configuración / Seguridad.
+*/
+if (array_key_exists("estado", $_POST)) {
+    responderError("No puedes modificar el estado de cuenta desde Perfil", 403);
+}
 
 $telefono = $tieneTelefono ? trim((string) $_POST["telefono"]) : null;
 $area = $tieneArea ? trim((string) $_POST["area"]) : null;
 $idioma = $tieneIdioma ? trim((string) $_POST["idioma"]) : null;
-$estado = $tieneEstado ? trim((string) $_POST["estado"]) : null;
 
 if ($tieneArea && $area === "") {
     responderError("El área no puede quedar vacía", 422);
@@ -58,8 +96,51 @@ if ($tieneIdioma && $idioma === "") {
     responderError("El idioma no puede quedar vacío", 422);
 }
 
-if ($tieneEstado && !in_array($estado, ["activa", "inactiva", "bloqueada"], true)) {
-    responderError("Estado de cuenta no válido", 422);
+
+/* =========================
+   VALIDAR EXISTENCIA USUARIO
+========================= */
+
+$sqlExiste = "
+    SELECT 
+        id,
+        estado
+    FROM usuarios
+    WHERE id = ?
+    LIMIT 1
+";
+
+$stmtExiste = $conn->prepare($sqlExiste);
+
+if (!$stmtExiste) {
+    responderError("Error al preparar validación de usuario", 500);
+}
+
+$stmtExiste->bind_param("i", $id);
+
+if (!$stmtExiste->execute()) {
+    $stmtExiste->close();
+    $conn->close();
+
+    responderError("Error al ejecutar validación de usuario", 500);
+}
+
+$resultExiste = $stmtExiste->get_result();
+
+if (!$resultExiste || $resultExiste->num_rows === 0) {
+    $stmtExiste->close();
+    $conn->close();
+
+    responderError("Usuario no encontrado", 404);
+}
+
+$usuarioActual = $resultExiste->fetch_assoc();
+$stmtExiste->close();
+
+if ($usuarioActual["estado"] !== "activa") {
+    $conn->close();
+
+    responderError("La cuenta no está activa", 403);
 }
 
 
@@ -85,6 +166,8 @@ $stmtCorreo->bind_param("si", $correo, $id);
 
 if (!$stmtCorreo->execute()) {
     $stmtCorreo->close();
+    $conn->close();
+
     responderError("Error al ejecutar validación de correo", 500);
 }
 
@@ -128,12 +211,6 @@ if ($tieneIdioma) {
     $campos[] = "idioma = ?";
     $tipos .= "s";
     $valores[] = $idioma;
-}
-
-if ($tieneEstado) {
-    $campos[] = "estado = ?";
-    $tipos .= "s";
-    $valores[] = $estado;
 }
 
 $tipos .= "i";

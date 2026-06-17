@@ -3,7 +3,30 @@
 header('Content-Type: application/json; charset=utf-8');
 
 require_once __DIR__ . "/../auth/guard.php";
+
+/* =========================
+   GUARD BACKEND - FASE 3
+========================= */
+
+ironixRequerirPermiso("dashboard", "ver");
+
+
 require_once __DIR__ . "/../conexion.php";
+
+/* =========================
+   VALIDAR MÉTODO
+========================= */
+
+if ($_SERVER["REQUEST_METHOD"] !== "GET") {
+    http_response_code(405);
+
+    echo json_encode([
+        "success" => false,
+        "message" => "Método no permitido"
+    ], JSON_UNESCAPED_UNICODE);
+
+    exit;
+}
 
 /* =========================
    FECHAS BASE
@@ -15,6 +38,12 @@ $inicioMes = date("Y-m-01");
 
 $periodo = $_GET["periodo"] ?? "hoy";
 $fechaFiltro = $_GET["fecha"] ?? "";
+
+$periodosPermitidos = ["hoy", "ayer", "semana", "mes", "fecha"];
+
+if (!in_array($periodo, $periodosPermitidos, true)) {
+    $periodo = "hoy";
+}
 
 $fechaConsulta = $hoy;
 

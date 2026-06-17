@@ -6,7 +6,17 @@
 ================================================== */
 
 require_once __DIR__ . "/../core/request.php";
+require_once __DIR__ . "/../auth/guard.php";
+
+/* =========================
+   GUARD BACKEND - FASE 3
+========================= */
+
+ironixRequerirPermiso("perfil", "cambiar_password");
+
+
 require_once __DIR__ . "/../conexion.php";
+
 
 /* =========================
    VALIDAR MÉTODO
@@ -19,14 +29,35 @@ validarMetodo("POST");
    RECIBIR DATOS
 ========================= */
 
-$id = intval(obtenerPost("usuario_id", 0));
+$idSesion = intval($IRONIX_USER_ID);
+$idSolicitado = intval(obtenerPost("usuario_id", 0));
+
 $actual = trim((string) obtenerPost("actual", ""));
 $nueva = trim((string) obtenerPost("nueva", ""));
 $confirmar = trim((string) obtenerPost("confirmar", ""));
 
-if ($id <= 0) {
+
+/* =========================
+   VALIDACIONES
+========================= */
+
+if ($idSesion <= 0) {
+    responderError("Sesión inválida", 401);
+}
+
+if ($idSolicitado <= 0) {
     responderError("ID de usuario no recibido", 422);
 }
+
+/*
+    Seguridad Fase 3:
+    El usuario solo puede cambiar su propia contraseña.
+*/
+if ($idSolicitado !== $idSesion) {
+    responderError("No tienes permisos para cambiar la contraseña de otro usuario", 403);
+}
+
+$id = $idSesion;
 
 if ($actual === "" || $nueva === "" || $confirmar === "") {
     responderError("Completa todos los campos", 422);
@@ -50,7 +81,9 @@ if ($actual === $nueva) {
 ========================= */
 
 $sql = "
-    SELECT password 
+    SELECT 
+        id,
+        password 
     FROM usuarios 
     WHERE id = ?
     LIMIT 1
@@ -89,10 +122,15 @@ $stmt->close();
    VALIDAR CONTRASEÑA ACTUAL
 ========================= */
 
+/*
+    Uso 422 en vez de 401 para evitar que el frontend interprete
+    una contraseña incorrecta como sesión expirada.
+*/
+
 if (!password_verify($actual, $usuario["password"])) {
     $conn->close();
 
-    responderError("Contraseña actual incorrecta", 401);
+    responderError("Contraseña actual incorrecta", 422);
 }
 
 
@@ -127,6 +165,11 @@ if (!$stmtUpdate->execute()) {
 
 $stmtUpdate->close();
 $conn->close();
+
+
+/* =========================
+   RESPUESTA
+========================= */
 
 responderJSON([
     "success" => true,

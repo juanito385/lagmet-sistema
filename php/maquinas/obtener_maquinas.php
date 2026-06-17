@@ -1,7 +1,45 @@
 <?php
+
+/* =========================
+   IRONIX - OBTENER MÁQUINAS
+========================= */
+
 header('Content-Type: application/json; charset=utf-8');
 
+require_once __DIR__ . "/../auth/guard.php";
+
+/* =========================
+   GUARD BACKEND - FASE 3
+========================= */
+
+ironixRequerirPermiso("monitoreo", "ver");
+
+
 require_once __DIR__ . "/../conexion.php";
+
+$conn->set_charset("utf8mb4");
+
+
+/* =========================
+   VALIDAR MÉTODO
+========================= */
+
+if ($_SERVER["REQUEST_METHOD"] !== "GET") {
+    http_response_code(405);
+
+    echo json_encode([
+        "success" => false,
+        "message" => "Método no permitido",
+        "data" => []
+    ], JSON_UNESCAPED_UNICODE);
+
+    exit;
+}
+
+
+/* =========================
+   CONSULTAR MÁQUINAS
+========================= */
 
 $sql = "
     SELECT 
@@ -37,13 +75,13 @@ if ($result) {
 
     while ($row = $result->fetch_assoc()) {
         $maquinas[] = [
-            "id" => (int)$row["id"],
-            "numero_maquina" => (int)$row["numero_maquina"],
+            "id" => intval($row["id"]),
+            "numero_maquina" => intval($row["numero_maquina"]),
             "nombre_maquina" => $row["nombre_maquina"],
             "zona" => $row["zona"],
             "estado" => $row["estado"],
             "estado_texto" => $row["estado_texto"],
-            "bloqueada" => (int)$row["bloqueada"],
+            "bloqueada" => intval($row["bloqueada"]),
             "observacion" => $row["observacion"],
             "fecha_actualizacion" => $row["fecha_actualizacion"]
         ];
@@ -56,12 +94,13 @@ if ($result) {
 
 } else {
 
+    http_response_code(500);
+
     echo json_encode([
         "success" => false,
         "message" => "Error al obtener máquinas",
-        "error" => $conn->error
+        "data" => []
     ], JSON_UNESCAPED_UNICODE);
 }
 
 $conn->close();
-?>

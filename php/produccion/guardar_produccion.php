@@ -1,13 +1,30 @@
 <?php
-header('Content-Type: application/json');
+
+/* =========================
+   IRONIX - GUARDAR PRODUCCIÓN
+========================= */
+
+header('Content-Type: application/json; charset=utf-8');
+
+require_once __DIR__ . "/../auth/guard.php";
+
+/* =========================
+   GUARD BACKEND - FASE 3
+========================= */
+
+ironixRequerirPermiso("produccion", "guardar");
+
+
 require_once __DIR__ . "/../conexion.php";
 require_once __DIR__ . "/../gantt/version_gantt.php";
 
 date_default_timezone_set("America/Santiago");
 
+
 /* =========================
    TURNO AUTOMÁTICO
 ========================= */
+
 function calcularTurnoAutomatico() {
     $horaActual = date("H:i");
 
@@ -22,15 +39,39 @@ function calcularTurnoAutomatico() {
     return "Noche";
 }
 
+
+/* =========================
+   VALIDAR MÉTODO
+========================= */
+
 if ($_SERVER["REQUEST_METHOD"] !== "POST") {
+    http_response_code(405);
+
     echo json_encode([
         "success" => false,
         "message" => "Método no permitido"
     ]);
+
     exit;
 }
 
+
+/* =========================
+   RECIBIR DATOS
+========================= */
+
 $input = json_decode(file_get_contents("php://input"), true);
+
+if (!is_array($input)) {
+    http_response_code(400);
+
+    echo json_encode([
+        "success" => false,
+        "message" => "JSON inválido"
+    ]);
+
+    exit;
+}
 
 $numero_pedido = trim($input["numero_pedido"] ?? "");
 $codigo = trim($input["codigo"] ?? "");
@@ -44,9 +85,15 @@ $dias = intval($input["dias"] ?? 0);
 $grupo = trim($input["grupo"] ?? "");
 $almuerzo = trim($input["almuerzo"] ?? "no");
 $salida = trim($input["salida"] ?? "--");
-$usuario_id = isset($input["usuario_id"]) && $input["usuario_id"] !== null ? intval($input["usuario_id"]) : null;
-$maquinas = $input["maquinas"] ?? [];
 
+/*
+    Seguridad Fase 3:
+    El usuario_id NO debe venir desde el frontend.
+    Se usa el usuario autenticado desde la sesión PHP.
+*/
+$usuario_id = intval($IRONIX_USER_ID);
+
+$maquinas = $input["maquinas"] ?? [];
 
 $situacion_descripcion = trim($input["situacion_descripcion"] ?? "");
 
@@ -57,20 +104,49 @@ if ($fallo_maquina === "no") {
     $maquina_fallo = "";
 }
 
-/* TURNO */
+
+/* =========================
+   TURNO
+========================= */
+
 $turno = calcularTurnoAutomatico();
 
+
+/* =========================
+   VALIDACIONES
+========================= */
+
 if ($numero_pedido === "" || $codigo === "" || $producto === "" || $cantidad <= 0) {
+    http_response_code(400);
+
     echo json_encode([
         "success" => false,
         "message" => "Faltan datos obligatorios"
     ]);
+
     exit;
 }
+
+if (!is_array($maquinas)) {
+    http_response_code(400);
+
+    echo json_encode([
+        "success" => false,
+        "message" => "Formato de máquinas inválido"
+    ]);
+
+    exit;
+}
+
+
+/* =========================
+   GUARDAR PRODUCCIÓN
+========================= */
 
 $conn->begin_transaction();
 
 try {
+
     $stmt = $conn->prepare("
         INSERT INTO produccion
         (
@@ -131,10 +207,22 @@ try {
     $stmt->close();
 
 
-    /* GUARDAR MAQUINAS */
+    /* =========================
+       GUARDAR MÁQUINAS
+    ========================= */
+
     $stmtMaquina = $conn->prepare("
         INSERT INTO produccion_maquinas
-        (produccion_id, id_maquina, zona, maquina, uso, orden_proceso, horas, minutos)
+        (
+            produccion_id, 
+            id_maquina, 
+            zona, 
+            maquina, 
+            uso, 
+            orden_proceso, 
+            horas, 
+            minutos
+        )
         VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     ");
 
@@ -185,7 +273,11 @@ try {
 
     $stmtMaquina->close();
 
-    /* GUARDAR SITUACION */
+
+    /* =========================
+       GUARDAR SITUACIÓN
+    ========================= */
+
     if ($tiempo_muerto > 0 && $situacion_descripcion !== "") {
         $stmtSituacion = $conn->prepare("
             INSERT INTO situaciones_produccion
@@ -208,12 +300,24 @@ try {
             $situacion_descripcion
         );
 
-        $stmtSituacion->execute();
+        if (!$stmtSituacion->execute()) {
+            throw new Exception("Error al guardar situación de producción: " . $stmtSituacion->error);
+        }
+
         $stmtSituacion->close();
     }
 
 
+    /* =========================
+       ACTUALIZAR VERSION GANTT
+    ========================= */
+
     actualizarVersionGantt($conn);
+
+
+    /* =========================
+       CONFIRMAR TRANSACCIÓN
+    ========================= */
 
     $conn->commit();
 
@@ -224,7 +328,10 @@ try {
     ]);
 
 } catch (Exception $e) {
+
     $conn->rollback();
+
+    http_response_code(500);
 
     echo json_encode([
         "success" => false,
@@ -233,4 +340,3 @@ try {
 }
 
 $conn->close();
-?>

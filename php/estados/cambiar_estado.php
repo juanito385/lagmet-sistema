@@ -1,16 +1,53 @@
 <?php
+
+/* =========================
+   IRONIX - CAMBIAR ESTADO
+========================= */
+
 header('Content-Type: application/json; charset=utf-8');
 
-session_start();
+require_once __DIR__ . "/../auth/guard.php";
+
+/* =========================
+   GUARD BACKEND - FASE 3
+========================= */
+
+ironixRequerirPermiso("estados", "editar");
+
 
 require_once __DIR__ . "/../conexion.php";
+require_once __DIR__ . "/../gantt/version_gantt.php";
 
-date_default_timezone_set('America/Santiago');
+date_default_timezone_set("America/Santiago");
+
+
+/* =========================
+   VALIDAR MÉTODO
+========================= */
+
+if ($_SERVER["REQUEST_METHOD"] !== "POST") {
+    http_response_code(405);
+
+    echo json_encode([
+        "success" => false,
+        "message" => "Método no permitido"
+    ], JSON_UNESCAPED_UNICODE);
+
+    exit;
+}
+
+
+/* =========================
+   RESPUESTA BASE
+========================= */
 
 $response = [
     "success" => false,
     "message" => ""
 ];
+
+$transaccionIniciada = false;
+
 
 try {
 
@@ -20,9 +57,14 @@ try {
 
     $conn->set_charset("utf8mb4");
 
+
+    /* =========================
+       RECIBIR DATOS
+    ========================= */
+
     $input = json_decode(file_get_contents("php://input"), true);
 
-    if (!$input) {
+    if (!is_array($input)) {
         $input = $_POST;
     }
 
@@ -30,7 +72,13 @@ try {
     $nuevoEstado = isset($input["estado"]) ? trim($input["estado"]) : "";
     $observacion = isset($input["observacion"]) ? trim($input["observacion"]) : "";
 
+
+    /* =========================
+       VALIDACIONES
+    ========================= */
+
     if ($produccionId <= 0) {
+        http_response_code(400);
         throw new Exception("ID de producción inválido.");
     }
 
@@ -43,19 +91,37 @@ try {
     ];
 
     if (!in_array($nuevoEstado, $estadosPermitidos, true)) {
+        http_response_code(400);
         throw new Exception("Estado no permitido.");
     }
 
-    $usuarioId = isset($_SESSION["usuario_id"]) ? intval($_SESSION["usuario_id"]) : null;
-    $usuarioNombre = $_SESSION["usuario_nombre"] 
-        ?? $_SESSION["nombre"] 
-        ?? "Admin";
+
+    /* =========================
+       USUARIO AUTENTICADO
+    ========================= */
+
+    /*
+        Seguridad Fase 3:
+        No se usa usuario_id desde POST ni sesiones antiguas.
+        Se usa el usuario autenticado validado por guard.php.
+    */
+
+    $usuarioId = intval($IRONIX_USER_ID);
+    $usuarioNombre = trim($IRONIX_USER_NAME) !== "" ? trim($IRONIX_USER_NAME) : "Usuario IRONIX";
+
+
+    /* =========================
+       INICIAR TRANSACCIÓN
+    ========================= */
 
     $conn->begin_transaction();
+    $transaccionIniciada = true;
+
 
     /* =========================
        OBTENER PRODUCCIÓN ACTUAL
     ========================= */
+
     $stmt = $conn->prepare("
         SELECT 
             id,
@@ -66,21 +132,33 @@ try {
         LIMIT 1
     ");
 
+    if (!$stmt) {
+        throw new Exception("Error al preparar consulta de producción: " . $conn->error);
+    }
+
     $stmt->bind_param("i", $produccionId);
-    $stmt->execute();
+
+    if (!$stmt->execute()) {
+        throw new Exception("Error al consultar producción: " . $stmt->error);
+    }
 
     $result = $stmt->get_result();
     $produccion = $result->fetch_assoc();
 
+    $stmt->close();
+
     if (!$produccion) {
+        http_response_code(404);
         throw new Exception("No se encontró la producción.");
     }
 
     $estadoAnterior = $produccion["estado_actual"] ?: "pendiente";
 
+
     /* =========================
        ACTUALIZAR PRODUCCIÓN
     ========================= */
+
     if (
         ($nuevoEstado === "terminado" || $nuevoEstado === "entregado") &&
         empty($produccion["fecha_fin_real"])
@@ -94,6 +172,10 @@ try {
             WHERE id = ?
         ");
 
+        if (!$stmtUpdate) {
+            throw new Exception("Error al preparar actualización con fecha real: " . $conn->error);
+        }
+
         $stmtUpdate->bind_param("si", $nuevoEstado, $produccionId);
 
     } else {
@@ -105,14 +187,24 @@ try {
             WHERE id = ?
         ");
 
+        if (!$stmtUpdate) {
+            throw new Exception("Error al preparar actualización de estado: " . $conn->error);
+        }
+
         $stmtUpdate->bind_param("si", $nuevoEstado, $produccionId);
     }
 
-    $stmtUpdate->execute();
+    if (!$stmtUpdate->execute()) {
+        throw new Exception("Error al actualizar estado: " . $stmtUpdate->error);
+    }
+
+    $stmtUpdate->close();
+
 
     /* =========================
        INSERTAR HISTORIAL
     ========================= */
+
     $stmtHistorial = $conn->prepare("
         INSERT INTO historial_estados (
             produccion_id,
@@ -125,6 +217,10 @@ try {
         ) VALUES (?, ?, ?, ?, ?, ?, NOW())
     ");
 
+    if (!$stmtHistorial) {
+        throw new Exception("Error al preparar historial de estados: " . $conn->error);
+    }
+
     $stmtHistorial->bind_param(
         "isssis",
         $produccionId,
@@ -135,9 +231,26 @@ try {
         $usuarioNombre
     );
 
-    $stmtHistorial->execute();
+    if (!$stmtHistorial->execute()) {
+        throw new Exception("Error al guardar historial de estado: " . $stmtHistorial->error);
+    }
+
+    $stmtHistorial->close();
+
+
+    /* =========================
+       ACTUALIZAR VERSION GANTT
+    ========================= */
+
+    actualizarVersionGantt($conn);
+
+
+    /* =========================
+       CONFIRMAR TRANSACCIÓN
+    ========================= */
 
     $conn->commit();
+    $transaccionIniciada = false;
 
     $response = [
         "success" => true,
@@ -152,8 +265,12 @@ try {
 
 } catch (Throwable $e) {
 
-    if (isset($conn) && $conn instanceof mysqli) {
+    if ($transaccionIniciada && isset($conn) && $conn instanceof mysqli) {
         $conn->rollback();
+    }
+
+    if (http_response_code() === 200) {
+        http_response_code(500);
     }
 
     $response = [
@@ -162,5 +279,9 @@ try {
     ];
 }
 
-echo json_encode($response);
-?>
+
+echo json_encode($response, JSON_UNESCAPED_UNICODE);
+
+if (isset($conn) && $conn instanceof mysqli) {
+    $conn->close();
+}

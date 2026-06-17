@@ -1,27 +1,89 @@
 <?php
-header('Content-Type: application/json');
+
+/* =========================
+   IRONIX - ACTUALIZAR PRODUCCIÓN
+========================= */
+
+header('Content-Type: application/json; charset=utf-8');
+
+require_once __DIR__ . "/../auth/guard.php";
+
+/* =========================
+   GUARD BACKEND - FASE 3
+========================= */
+
+ironixRequerirPermiso("produccion", "editar");
+
+
 require_once __DIR__ . "/../conexion.php";
 require_once __DIR__ . "/../gantt/version_gantt.php";
 
+
+/* =========================
+   VALIDAR MÉTODO
+========================= */
+
+if ($_SERVER["REQUEST_METHOD"] !== "POST") {
+    http_response_code(405);
+
+    echo json_encode([
+        "success" => false,
+        "message" => "Método no permitido"
+    ]);
+
+    exit;
+}
+
+
+/* =========================
+   RECIBIR DATOS
+========================= */
+
 $input = json_decode(file_get_contents("php://input"), true);
+
+if (!is_array($input)) {
+    http_response_code(400);
+
+    echo json_encode([
+        "success" => false,
+        "message" => "JSON inválido"
+    ]);
+
+    exit;
+}
 
 $id = intval($input["id"] ?? 0);
 
 if ($id <= 0) {
+    http_response_code(400);
+
     echo json_encode([
         "success" => false,
         "message" => "ID inválido"
     ]);
+
     exit;
 }
 
-$check = $conn->prepare("SELECT id FROM produccion WHERE id = ?");
+
+/* =========================
+   VALIDAR QUE EXISTE
+========================= */
+
+$check = $conn->prepare("
+    SELECT id 
+    FROM produccion 
+    WHERE id = ?
+");
 
 if (!$check) {
+    http_response_code(500);
+
     echo json_encode([
         "success" => false,
         "message" => "Error al validar producción: " . $conn->error
     ]);
+
     exit;
 }
 
@@ -31,16 +93,24 @@ $check->execute();
 $resultCheck = $check->get_result();
 
 if ($resultCheck->num_rows === 0) {
+    $check->close();
+
+    http_response_code(404);
+
     echo json_encode([
         "success" => false,
         "message" => "No existe una producción con el ID indicado"
     ]);
 
-    $check->close();
     exit;
 }
 
 $check->close();
+
+
+/* =========================
+   NORMALIZAR DATOS
+========================= */
 
 $numero_pedido = trim($input["numero_pedido"] ?? "");
 $codigo = trim($input["codigo"] ?? "");
@@ -54,13 +124,18 @@ $dias = intval($input["dias"] ?? 0);
 $grupo = trim($input["grupo"] ?? "");
 $almuerzo = trim($input["almuerzo"] ?? "no");
 $salida = trim($input["salida"] ?? "--");
-$usuario_id = isset($input["usuario_id"]) ? intval($input["usuario_id"]) : null;
+
+/*
+    Seguridad Fase 3:
+    El usuario_id NO debe venir desde el frontend.
+    Se usa el usuario autenticado desde la sesión PHP.
+*/
+$usuario_id = intval($IRONIX_USER_ID);
+
 $maquinas = $input["maquinas"] ?? [];
 
-/* NUEVO: SITUACION */
 $situacion_descripcion = trim($input["situacion_descripcion"] ?? "");
 
-/* NUEVO: FALLO MAQUINA */
 $fallo_maquina = trim($input["fallo_maquina"] ?? "no");
 $maquina_fallo = trim($input["maquina_fallo"] ?? "");
 
@@ -68,13 +143,37 @@ if ($fallo_maquina === "no") {
     $maquina_fallo = "";
 }
 
+
+/* =========================
+   VALIDACIONES
+========================= */
+
 if ($numero_pedido === "" || $codigo === "" || $producto === "" || $cantidad <= 0) {
+    http_response_code(400);
+
     echo json_encode([
         "success" => false,
         "message" => "Faltan datos obligatorios"
     ]);
+
     exit;
 }
+
+if (!is_array($maquinas)) {
+    http_response_code(400);
+
+    echo json_encode([
+        "success" => false,
+        "message" => "Formato de máquinas inválido"
+    ]);
+
+    exit;
+}
+
+
+/* =========================
+   ACTUALIZAR PRODUCCIÓN
+========================= */
 
 $conn->begin_transaction();
 
@@ -130,16 +229,45 @@ try {
 
     $stmt->close();
 
-    /* ELIMINAR MAQUINAS ANTIGUAS */
-    $delete = $conn->prepare("DELETE FROM produccion_maquinas WHERE produccion_id = ?");
+
+    /* =========================
+       ELIMINAR MÁQUINAS ANTIGUAS
+    ========================= */
+
+    $delete = $conn->prepare("
+        DELETE FROM produccion_maquinas 
+        WHERE produccion_id = ?
+    ");
+
+    if (!$delete) {
+        throw new Exception("Error al preparar eliminación de máquinas: " . $conn->error);
+    }
+
     $delete->bind_param("i", $id);
-    $delete->execute();
+
+    if (!$delete->execute()) {
+        throw new Exception("Error al eliminar máquinas anteriores: " . $delete->error);
+    }
+
     $delete->close();
 
-    /* INSERTAR MAQUINAS NUEVAS */
+
+    /* =========================
+       INSERTAR MÁQUINAS NUEVAS
+    ========================= */
+
     $stmtMaquina = $conn->prepare("
         INSERT INTO produccion_maquinas
-        (produccion_id, id_maquina, zona, maquina, uso, orden_proceso, horas, minutos)
+        (
+            produccion_id, 
+            id_maquina, 
+            zona, 
+            maquina, 
+            uso, 
+            orden_proceso, 
+            horas, 
+            minutos
+        )
         VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     ");
 
@@ -147,7 +275,7 @@ try {
         throw new Exception("Error en INSERT maquinas: " . $conn->error);
     }
 
-        foreach ($maquinas as $m) {
+    foreach ($maquinas as $m) {
         $id_maquina = intval($m["id_maquina"] ?? 0);
         $zona = trim($m["zona"] ?? "");
         $maquina = trim($m["maquina"] ?? "");
@@ -190,16 +318,36 @@ try {
 
     $stmtMaquina->close();
 
-    /* ACTUALIZAR SITUACION */
-    $deleteSituacion = $conn->prepare("DELETE FROM situaciones_produccion WHERE produccion_id = ?");
+
+    /* =========================
+       ACTUALIZAR SITUACIÓN
+    ========================= */
+
+    $deleteSituacion = $conn->prepare("
+        DELETE FROM situaciones_produccion 
+        WHERE produccion_id = ?
+    ");
+
+    if (!$deleteSituacion) {
+        throw new Exception("Error al preparar eliminación de situación: " . $conn->error);
+    }
+
     $deleteSituacion->bind_param("i", $id);
-    $deleteSituacion->execute();
+
+    if (!$deleteSituacion->execute()) {
+        throw new Exception("Error al eliminar situación anterior: " . $deleteSituacion->error);
+    }
+
     $deleteSituacion->close();
 
     if ($tiempo_muerto > 0 && $situacion_descripcion !== "") {
         $stmtSituacion = $conn->prepare("
             INSERT INTO situaciones_produccion
-            (produccion_id, tiempo_extra_minutos, descripcion)
+            (
+                produccion_id, 
+                tiempo_extra_minutos, 
+                descripcion
+            )
             VALUES (?, ?, ?)
         ");
 
@@ -221,7 +369,17 @@ try {
         $stmtSituacion->close();
     }
 
+
+    /* =========================
+       ACTUALIZAR VERSION GANTT
+    ========================= */
+
     actualizarVersionGantt($conn);
+
+
+    /* =========================
+       CONFIRMAR TRANSACCIÓN
+    ========================= */
 
     $conn->commit();
 
@@ -234,6 +392,8 @@ try {
 
     $conn->rollback();
 
+    http_response_code(500);
+
     echo json_encode([
         "success" => false,
         "message" => $e->getMessage()
@@ -241,4 +401,3 @@ try {
 }
 
 $conn->close();
-?>

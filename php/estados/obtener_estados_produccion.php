@@ -1,6 +1,53 @@
 <?php
+
+/* =========================
+   IRONIX - OBTENER ESTADOS DE PRODUCCIÓN
+========================= */
+
 header('Content-Type: application/json; charset=utf-8');
+
+require_once __DIR__ . "/../auth/guard.php";
+
+/* =========================
+   GUARD BACKEND - FASE 3
+========================= */
+
+ironixRequerirPermiso("estados", "ver");
+
+
 require_once __DIR__ . "/../conexion.php";
+
+$conn->set_charset("utf8mb4");
+
+
+/* =========================
+   VALIDAR MÉTODO
+========================= */
+
+if ($_SERVER["REQUEST_METHOD"] !== "GET") {
+    http_response_code(405);
+
+    echo json_encode([
+        "success" => false,
+        "message" => "Método no permitido",
+        "cards" => [
+            "pendiente" => 0,
+            "en_proceso" => 0,
+            "pausado" => 0,
+            "terminado" => 0,
+            "entregado" => 0,
+            "atrasado" => 0
+        ],
+        "data" => []
+    ], JSON_UNESCAPED_UNICODE);
+
+    exit;
+}
+
+
+/* =========================
+   RESPUESTA BASE
+========================= */
 
 $response = [
     "success" => true,
@@ -14,6 +61,7 @@ $response = [
     ],
     "data" => []
 ];
+
 
 /* =========================
    OBTENER PRODUCCIÓN CON ESTADO REAL + ALERTA TEMPORAL
@@ -33,83 +81,94 @@ $response = [
    "atrasado" NO reemplaza al estado real.
 ========================= */
 
-$sql = "SELECT 
-            p.id,
-            p.numero_pedido,
-            p.producto,
-            p.codigo,
-            p.cantidad,
-            p.fecha,
-            p.fecha_fin,
-            p.fecha_fin_real,
-            p.estado_actual,
-            p.fecha_estado_actual,
-            COALESCE(u.nombre, 'Admin') AS operador,
+$sql = "
+    SELECT 
+        p.id,
+        p.numero_pedido,
+        p.producto,
+        p.codigo,
+        p.cantidad,
+        p.fecha,
+        p.fecha_fin,
+        p.fecha_fin_real,
+        p.estado_actual,
+        p.fecha_estado_actual,
+        COALESCE(u.nombre, 'Admin') AS operador,
 
-            COALESCE(
-                GROUP_CONCAT(
-                    CASE 
-                        WHEN pm.uso = 'si' THEN pm.maquina 
-                    END
-                    SEPARATOR ', '
-                ),
-                'Sin máquina'
-            ) AS maquinas_usadas,
+        COALESCE(
+            GROUP_CONCAT(
+                CASE 
+                    WHEN pm.uso = 'si' THEN pm.maquina 
+                END
+                SEPARATOR ', '
+            ),
+            'Sin máquina'
+        ) AS maquinas_usadas,
 
-            CASE
-                /* Si todavía NO está terminado/entregado y la fecha estimada venció */
-                WHEN p.estado_actual NOT IN ('terminado', 'entregado')
-                    AND p.fecha_fin IS NOT NULL
-                    AND p.fecha_fin != ''
-                    AND p.fecha_fin < CURDATE()
-                THEN 1
+        CASE
+            /* Si todavía NO está terminado/entregado y la fecha estimada venció */
+            WHEN p.estado_actual NOT IN ('terminado', 'entregado')
+                AND p.fecha_fin IS NOT NULL
+                AND p.fecha_fin != ''
+                AND p.fecha_fin < CURDATE()
+            THEN 1
 
-                /* Si ya está terminado/entregado, pero terminó después de la fecha estimada */
-                WHEN p.estado_actual IN ('terminado', 'entregado')
-                    AND p.fecha_fin IS NOT NULL
-                    AND p.fecha_fin != ''
-                    AND p.fecha_fin_real IS NOT NULL
-                    AND p.fecha_fin_real != ''
-                    AND DATE(p.fecha_fin_real) > DATE(p.fecha_fin)
-                THEN 1
+            /* Si ya está terminado/entregado, pero terminó después de la fecha estimada */
+            WHEN p.estado_actual IN ('terminado', 'entregado')
+                AND p.fecha_fin IS NOT NULL
+                AND p.fecha_fin != ''
+                AND p.fecha_fin_real IS NOT NULL
+                AND p.fecha_fin_real != ''
+                AND DATE(p.fecha_fin_real) > DATE(p.fecha_fin)
+            THEN 1
 
-                ELSE 0
-            END AS esta_atrasado
+            ELSE 0
+        END AS esta_atrasado
 
-        FROM produccion p
+    FROM produccion p
 
-        LEFT JOIN produccion_maquinas pm
-            ON p.id = pm.produccion_id
+    LEFT JOIN produccion_maquinas pm
+        ON p.id = pm.produccion_id
 
-        LEFT JOIN usuarios u
-            ON p.usuario_id = u.id
+    LEFT JOIN usuarios u
+        ON p.usuario_id = u.id
 
-        GROUP BY 
-            p.id,
-            p.numero_pedido,
-            p.producto,
-            p.codigo,
-            p.cantidad,
-            p.fecha,
-            p.fecha_fin,
-            p.fecha_fin_real,
-            p.estado_actual,
-            p.fecha_estado_actual,
-            u.nombre
+    GROUP BY 
+        p.id,
+        p.numero_pedido,
+        p.producto,
+        p.codigo,
+        p.cantidad,
+        p.fecha,
+        p.fecha_fin,
+        p.fecha_fin_real,
+        p.estado_actual,
+        p.fecha_estado_actual,
+        u.nombre
 
-        ORDER BY p.id DESC";
+    ORDER BY p.id DESC
+";
 
 $result = $conn->query($sql);
 
 if (!$result) {
+    http_response_code(500);
+
     echo json_encode([
         "success" => false,
         "message" => "Error SQL: " . $conn->error,
         "cards" => $response["cards"],
         "data" => []
-    ]);
+    ], JSON_UNESCAPED_UNICODE);
+
+    $conn->close();
     exit;
 }
+
+
+/* =========================
+   PROCESAR RESULTADOS
+========================= */
 
 while ($row = $result->fetch_assoc()) {
 
@@ -119,6 +178,7 @@ while ($row = $result->fetch_assoc()) {
     /* =========================
        CONTADOR DE ESTADO REAL
     ========================= */
+
     if (isset($response["cards"][$estadoReal])) {
         $response["cards"][$estadoReal]++;
     } else {
@@ -129,6 +189,7 @@ while ($row = $result->fetch_assoc()) {
     /* =========================
        CONTADOR DE ALERTA ATRASADO
     ========================= */
+
     if ($estaAtrasado) {
         $response["cards"]["atrasado"]++;
     }
@@ -145,16 +206,16 @@ while ($row = $result->fetch_assoc()) {
         "fecha_fin_real" => $row["fecha_fin_real"],
 
         /*
-           Estado real guardado en BD.
-           Esto es lo que debe mostrar el badge principal.
+            Estado real guardado en BD.
+            Esto es lo que debe mostrar el badge principal.
         */
         "estado_actual" => $estadoReal,
         "estado_real" => $estadoReal,
         "estado_bd" => $estadoReal,
 
         /*
-           Alerta temporal.
-           Esto es lo que usaremos para mostrar el triángulo rojo.
+            Alerta temporal.
+            Esto es lo que usaremos para mostrar el triángulo rojo.
         */
         "esta_atrasado" => $estaAtrasado,
         "alerta_temporal" => $estaAtrasado ? "atrasado" : null,
@@ -163,6 +224,11 @@ while ($row = $result->fetch_assoc()) {
     ];
 }
 
-echo json_encode($response);
+
+/* =========================
+   RESPUESTA FINAL
+========================= */
+
+echo json_encode($response, JSON_UNESCAPED_UNICODE);
+
 $conn->close();
-?>

@@ -13,8 +13,12 @@ if (session_status() === PHP_SESSION_NONE) {
 
     /*
         Configuración segura de cookies de sesión.
-        En localhost usamos secure = false porque normalmente trabajas con http://localhost.
-        En producción con HTTPS debería ser true.
+
+        Localhost:
+        - secure = false
+
+        Producción con HTTPS:
+        - secure = true
     */
     session_set_cookie_params([
         "lifetime" => 0,
@@ -28,6 +32,7 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
+
 /* =========================
    TIEMPO MÁXIMO DE SESIÓN
 ========================= */
@@ -36,33 +41,38 @@ if (session_status() === PHP_SESSION_NONE) {
     Tiempo máximo de inactividad:
     2 horas = 7200 segundos
 */
-define("IRONIX_SESSION_TIMEOUT", 7200);
+
+if (!defined("IRONIX_SESSION_TIMEOUT")) {
+    define("IRONIX_SESSION_TIMEOUT", 7200);
+}
 
 
 /* =========================
    VALIDAR EXPIRACIÓN DE SESIÓN
 ========================= */
 
-function ironixValidarSesionActiva()
-{
-    if (!isset($_SESSION["ironix_usuario_id"])) {
-        return false;
+if (!function_exists("ironixValidarSesionActiva")) {
+    function ironixValidarSesionActiva()
+    {
+        if (!isset($_SESSION["ironix_usuario_id"])) {
+            return false;
+        }
+
+        if (!isset($_SESSION["ironix_ultima_actividad"])) {
+            return false;
+        }
+
+        $tiempoInactivo = time() - intval($_SESSION["ironix_ultima_actividad"]);
+
+        if ($tiempoInactivo > IRONIX_SESSION_TIMEOUT) {
+            ironixCerrarSesion();
+            return false;
+        }
+
+        $_SESSION["ironix_ultima_actividad"] = time();
+
+        return true;
     }
-
-    if (!isset($_SESSION["ironix_ultima_actividad"])) {
-        return false;
-    }
-
-    $tiempoInactivo = time() - $_SESSION["ironix_ultima_actividad"];
-
-    if ($tiempoInactivo > IRONIX_SESSION_TIMEOUT) {
-        ironixCerrarSesion();
-        return false;
-    }
-
-    $_SESSION["ironix_ultima_actividad"] = time();
-
-    return true;
 }
 
 
@@ -70,15 +80,17 @@ function ironixValidarSesionActiva()
    CREAR SESIÓN DE USUARIO
 ========================= */
 
-function ironixCrearSesionUsuario($usuario)
-{
-    session_regenerate_id(true);
+if (!function_exists("ironixCrearSesionUsuario")) {
+    function ironixCrearSesionUsuario($usuario)
+    {
+        session_regenerate_id(true);
 
-    $_SESSION["ironix_usuario_id"] = $usuario["id"];
-    $_SESSION["ironix_usuario_nombre"] = $usuario["nombre"] ?? "";
-    $_SESSION["ironix_usuario_correo"] = $usuario["correo"] ?? "";
-    $_SESSION["ironix_usuario_rol"] = $usuario["rol"] ?? "usuario";
-    $_SESSION["ironix_ultima_actividad"] = time();
+        $_SESSION["ironix_usuario_id"] = intval($usuario["id"]);
+        $_SESSION["ironix_usuario_nombre"] = $usuario["nombre"] ?? "";
+        $_SESSION["ironix_usuario_correo"] = $usuario["correo"] ?? "";
+        $_SESSION["ironix_usuario_rol"] = $usuario["rol"] ?? "usuario";
+        $_SESSION["ironix_ultima_actividad"] = time();
+    }
 }
 
 
@@ -86,25 +98,28 @@ function ironixCrearSesionUsuario($usuario)
    CERRAR SESIÓN
 ========================= */
 
-function ironixCerrarSesion()
-{
-    $_SESSION = [];
+if (!function_exists("ironixCerrarSesion")) {
+    function ironixCerrarSesion()
+    {
+        $_SESSION = [];
 
-    if (ini_get("session.use_cookies")) {
-        $params = session_get_cookie_params();
+        if (ini_get("session.use_cookies")) {
+            $params = session_get_cookie_params();
 
-        setcookie(
-            session_name(),
-            "",
-            time() - 42000,
-            $params["path"],
-            $params["domain"],
-            $params["secure"],
-            $params["httponly"]
-        );
+            setcookie(session_name(), "", [
+                "expires" => time() - 42000,
+                "path" => $params["path"] ?? "/",
+                "domain" => $params["domain"] ?? "",
+                "secure" => $params["secure"] ?? false,
+                "httponly" => $params["httponly"] ?? true,
+                "samesite" => $params["samesite"] ?? "Lax"
+            ]);
+        }
+
+        if (session_status() === PHP_SESSION_ACTIVE) {
+            session_destroy();
+        }
     }
-
-    session_destroy();
 }
 
 
@@ -112,17 +127,20 @@ function ironixCerrarSesion()
    RESPUESTA JSON NO AUTORIZADA
 ========================= */
 
-function ironixResponderNoAutorizado($mensaje = "No autorizado")
-{
-    http_response_code(401);
+if (!function_exists("ironixResponderNoAutorizado")) {
+    function ironixResponderNoAutorizado($mensaje = "No autorizado")
+    {
+        http_response_code(401);
+        header("Content-Type: application/json; charset=utf-8");
 
-    echo json_encode([
-        "success" => false,
-        "auth" => false,
-        "message" => $mensaje
-    ]);
+        echo json_encode([
+            "success" => false,
+            "auth" => false,
+            "message" => $mensaje
+        ], JSON_UNESCAPED_UNICODE);
 
-    exit;
+        exit;
+    }
 }
 
 
@@ -130,16 +148,19 @@ function ironixResponderNoAutorizado($mensaje = "No autorizado")
    RESPUESTA JSON SIN PERMISOS
 ========================= */
 
-function ironixResponderSinPermisos($mensaje = "No tienes permisos para realizar esta acción")
-{
-    http_response_code(403);
+if (!function_exists("ironixResponderSinPermisos")) {
+    function ironixResponderSinPermisos($mensaje = "No tienes permisos para realizar esta acción")
+    {
+        http_response_code(403);
+        header("Content-Type: application/json; charset=utf-8");
 
-    echo json_encode([
-        "success" => false,
-        "auth" => true,
-        "permission" => false,
-        "message" => $mensaje
-    ]);
+        echo json_encode([
+            "success" => false,
+            "auth" => true,
+            "permission" => false,
+            "message" => $mensaje
+        ], JSON_UNESCAPED_UNICODE);
 
-    exit;
+        exit;
+    }
 }

@@ -1,9 +1,43 @@
 <?php
 
-header('Content-Type: application/json');
+/* =========================
+   IRONIX - OBTENER FLUJO PROCESO
+========================= */
+
+header('Content-Type: application/json; charset=utf-8');
+
+require_once __DIR__ . "/../auth/guard.php";
+
+/* =========================
+   GUARD BACKEND - FASE 3
+========================= */
+
+ironixRequerirPermiso("flujo_proceso", "ver");
+
+
 require_once __DIR__ . "/../conexion.php";
 
 date_default_timezone_set("America/Santiago");
+
+$conn->set_charset("utf8mb4");
+
+
+/* =========================
+   VALIDAR MÉTODO
+========================= */
+
+if ($_SERVER["REQUEST_METHOD"] !== "GET") {
+    http_response_code(405);
+
+    echo json_encode([
+        "success" => false,
+        "message" => "Método no permitido",
+        "productos" => []
+    ], JSON_UNESCAPED_UNICODE);
+
+    exit;
+}
+
 
 try {
 
@@ -11,8 +45,8 @@ try {
         Este endpoint obtiene productos con sus máquinas usadas,
         respetando el orden_proceso guardado al registrar producción.
 
-        Corrección aplicada:
-        - Si una máquina no tiene orden_proceso válido, se ordena después de las que sí tienen orden.
+        Reglas:
+        - Si una máquina no tiene orden_proceso válido, se ordena después.
         - Luego se normaliza el orden de todas las máquinas.
         - Control de Calidad (CC) siempre se agrega al final.
     */
@@ -64,7 +98,7 @@ try {
 
     while ($fila = $resultado->fetch_assoc()) {
 
-        $idProduccion = $fila["produccion_id"];
+        $idProduccion = intval($fila["produccion_id"]);
 
         if (!isset($productos[$idProduccion])) {
 
@@ -98,15 +132,11 @@ try {
         ];
     }
 
-    /*
-        Normalizar orden de operaciones y agregar CC al final.
 
-        Regla:
-        1. Las máquinas reales siempre van antes que Control de Calidad.
-        2. Si una máquina tiene orden_proceso válido, se respeta.
-        3. Si no tiene orden_proceso, se ubica después de las ordenadas.
-        4. CC siempre queda como la última operación.
-    */
+    /* =========================
+       NORMALIZAR OPERACIONES
+    ========================= */
+
     foreach ($productos as &$producto) {
 
         $operaciones = $producto["operaciones"];
@@ -134,6 +164,9 @@ try {
             $ordenNormalizado++;
         }
 
+        /*
+            Control de Calidad siempre al final.
+        */
         $operacionesNormalizadas[] = [
             "id" => null,
             "id_maquina" => null,
@@ -150,19 +183,30 @@ try {
 
     unset($producto);
 
+
+    /* =========================
+       RESPUESTA
+    ========================= */
+
     echo json_encode([
         "success" => true,
         "productos" => array_values($productos)
-    ]);
+    ], JSON_UNESCAPED_UNICODE);
 
-} catch (Exception $e) {
+} catch (Throwable $e) {
+
+    if (http_response_code() === 200) {
+        http_response_code(500);
+    }
 
     echo json_encode([
         "success" => false,
-        "message" => $e->getMessage()
-    ]);
+        "message" => $e->getMessage(),
+        "productos" => []
+    ], JSON_UNESCAPED_UNICODE);
 }
 
-$conn->close();
 
-?>
+if (isset($conn) && $conn instanceof mysqli) {
+    $conn->close();
+}

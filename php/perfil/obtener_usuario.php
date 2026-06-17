@@ -6,7 +6,17 @@
 ================================================== */
 
 require_once __DIR__ . "/../core/request.php";
+require_once __DIR__ . "/../auth/guard.php";
+
+/* =========================
+   GUARD BACKEND - FASE 3
+========================= */
+
+ironixRequerirPermiso("perfil", "ver");
+
+
 require_once __DIR__ . "/../conexion.php";
+
 
 /* =========================
    VALIDAR MÉTODO
@@ -14,15 +24,34 @@ require_once __DIR__ . "/../conexion.php";
 
 validarMetodo("GET");
 
+
 /* =========================
    OBTENER ID USUARIO
 ========================= */
 
-$id = intval(obtenerGet("usuario_id", 0));
+/*
+    Seguridad Fase 3:
+    El perfil solo puede consultar el usuario autenticado.
+    No se permite consultar perfiles ajenos manipulando usuario_id.
+*/
 
-if ($id <= 0) {
+$idSesion = intval($IRONIX_USER_ID);
+$idSolicitado = intval(obtenerGet("usuario_id", 0));
+
+if ($idSesion <= 0) {
+    responderError("Sesión inválida", 401);
+}
+
+if ($idSolicitado <= 0) {
     responderError("ID de usuario no recibido", 422);
 }
+
+if ($idSolicitado !== $idSesion) {
+    responderError("No tienes permisos para consultar este perfil", 403);
+}
+
+$id = $idSesion;
+
 
 /* =========================
    CONSULTAR USUARIO
