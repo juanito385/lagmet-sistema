@@ -3,6 +3,23 @@
 ========================= */
 async function descargarGanttExcel(){
 
+    /*
+        Guardia frontend:
+        bloquea la exportación Excel si el usuario no tiene permiso
+        documentacion.exportar.
+
+        Esto protege incluso si alguien intenta ejecutar:
+        descargarGanttExcel()
+        desde consola.
+    */
+    if (
+        typeof usuarioPuedeAccionIronix === "function" &&
+        !usuarioPuedeAccionIronix("documentacion", "exportar")
+    ) {
+        alert("No tienes permisos para exportar documentación");
+        return;
+    }
+
     try {
 
         if (typeof ExcelJS === "undefined") {

@@ -5,6 +5,23 @@
 
 async function generarInforme(){
 
+    /*
+        Guardia frontend:
+        bloquea la generación del informe PDF si el usuario no tiene
+        permiso documentacion.exportar.
+
+        Esto protege incluso si alguien intenta ejecutar:
+        generarInforme()
+        desde consola.
+    */
+    if (
+        typeof usuarioPuedeAccionIronix === "function" &&
+        !usuarioPuedeAccionIronix("documentacion", "exportar")
+    ) {
+        alert("No tienes permisos para exportar documentación");
+        return;
+    }
+
     try {
 
         if (!window.jspdf || !window.jspdf.jsPDF) {

@@ -28,6 +28,19 @@ async function cargarModalExportarGantt(){
 
 function abrirModalExportarGantt(){
 
+    /*
+        Guardia visual/frontend:
+        aunque el botón siga visible por algún motivo,
+        también bloqueamos la apertura del modal si no tiene permiso.
+    */
+    if (
+        typeof usuarioPuedeAccionIronix === "function" &&
+        !usuarioPuedeAccionIronix("documentacion", "exportar")
+    ) {
+        alert("No tienes permisos para exportar documentación");
+        return;
+    }
+
     if (typeof cerrarPanelAccionesGantt === "function") {
         cerrarPanelAccionesGantt();
     }
@@ -87,6 +100,19 @@ function prepararFechaActualExportacionGantt(){
 }
 
 async function confirmarExportacionGantt(){
+
+    /*
+        Guardia extra:
+        evita exportar si alguien intenta ejecutar esta función
+        manualmente desde consola.
+    */
+    if (
+        typeof usuarioPuedeAccionIronix === "function" &&
+        !usuarioPuedeAccionIronix("documentacion", "exportar")
+    ) {
+        alert("No tienes permisos para exportar documentación");
+        return;
+    }
 
     const tipo = document.querySelector('input[name="tipoExportacionGantt"]:checked')?.value || "completa";
 
