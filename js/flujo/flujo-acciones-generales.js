@@ -1,6 +1,35 @@
 /* =========================
    ACCIONES GENERALES FLUJO
 ========================= */
+
+/* =========================
+   GUARD EDICIÓN FLUJO - FASE 5
+========================= */
+function validarPermisoEditarFlujoIronix(accion = "modificar Flujo Proceso") {
+    /*
+        Guardia frontend:
+        bloquea acciones que modifican el flujo si el usuario
+        solo tiene permiso de visualización.
+    */
+
+    if (typeof usuarioPuedeAccionIronix !== "function") {
+        console.warn("No existe usuarioPuedeAccionIronix para validar edición de flujo");
+
+        alert("No se pudo validar el permiso de edición");
+        return false;
+    }
+
+    if (
+        !usuarioPuedeAccionIronix("flujo-proceso", "editar") &&
+        !usuarioPuedeAccionIronix("flujo-proceso", "guardar")
+    ) {
+        alert(`No tienes permisos para ${accion}`);
+        return false;
+    }
+
+    return true;
+}
+
 function limpiarFlujoProceso() {
     flujoProductoSeleccionado = null;
     flujoCantidadOperacionesVisibles = 1;
@@ -63,6 +92,10 @@ function renderizarEstadoInicialFlujoProceso() {
 }
 
 function restablecerFlujoProceso() {
+    if (!validarPermisoEditarFlujoIronix("restablecer Flujo Proceso")) {
+        return;
+    }
+
     if (!flujoProductoSeleccionado) {
         alert("No hay un flujo cargado para restablecer");
         return;
@@ -106,6 +139,10 @@ function guardarEstadoHistorialFlujoProceso() {
 }
 
 function deshacerUltimoCambioFlujo() {
+    if (!validarPermisoEditarFlujoIronix("deshacer cambios en Flujo Proceso")) {
+        return;
+    }
+
     if (flujoHistorialEstados.length === 0) {
         alert("No hay cambios para deshacer");
         return;

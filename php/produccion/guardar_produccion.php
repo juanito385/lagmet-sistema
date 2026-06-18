@@ -7,11 +7,33 @@
 require_once __DIR__ . "/../auth/guard.php";
 
 /* =========================
-   GUARD BACKEND - FASE 4
+   GUARD BACKEND - FASE 5
 ========================= */
 
 ironixRequerirMetodo("POST");
-ironixRequerirPermiso("produccion", "guardar");
+
+/*
+    Fase 5:
+    Este endpoint crea un nuevo registro de producción.
+
+    Puede ser usado desde módulos visuales como:
+    - Producción
+    - Monitoreo
+    - Productos
+
+    Por eso no debe depender solo de "produccion/guardar".
+    Para crear un registro nuevo, basta con que el usuario tenga permiso
+    de creación/guardado en una de las secciones correspondientes.
+*/
+
+if (
+    !ironixTienePermiso("produccion", "guardar") &&
+    !ironixTienePermiso("produccion", "crear") &&
+    !ironixTienePermiso("monitoreo", "crear") &&
+    !ironixTienePermiso("productos", "crear")
+) {
+    ironixResponderSinPermisos("No tienes permisos para guardar producción");
+}
 
 
 require_once __DIR__ . "/../conexion.php";

@@ -17,18 +17,33 @@ function configurarEventosFlujoProceso() {
     const btnRestablecer = document.getElementById("btnRestablecerFlujo");
 
     /*
-    Permisos visuales para exportación de Flujo Proceso.
+    Permisos visuales para acciones de Flujo Proceso.
     Se agregan por JS porque los botones ya existen en la vista
     y este archivo centraliza sus eventos.
     */
+
+    /* Exportar imagen */
     if (btnExportarImagen) {
         btnExportarImagen.setAttribute("data-permiso-modulo", "flujo-proceso");
         btnExportarImagen.setAttribute("data-permiso-accion", "exportar");
     }
 
+    /* Exportar PDF */
     if (btnExportarPdf) {
         btnExportarPdf.setAttribute("data-permiso-modulo", "flujo-proceso");
         btnExportarPdf.setAttribute("data-permiso-accion", "exportar");
+    }
+
+    /* Deshacer cambios */
+    if (btnDeshacer) {
+        btnDeshacer.setAttribute("data-permiso-modulo", "flujo-proceso");
+        btnDeshacer.setAttribute("data-permiso-accion", "editar");
+    }
+
+    /* Restablecer flujo */
+    if (btnRestablecer) {
+        btnRestablecer.setAttribute("data-permiso-modulo", "flujo-proceso");
+        btnRestablecer.setAttribute("data-permiso-accion", "editar");
     }
 
     const board = document.getElementById("flujoBoard");

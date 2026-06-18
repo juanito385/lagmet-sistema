@@ -29,6 +29,13 @@ function configurarEventosModalFlujo() {
 }
 
 function abrirModalEditarOperacionRealFlujo(indexOperacion) {
+    if (
+        typeof validarPermisoEditarFlujoIronix !== "function" ||
+        !validarPermisoEditarFlujoIronix("editar operaciones reales en Flujo Proceso")
+    ) {
+        return;
+    }
+
     if (!flujoProductoSeleccionado) return;
 
     const operaciones = obtenerOperacionesOrdenadas(flujoProductoSeleccionado);
@@ -59,8 +66,14 @@ function abrirModalEditarOperacionRealFlujo(indexOperacion) {
 }
 
 function abrirModalEditarOperacionTemporalFlujo(indexBase, posicionVacia) {
-    const cardsTemporales = flujoCardsVaciasAbajo[indexBase];
+    if (
+        typeof validarPermisoEditarFlujoIronix !== "function" ||
+        !validarPermisoEditarFlujoIronix("editar operaciones temporales en Flujo Proceso")
+    ) {
+        return;
+    }
 
+    const cardsTemporales = flujoCardsVaciasAbajo[indexBase];
     if (!Array.isArray(cardsTemporales)) return;
 
     const cardTemporal = cardsTemporales[posicionVacia - 1];
@@ -139,6 +152,13 @@ function cargarDatosFormularioModalFlujo(datos) {
 }
 
 function guardarEdicionOperacionFlujo() {
+    if (
+        typeof validarPermisoEditarFlujoIronix !== "function" ||
+        !validarPermisoEditarFlujoIronix("guardar cambios en Flujo Proceso")
+    ) {
+        return;
+    }
+
     if (!flujoProductoSeleccionado || !flujoEdicionActual) return;
 
     const inputNombre = document.getElementById("inputNombreOperacionFlujo");

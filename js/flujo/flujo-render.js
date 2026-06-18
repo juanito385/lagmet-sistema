@@ -2,6 +2,27 @@
    RENDERIZAR FLUJO
    Grilla dinámica tipo Excel con avance progresivo y cards vacías
 ========================= */
+
+/* =========================
+   PERMISO VISUAL EDICIÓN FLUJO
+========================= */
+function usuarioPuedeEditarFlujoVisualIronix() {
+    /*
+        Helper visual:
+        No muestra controles de edición si el usuario solo tiene permiso de ver.
+        No muestra alertas porque esta función se ejecuta durante el render.
+    */
+
+    if (typeof usuarioPuedeAccionIronix !== "function") {
+        return false;
+    }
+
+    return (
+        usuarioPuedeAccionIronix("flujo-proceso", "editar") ||
+        usuarioPuedeAccionIronix("flujo-proceso", "guardar")
+    );
+}
+
 function renderizarFlujoProducto(producto) {
     const board = document.getElementById("flujoBoard");
 
@@ -140,7 +161,9 @@ function crearCardsVaciasAbajo(operacionBase, indexBase, cardsTemporales = [], s
    CREAR TARJETA VACÍA / TEMPORAL
 ========================= */
 function crearTarjetaVaciaOperacion(indexBase, numeroPlaceholder, cardTemporal, tipoConector = "none", mostrarBotones = false) {
-    const accionHTML = mostrarBotones
+    const puedeEditarFlujo = usuarioPuedeEditarFlujoVisualIronix();
+
+    const accionHTML = mostrarBotones && puedeEditarFlujo
         ? `
             <button 
                 class="flujo-grid-plus flujo-plus-right" 
@@ -182,10 +205,11 @@ function crearTarjetaVaciaOperacion(indexBase, numeroPlaceholder, cardTemporal, 
                 ${atributosDinamicos}>
 
                 <div 
-                    class="flujo-grid-card flujo-grid-card-temporal-editada"
-                    data-tipo-card="temporal"
+                    class="flujo-grid-card flujo-grid-card-temporal-editada ${puedeEditarFlujo ? "" : "flujo-card-solo-lectura"}"
+                    ${puedeEditarFlujo ? `data-tipo-card="temporal"` : ""}
                     data-index-base="${indexBase}"
-                    data-posicion-vacia="${numeroPlaceholder}">
+                    data-posicion-vacia="${numeroPlaceholder}"
+                    ${puedeEditarFlujo ? `title="Editar operación temporal"` : ""}>
 
                     <div class="flujo-grid-card-numero">
                         ${numeroVisual}
@@ -212,11 +236,11 @@ function crearTarjetaVaciaOperacion(indexBase, numeroPlaceholder, cardTemporal, 
             ${atributosDinamicos}>
 
             <div 
-                class="flujo-grid-card flujo-grid-card-vacia"
-                data-tipo-card="vacia"
+                class="flujo-grid-card flujo-grid-card-vacia ${puedeEditarFlujo ? "" : "flujo-card-solo-lectura"}"
+                ${puedeEditarFlujo ? `data-tipo-card="vacia"` : ""}
                 data-index-base="${indexBase}"
                 data-posicion-vacia="${numeroPlaceholder}"
-                title="Editar nueva operación">
+                ${puedeEditarFlujo ? `title="Editar nueva operación"` : ""}>
 
                 <div class="flujo-grid-card-vacia-icon">
                     +

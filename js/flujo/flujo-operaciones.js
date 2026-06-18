@@ -103,6 +103,7 @@ function obtenerNombreColumnaOperacion(operacion) {
 function crearTarjetaOperacion(operacion, index, tipoConector = "none", haySiguienteOculto = false) {
     const esCC = esOperacionControlCalidad(operacion);
     const numeroVisual = obtenerNumeroVisualOperacionReal(index);
+    const puedeEditarFlujo = usuarioPuedeEditarFlujoVisualIronix();
 
     /*
         Regla visual:
@@ -126,14 +127,20 @@ function crearTarjetaOperacion(operacion, index, tipoConector = "none", haySigui
                 +
             </button>
 
-            <button 
-                class="flujo-grid-plus flujo-plus-down" 
-                data-origen="operacion"
-                data-direccion="down"
-                data-index-base="${index}"
-                title="Crear operación debajo">
-                +
-            </button>
+            ${
+                puedeEditarFlujo
+                    ? `
+                        <button 
+                            class="flujo-grid-plus flujo-plus-down" 
+                            data-origen="operacion"
+                            data-direccion="down"
+                            data-index-base="${index}"
+                            title="Crear operación debajo">
+                            +
+                        </button>
+                    `
+                    : ""
+            }
         `;
     } else if (tipoConector === "none") {
         accionHTML = `
@@ -154,10 +161,10 @@ function crearTarjetaOperacion(operacion, index, tipoConector = "none", haySigui
                 data-operacion-index="${index}">
 
                 <div 
-                    class="flujo-grid-card flujo-grid-card-vacia flujo-grid-card-real-pendiente"
-                    data-tipo-card="real"
+                    class="flujo-grid-card flujo-grid-card-vacia flujo-grid-card-real-pendiente ${puedeEditarFlujo ? "" : "flujo-card-solo-lectura"}"
+                    ${puedeEditarFlujo ? `data-tipo-card="real"` : ""}
                     data-operacion-index="${index}"
-                    title="Editar operación">
+                    ${puedeEditarFlujo ? `title="Editar operación"` : ""}>
 
                     <div class="flujo-grid-card-vacia-icon">
                         +
@@ -193,10 +200,10 @@ function crearTarjetaOperacion(operacion, index, tipoConector = "none", haySigui
             data-operacion-index="${index}">
 
             <div 
-                class="flujo-grid-card ${esCC ? "flujo-grid-card-cc" : ""}"
-                data-tipo-card="real"
+                class="flujo-grid-card ${esCC ? "flujo-grid-card-cc" : ""} ${puedeEditarFlujo ? "" : "flujo-card-solo-lectura"}"
+                ${puedeEditarFlujo ? `data-tipo-card="real"` : ""}
                 data-operacion-index="${index}"
-                title="Editar operación">
+                ${puedeEditarFlujo ? `title="Editar operación"` : ""}>
 
                 <div class="flujo-grid-card-numero">
                     ${numeroVisual}

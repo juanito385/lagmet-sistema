@@ -147,8 +147,8 @@ try {
 
     $nombre = $usuarioBD["nombre"] ?? "Usuario";
     $correo = $usuarioBD["correo"] ?? "";
-    $rol = $usuarioBD["rol"] ?? "usuario";
-    $estadoUsuario = $usuarioBD["estado"] ?? "activa";
+    $rol = strtolower(trim($usuarioBD["rol"] ?? "usuario"));
+    $estadoUsuario = strtolower(trim($usuarioBD["estado"] ?? "activa"));
 
 
     /* ===============================
@@ -194,6 +194,7 @@ try {
         "productos",
         "documentacion",
         "flujo-proceso",
+        "flujo_proceso",
         "estados",
         "perfil",
         "configuracion"
@@ -258,7 +259,21 @@ try {
         $resultPermisos = $stmtPermisos->get_result();
 
         while ($permiso = $resultPermisos->fetch_assoc()) {
-            $modulo = $permiso["modulo"];
+            $modulo = trim($permiso["modulo"] ?? "");
+
+            if ($modulo === "") {
+                continue;
+            }
+
+            /*
+                Fase 5:
+                Normalizamos alias para evitar diferencias entre frontend y backend.
+                En frontend se usa principalmente "flujo-proceso".
+                En backend también puede aparecer como "flujo_proceso".
+            */
+            if ($modulo === "flujo_proceso") {
+                $modulo = "flujo-proceso";
+            }
 
             if (!in_array($modulo, $modulosSistema, true)) {
                 continue;
@@ -279,7 +294,7 @@ try {
 
 
     /* ===============================
-       PERFIL SIEMPRE DISPONIBLE
+    PERFIL SIEMPRE DISPONIBLE
     ================================ */
 
     $permisos["perfil"]["ver"] = true;
@@ -287,7 +302,48 @@ try {
 
 
     /* ===============================
-       RESPUESTA SESIÓN VÁLIDA
+    SINCRONIZAR ALIAS DE MÓDULOS
+    ================================ */
+
+    /*
+        Mantiene disponibles ambos nombres del módulo Flujo Proceso.
+        Esto evita inconsistencias entre:
+        - permisos guardados en BD
+        - permisos usados por frontend
+        - permisos usados por backend
+    */
+
+    if (isset($permisos["flujo-proceso"])) {
+        $permisos["flujo_proceso"] = $permisos["flujo-proceso"];
+    }
+
+    if (isset($permisos["flujo_proceso"])) {
+        $permisos["flujo-proceso"] = $permisos["flujo_proceso"];
+    }
+
+
+    /* ===============================
+    SINCRONIZAR PERMISOS EN SESIÓN
+    ================================ */
+
+    /*
+    Importante Fase 5:
+    Si el administrador modifica permisos mientras el usuario está logueado,
+    verificar_sesion.php debe actualizar tanto el frontend como la sesión PHP.
+
+        Esto mantiene alineados:
+        - localStorage del navegador
+        - $_SESSION["ironix_usuario_permisos"]
+        - permisos visuales
+        - permisos auxiliares de sesión
+    */
+
+    $_SESSION["ironix_usuario_permisos"] = $permisos;
+    $_SESSION["ironix_ultima_actividad"] = time();
+
+
+    /* ===============================
+    RESPUESTA SESIÓN VÁLIDA
     ================================ */
 
     $conn->close();

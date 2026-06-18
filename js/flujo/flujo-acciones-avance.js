@@ -20,9 +20,16 @@ function cargarFlujoSeleccionado() {
 }
 
 /* =========================
-   AVANZAR FLUJO PROCESO
+   CREAR CARD VACÍA ABAJO
 ========================= */
-function avanzarFlujoProceso(direccion = "right") {
+function crearCardVaciaAbajo(indexBase) {
+    if (
+        typeof validarPermisoEditarFlujoIronix === "function" &&
+        !validarPermisoEditarFlujoIronix("crear operaciones manuales en Flujo Proceso")
+    ) {
+        return;
+    }
+
     if (!flujoProductoSeleccionado) return;
 
     const operaciones = obtenerOperacionesOrdenadas(flujoProductoSeleccionado);

@@ -332,6 +332,186 @@ function usuarioEsNormal() {
 
 
 /* ===============================
+   SINCRONIZAR SESIÓN Y PERMISOS
+================================ */
+
+function obtenerUrlFetchIronix(input) {
+    if (typeof input === "string") {
+        return input;
+    }
+
+    if (input && typeof input.url === "string") {
+        return input.url;
+    }
+
+    return "";
+}
+
+function ironixDebeRevalidarSesionFrontend() {
+    const user = localStorage.getItem("user");
+
+    return !!(
+        user &&
+        window.IRONIX_CERRANDO_SESION !== true
+    );
+}
+
+async function sincronizarSesionIronixSilenciosa() {
+    if (window.IRONIX_SINCRONIZANDO_SESION === true) {
+        return false;
+    }
+
+    if (typeof verificarSesionInicialIronix !== "function") {
+        return false;
+    }
+
+    if (!ironixDebeRevalidarSesionFrontend()) {
+        return false;
+    }
+
+    window.IRONIX_SINCRONIZANDO_SESION = true;
+
+    try {
+        const sesion = await verificarSesionInicialIronix();
+
+        if (sesion.success && sesion.auth && sesion.user) {
+            window.IRONIX_SESION_PHP_VERIFICADA = true;
+            localStorage.setItem("user", JSON.stringify(sesion.user));
+
+            actualizarUsuarioSidebar();
+
+            if (typeof aplicarPermisosNavegacion === "function") {
+                aplicarPermisosNavegacion();
+            }
+
+            return true;
+        }
+
+        forzarCierreSesionLocalIronix(
+            sesion.message || "Tu sesión expiró. Inicia sesión nuevamente."
+        );
+
+        return false;
+
+    } catch (error) {
+        console.error("Error sincronizando sesión IRONIX:", error);
+        return false;
+
+    } finally {
+        window.IRONIX_SINCRONIZANDO_SESION = false;
+    }
+}
+
+
+/* ===============================
+   FORZAR CIERRE LOCAL
+================================ */
+
+function forzarCierreSesionLocalIronix(mensaje = "") {
+    if (window.IRONIX_FORZANDO_CIERRE_LOCAL === true) {
+        return;
+    }
+
+    window.IRONIX_FORZANDO_CIERRE_LOCAL = true;
+
+    window.IRONIX_CERRANDO_SESION = true;
+    window.IRONIX_SESION_PHP_VERIFICADA = false;
+    window.IRONIX_DASHBOARD_INICIAL_CARGADO = false;
+    window.IRONIX_DASHBOARD_INICIAL_CARGANDO = false;
+
+    localStorage.removeItem("user");
+
+    document.body.classList.remove("usuario-logueado");
+
+    const app = document.getElementById("app");
+
+    if (app) {
+        app.style.setProperty("display", "none", "important");
+        app.style.setProperty("visibility", "hidden", "important");
+        app.style.setProperty("opacity", "0", "important");
+        app.style.setProperty("pointer-events", "none", "important");
+    }
+
+    const contenido = document.getElementById("contenido");
+
+    if (contenido) {
+        contenido.innerHTML = "";
+    }
+
+    const sidebarContainer = document.getElementById("sidebarContainer");
+
+    if (sidebarContainer) {
+        sidebarContainer.innerHTML = "";
+    }
+
+    /*
+        Fase 5:
+        Limpiar estado visual de navegación para evitar que quede
+        una sección antigua marcada después de sesión expirada,
+        usuario bloqueado o logout.
+    */
+    window.IRONIX_SECCION_ACTUAL = null;
+
+    document.querySelectorAll(".menu button.active")
+        .forEach(boton => boton.classList.remove("active"));
+
+    document.querySelectorAll(".section.active")
+        .forEach(seccion => seccion.classList.remove("active"));
+
+    const loaderSistema = document.getElementById("ironixLoaderSistema");
+
+    if (loaderSistema) {
+        loaderSistema.style.setProperty("display", "none", "important");
+        loaderSistema.style.setProperty("visibility", "hidden", "important");
+        loaderSistema.style.setProperty("opacity", "0", "important");
+        loaderSistema.style.setProperty("pointer-events", "none", "important");
+    }
+
+    if (typeof mostrarAuthIronix === "function") {
+        mostrarAuthIronix("login");
+
+    } else {
+        const authContainer = document.getElementById("authContainer");
+        const login = document.getElementById("login");
+        const recuperar = document.getElementById("recuperar");
+
+        if (authContainer) {
+            authContainer.style.setProperty("display", "block", "important");
+            authContainer.style.setProperty("visibility", "visible", "important");
+            authContainer.style.setProperty("opacity", "1", "important");
+            authContainer.style.setProperty("pointer-events", "auto", "important");
+        }
+
+        if (login) {
+            login.style.setProperty("display", "flex", "important");
+            login.style.setProperty("visibility", "visible", "important");
+            login.style.setProperty("opacity", "1", "important");
+            login.style.setProperty("pointer-events", "auto", "important");
+        }
+
+        if (recuperar) {
+            recuperar.style.setProperty("display", "none", "important");
+            recuperar.style.setProperty("visibility", "hidden", "important");
+            recuperar.style.setProperty("opacity", "0", "important");
+            recuperar.style.setProperty("pointer-events", "none", "important");
+        }
+    }
+
+    if (mensaje) {
+        const error = document.getElementById("error");
+
+        if (error) {
+            error.textContent = mensaje;
+        }
+    }
+
+    setTimeout(function () {
+        window.IRONIX_FORZANDO_CIERRE_LOCAL = false;
+    }, 300);
+}
+
+
+/* ===============================
    LOGOUT
 ================================ */
 
@@ -342,18 +522,11 @@ async function logout() {
 async function cerrarSesionIronix() {
     console.log("Cerrando sesión IRONIX...");
 
-    /*
-        Evita que el loader o iniciarApp vuelvan a abrir el sistema
-        mientras se está cerrando la sesión.
-    */
     window.IRONIX_CERRANDO_SESION = true;
     window.IRONIX_SESION_PHP_VERIFICADA = false;
     window.IRONIX_DASHBOARD_INICIAL_CARGADO = false;
     window.IRONIX_DASHBOARD_INICIAL_CARGANDO = false;
 
-    /*
-        Limpiar sesión local inmediatamente.
-    */
     localStorage.removeItem("user");
     document.body.classList.remove("usuario-logueado");
 
@@ -364,65 +537,140 @@ async function cerrarSesionIronix() {
             cache: "no-store"
         });
 
-        const datos = await respuesta.json();
+        let datos = null;
+
+        try {
+            datos = await respuesta.json();
+        } catch (errorJson) {
+            datos = {
+                success: respuesta.ok,
+                message: "Respuesta logout no JSON"
+            };
+        }
+
         console.log("Respuesta logout.php:", datos);
 
     } catch (error) {
         console.error("Error cerrando sesión en servidor:", error);
+
+    } finally {
+        forzarCierreSesionLocalIronix("");
+        console.log("Sesión IRONIX cerrada correctamente");
+    }
+}
+
+
+/* ===============================
+   INTERCEPTOR GLOBAL FETCH AUTH
+================================ */
+
+(function instalarInterceptorFetchAuthIronix() {
+    if (window.IRONIX_FETCH_AUTH_INTERCEPTOR_INSTALADO === true) {
+        return;
     }
 
-    /*
-        Asegurar limpieza local.
-    */
-    localStorage.removeItem("user");
-
-    /*
-        Ocultar aplicación.
-    */
-    const app = document.getElementById("app");
-    if (app) {
-        app.style.setProperty("display", "none", "important");
-        app.style.setProperty("visibility", "hidden", "important");
-        app.style.setProperty("opacity", "0", "important");
+    if (typeof window.fetch !== "function") {
+        return;
     }
 
-    /*
-        Limpiar contenido dinámico para que no quede Dashboard visible.
-    */
-    const contenido = document.getElementById("contenido");
-    if (contenido) {
-        contenido.innerHTML = "";
-    }
+    const fetchOriginalIronix = window.fetch.bind(window);
 
-    const sidebarContainer = document.getElementById("sidebarContainer");
-    if (sidebarContainer) {
-        sidebarContainer.innerHTML = "";
-    }
+    window.IRONIX_FETCH_AUTH_INTERCEPTOR_INSTALADO = true;
+    window.IRONIX_FETCH_ORIGINAL = fetchOriginalIronix;
 
-    /*
-        Ocultar loader si quedó activo.
-    */
-    const loaderSistema = document.getElementById("ironixLoaderSistema");
-    if (loaderSistema) {
-        loaderSistema.style.setProperty("display", "none", "important");
-        loaderSistema.style.setProperty("visibility", "hidden", "important");
-        loaderSistema.style.setProperty("opacity", "0", "important");
-    }
+    window.fetch = async function (input, init = {}) {
+        const respuesta = await fetchOriginalIronix(input, init);
 
-    /*
-        Mostrar login.
-    */
-    if (typeof mostrarAuthIronix === "function") {
-        mostrarAuthIronix();
-    } else {
-        const authContainer = document.getElementById("authContainer");
+        try {
+            const url = obtenerUrlFetchIronix(input);
 
-        if (authContainer) {
-            authContainer.style.setProperty("display", "block", "important");
-            authContainer.style.setProperty("visibility", "visible", "important");
-            authContainer.style.setProperty("opacity", "1", "important");
+            const esEndpointPhpIronix = url.includes("php/");
+            const esEndpointAuthIronix = url.includes("php/auth/");
+
+            if (esEndpointPhpIronix && !esEndpointAuthIronix) {
+
+                /*
+                    401:
+                    Sesión expirada, usuario bloqueado, usuario inactivo
+                    o sesión inválida en backend.
+                */
+                if (respuesta.status === 401) {
+                    forzarCierreSesionLocalIronix(
+                        "Tu sesión expiró o tu cuenta ya no está activa. Inicia sesión nuevamente."
+                    );
+                }
+
+                /*
+                    403:
+                    El usuario sigue autenticado, pero sus permisos cambiaron
+                    o no tiene permiso para esa acción.
+                    No se cierra sesión, solo se refrescan permisos.
+                */
+                if (respuesta.status === 403) {
+                    sincronizarSesionIronixSilenciosa();
+                }
+            }
+
+        } catch (error) {
+            console.warn("No se pudo evaluar respuesta auth IRONIX:", error);
         }
+
+        return respuesta;
+    };
+})();
+
+
+/* ===============================
+   REVALIDAR AL VOLVER A LA APP
+================================ */
+
+function solicitarSincronizacionSesionIronix() {
+    if (!ironixDebeRevalidarSesionFrontend()) {
+        return;
     }
 
-    console.log("Sesión IRONIX cerrada correctamente");
+    const ahora = Date.now();
+    const ultimaRevalidacion = window.IRONIX_ULTIMA_REVALIDACION_FRONTEND || 0;
+
+    /*
+        Evita múltiples verificaciones seguidas por focus + visibilitychange.
+    */
+    if (ahora - ultimaRevalidacion < 10000) {
+        return;
+    }
+
+    window.IRONIX_ULTIMA_REVALIDACION_FRONTEND = ahora;
+
+    sincronizarSesionIronixSilenciosa();
+}
+
+(function configurarRevalidacionSesionPorFocoIronix() {
+    if (window.IRONIX_REVALIDACION_FOCO_INSTALADA === true) {
+        return;
+    }
+
+    window.IRONIX_REVALIDACION_FOCO_INSTALADA = true;
+
+    window.addEventListener("focus", function () {
+        solicitarSincronizacionSesionIronix();
+    });
+
+    document.addEventListener("visibilitychange", function () {
+        if (document.visibilityState === "visible") {
+            solicitarSincronizacionSesionIronix();
+        }
+    });
+})();
+
+
+/* ===============================
+   UTILIDAD - VALIDAR VISIBILIDAD
+================================ */
+
+function estaVisible(elemento) {
+    return !!(
+        elemento.offsetWidth ||
+        elemento.offsetHeight ||
+        elemento.getClientRects().length
+    );
 }

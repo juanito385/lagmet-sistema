@@ -6,12 +6,41 @@
 
 require_once __DIR__ . "/../auth/guard.php";
 
+
 /* =========================
-   GUARD BACKEND - FASE 4
+   GUARD BACKEND - FASE 5
 ========================= */
 
 ironixRequerirMetodo("GET");
-ironixRequerirPermiso("produccion", "ver");
+
+/*
+    Fase 5:
+    Este endpoint entrega datos base de producción.
+
+    Importante:
+    No solo lo usa el módulo Producción.
+    También lo usan:
+    - Productos
+    - Monitoreo
+    - Documentación / Carta Gantt
+    - Flujo Proceso
+
+    Por eso, para consultar estos datos, basta con que el usuario
+    tenga permiso de visualización en cualquiera de esas secciones.
+
+    Las acciones como editar, eliminar o exportar se validan aparte
+    en sus endpoints correspondientes.
+*/
+
+if (
+    !ironixTienePermiso("produccion", "ver") &&
+    !ironixTienePermiso("productos", "ver") &&
+    !ironixTienePermiso("monitoreo", "ver") &&
+    !ironixTienePermiso("documentacion", "ver") &&
+    !ironixTienePermiso("flujo-proceso", "ver")
+) {
+    ironixResponderSinPermisos("No tienes permisos para ver los datos de producción");
+}
 
 
 require_once __DIR__ . "/../conexion.php";

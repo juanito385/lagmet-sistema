@@ -9,14 +9,16 @@
 
     Funciones principales:
     - Valida sesión activa.
-    - Expone datos del usuario autenticado.
+    - Revalida usuario contra la base de datos en cada request.
+    - Bloquea usuarios eliminados, bloqueados o inactivos después del login.
+    - Sincroniza sesión con datos actuales de BD.
+    - Carga permisos reales desde usuario_permisos.
     - Permite validar permisos por sección y acción.
     - Entrega respuestas JSON estándar desde session_config.php.
-    - Usa una matriz centralizada de permisos backend.
 
     Importante:
     - session_config.php maneja sesión, headers, método y respuestas JSON.
-    - guard.php maneja permisos backend por rol.
+    - guard.php maneja validación backend por sesión, estado y permisos.
 */
 
 require_once __DIR__ . "/session_config.php";
@@ -37,180 +39,101 @@ $IRONIX_USUARIO_SESION = ironixRequerirSesion();
 
 
 /* =========================
-   USUARIO AUTENTICADO
+   DATOS BASE DESDE SESIÓN
 ========================= */
 
 $IRONIX_USER_ID = intval($IRONIX_USUARIO_SESION["id"] ?? 0);
-$IRONIX_USER_NAME = $IRONIX_USUARIO_SESION["nombre"] ?? "";
-$IRONIX_USER_EMAIL = $IRONIX_USUARIO_SESION["correo"] ?? "";
-$IRONIX_USER_ROLE = $IRONIX_USUARIO_SESION["rol"] ?? "usuario";
-$IRONIX_USER_STATE = $IRONIX_USUARIO_SESION["estado"] ?? "activa";
 
 if ($IRONIX_USER_ID <= 0) {
+    ironixCerrarSesion();
     ironixResponderNoAutorizado("Sesión inválida");
 }
 
 
 /* =========================
-   MATRIZ DE PERMISOS BACKEND
+   CONEXIÓN BD
 ========================= */
 
-$IRONIX_PERMISOS_BACKEND = [
+/*
+    No se debe cerrar $conn dentro de este archivo.
 
-    "admin" => [
+    Motivo:
+    Muchos endpoints cargan guard.php y luego usan la misma conexión
+    para sus propias consultas.
+*/
 
-        "dashboard" => [
-            "ver"
-        ],
+require_once __DIR__ . "/../conexion.php";
 
-        "productos" => [
-            "ver",
-            "crear",
-            "editar",
-            "eliminar",
-            "exportar"
-        ],
+$conn->set_charset("utf8mb4");
 
-        "documentacion" => [
-            "ver",
-            "exportar",
-            "exportar_imagen",
-            "exportar_excel",
-            "exportar_pdf",
-            "generar_informe_pdf"
-        ],
 
-        "configuracion" => [
-            "ver",
-            "crear",
-            "editar",
-            "eliminar",
-            "crear_usuario",
-            "editar_usuario",
-            "eliminar_usuario",
-            "permisos",
-            "seguridad"
-        ],
+/* =========================
+   VARIABLES GLOBALES AUTH
+========================= */
 
-        "usuarios" => [
-            "ver",
-            "crear",
-            "editar",
-            "eliminar",
-            "permisos",
-            "seguridad",
-            "restablecer_password"
-        ],
+$IRONIX_USER_NAME = "";
+$IRONIX_USER_EMAIL = "";
+$IRONIX_USER_ROLE = "usuario";
+$IRONIX_USER_STATE = "activa";
+$IRONIX_PERMISOS_USUARIO = [];
 
-        "monitoreo" => [
-            "ver",
-            "crear",
-            "editar",
-            "guardar",
-            "eliminar",
-            "exportar"
-        ],
 
-        "produccion" => [
-            "ver",
-            "crear",
-            "editar",
-            "guardar",
-            "eliminar"
-        ],
+/* =========================
+   MÓDULOS DEL SISTEMA
+========================= */
 
-        /*
-            Nombre usado por backend.
-        */
-        "flujo_proceso" => [
-            "ver",
-            "crear",
-            "editar",
-            "eliminar",
-            "exportar",
-            "exportar_imagen",
-            "exportar_pdf"
-        ],
-
-        /*
-            Alias compatible con nombre usado en frontend / BD.
-        */
-        "flujo-proceso" => [
-            "ver",
-            "crear",
-            "editar",
-            "eliminar",
-            "exportar",
-            "exportar_imagen",
-            "exportar_pdf"
-        ],
-
-        "estados" => [
-            "ver",
-            "crear",
-            "editar",
-            "eliminar",
-            "exportar"
-        ],
-
-        "maquinas" => [
-            "ver",
-            "editar",
-            "actualizar_estado"
-        ],
-
-        "perfil" => [
-            "ver",
-            "editar",
-            "cambiar_password"
-        ]
-    ],
-
-    "usuario" => [
-
-        "dashboard" => [
-            "ver"
-        ],
-
-        "productos" => [
-            "ver"
-        ],
-
-        "documentacion" => [
-            "ver"
-        ],
-
-        "monitoreo" => [
-            "ver"
-        ],
-
-        "produccion" => [
-            "ver"
-        ],
-
-        "flujo_proceso" => [
-            "ver"
-        ],
-
-        "flujo-proceso" => [
-            "ver"
-        ],
-
-        "estados" => [
-            "ver"
-        ],
-
-        "maquinas" => [
-            "ver"
-        ],
-
-        "perfil" => [
-            "ver",
-            "editar",
-            "cambiar_password"
-        ]
-    ]
+$IRONIX_MODULOS_SISTEMA = [
+    "dashboard",
+    "monitoreo",
+    "productos",
+    "documentacion",
+    "flujo_proceso",
+    "flujo-proceso",
+    "estados",
+    "perfil",
+    "configuracion",
+    "usuarios",
+    "produccion",
+    "maquinas"
 ];
+
+
+/* =========================
+   ACCIONES BASE DEL SISTEMA
+========================= */
+
+$IRONIX_ACCIONES_BASE = [
+    "ver",
+    "crear",
+    "editar",
+    "eliminar",
+    "exportar"
+];
+
+
+/* =========================
+   CREAR PERMISOS BASE
+========================= */
+
+if (!function_exists("ironixCrearPermisosBase")) {
+    function ironixCrearPermisosBase()
+    {
+        global $IRONIX_MODULOS_SISTEMA;
+        global $IRONIX_ACCIONES_BASE;
+
+        $permisos = [];
+
+        foreach ($IRONIX_MODULOS_SISTEMA as $modulo) {
+            $permisos[$modulo] = [];
+
+            foreach ($IRONIX_ACCIONES_BASE as $accion) {
+                $permisos[$modulo][$accion] = false;
+            }
+        }
+
+        return $permisos;
+    }
+}
 
 
 /* =========================
@@ -232,32 +155,307 @@ if (!function_exists("ironixNormalizarSeccionPermiso")) {
 
 
 /* =========================
+   NORMALIZAR ACCIÓN
+========================= */
+
+if (!function_exists("ironixNormalizarAccionesPermiso")) {
+    function ironixNormalizarAccionesPermiso($accion)
+    {
+        $accion = trim((string) $accion);
+
+        /*
+            Algunas acciones backend son más específicas que las columnas
+            reales de usuario_permisos.
+
+            Ejemplo:
+            exportar_pdf, exportar_excel y exportar_imagen dependen
+            del permiso base "exportar".
+        */
+
+        $alias = [
+            "guardar" => ["crear", "editar"],
+            "actualizar_estado" => ["editar"],
+
+            "crear_usuario" => ["crear"],
+            "editar_usuario" => ["editar"],
+            "eliminar_usuario" => ["eliminar"],
+            "restablecer_password" => ["editar"],
+
+            "permisos" => ["editar"],
+            "seguridad" => ["editar"],
+
+            "cambiar_password" => ["editar"],
+
+            "exportar_imagen" => ["exportar"],
+            "exportar_excel" => ["exportar"],
+            "exportar_pdf" => ["exportar"],
+            "generar_informe_pdf" => ["exportar"]
+        ];
+
+        if (isset($alias[$accion])) {
+            return $alias[$accion];
+        }
+
+        return [$accion];
+    }
+}
+
+
+/* =========================
+   SINCRONIZAR ALIAS FLUJO
+========================= */
+
+if (!function_exists("ironixSincronizarAliasFlujoProceso")) {
+    function ironixSincronizarAliasFlujoProceso(&$permisos)
+    {
+        if (isset($permisos["flujo_proceso"])) {
+            $permisos["flujo-proceso"] = $permisos["flujo_proceso"];
+        }
+
+        if (isset($permisos["flujo-proceso"])) {
+            $permisos["flujo_proceso"] = $permisos["flujo-proceso"];
+        }
+    }
+}
+
+
+/* =========================
+   ADMIN - PERMISOS TOTALES
+========================= */
+
+if (!function_exists("ironixCrearPermisosAdmin")) {
+    function ironixCrearPermisosAdmin()
+    {
+        global $IRONIX_ACCIONES_BASE;
+
+        $permisos = ironixCrearPermisosBase();
+
+        foreach ($permisos as $modulo => $acciones) {
+            foreach ($IRONIX_ACCIONES_BASE as $accion) {
+                $permisos[$modulo][$accion] = true;
+            }
+        }
+
+        ironixSincronizarAliasFlujoProceso($permisos);
+
+        return $permisos;
+    }
+}
+
+
+/* =========================
+   CARGAR PERMISOS DESDE BD
+========================= */
+
+if (!function_exists("ironixCargarPermisosUsuarioDesdeBD")) {
+    function ironixCargarPermisosUsuarioDesdeBD($usuarioId)
+    {
+        global $conn;
+
+        $permisos = ironixCrearPermisosBase();
+
+        $stmtPermisos = $conn->prepare("
+            SELECT
+                modulo,
+                puede_ver,
+                puede_crear,
+                puede_editar,
+                puede_eliminar,
+                puede_exportar
+            FROM usuario_permisos
+            WHERE usuario_id = ?
+        ");
+
+        if (!$stmtPermisos) {
+            throw new Exception("Error al preparar consulta de permisos: " . $conn->error);
+        }
+
+        $stmtPermisos->bind_param("i", $usuarioId);
+
+        if (!$stmtPermisos->execute()) {
+            throw new Exception("Error al consultar permisos: " . $stmtPermisos->error);
+        }
+
+        $resultPermisos = $stmtPermisos->get_result();
+
+        while ($permiso = $resultPermisos->fetch_assoc()) {
+            $modulo = ironixNormalizarSeccionPermiso($permiso["modulo"] ?? "");
+
+            if ($modulo === "" || !isset($permisos[$modulo])) {
+                continue;
+            }
+
+            $permisos[$modulo] = [
+                "ver" => intval($permiso["puede_ver"] ?? 0) === 1,
+                "crear" => intval($permiso["puede_crear"] ?? 0) === 1,
+                "editar" => intval($permiso["puede_editar"] ?? 0) === 1,
+                "eliminar" => intval($permiso["puede_eliminar"] ?? 0) === 1,
+                "exportar" => intval($permiso["puede_exportar"] ?? 0) === 1
+            ];
+        }
+
+        $stmtPermisos->close();
+
+        /*
+            Perfil siempre debe estar disponible para el usuario autenticado.
+        */
+        $permisos["perfil"]["ver"] = true;
+        $permisos["perfil"]["editar"] = true;
+
+        ironixSincronizarAliasFlujoProceso($permisos);
+
+        return $permisos;
+    }
+}
+
+
+/* =========================
+   REVALIDAR USUARIO CONTRA BD
+========================= */
+
+try {
+
+    $stmtUsuario = $conn->prepare("
+        SELECT
+            id,
+            nombre,
+            correo,
+            rol,
+            estado
+        FROM usuarios
+        WHERE id = ?
+        LIMIT 1
+    ");
+
+    if (!$stmtUsuario) {
+        throw new Exception("Error al preparar validación de usuario: " . $conn->error);
+    }
+
+    $stmtUsuario->bind_param("i", $IRONIX_USER_ID);
+
+    if (!$stmtUsuario->execute()) {
+        throw new Exception("Error al validar usuario: " . $stmtUsuario->error);
+    }
+
+    $resultUsuario = $stmtUsuario->get_result();
+
+    if (!$resultUsuario || $resultUsuario->num_rows === 0) {
+        $stmtUsuario->close();
+
+        ironixCerrarSesion();
+
+        ironixResponderNoAutorizado("Usuario no encontrado o sesión inválida");
+    }
+
+    $usuarioBD = $resultUsuario->fetch_assoc();
+
+    $stmtUsuario->close();
+
+    $IRONIX_USER_NAME = $usuarioBD["nombre"] ?? "Usuario";
+    $IRONIX_USER_EMAIL = $usuarioBD["correo"] ?? "";
+    $IRONIX_USER_ROLE = strtolower(trim($usuarioBD["rol"] ?? "usuario"));
+    $IRONIX_USER_STATE = strtolower(trim($usuarioBD["estado"] ?? "activa"));
+
+    /*
+        Si el administrador bloquea o inactiva al usuario después del login,
+        el próximo endpoint protegido lo detectará aquí.
+    */
+    if ($IRONIX_USER_STATE !== "activa") {
+        ironixCerrarSesion();
+
+        ironixResponderNoAutorizado("Tu cuenta ya no está activa. Contacta al administrador.");
+    }
+
+    /*
+        Sincronizar sesión con BD.
+        Esto cubre cambios de nombre, correo, rol o estado mientras está logueado.
+    */
+    $_SESSION["ironix_usuario_nombre"] = $IRONIX_USER_NAME;
+    $_SESSION["ironix_usuario_correo"] = $IRONIX_USER_EMAIL;
+    $_SESSION["ironix_usuario_rol"] = $IRONIX_USER_ROLE;
+    $_SESSION["ironix_usuario_estado"] = $IRONIX_USER_STATE;
+
+    /*
+        Cargar permisos reales.
+        Admin conserva acceso total.
+        Usuarios normales dependen de usuario_permisos.
+    */
+    if ($IRONIX_USER_ROLE === "admin") {
+        $IRONIX_PERMISOS_USUARIO = ironixCrearPermisosAdmin();
+    } else {
+        $IRONIX_PERMISOS_USUARIO = ironixCargarPermisosUsuarioDesdeBD($IRONIX_USER_ID);
+    }
+
+    $_SESSION["ironix_usuario_permisos"] = $IRONIX_PERMISOS_USUARIO;
+
+} catch (Throwable $e) {
+
+    if (isset($stmtUsuario) && $stmtUsuario instanceof mysqli_stmt) {
+        $stmtUsuario->close();
+    }
+
+    ironixResponderJson([
+        "success" => false,
+        "auth" => false,
+        "message" => "Error al validar guard de sesión",
+        "error" => $e->getMessage()
+    ], 500);
+}
+
+
+/* =========================
    VALIDAR PERMISO
 ========================= */
 
 if (!function_exists("ironixTienePermiso")) {
     function ironixTienePermiso($seccion, $accion)
     {
-        global $IRONIX_PERMISOS_BACKEND;
         global $IRONIX_USER_ROLE;
+        global $IRONIX_PERMISOS_USUARIO;
 
-        $rol = $IRONIX_USER_ROLE ?? "usuario";
         $seccion = ironixNormalizarSeccionPermiso($seccion);
-        $accion = trim((string) $accion);
+        $accionesPosibles = ironixNormalizarAccionesPermiso($accion);
 
-        if ($rol === "" || $seccion === "" || $accion === "") {
+        if ($seccion === "" || empty($accionesPosibles)) {
             return false;
         }
 
-        if (!isset($IRONIX_PERMISOS_BACKEND[$rol])) {
+        /*
+            Admin:
+            Acceso total a acciones reconocidas dentro de módulos del sistema.
+        */
+        if ($IRONIX_USER_ROLE === "admin") {
+            if (!isset($IRONIX_PERMISOS_USUARIO[$seccion])) {
+                return false;
+            }
+
+            foreach ($accionesPosibles as $accionBase) {
+                if (isset($IRONIX_PERMISOS_USUARIO[$seccion][$accionBase])) {
+                    return true;
+                }
+            }
+
             return false;
         }
 
-        if (!isset($IRONIX_PERMISOS_BACKEND[$rol][$seccion])) {
+        /*
+            Usuario:
+            Se valida contra permisos reales cargados desde usuario_permisos.
+        */
+        if (!isset($IRONIX_PERMISOS_USUARIO[$seccion])) {
             return false;
         }
 
-        return in_array($accion, $IRONIX_PERMISOS_BACKEND[$rol][$seccion], true);
+        foreach ($accionesPosibles as $accionBase) {
+            if (
+                isset($IRONIX_PERMISOS_USUARIO[$seccion][$accionBase]) &&
+                $IRONIX_PERMISOS_USUARIO[$seccion][$accionBase] === true
+            ) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }
 
@@ -290,13 +488,15 @@ if (!function_exists("ironixObtenerUsuarioAutenticado")) {
         global $IRONIX_USER_EMAIL;
         global $IRONIX_USER_ROLE;
         global $IRONIX_USER_STATE;
+        global $IRONIX_PERMISOS_USUARIO;
 
         return [
             "id" => intval($IRONIX_USER_ID),
             "nombre" => $IRONIX_USER_NAME,
             "correo" => $IRONIX_USER_EMAIL,
             "rol" => $IRONIX_USER_ROLE,
-            "estado" => $IRONIX_USER_STATE
+            "estado" => $IRONIX_USER_STATE,
+            "permisos" => $IRONIX_PERMISOS_USUARIO
         ];
     }
 }

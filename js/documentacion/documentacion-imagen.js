@@ -3,6 +3,19 @@
 ========================= */
 async function descargarGanttImagen() {
 
+    /*
+        Guardia frontend Fase 5:
+        bloquea la exportación directa de imagen si alguien intenta ejecutar
+        descargarGanttImagen() desde consola.
+    */
+    if (
+        typeof usuarioPuedeAccionIronix === "function" &&
+        !usuarioPuedeAccionIronix("documentacion", "exportar")
+    ) {
+        alert("No tienes permisos para exportar documentación");
+        return;
+    }
+
     const panelOriginal = document.querySelector(".gantt-panel");
     const ganttOriginal = document.getElementById("gantt");
 
@@ -267,6 +280,19 @@ function generarSabadosHabilitadosMesExportacionGantt(registros, anio, mes, tota
 }
 
 async function exportarGanttPorMes(mes, anio){
+
+    /*
+        Guardia frontend Fase 5:
+        bloquea la exportación mensual directa si alguien intenta ejecutar
+        exportarGanttPorMes(mes, anio) desde consola.
+    */
+    if (
+        typeof usuarioPuedeAccionIronix === "function" &&
+        !usuarioPuedeAccionIronix("documentacion", "exportar")
+    ) {
+        alert("No tienes permisos para exportar documentación");
+        return;
+    }
 
     try {
 
@@ -825,6 +851,19 @@ async function exportarGanttPorMes(mes, anio){
    No descarga la imagen, solo retorna base64
 ========================= */
 async function capturarGanttImagenParaPDF() {
+
+    /*
+        Guardia frontend Fase 5:
+        bloquea la captura directa del Gantt para PDF si alguien intenta
+        ejecutar capturarGanttImagenParaPDF() desde consola.
+    */
+    if (
+        typeof usuarioPuedeAccionIronix === "function" &&
+        !usuarioPuedeAccionIronix("documentacion", "exportar")
+    ) {
+        console.warn("No tienes permisos para capturar/exportar documentación");
+        return null;
+    }
 
     const panelOriginal = document.querySelector(".gantt-panel");
     const ganttOriginal = document.getElementById("gantt");

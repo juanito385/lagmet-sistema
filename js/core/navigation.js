@@ -40,8 +40,44 @@ const IRONIX_SECCIONES_SIEMPRE_PERMITIDAS = [
 ];
 
 /* =========================
+   SECCIÓN ACTUAL
+========================= */
+
+window.IRONIX_SECCION_ACTUAL = window.IRONIX_SECCION_ACTUAL || null;
+
+/* =========================
+   SECCIONES VÁLIDAS DEL SISTEMA
+========================= */
+
+const IRONIX_SECCIONES_VALIDAS = [
+    "dashboard",
+    "monitoreo",
+    "productos",
+    "documentacion",
+    "flujo-proceso",
+    "estados",
+    "configuracion",
+    "perfil"
+];
+
+/* =========================
    NAVEGACIÓN CON PERMISOS
 ========================= */
+
+
+/* =========================
+   VALIDAR NOMBRE DE SECCIÓN
+========================= */
+
+function ironixSeccionEsValida(seccion) {
+    seccion = String(seccion || "").trim();
+
+    if (seccion === "") {
+        return false;
+    }
+
+    return IRONIX_SECCIONES_VALIDAS.includes(seccion);
+}
 
 /* =========================
    OBTENER USUARIO ACTUAL
@@ -90,6 +126,40 @@ function obtenerPermisoSeccionIronix(user, seccion) {
 }
 
 /* =========================
+   NORMALIZAR ACCIONES
+========================= */
+
+function normalizarAccionesPermisoFrontendIronix(accion) {
+    accion = String(accion || "").trim();
+
+    const alias = {
+        "guardar": ["crear", "editar"],
+        "actualizar_estado": ["editar"],
+
+        "crear_usuario": ["crear"],
+        "editar_usuario": ["editar"],
+        "eliminar_usuario": ["eliminar"],
+        "restablecer_password": ["editar"],
+
+        "permisos": ["editar"],
+        "seguridad": ["editar"],
+
+        "cambiar_password": ["editar"],
+
+        "exportar_imagen": ["exportar"],
+        "exportar_excel": ["exportar"],
+        "exportar_pdf": ["exportar"],
+        "generar_informe_pdf": ["exportar"]
+    };
+
+    if (Object.prototype.hasOwnProperty.call(alias, accion)) {
+        return alias[accion];
+    }
+
+    return [accion];
+}
+
+/* =========================
    VALIDAR ACCIÓN POR SECCIÓN
 ========================= */
 function usuarioPuedeAccionIronix(seccion, accion) {
@@ -100,7 +170,8 @@ function usuarioPuedeAccionIronix(seccion, accion) {
     }
 
     /*
-        El admin siempre puede ejecutar acciones.
+        El admin siempre puede ejecutar acciones visuales.
+        La seguridad real sigue estando en PHP.
     */
     if (user.rol === "admin") {
         return true;
@@ -112,21 +183,25 @@ function usuarioPuedeAccionIronix(seccion, accion) {
         return false;
     }
 
-    /*
-        Acciones soportadas:
-        ver, crear, editar, eliminar, exportar
-    */
-    if (!Object.prototype.hasOwnProperty.call(permiso, accion)) {
-        console.warn("Acción de permiso no reconocida:", {
-            seccion,
-            accion,
-            permiso
-        });
+    const accionesPosibles = normalizarAccionesPermisoFrontendIronix(accion);
 
-        return false;
+    for (const accionBase of accionesPosibles) {
+        if (
+            Object.prototype.hasOwnProperty.call(permiso, accionBase) &&
+            permiso[accionBase] === true
+        ) {
+            return true;
+        }
     }
 
-    return permiso[accion] === true;
+    console.warn("Acción de permiso no permitida o no reconocida:", {
+        seccion,
+        accion,
+        accionesPosibles,
+        permiso
+    });
+
+    return false;
 }
 
 /* =========================
@@ -212,7 +287,85 @@ function aplicarPermisosNavegacion() {
         }
     });
 
-    console.log("Permisos de navegación aplicados correctamente:", user.permisos || {});
+        /*
+        Fase 5:
+        Si los permisos cambian mientras el usuario está logueado,
+        no basta con ocultar botones del sidebar. También debemos:
+        - verificar si la sección actual sigue permitida
+        - reaplicar permisos en botones internos de la sección cargada
+        */
+        validarSeccionActualPermitidaIronix();
+
+        if (typeof aplicarPermisosAccionesIronix === "function") {
+            aplicarPermisosAccionesIronix();
+        }
+
+        console.log("Permisos de navegación aplicados correctamente:", user.permisos || {});
+}
+
+/* =========================
+   VALIDAR SECCIÓN ACTUAL
+========================= */
+
+function obtenerPrimeraSeccionPermitidaIronix() {
+    const prioridad = [
+        "dashboard",
+        "monitoreo",
+        "productos",
+        "documentacion",
+        "flujo-proceso",
+        "estados",
+        "perfil"
+    ];
+
+    for (const seccion of prioridad) {
+        if (usuarioPuedeVerSeccion(seccion)) {
+            return seccion;
+        }
+    }
+
+    return "perfil";
+}
+
+
+function validarSeccionActualPermitidaIronix() {
+    if (window.IRONIX_VALIDANDO_SECCION_ACTUAL === true) {
+        return;
+    }
+
+    const seccionActual = window.IRONIX_SECCION_ACTUAL;
+
+    if (!seccionActual) {
+        return;
+    }
+
+    if (usuarioPuedeVerSeccion(seccionActual)) {
+        return;
+    }
+
+    window.IRONIX_VALIDANDO_SECCION_ACTUAL = true;
+
+    try {
+        console.warn("Sección actual ya no permitida. Redirigiendo:", seccionActual);
+
+        const nuevaSeccion = obtenerPrimeraSeccionPermitidaIronix();
+
+        if (
+            nuevaSeccion &&
+            nuevaSeccion !== seccionActual &&
+            typeof showSection === "function"
+        ) {
+            showSection(nuevaSeccion);
+            return;
+        }
+
+        mostrarAccesoDenegado(seccionActual);
+
+    } finally {
+        setTimeout(() => {
+            window.IRONIX_VALIDANDO_SECCION_ACTUAL = false;
+        }, 300);
+    }
 }
 
 /* =========================
@@ -250,6 +403,8 @@ function mostrarAccesoDenegado(seccion) {
 ========================= */
 async function showSection(seccion) {
 
+    seccion = String(seccion || "").trim();
+
     console.log("Cargando sección:", seccion);
 
     const contenido = document.getElementById("contenido");
@@ -260,7 +415,54 @@ async function showSection(seccion) {
     }
 
     /*
+        Fase 5:
+        No permitir cargar vistas fuera del mapa oficial del sistema.
+        Esto evita llamadas manuales o accidentales a rutas no válidas.
+    */
+    if (!ironixSeccionEsValida(seccion)) {
+        console.warn("Sección inválida bloqueada:", seccion);
+        mostrarAccesoDenegado(seccion || "desconocida");
+        return;
+    }
+
+    /*
+        Fase 5:
+        Antes de cargar cualquier sección interna, verificamos que
+        la sesión PHP real siga activa.
+
+        Esto evita que se carguen vistas internas si:
+        - la sesión expiró por inactividad
+        - el usuario fue bloqueado/inactivado
+        - la cookie PHP ya no es válida
+    */
+    if (typeof verificarSesionInicialIronix === "function") {
+        const sesion = await verificarSesionInicialIronix();
+
+        if (!sesion.success || !sesion.auth) {
+            console.warn("No se puede cargar sección. Sesión inválida:", seccion);
+
+            window.IRONIX_SECCION_ACTUAL = null;
+
+            if (typeof forzarCierreSesionLocalIronix === "function") {
+                forzarCierreSesionLocalIronix(
+                    sesion.message || "Tu sesión expiró. Inicia sesión nuevamente."
+                );
+            } else if (typeof mostrarAuthIronix === "function") {
+                localStorage.removeItem("user");
+                window.IRONIX_SESION_PHP_VERIFICADA = false;
+                mostrarAuthIronix("login");
+            }
+
+            return;
+        }
+    }
+
+    window.IRONIX_SECCION_ACTUAL = seccion;
+
+    /*
         Bloqueo por permisos antes de cargar la vista.
+        Importante:
+        Este bloqueo usa los permisos ya actualizados por verificar_sesion.php.
     */
     if (!usuarioPuedeVerSeccion(seccion)) {
         console.warn("Acceso bloqueado por permisos:", seccion);
@@ -414,6 +616,10 @@ document.addEventListener("DOMContentLoaded", () => {
 function refrescarPermisosNavegacion() {
     setTimeout(() => {
         aplicarPermisosNavegacion();
+
+        if (typeof aplicarPermisosAccionesIronix === "function") {
+            aplicarPermisosAccionesIronix();
+        }
     }, 150);
 }
 

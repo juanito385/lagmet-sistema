@@ -73,6 +73,10 @@ async function verificarSesionInicialIronix() {
 
         if (!respuesta.ok || !datos.success || !datos.auth || !datos.user) {
             window.IRONIX_SESION_PHP_VERIFICADA = false;
+            window.IRONIX_DASHBOARD_INICIAL_CARGADO = false;
+            window.IRONIX_DASHBOARD_INICIAL_CARGANDO = false;
+            window.IRONIX_SECCION_ACTUAL = null;
+
             localStorage.removeItem("user");
 
             return {
@@ -91,10 +95,14 @@ async function verificarSesionInicialIronix() {
             user: datos.user
         };
 
-    } catch (error) {
+        } catch (error) {
         console.error("Error verificando sesión inicial:", error);
 
         window.IRONIX_SESION_PHP_VERIFICADA = false;
+        window.IRONIX_DASHBOARD_INICIAL_CARGADO = false;
+        window.IRONIX_DASHBOARD_INICIAL_CARGANDO = false;
+        window.IRONIX_SECCION_ACTUAL = null;
+
         localStorage.removeItem("user");
 
         return {
@@ -521,6 +529,131 @@ function configurarEnterAuthIronix() {
         }
     });
 }
+
+
+/* ===============================
+   PROTEGER HISTORIAL / BOTÓN ATRÁS
+================================ */
+
+function limpiarAppPorSesionInvalidaIronix(mensaje = "") {
+    window.IRONIX_SESION_PHP_VERIFICADA = false;
+
+    localStorage.removeItem("user");
+    document.body.classList.remove("usuario-logueado");
+
+    const app = document.getElementById("app");
+
+    if (app) {
+        app.style.setProperty("display", "none", "important");
+        app.style.setProperty("visibility", "hidden", "important");
+        app.style.setProperty("opacity", "0", "important");
+        app.style.setProperty("pointer-events", "none", "important");
+    }
+
+    const contenido = document.getElementById("contenido");
+
+    if (contenido) {
+        contenido.innerHTML = "";
+    }
+
+    const sidebarContainer = document.getElementById("sidebarContainer");
+
+    if (sidebarContainer) {
+        sidebarContainer.innerHTML = "";
+    }
+
+    const loaderSistema = document.getElementById("ironixLoaderSistema");
+
+    if (loaderSistema) {
+        loaderSistema.style.setProperty("display", "none", "important");
+        loaderSistema.style.setProperty("visibility", "hidden", "important");
+        loaderSistema.style.setProperty("opacity", "0", "important");
+        loaderSistema.style.setProperty("pointer-events", "none", "important");
+    }
+
+    if (typeof mostrarAuthIronix === "function") {
+        mostrarAuthIronix("login");
+    }
+
+    if (mensaje) {
+        const error = document.getElementById("error");
+
+        if (error) {
+            error.textContent = mensaje;
+        }
+    }
+}
+
+
+async function validarSesionPorHistorialIronix() {
+    if (window.IRONIX_VALIDANDO_HISTORIAL === true) {
+        return;
+    }
+
+    window.IRONIX_VALIDANDO_HISTORIAL = true;
+
+    try {
+        const usuarioLocal = localStorage.getItem("user");
+
+        if (!usuarioLocal || window.IRONIX_CERRANDO_SESION === true) {
+            limpiarAppPorSesionInvalidaIronix("");
+            return;
+        }
+
+        const sesion = await verificarSesionInicialIronix();
+
+        if (!sesion.success || !sesion.auth) {
+            if (typeof forzarCierreSesionLocalIronix === "function") {
+                forzarCierreSesionLocalIronix(
+                    sesion.message || "Tu sesión expiró. Inicia sesión nuevamente."
+                );
+            } else {
+                limpiarAppPorSesionInvalidaIronix(
+                    sesion.message || "Tu sesión expiró. Inicia sesión nuevamente."
+                );
+            }
+        }
+
+    } catch (error) {
+        console.error("Error validando sesión por historial:", error);
+
+        limpiarAppPorSesionInvalidaIronix(
+            "No se pudo validar la sesión. Inicia sesión nuevamente."
+        );
+
+    } finally {
+        window.IRONIX_VALIDANDO_HISTORIAL = false;
+    }
+}
+
+
+(function configurarProteccionHistorialAuthIronix() {
+    if (window.IRONIX_PROTECCION_HISTORIAL_INSTALADA === true) {
+        return;
+    }
+
+    window.IRONIX_PROTECCION_HISTORIAL_INSTALADA = true;
+
+    window.addEventListener("pageshow", function (evento) {
+        let esNavegacionBackForward = false;
+
+        try {
+            const navegacion = performance.getEntriesByType("navigation")[0];
+
+            esNavegacionBackForward = !!(
+                evento.persisted === true ||
+                navegacion?.type === "back_forward"
+            );
+
+        } catch (error) {
+            esNavegacionBackForward = evento.persisted === true;
+        }
+
+        if (esNavegacionBackForward) {
+            validarSesionPorHistorialIronix();
+        }
+    });
+})();
 
 
 /* ===============================

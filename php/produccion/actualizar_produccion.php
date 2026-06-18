@@ -9,31 +9,35 @@ header('Content-Type: application/json; charset=utf-8');
 require_once __DIR__ . "/../auth/guard.php";
 
 /* =========================
-   GUARD BACKEND - FASE 4
+   GUARD BACKEND - FASE 5
 ========================= */
 
 ironixRequerirMetodo("POST");
-ironixRequerirPermiso("productos", "editar");
 
+/*
+    Fase 5:
+    Este endpoint actualiza un registro existente de producción/producto.
+
+    Puede ser usado desde:
+    - Productos, al presionar editar.
+    - Monitoreo, porque el formulario de edición se carga en esa sección.
+    - Producción, como capa lógica del backend.
+
+    Para actualizar un registro existente, el usuario debe tener permiso
+    de edición/guardado en alguna de esas secciones.
+*/
+
+if (
+    !ironixTienePermiso("productos", "editar") &&
+    !ironixTienePermiso("monitoreo", "editar") &&
+    !ironixTienePermiso("produccion", "editar") &&
+    !ironixTienePermiso("produccion", "guardar")
+) {
+    ironixResponderSinPermisos("No tienes permisos para actualizar producción");
+}
 
 require_once __DIR__ . "/../conexion.php";
 require_once __DIR__ . "/../gantt/version_gantt.php";
-
-
-/* =========================
-   VALIDAR MÉTODO
-========================= */
-
-if ($_SERVER["REQUEST_METHOD"] !== "POST") {
-    http_response_code(405);
-
-    echo json_encode([
-        "success" => false,
-        "message" => "Método no permitido"
-    ]);
-
-    exit;
-}
 
 
 /* =========================

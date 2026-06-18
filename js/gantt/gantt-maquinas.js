@@ -709,6 +709,48 @@ function generarSabadosHabilitadosGlobalGantt(maquinas, minFecha, totalDias, anc
         `)
         .join("");
 }
+/* =========================
+   LOADING GANTT POR MÁQUINA
+========================= */
+
+function renderLoadingGanttMaquina(cont, sidebar) {
+    if (sidebar) {
+        sidebar.innerHTML = `
+            <div class="gantt-side-head machine-mode">
+                <strong>Máquina</strong>
+                <strong>Operador</strong>
+            </div>
+
+            <div class="gantt-side-row machine-mode">
+                <div class="gantt-side-producto">
+                    <span class="gantt-color-dot machine-dot"></span>
+                    <div class="gantt-machine-name-block">
+                        <strong class="gantt-machine-name-text">Cargando...</strong>
+                        <small class="gantt-machine-count-text">Preparando datos</small>
+                    </div>
+                </div>
+
+                <div>...</div>
+            </div>
+        `;
+    }
+
+    if (cont) {
+        cont.innerHTML = `
+            <div class="gantt-machine-loading">
+                <div style="
+                    padding: 18px;
+                    color: #ffffff;
+                    font-weight: 700;
+                    opacity: 0.85;
+                ">
+                    Cargando Carta Gantt...
+                </div>
+            </div>
+        `;
+    }
+}
+
 
 /* =========================
    MOSTRAR GANTT POR MÁQUINA

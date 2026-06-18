@@ -201,19 +201,36 @@ if (!function_exists("ironixCerrarSesion")) {
 /* =========================
    VALIDAR EXPIRACIÓN DE SESIÓN
 ========================= */
-
 if (!function_exists("ironixValidarSesionActiva")) {
     function ironixValidarSesionActiva()
     {
-        if (!isset($_SESSION["ironix_usuario_id"])) {
+        $usuarioId = intval($_SESSION["ironix_usuario_id"] ?? 0);
+
+        if ($usuarioId <= 0) {
+            ironixCerrarSesion();
             return false;
         }
 
-        if (!isset($_SESSION["ironix_ultima_actividad"])) {
+        $estadoSesion = strtolower(trim($_SESSION["ironix_usuario_estado"] ?? "activa"));
+
+        /*
+            Fase 5:
+            Si la sesión ya fue marcada como bloqueada, inactiva o inválida,
+            no debe seguir pasando como sesión válida.
+        */
+        if ($estadoSesion !== "activa") {
+            ironixCerrarSesion();
             return false;
         }
 
-        $tiempoInactivo = time() - intval($_SESSION["ironix_ultima_actividad"]);
+        $ultimaActividad = intval($_SESSION["ironix_ultima_actividad"] ?? 0);
+
+        if ($ultimaActividad <= 0) {
+            ironixCerrarSesion();
+            return false;
+        }
+
+        $tiempoInactivo = time() - $ultimaActividad;
 
         if ($tiempoInactivo > IRONIX_SESSION_TIMEOUT) {
             ironixCerrarSesion();
@@ -251,10 +268,10 @@ if (!function_exists("ironixCrearSesionUsuario")) {
         session_regenerate_id(true);
 
         $_SESSION["ironix_usuario_id"] = intval($usuario["id"] ?? 0);
-        $_SESSION["ironix_usuario_nombre"] = $usuario["nombre"] ?? "";
-        $_SESSION["ironix_usuario_correo"] = $usuario["correo"] ?? "";
-        $_SESSION["ironix_usuario_rol"] = $usuario["rol"] ?? "usuario";
-        $_SESSION["ironix_usuario_estado"] = $usuario["estado"] ?? "activa";
+        $_SESSION["ironix_usuario_nombre"] = trim($usuario["nombre"] ?? "");
+        $_SESSION["ironix_usuario_correo"] = trim($usuario["correo"] ?? "");
+        $_SESSION["ironix_usuario_rol"] = strtolower(trim($usuario["rol"] ?? "usuario"));
+        $_SESSION["ironix_usuario_estado"] = strtolower(trim($usuario["estado"] ?? "activa"));
         $_SESSION["ironix_ultima_actividad"] = time();
 
         /*
@@ -327,16 +344,19 @@ if (!function_exists("ironixRequerirSesion")) {
 if (!function_exists("ironixUsuarioEsAdmin")) {
     function ironixUsuarioEsAdmin()
     {
-        return isset($_SESSION["ironix_usuario_rol"])
-            && $_SESSION["ironix_usuario_rol"] === "admin";
+        if (!ironixValidarSesionActiva()) {
+            return false;
+        }
+
+        $rolActual = strtolower(trim($_SESSION["ironix_usuario_rol"] ?? ""));
+
+        return $rolActual === "admin";
     }
 }
-
 
 /* =========================
    GUARD - REQUERIR ROL
 ========================= */
-
 if (!function_exists("ironixRequerirRol")) {
     function ironixRequerirRol($rolesPermitidos)
     {
@@ -346,9 +366,13 @@ if (!function_exists("ironixRequerirRol")) {
             $rolesPermitidos = [$rolesPermitidos];
         }
 
-        $rolActual = $_SESSION["ironix_usuario_rol"] ?? "usuario";
+        $rolesNormalizados = array_map(function ($rol) {
+            return strtolower(trim((string) $rol));
+        }, $rolesPermitidos);
 
-        if (!in_array($rolActual, $rolesPermitidos, true)) {
+        $rolActual = strtolower(trim($_SESSION["ironix_usuario_rol"] ?? "usuario"));
+
+        if (!in_array($rolActual, $rolesNormalizados, true)) {
             ironixResponderSinPermisos("Tu rol no tiene acceso a esta acción");
         }
 

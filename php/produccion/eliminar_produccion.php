@@ -7,11 +7,29 @@
 require_once __DIR__ . "/../auth/guard.php";
 
 /* =========================
-   GUARD BACKEND - FASE 4
+   GUARD BACKEND - FASE 5
 ========================= */
 
 ironixRequerirMetodo("POST");
-ironixRequerirPermiso("productos", "eliminar");
+
+/*
+    Fase 5:
+    Este endpoint elimina un registro existente de producción/producto.
+
+    Puede ser usado desde:
+    - Productos, al presionar eliminar.
+    - Producción, como capa lógica del backend.
+
+    Para eliminar un registro, el usuario debe tener permiso explícito
+    de eliminación en Productos o Producción.
+*/
+
+if (
+    !ironixTienePermiso("productos", "eliminar") &&
+    !ironixTienePermiso("produccion", "eliminar")
+) {
+    ironixResponderSinPermisos("No tienes permisos para eliminar producción");
+}
 
 
 require_once __DIR__ . "/../conexion.php";
@@ -162,7 +180,7 @@ try {
         "message" => "Registro eliminado correctamente"
     ], 200);
 
-    } catch (Exception $e) {
+} catch (Exception $e) {
 
     $conn->rollback();
     $conn->close();
