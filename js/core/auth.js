@@ -158,12 +158,14 @@ async function iniciarApp(cargarDashboard = false) {
         app.style.setProperty("display", "block", "important");
         app.style.setProperty("visibility", "visible", "important");
         app.style.setProperty("opacity", "1", "important");
+        app.style.setProperty("pointer-events", "auto", "important");
     }
 
     if (contenido) {
         contenido.style.setProperty("display", "block", "important");
         contenido.style.setProperty("visibility", "visible", "important");
         contenido.style.setProperty("opacity", "1", "important");
+        contenido.style.setProperty("pointer-events", "auto", "important");
     }
 
     /*

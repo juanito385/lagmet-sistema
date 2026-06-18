@@ -248,6 +248,7 @@ window.volverAlLogin = mostrarLoginIronix;
 function mostrarAppIronix() {
     const authContainer = document.getElementById("authContainer");
     const app = document.getElementById("app");
+    const contenido = document.getElementById("contenido");
 
     document.body.classList.add("usuario-logueado");
 
@@ -263,6 +264,13 @@ function mostrarAppIronix() {
         app.style.setProperty("visibility", "visible", "important");
         app.style.setProperty("opacity", "1", "important");
         app.style.setProperty("pointer-events", "auto", "important");
+    }
+
+    if (contenido) {
+        contenido.style.setProperty("display", "block", "important");
+        contenido.style.setProperty("visibility", "visible", "important");
+        contenido.style.setProperty("opacity", "1", "important");
+        contenido.style.setProperty("pointer-events", "auto", "important");
     }
 }
 
@@ -534,12 +542,20 @@ function configurarEnterAuthIronix() {
 /* ===============================
    PROTEGER HISTORIAL / BOTÓN ATRÁS
 ================================ */
-
 function limpiarAppPorSesionInvalidaIronix(mensaje = "") {
     window.IRONIX_SESION_PHP_VERIFICADA = false;
+    window.IRONIX_DASHBOARD_INICIAL_CARGADO = false;
+    window.IRONIX_DASHBOARD_INICIAL_CARGANDO = false;
+    window.IRONIX_SECCION_ACTUAL = null;
 
     localStorage.removeItem("user");
     document.body.classList.remove("usuario-logueado");
+
+    document.querySelectorAll(".menu button.active")
+        .forEach(boton => boton.classList.remove("active"));
+
+    document.querySelectorAll(".section.active")
+        .forEach(seccion => seccion.classList.remove("active"));
 
     const app = document.getElementById("app");
 
