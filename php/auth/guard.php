@@ -346,7 +346,7 @@ try {
 
         ironixResponderNoAutorizado("Usuario no encontrado o sesión inválida");
     }
-
+ 
     $usuarioBD = $resultUsuario->fetch_assoc();
 
     $stmtUsuario->close();
@@ -387,6 +387,7 @@ try {
     }
 
     $_SESSION["ironix_usuario_permisos"] = $IRONIX_PERMISOS_USUARIO;
+    $_SESSION["ironix_ultima_actividad"] = time();
 
 } catch (Throwable $e) {
 
